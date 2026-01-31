@@ -1,7 +1,7 @@
 from groq import Groq
 import os
 
-key = os.getenv("GROQ_API_KEY", "")
+key = os.getenv("GROQ_API_KEY")
 try:
     client = Groq(api_key=key)
     response = client.chat.completions.create(

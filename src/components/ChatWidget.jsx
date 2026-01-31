@@ -138,21 +138,21 @@ const ChatWidget = ({ reportData }) => {
     }
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] flex flex-col items-end">
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 rounded-full shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-105 group relative"
                 >
                     <Sparkles className="w-6 h-6 text-white animate-pulse" />
-                    <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-3 py-1.5 rounded-xl shadow-lg font-bold text-sm opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none">
+                    <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-3 py-1.5 rounded-xl shadow-lg font-bold text-sm opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none hidden md:block">
                         Ask Astra AI
                     </span>
                 </button>
             )}
 
             {isOpen && (
-                <div className="bg-white rounded-2xl shadow-2xl border border-purple-100 w-[350px] md:w-[400px] h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+                <div className="bg-white rounded-2xl shadow-2xl border border-purple-100 w-[calc(100vw-2rem)] md:w-[400px] h-[70vh] md:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 flex justify-between items-center text-white shrink-0">
                         <div className="flex items-center gap-3">

@@ -208,24 +208,24 @@ const VedicChartsDisplay = ({ userData }) => {
     return (
         <div className="space-y-6">
             {/* Style Toggle */}
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-2 md:gap-4 px-2">
                 <button
                     onClick={() => setChartStyle('north')}
-                    className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${chartStyle === 'north'
+                    className={`flex-1 md:flex-none px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all ${chartStyle === 'north'
                         ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                 >
-                    North Indian Style
+                    North Indian
                 </button>
                 <button
                     onClick={() => setChartStyle('south')}
-                    className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${chartStyle === 'south'
+                    className={`flex-1 md:flex-none px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all ${chartStyle === 'south'
                         ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                 >
-                    South Indian Style
+                    South Indian
                 </button>
             </div>
 
@@ -511,16 +511,34 @@ const ConsolidatedReport = () => {
     }
 
     return (
-        <div className="min-h-screen pb-20 pt-10 px-4 max-w-7xl mx-auto space-y-8 relative animate-fade-in">
+        <div className="min-h-screen pb-20 pt-10 px-0 md:px-4 max-w-7xl mx-auto space-y-8 relative animate-fade-in">
             <ChatWidget reportData={report} />
 
             {/* Header */}
-            <div className="text-center space-y-4 relative">
-                <div className="absolute top-0 right-4 hidden md:block">
+            <div className="text-center space-y-4 px-4 relative">
+                <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 md:gap-0 mb-6">
+                    <div className="hidden md:block w-32"></div> {/* Spacer for center alignment */}
+
+                    <div className="flex flex-col items-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 mb-4 shadow-sm">
+                            <Sparkles className="w-4 h-4 text-purple-600" />
+                            <span className="text-[10px] md:text-xs font-bold text-purple-700 uppercase tracking-widest">{t('report.header.premium_profile')}</span>
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-black text-primary mb-2 tracking-tighter">
+                            {report.profile?.name}
+                        </h1>
+                        <p className="text-sm md:text-xl text-secondary font-medium">
+                            {report.profile?.dob} • {report.profile?.tob}
+                        </p>
+                        <p className="text-xs md:text-base text-secondary/70">
+                            {report.profile?.place}
+                        </p>
+                    </div>
+
                     <button
                         onClick={handleDownloadPDF}
                         disabled={downloading}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm transition-all disabled:opacity-50 shadow-md"
+                        className="flex items-center gap-2 px-6 py-3 md:px-4 md:py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm transition-all disabled:opacity-50 shadow-lg md:shadow-md w-full md:w-auto mt-4 md:mt-0"
                     >
                         {downloading ? (
                             <>{t('report.status.downloading')}</>
@@ -529,56 +547,47 @@ const ConsolidatedReport = () => {
                         )}
                     </button>
                 </div>
+            </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 mb-4 shadow-sm">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    <span className="text-xs font-bold text-purple-700 uppercase tracking-widest">{t('report.header.premium_profile')}</span>
+            {/* Tabs - Mobile Scrollable */}
+            <div className="sticky top-20 z-40 bg-background/80 backdrop-blur-md border-b border-gray-200">
+                <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center gap-2 md:gap-8 px-4 md:px-0 scroll-smooth">
+                    <button
+                        onClick={() => setActiveTab('vedic')}
+                        className={`flex-none px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 whitespace-nowrap ${activeTab === 'vedic' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
+                    >
+                        <Scroll className={`w-4 h-4 transition-colors ${activeTab === 'vedic' ? 'text-purple-600' : 'text-slate-400'}`} />
+                        {t('report.tabs.vedic', 'Vedic Astrology')}
+                        {activeTab === 'vedic' && <div className="absolute bottom-0 left-0 w-full h-1 bg-purple-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(147,51,234,0.3)]"></div>}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('career')}
+                        className={`flex-none px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 whitespace-nowrap ${activeTab === 'career' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
+                    >
+                        <Briefcase className={`w-4 h-4 transition-colors ${activeTab === 'career' ? 'text-amber-600' : 'text-slate-400'}`} />
+                        {t('report.tabs.career', 'Career')}
+                        {activeTab === 'career' && <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('numerology')}
+                        className={`flex-none px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 whitespace-nowrap ${activeTab === 'numerology' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
+                    >
+                        <Activity className={`w-4 h-4 transition-colors ${activeTab === 'numerology' ? 'text-pink-600' : 'text-slate-400'}`} />
+                        {t('report.tabs.numerology', 'Numerology')}
+                        {activeTab === 'numerology' && <div className="absolute bottom-0 left-0 w-full h-1 bg-pink-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(219,39,119,0.3)]"></div>}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('locational')}
+                        className={`flex-none px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 whitespace-nowrap ${activeTab === 'locational' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
+                    >
+                        <MapPin className={`w-4 h-4 transition-colors ${activeTab === 'locational' ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        {t('report.tabs.locational')}
+                        {activeTab === 'locational' && <div className="absolute bottom-0 left-0 w-full h-1 bg-emerald-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(5,150,105,0.3)]"></div>}
+                    </button>
                 </div>
-                <h1 className="text-4xl md:text-6xl font-black text-primary mb-2 tracking-tighter">
-                    {report.profile?.name}
-                </h1>
-                <p className="text-lg md:text-xl text-secondary font-medium">
-                    {report.profile?.dob} • {report.profile?.tob} • {report.profile?.place}
-                </p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex justify-center gap-2 md:gap-8 border-b border-gray-200 pb-1 flex-wrap px-4">
-                <button
-                    onClick={() => setActiveTab('vedic')}
-                    className={`px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 ${activeTab === 'vedic' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
-                >
-                    <Scroll className={`w-4 h-4 transition-colors ${activeTab === 'vedic' ? 'text-purple-600' : 'text-slate-400'}`} />
-                    {t('report.tabs.vedic', 'Vedic Astrology')}
-                    {activeTab === 'vedic' && <div className="absolute bottom-[-5px] left-0 w-full h-1 bg-purple-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(147,51,234,0.3)]"></div>}
-                </button>
-                <button
-                    onClick={() => setActiveTab('career')}
-                    className={`px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 ${activeTab === 'career' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
-                >
-                    <Briefcase className={`w-4 h-4 transition-colors ${activeTab === 'career' ? 'text-amber-600' : 'text-slate-400'}`} />
-                    {t('report.tabs.career', 'Career')}
-                    {activeTab === 'career' && <div className="absolute bottom-[-5px] left-0 w-full h-1 bg-amber-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>}
-                </button>
-                <button
-                    onClick={() => setActiveTab('numerology')}
-                    className={`px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 ${activeTab === 'numerology' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
-                >
-                    <Activity className={`w-4 h-4 transition-colors ${activeTab === 'numerology' ? 'text-pink-600' : 'text-slate-400'}`} />
-                    {t('report.tabs.numerology', 'Numerology')}
-                    {activeTab === 'numerology' && <div className="absolute bottom-[-5px] left-0 w-full h-1 bg-pink-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(219,39,119,0.3)]"></div>}
-                </button>
-                <button
-                    onClick={() => setActiveTab('locational')}
-                    className={`px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 ${activeTab === 'locational' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
-                >
-                    <MapPin className={`w-4 h-4 transition-colors ${activeTab === 'locational' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                    {t('report.tabs.locational')}
-                    {activeTab === 'locational' && <div className="absolute bottom-[-5px] left-0 w-full h-1 bg-emerald-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(5,150,105,0.3)]"></div>}
-                </button>
-            </div>
-
-            <div id="report-content" className="space-y-12 p-4"> {/* Wrapper for PDF capture */}
+            <div id="report-content" className="space-y-12 px-2 md:px-4 pb-12"> {/* Wrapper for PDF capture */}
 
                 {/* VEDIC TAB (Previously Overview) */}
                 {activeTab === 'vedic' && (
@@ -809,21 +818,46 @@ const ConsolidatedReport = () => {
 
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                         {/* Left Column: Planetary Table */}
-                                        <div className="space-y-2">
-                                            <div className="grid grid-cols-4 text-xs font-bold text-secondary uppercase pb-2 border-b border-gray-100">
-                                                <span>Planet</span>
-                                                <span>Sign</span>
-                                                <span>Star</span>
-                                                <span>Sub</span>
+                                        <div className="space-y-4">
+                                            {/* Mobile View Cards */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-primary">{p.planet}</span>
+                                                            <span className="text-[10px] text-secondary uppercase">{p.sign.substring(0, 3)}</span>
+                                                        </div>
+                                                        <div className="flex gap-4 text-right">
+                                                            <div>
+                                                                <div className="text-[9px] text-secondary uppercase font-bold tracking-widest">Star</div>
+                                                                <div className="text-[11px] font-bold text-emerald-700">{p.star_lord}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-[9px] text-secondary uppercase font-bold tracking-widest">Sub</div>
+                                                                <div className="text-[11px] font-bold text-amber-700">{p.sub_lord}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
-                                                    <span className="text-primary font-bold">{p.planet}</span>
-                                                    <span className="text-secondary text-xs">{p.sign.substring(0, 3)}</span>
-                                                    <span className="text-emerald-700 font-medium text-xs">{p.star_lord}</span>
-                                                    <span className="text-amber-700 font-medium text-xs">{p.sub_lord}</span>
+
+                                            {/* Desktop View Table */}
+                                            <div className="hidden lg:block space-y-2">
+                                                <div className="grid grid-cols-4 text-xs font-bold text-secondary uppercase pb-2 border-b border-gray-100">
+                                                    <span>Planet</span>
+                                                    <span>Sign</span>
+                                                    <span>Star</span>
+                                                    <span>Sub</span>
                                                 </div>
-                                            ))}
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
+                                                        <span className="text-primary font-bold">{p.planet}</span>
+                                                        <span className="text-secondary text-xs">{p.sign.substring(0, 3)}</span>
+                                                        <span className="text-emerald-700 font-medium text-xs">{p.star_lord}</span>
+                                                        <span className="text-amber-700 font-medium text-xs">{p.sub_lord}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
 
                                         {/* Right Column: Easy English Analysis */}
@@ -989,7 +1023,7 @@ const ConsolidatedReport = () => {
 
                                         {/* 1. The Foundation: Birth Chart Analysis */}
                                         {report.vedic_astrology.ai_summary.personality_analysis && (
-                                            <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
+                                            <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
                                                 <div className="absolute top-0 right-0 p-6 opacity-10">
                                                     <Scroll className="w-32 h-32 text-indigo-600" />
                                                 </div>
@@ -1078,7 +1112,7 @@ const ConsolidatedReport = () => {
                                                     <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Career & Wealth</h3>
                                                 </div>
 
-                                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-amber-50/30 border border-amber-100 shadow-xl relative overflow-hidden group">
+                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-amber-50/30 border border-amber-100 shadow-xl relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
                                                         <Briefcase className="w-40 h-40 text-amber-600" />
                                                     </div>
@@ -1113,7 +1147,7 @@ const ConsolidatedReport = () => {
                                                     <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Marriage & Relationships</h3>
                                                 </div>
 
-                                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
+                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
                                                         <Heart className="w-40 h-40 text-pink-600" />
                                                     </div>
@@ -1171,7 +1205,7 @@ const ConsolidatedReport = () => {
                                                     <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Monthly Transit Pulse</h3>
                                                 </div>
 
-                                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-blue-50/20 border border-blue-100 shadow-xl relative overflow-hidden group">
+                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-blue-50/20 border border-blue-100 shadow-xl relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
                                                         <Globe className="w-40 h-40 text-blue-600" />
                                                     </div>
@@ -1229,7 +1263,7 @@ const ConsolidatedReport = () => {
                                                     <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
                                                 </div>
 
-                                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-rose-50/20 border border-rose-100 shadow-xl relative overflow-hidden group">
+                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-rose-50/20 border border-rose-100 shadow-xl relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
                                                         <ShieldAlert className="w-40 h-40 text-rose-600" />
                                                     </div>
@@ -1263,7 +1297,7 @@ const ConsolidatedReport = () => {
                                                     </div>
                                                     <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Soul Remedies & Alignment</h3>
                                                 </div>
-                                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-emerald-50/20 border border-emerald-100 shadow-xl relative overflow-hidden group">
+                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-emerald-50/20 border border-emerald-100 shadow-xl relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
                                                         <Leaf className="w-40 h-40 text-emerald-600" />
                                                     </div>
@@ -1348,7 +1382,7 @@ const ConsolidatedReport = () => {
                                     </>
                                 ) : (
                                     /* Legacy String Fallback */
-                                    <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
+                                    <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
                                         <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
                                             {report.vedic_astrology.ai_summary}
                                         </p>
@@ -1375,7 +1409,49 @@ const ConsolidatedReport = () => {
                                             </div>
                                         </div>
 
-                                        <div className="overflow-x-auto">
+                                        <div className="block lg:hidden space-y-4">
+                                            {report.vedic_astrology?.planets?.map((p, idx) => (
+                                                <div key={idx} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-primary">{p.name}</span>
+                                                            <span className="text-[10px] text-secondary uppercase font-black">{p.sanskrit_name}</span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
+                                                            {p.dignity?.status !== 'Neutral' ? (
+                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
+                                                                    p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-500' :
+                                                                        'bg-red-500/20 text-red-500'
+                                                                    }`}>
+                                                                    {p.dignity?.status}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[9px] text-slate-400 uppercase font-black">Neutral</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50">
+                                                        <div>
+                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
+                                                            <div className="text-xs font-bold text-primary">{p.house}</div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
+                                                            <div className="text-xs font-bold text-primary">{p.sign}</div>
+                                                        </div>
+                                                    </div>
+                                                    {p.nakshatra && (
+                                                        <div className="pt-2 border-t border-gray-200/50">
+                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
+                                                            <div className="text-xs font-medium text-amber-800 italic">{p.nakshatra.name}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="hidden lg:block overflow-x-auto">
                                             <table className="w-full text-left">
                                                 <thead>
                                                     <tr className="border-b border-gray-100">
@@ -1459,7 +1535,7 @@ const ConsolidatedReport = () => {
                             </div>
 
                             {/* Graha Insights - Full Width & Non-Scrollable */}
-                            <div className="mt-12 glass-panel p-8 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
+                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
@@ -1467,8 +1543,8 @@ const ConsolidatedReport = () => {
                                             <Scroll className="w-7 h-7 text-amber-600" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
-                                            <p className="text-amber-600/60 text-xs font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence Analysis</p>
+                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
+                                            <p className="text-amber-600/60 text-[10px] font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
                                         </div>
                                     </div>
 
@@ -1505,9 +1581,8 @@ const ConsolidatedReport = () => {
                             </div>
 
 
-
                             {/* Dosha Awareness Section */}
-                            <div className="mt-12 glass-panel p-8 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
+                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
@@ -1515,12 +1590,55 @@ const ConsolidatedReport = () => {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 w-7 h-7"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></svg>
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
-                                            <p className="text-red-900/60 text-xs font-bold uppercase tracking-widest mt-1">Critical Planetary Flaws & Remedies</p>
+                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
+                                            <p className="text-red-900/60 text-[10px] font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
                                         </div>
                                     </div>
 
-                                    <div className="overflow-x-auto -mx-4 md:mx-0">
+                                    <div className="md:hidden space-y-4">
+                                        {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
+                                            const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                            const isPresent = data.present;
+                                            return (
+                                                <div key={key} className={`p-5 rounded-3xl border transition-all ${isPresent ? 'bg-rose-50 border-rose-100 shadow-md' : 'bg-emerald-50 border-emerald-100 opacity-80'}`}>
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isPresent ? 'bg-rose-100 border-rose-200 text-rose-600' : 'bg-emerald-100 border-emerald-200 text-emerald-600'}`}>
+                                                            {isPresent ? <ShieldAlert className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
+                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1 ${isPresent ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'}`}>
+                                                                {isPresent ? 'Present' : 'Absent'}
+                                                            </div>
+                                                        </div>
+                                                        {isPresent && (
+                                                            <div className="text-right">
+                                                                <div className="text-[9px] text-rose-600 uppercase font-black tracking-widest mb-1">Intensity</div>
+                                                                <div className="text-xs font-black text-rose-700">{data.intensity}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {isPresent && (
+                                                        <div className="bg-white/60 p-3 rounded-xl border border-rose-200/50 mb-3">
+                                                            <p className="text-[10px] text-rose-800 font-bold leading-tight italic">
+                                                                {data.reason}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="space-y-1">
+                                                        <div className="text-[9px] text-slate-400 uppercase font-black tracking-widest">Remedy</div>
+                                                        <p className={`text-xs leading-relaxed ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-500 italic'}`}>
+                                                            {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required.')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="hidden md:block overflow-x-auto -mx-4 md:mx-0">
                                         <table className="w-full border-separate border-spacing-y-3">
                                             <thead>
                                                 <tr className="text-[10px] text-slate-400 uppercase tracking-widest font-black">
@@ -1596,7 +1714,7 @@ const ConsolidatedReport = () => {
                             </div>
 
                             {/* Dasha Timeline Section */}
-                            <div className="mt-12 glass-panel p-8 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
+                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-4 mb-8">
@@ -1604,37 +1722,37 @@ const ConsolidatedReport = () => {
                                             <Activity className="w-7 h-7 text-indigo-600" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha Timeline</h3>
-                                            <p className="text-indigo-600/60 text-xs font-bold uppercase tracking-widest mt-1">Your Major Life Cycles & Evolutionary Timing</p>
+                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
+                                            <p className="text-indigo-600/60 text-[10px] font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
                                         </div>
                                     </div>
 
                                     {/* Active Period Highlight Card */}
                                     {report.vedic_astrology?.dasha?.active_mahadasha && (
-                                        <div className="mb-8 p-8 rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
+                                        <div className="mb-8 p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
                                             {/* Cosmic Background Effect */}
                                             <div className="absolute inset-0 opacity-20">
                                                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-300 transition-colors duration-1000"></div>
                                                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
                                             </div>
 
-                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                                                <div className="flex items-center gap-6">
-                                                    <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner">
-                                                        <span className="text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
+                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                                                <div className="flex items-center gap-4 md:gap-6">
+                                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
+                                                        <span className="text-2xl md:text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
-                                                            <span className="text-indigo-200 text-xs font-bold uppercase tracking-[0.2em]">Current Cosmic Cycle</span>
+                                                            <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-[0.2em]">Current Cycle</span>
                                                         </div>
-                                                        <h3 className="text-3xl md:text-4xl font-serif italic">
+                                                        <h3 className="text-2xl md:text-4xl font-serif italic">
                                                             {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
                                                         </h3>
                                                         {report.vedic_astrology.dasha.active_antardasha && (
-                                                            <p className="text-indigo-200 mt-2 font-medium flex items-center gap-2">
+                                                            <p className="text-indigo-200 mt-1 md:mt-2 text-sm font-medium flex items-center gap-2">
                                                                 <span className="w-1.5 h-1.5 rounded-full bg-white/50"></span>
-                                                                Running {report.vedic_astrology.dasha.active_antardasha} Antardasha (Sub-period)
+                                                                {report.vedic_astrology.dasha.active_antardasha} Bhukti
                                                             </p>
                                                         )}
                                                     </div>
@@ -1649,7 +1767,40 @@ const ConsolidatedReport = () => {
                                         </div>
                                     )}
 
-                                    <div className="overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                                    {/* Mobile Card View */}
+                                    <div className="md:hidden space-y-3">
+                                        {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
+                                            <div key={i} className={`p-4 rounded-2xl border transition-all ${d.is_active ? 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-200' : 'bg-white border-indigo-50 shadow-sm'}`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${d.is_active ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                            {d.planet.substring(0, 2)}
+                                                        </div>
+                                                        <span className="font-bold text-slate-900 text-sm">{d.planet}</span>
+                                                    </div>
+                                                    {d.is_active && (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-600 text-white uppercase tracking-widest animate-pulse">
+                                                            Active
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex justify-between items-center text-[10px]">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">Start</span>
+                                                        <span className="text-slate-700 font-bold">{d.start}</span>
+                                                    </div>
+                                                    <div className="w-8 h-px bg-slate-100"></div>
+                                                    <div className="flex flex-col text-right">
+                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">End</span>
+                                                        <span className="text-slate-700 font-bold">{d.end}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Desktop Table View */}
+                                    <div className="hidden md:block overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
                                         <table className="w-full text-left">
                                             <thead>
                                                 <tr className="bg-indigo-50/50">
@@ -1718,12 +1869,12 @@ const ConsolidatedReport = () => {
                                                     <Briefcase className="w-8 h-8 text-amber-600" />
                                                 </div>
                                                 <div>
-                                                    <h2 className="text-3xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Career & Financial Growth</h2>
-                                                    <p className="text-amber-600 text-xs font-black uppercase tracking-[0.3em]">AI Professional Destiny Analysis</p>
+                                                    <h2 className="text-2xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Career & Finance</h2>
+                                                    <p className="text-amber-600 text-[10px] font-black uppercase tracking-[0.3em]">Professional Destiny Analysis</p>
                                                 </div>
                                             </div>
 
-                                            <div className="glass-panel p-8 md:p-12 rounded-[3rem] bg-amber-50/30 border border-amber-100 shadow-2xl relative overflow-hidden group">
+                                            <div className="glass-panel p-5 md:p-12 rounded-[3rem] bg-amber-50/30 border border-amber-100 shadow-2xl relative overflow-hidden group">
                                                 <div className="absolute top-0 right-0 p-12 opacity-5 transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-12">
                                                     <Briefcase className="w-64 h-64 text-amber-600" />
                                                 </div>
@@ -1897,7 +2048,7 @@ const ConsolidatedReport = () => {
                         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {/* AI Executive Summary (Moved Here) */}
                             {(report.numerology || report.predictions_summary) && (
-                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden group bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-xl">
+                                <div className="glass-panel p-5 md:p-12 rounded-[2.5rem] relative overflow-hidden group bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-xl">
                                     <div className="absolute inset-0 bg-white/10 opacity-50 mix-blend-overlay"></div>
                                     <div className="relative z-10 space-y-6">
                                         <div className="flex items-center gap-4 mb-4">
@@ -1905,8 +2056,8 @@ const ConsolidatedReport = () => {
                                                 <Brain className="w-7 h-7 text-white" />
                                             </div>
                                             <div>
-                                                <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
-                                                <p className="text-purple-100 text-[10px] uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
+                                                <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
+                                                <p className="text-purple-100 text-[9px] uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
                                             </div>
                                         </div>
                                         <div className="prose prose-invert max-w-none">
@@ -1922,7 +2073,7 @@ const ConsolidatedReport = () => {
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                                 {/* Numerology Card */}
                                 {report.numerology && (
-                                    <div className="glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl h-full">
+                                    <div className="glass-panel p-5 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl h-full">
                                         <div className="absolute top-0 right-0 p-6 opacity-5">
                                             <Activity className="w-32 h-32 text-primary" />
                                         </div>

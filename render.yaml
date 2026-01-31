@@ -21,10 +21,11 @@ services:
         sync: false
 
   # --- Frontend (Vite Static Site) ---
-  - type: static_site
+  - type: web
     name: astropinch-app
+    runtime: static
     buildCommand: npm install && npm run build
-    publishDir: ./dist
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
         value: https://astropinch-api.onrender.com # Adjust this if your service name differs

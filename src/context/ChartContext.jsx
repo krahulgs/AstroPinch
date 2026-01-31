@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { API_BASE_URL } from '../api/config';
 
 const ChartContext = createContext();
 
@@ -48,37 +49,37 @@ export const ChartProvider = ({ children }) => {
 
             // Fetch all data in parallel
             const [dataRes, svgRes, lunarRes, kundaliRes, analysisRes, predRes, numRes] = await Promise.all([
-                fetch('http://127.0.0.1:8000/api/chart', {
+                fetch(`${API_BASE_URL}/api/chart`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/chart/svg', {
+                fetch(`${API_BASE_URL}/api/chart/svg`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/chart/svg/lunar', {
+                fetch(`${API_BASE_URL}/api/chart/svg/lunar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/chart/svg/kundali', {
+                fetch(`${API_BASE_URL}/api/chart/svg/kundali`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/chart/analysis', {
+                fetch(`${API_BASE_URL}/api/chart/analysis`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/predictions/best', {
+                fetch(`${API_BASE_URL}/api/predictions/best`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }),
-                fetch('http://127.0.0.1:8000/api/numerology', {
+                fetch(`${API_BASE_URL}/api/numerology`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),

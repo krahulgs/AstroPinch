@@ -3,6 +3,7 @@ import { useChart } from '../context/ChartContext';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home } from 'lucide-react';
+import { API_BASE_URL } from '../api/config';
 
 const horoscopes = {
     Aries: "Today is a day for action. Your energy is high, and obstacles seem smaller than usual.",
@@ -45,7 +46,7 @@ const Horoscope = () => {
     const fetchDynamicHoroscope = async (sign) => {
         setLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/horoscope/${sign}?lang=${i18n.language}`);
+            const response = await fetch(`${API_BASE_URL}/api/horoscope/${sign}?lang=${i18n.language}`);
             if (response.ok) {
                 const data = await response.json();
                 setDynamicData(data);

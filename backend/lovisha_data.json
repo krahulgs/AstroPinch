@@ -1,0 +1,200 @@
+{
+  "ayanamsa": 23.9024,
+  "ascendant": {
+    "longitude": 114.0278,
+    "sign": "Cancer",
+    "sign_id": 4
+  },
+  "planets": [
+    {
+      "name": "Sun",
+      "tropical_longitude": 204.4778,
+      "sidereal_longitude": 180.5754,
+      "sign": "Libra",
+      "position": 0.58,
+      "house": 4,
+      "nakshatra": {
+        "name": "Chitra",
+        "index": 14,
+        "pada": 3
+      },
+      "sanskrit_name": "Surya",
+      "dignity": {
+        "status": "Debilitated",
+        "sanskrit": "Neecha"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Moon",
+      "tropical_longitude": 47.6557,
+      "sidereal_longitude": 23.7533,
+      "sign": "Aries",
+      "position": 23.75,
+      "house": 10,
+      "nakshatra": {
+        "name": "Bharani",
+        "index": 2,
+        "pada": 4
+      },
+      "sanskrit_name": "Chandra",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Mercury",
+      "tropical_longitude": 207.2262,
+      "sidereal_longitude": 183.3238,
+      "sign": "Libra",
+      "position": 3.32,
+      "house": 4,
+      "nakshatra": {
+        "name": "Chitra",
+        "index": 14,
+        "pada": 3
+      },
+      "sanskrit_name": "Budh",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Venus",
+      "tropical_longitude": 250.4701,
+      "sidereal_longitude": 226.5677,
+      "sign": "Scorpio",
+      "position": 16.57,
+      "house": 5,
+      "nakshatra": {
+        "name": "Anuradha",
+        "index": 17,
+        "pada": 4
+      },
+      "sanskrit_name": "Shukra",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Mars",
+      "tropical_longitude": 253.4515,
+      "sidereal_longitude": 229.5491,
+      "sign": "Scorpio",
+      "position": 19.55,
+      "house": 5,
+      "nakshatra": {
+        "name": "Jyeshtha",
+        "index": 18,
+        "pada": 1
+      },
+      "sanskrit_name": "Mangal",
+      "dignity": {
+        "status": "Own Sign",
+        "sanskrit": "Swakshetra"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Jupiter",
+      "tropical_longitude": 312.2461,
+      "sidereal_longitude": 288.3437,
+      "sign": "Capricorn",
+      "position": 18.34,
+      "house": 7,
+      "nakshatra": {
+        "name": "Shravana",
+        "index": 22,
+        "pada": 3
+      },
+      "sanskrit_name": "Guru",
+      "dignity": {
+        "status": "Debilitated",
+        "sanskrit": "Neecha"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Saturn",
+      "tropical_longitude": 16.3069,
+      "sidereal_longitude": 352.4045,
+      "sign": "Pisces",
+      "position": 22.4,
+      "house": 9,
+      "nakshatra": {
+        "name": "Revati",
+        "index": 27,
+        "pada": 2
+      },
+      "sanskrit_name": "Shani",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": true
+    },
+    {
+      "name": "Uranus",
+      "tropical_longitude": 304.7414,
+      "sidereal_longitude": 280.839,
+      "sign": "Capricorn",
+      "position": 10.84,
+      "house": 7,
+      "nakshatra": {
+        "name": "Shravana",
+        "index": 22,
+        "pada": 1
+      },
+      "sanskrit_name": "Uranus",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Neptune",
+      "tropical_longitude": 297.2014,
+      "sidereal_longitude": 273.299,
+      "sign": "Capricorn",
+      "position": 3.3,
+      "house": 7,
+      "nakshatra": {
+        "name": "Uttara Ashadha",
+        "index": 21,
+        "pada": 2
+      },
+      "sanskrit_name": "Neptune",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    },
+    {
+      "name": "Pluto",
+      "tropical_longitude": 243.96,
+      "sidereal_longitude": 220.0576,
+      "sign": "Scorpio",
+      "position": 10.06,
+      "house": 5,
+      "nakshatra": {
+        "name": "Anuradha",
+        "index": 17,
+        "pada": 3
+      },
+      "sanskrit_name": "Pluto",
+      "dignity": {
+        "status": "Neutral",
+        "sanskrit": "Sama"
+      },
+      "retrograde": false
+    }
+  ]
+}

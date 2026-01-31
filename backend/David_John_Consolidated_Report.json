@@ -1,0 +1,577 @@
+{
+    "profile": {
+        "name": "David John",
+        "dob": "12-11-1977",
+        "tob": "18:20",
+        "place": "Dehradun",
+        "coordinates": {
+            "lat": 30.3165,
+            "lng": 78.0322
+        }
+    },
+    "numerology": {
+        "life_path": 2,
+        "expression": 6,
+        "soul_urge": 7,
+        "personality": 8,
+        "birthday": 3,
+        "maturity": 8,
+        "name": "David John",
+        "birth_date": "1977-11-12",
+        "source": "groq-ai",
+        "phillips_profile": {
+            "core_numbers": {
+                "life_path": 2,
+                "expression": 6,
+                "soul_urge": 7,
+                "personality": 8,
+                "birthday": 3,
+                "maturity": 8
+            },
+            "karmic_patterns": {
+                "karmic_debt": [],
+                "karmic_lessons": [
+                    2,
+                    3,
+                    7
+                ]
+            },
+            "life_cycles": {
+                "challenges": {
+                    "first": 1,
+                    "second": 3,
+                    "third": 2,
+                    "fourth": 4
+                },
+                "pinnacles": {
+                    "first": 5,
+                    "second": 9,
+                    "third": 5,
+                    "fourth": 8
+                },
+                "personal_year": 6
+            },
+            "metadata": {
+                "name": "David John",
+                "birth_date": "1977-11-12",
+                "calculation_method": "Phillips Pythagorean System"
+            }
+        },
+        "detailed_analysis": {
+            "life_path": {
+                "title": "The Peacemaker",
+                "description": "Diplomatic, cooperative, and sensitive. You excel in partnerships and bringing harmony.",
+                "strengths": "Diplomacy, cooperation, intuition, patience, attention to detail",
+                "challenges": "Avoid being overly sensitive, indecisive, or dependent on others",
+                "life_purpose": "To create harmony and balance through cooperation and understanding"
+            },
+            "expression": {
+                "title": "The Nurturer",
+                "description": "Responsible, caring, and service-oriented. You excel in creating harmony and helping others.",
+                "strengths": "Responsibility, compassion, harmony, service, artistic appreciation",
+                "challenges": "Avoid being overly controlling, self-sacrificing, or interfering",
+                "life_purpose": "To serve others and create harmony in home and community"
+            },
+            "soul_urge": {
+                "title": "The Seeker",
+                "description": "Analytical, spiritual, and introspective. You seek truth and deeper understanding.",
+                "strengths": "Analysis, intuition, spirituality, wisdom, technical skill",
+                "challenges": "Avoid isolation, skepticism, or becoming too detached from reality",
+                "life_purpose": "To seek truth and share wisdom through spiritual and intellectual pursuits"
+            },
+            "personality": {
+                "title": "The Powerhouse",
+                "description": "Ambitious, authoritative, and business-minded. You achieve material success and power.",
+                "strengths": "Leadership, business acumen, ambition, efficiency, material success",
+                "challenges": "Avoid materialism, workaholism, or misuse of power",
+                "life_purpose": "To achieve material success while maintaining ethical integrity"
+            }
+        },
+        "science_of_success": {
+            "system_name": "Hilary Gerard's Science of Success (1937)",
+            "fadic_number": 2,
+            "fadic_type": "The PLACID or BALANCED type",
+            "symbol": "Moon",
+            "description": "Indicates diplomacy, antithesis, balance, contrast. A social number—tact and ability to make friends ensure happiness. The world's peacemakers.",
+            "qualities": {
+                "positive": "Keen sense of natural justice, tactfulness, desire for peace, home loving instincts, caution.",
+                "negative": "Lack of ambition, procrastination, over-passiveness, tendency to give way to stronger personalities."
+            },
+            "guidance": {
+                "occupations": [
+                    "Diplomat",
+                    "Secretary",
+                    "Statistician",
+                    "Accountant",
+                    "Clerk",
+                    "Politician",
+                    "Peace-maker"
+                ],
+                "lucky_colors": [
+                    "Dark Blue"
+                ],
+                "lucky_gems": [
+                    "Sapphire"
+                ],
+                "lucky_days": [
+                    "Monday",
+                    "Wednesday"
+                ],
+                "best_harmonies": [
+                    7,
+                    1,
+                    4
+                ]
+            },
+            "next_destiny_year": 2027,
+            "calculated_at": "2026-01-27T00:21:21.695468"
+        },
+        "ai_insights": "David John, your Fadic Number 2 reveals a core vibration of harmony and balance. As a Placid or Balanced type, you embody the essence of diplomacy and tactfulness. Your innate sense of natural justice guides you in navigating life's complexities, and your home-loving instincts create a warm and nurturing environment for those around you. This foundational energy shapes your character, influencing your decisions and interactions with others.\n\nTo unlock your full potential, it's essential to balance your strengths with strategic action. Leverage your keen sense of justice by standing up for what you believe in, and harness your tactfulness to build strong, meaningful relationships. However, be mindful of your tendency to procrastinate and give in to stronger personalities. Counter these challenges by setting clear goals and asserting yourself with confidence. By doing so, you'll tap into your inner reservoir of determination and resilience. Remember, your peaceful nature is a gift, but it must be tempered with ambition and a willingness to take calculated risks.\n\nAs you embark on your journey, recall the wisdom of the Science of Success: your archetype holds the key to unlocking your highest potential. Embracing your Placid nature, you'll find that your path to success is rooted in collaboration, empathy, and creative problem-solving. Trust in your innate abilities, and you'll discover that your unique blend of diplomacy and determination will propel you toward a future filled with harmony, growth, and fulfillment. Stay true to your core vibration, David John, and you'll manifest a life of purpose, prosperity, and lasting impact.",
+        "ai_model": "llama-3.3-70b-versatile"
+    },
+    "western_astrology": {
+        "sun_sign": "Scorpio",
+        "moon_sign": "Sagittarius",
+        "ascendant": "Aries",
+        "planets": [
+            {
+                "name": "Sun",
+                "longitude": 230.2604,
+                "sign": "Scorpio",
+                "position": 20.26,
+                "house": 4
+            },
+            {
+                "name": "Moon",
+                "longitude": 250.8719,
+                "sign": "Sagittarius",
+                "position": 10.87,
+                "house": 4
+            },
+            {
+                "name": "Mercury",
+                "longitude": 244.5581,
+                "sign": "Sagittarius",
+                "position": 4.56,
+                "house": 4
+            },
+            {
+                "name": "Venus",
+                "longitude": 213.2585,
+                "sign": "Scorpio",
+                "position": 3.26,
+                "house": 3
+            },
+            {
+                "name": "Mars",
+                "longitude": 126.3727,
+                "sign": "Leo",
+                "position": 6.37,
+                "house": 12
+            },
+            {
+                "name": "Jupiter",
+                "longitude": 95.5209,
+                "sign": "Cancer",
+                "position": 5.52,
+                "house": 11
+            },
+            {
+                "name": "Saturn",
+                "longitude": 149.7913,
+                "sign": "Leo",
+                "position": 29.79,
+                "house": 1
+            },
+            {
+                "name": "Uranus",
+                "longitude": 222.6193,
+                "sign": "Scorpio",
+                "position": 12.62,
+                "house": 3
+            },
+            {
+                "name": "Neptune",
+                "longitude": 254.9276,
+                "sign": "Sagittarius",
+                "position": 14.93,
+                "house": 5
+            },
+            {
+                "name": "Pluto",
+                "longitude": 195.4451,
+                "sign": "Libra",
+                "position": 15.45,
+                "house": 3
+            }
+        ],
+        "houses": [
+            "Scorpio",
+            "Sagittarius",
+            "Sagittarius",
+            "Scorpio",
+            "Leo",
+            "Cancer",
+            "Leo",
+            "Scorpio",
+            "Sagittarius",
+            "Libra"
+        ]
+    },
+    "vedic_astrology": {
+        "kundali_analysis": [
+            {
+                "house": 1,
+                "title": "Lagna (Ascendant) - Self",
+                "planets": "Saturn",
+                "interpretation": "Lagna (Ascendant) - Self is influenced by Saturn. Personality, physical appearance, and general life path.",
+                "deep_analysis": "A serious, disciplined approach to life. You learn the hardest lessons about selfhood early on.",
+                "remedies": [
+                    {
+                        "type": "Specific Remedy",
+                        "action": "To balance Saturn's influence in House 1: Wear light-colored clothing."
+                    }
+                ]
+            },
+            {
+                "house": 2,
+                "title": "Dhana - Wealth",
+                "planets": "Empty",
+                "interpretation": "Dhana - Wealth is quiet, indicating a stable period. Finances, speech, family, and resources.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 3,
+                "title": "Sahaja - Courage",
+                "planets": "Venus, Uranus, Pluto",
+                "interpretation": "Sahaja - Courage is influenced by Venus, Uranus, Pluto. Communication, siblings, short travels, and self-effort.",
+                "deep_analysis": "Venus brings charm, beauty, and a desire for harmony and pleasure to this sector.Uranus adds its unique energy here. Pluto adds its unique energy here. ",
+                "remedies": []
+            },
+            {
+                "house": 4,
+                "title": "Bandhu - Happiness",
+                "planets": "Sun, Moon, Mercury",
+                "interpretation": "Bandhu - Happiness is influenced by Sun, Moon, Mercury. Mother, home, environment, and internal peace.",
+                "deep_analysis": "The Sun illuminates this sector, bringing clarity, vitality, and a touch of ego-driven ambition.Peace at home and a strong connection to your roots are essential for your emotional stability.Mercury brings a busy, communicative, and intellectual frequency to this area of life.",
+                "remedies": []
+            },
+            {
+                "house": 5,
+                "title": "Putra - Intelligence",
+                "planets": "Neptune",
+                "interpretation": "Putra - Intelligence is influenced by Neptune. Children, creativity, romance, and past life merits.",
+                "deep_analysis": "Neptune adds its unique energy here. ",
+                "remedies": []
+            },
+            {
+                "house": 6,
+                "title": "Ari - Obstacles",
+                "planets": "Empty",
+                "interpretation": "Ari - Obstacles is quiet, indicating a stable period. Enemies, debt, disease, and daily service.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 7,
+                "title": "Yuvati - Partnerships",
+                "planets": "Empty",
+                "interpretation": "Yuvati - Partnerships is quiet, indicating a stable period. Marriage, business partners, and outer world interactions.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 8,
+                "title": "Randhra - Longevity",
+                "planets": "Empty",
+                "interpretation": "Randhra - Longevity is quiet, indicating a stable period. Sudden events, occult, inheritance, and transformation.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 9,
+                "title": "Bhagya - Fortune",
+                "planets": "Empty",
+                "interpretation": "Bhagya - Fortune is quiet, indicating a stable period. Spirituality, father, higher education, and long travels.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 10,
+                "title": "Karma - Career",
+                "planets": "Empty",
+                "interpretation": "Karma - Career is quiet, indicating a stable period. Profession, social status, and public image.",
+                "deep_analysis": "A stable period for this house, allowing for steady, unhindered progress.",
+                "remedies": []
+            },
+            {
+                "house": 11,
+                "title": "Labha - Gains",
+                "planets": "Jupiter",
+                "interpretation": "Labha - Gains is influenced by Jupiter. Income, friends, achievements, and social networks.",
+                "deep_analysis": "Jupiter brings growth, luck, and wisdom to this sector, promising expansion and grace.",
+                "remedies": []
+            },
+            {
+                "house": 12,
+                "title": "Vyaya - Liberation",
+                "planets": "Mars",
+                "interpretation": "Vyaya - Liberation is influenced by Mars. Spirituality, foreign lands, loss, and subconscious mind.",
+                "deep_analysis": "Mars injects passion, energy, and a drive to take action in this house's affairs.",
+                "remedies": [
+                    {
+                        "type": "Specific Remedy",
+                        "action": "To balance Mars's influence in House 12: Wear light-colored clothing."
+                    }
+                ]
+            }
+        ],
+        "panchang": {
+            "tithi": {
+                "name": "Shukla Dwitiya",
+                "index": 2
+            },
+            "nakshatra": {
+                "name": "Jyeshtha",
+                "index": 18,
+                "pada": 1
+            },
+            "yoga": {
+                "name": "Atiganda",
+                "index": 6
+            },
+            "sun_sign": "Libra",
+            "moon_sign": "Scorpio"
+        },
+        "dasha": null,
+        "divisional_charts": {
+            "D9": [
+                {
+                    "name": "Sun",
+                    "sign": "Taurus",
+                    "house": 2
+                },
+                {
+                    "name": "Moon",
+                    "sign": "Sagittarius",
+                    "house": 9
+                },
+                {
+                    "name": "Mercury",
+                    "sign": "Libra",
+                    "house": 7
+                },
+                {
+                    "name": "Venus",
+                    "sign": "Sagittarius",
+                    "house": 9
+                },
+                {
+                    "name": "Mars",
+                    "sign": "Libra",
+                    "house": 7
+                },
+                {
+                    "name": "Jupiter",
+                    "sign": "Capricorn",
+                    "house": 10
+                },
+                {
+                    "name": "Saturn",
+                    "sign": "Taurus",
+                    "house": 2
+                },
+                {
+                    "name": "Uranus",
+                    "sign": "Pisces",
+                    "house": 12
+                },
+                {
+                    "name": "Neptune",
+                    "sign": "Capricorn",
+                    "house": 10
+                },
+                {
+                    "name": "Pluto",
+                    "sign": "Cancer",
+                    "house": 4
+                }
+            ]
+        },
+        "ayanamsa": 23.6243,
+        "remedies": {
+            "gemstone": {
+                "stone": "Red Coral",
+                "life_area": "Health, Vitality & General Fortune",
+                "metal": "Gold or Silver",
+                "wear_finger": "Ring Finger or Middle Finger (depending on stone)"
+            },
+            "rudraksha": {
+                "type": "3 Mukhi",
+                "benefits": "Balances the mind and emotions ruled by Mars.",
+                "deity": "Kartikeya"
+            },
+            "mantra": {
+                "sanskrit": "Om Ang Angarakaya Namaha",
+                "deity": "Kartikeya",
+                "instructions": "Chant 108 times daily during morning puja."
+            }
+        },
+        "transits": [
+            {
+                "name": "Sun",
+                "tropical_longitude": 307.0619,
+                "sidereal_longitude": 282.7648,
+                "sign": "Capricorn",
+                "position": 12.76,
+                "house": 1,
+                "nakshatra": {
+                    "name": "Shravana",
+                    "index": 22,
+                    "pada": 1
+                }
+            },
+            {
+                "name": "Moon",
+                "tropical_longitude": 47.7449,
+                "sidereal_longitude": 23.4478,
+                "sign": "Aries",
+                "position": 23.45,
+                "house": 4,
+                "nakshatra": {
+                    "name": "Bharani",
+                    "index": 2,
+                    "pada": 4
+                }
+            },
+            {
+                "name": "Mercury",
+                "tropical_longitude": 310.7483,
+                "sidereal_longitude": 286.4512,
+                "sign": "Capricorn",
+                "position": 16.45,
+                "house": 1,
+                "nakshatra": {
+                    "name": "Shravana",
+                    "index": 22,
+                    "pada": 2
+                }
+            },
+            {
+                "name": "Venus",
+                "tropical_longitude": 311.9192,
+                "sidereal_longitude": 287.6221,
+                "sign": "Capricorn",
+                "position": 17.62,
+                "house": 1,
+                "nakshatra": {
+                    "name": "Shravana",
+                    "index": 22,
+                    "pada": 3
+                }
+            },
+            {
+                "name": "Mars",
+                "tropical_longitude": 302.8302,
+                "sidereal_longitude": 278.5331,
+                "sign": "Capricorn",
+                "position": 8.53,
+                "house": 1,
+                "nakshatra": {
+                    "name": "Uttara Ashadha",
+                    "index": 21,
+                    "pada": 4
+                }
+            },
+            {
+                "name": "Jupiter",
+                "tropical_longitude": 107.94,
+                "sidereal_longitude": 83.6429,
+                "sign": "Gemini",
+                "position": 23.64,
+                "house": 6,
+                "nakshatra": {
+                    "name": "Punarvasu",
+                    "index": 7,
+                    "pada": 2
+                }
+            },
+            {
+                "name": "Saturn",
+                "tropical_longitude": 358.1626,
+                "sidereal_longitude": 333.8655,
+                "sign": "Pisces",
+                "position": 3.87,
+                "house": 2,
+                "nakshatra": {
+                    "name": "Uttara Bhadrapada",
+                    "index": 26,
+                    "pada": 1
+                }
+            },
+            {
+                "name": "Uranus",
+                "tropical_longitude": 57.4881,
+                "sidereal_longitude": 33.191,
+                "sign": "Taurus",
+                "position": 3.19,
+                "house": 4,
+                "nakshatra": {
+                    "name": "Krittika",
+                    "index": 3,
+                    "pada": 2
+                }
+            },
+            {
+                "name": "Neptune",
+                "tropical_longitude": 0.0072,
+                "sidereal_longitude": 335.7101,
+                "sign": "Pisces",
+                "position": 5.71,
+                "house": 3,
+                "nakshatra": {
+                    "name": "Uttara Bhadrapada",
+                    "index": 26,
+                    "pada": 1
+                }
+            },
+            {
+                "name": "Pluto",
+                "tropical_longitude": 303.5378,
+                "sidereal_longitude": 279.2407,
+                "sign": "Capricorn",
+                "position": 9.24,
+                "house": 1,
+                "nakshatra": {
+                    "name": "Uttara Ashadha",
+                    "index": 21,
+                    "pada": 4
+                }
+            }
+        ]
+    },
+    "predictions_summary": {
+        "western": {
+            "system": "Western Placidus",
+            "focus": "Personality & Character",
+            "insight": "As a Scorpio, your core identity is shaped by the Aries rising energy, indicating a strong natural potential for leadership."
+        },
+        "vedic": {
+            "system": "Vedic (Sidereal)",
+            "focus": "Karmic Path & Timelines",
+            "insight": "You are currently in a pivotal dasha period. Focus on discipline."
+        },
+        "technical": {
+            "system": "Advanced Astronomical",
+            "focus": "Mathematical Precision",
+            "data": {
+                "house_system": "Placidus",
+                "ayanamsa": "Lahiri (Sidereal Correction)",
+                "precision": "High (Swiss Ephemeris)",
+                "local_mean_time": "Adjusted for 30.3165, 78.0322"
+            }
+        },
+        "best_prediction": "Based on the combined wisdom of Western Tropical and Vedic Sidereal systems: You are at a pivotal crossroads where your internal personality (Western) aligns with your outward karmic path (Vedic). Trust your intuition."
+    }
+}

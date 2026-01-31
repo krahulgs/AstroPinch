@@ -1,0 +1,235 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "back_to_universe": "Back to Universe",
+        "daily_guidance": "Daily Guidance",
+        "todays_insight": "Today's Insight",
+        "browse_signs": "Browse Signs",
+        "enter_details": "Enter Details"
+    },
+    "nav": {
+        "horoscopes": "Horoscopes",
+        "zodiac_signs": "Zodiac Signs",
+        "numerology": "Numerology",
+        "calendar": "Calendar",
+        "profiles": "Profiles",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "horoscope": {
+        "title": "{{sign}} Horoscope",
+        "stats": {
+            "energy": "Energy Level",
+            "lucky_number": "Lucky Number",
+            "lucky_color": "Lucky Color",
+            "mood": "Mood"
+        },
+        "categories": {
+            "title": "Detailed Cosmic Analysis",
+            "love": "Love",
+            "career": "Career",
+            "finance": "Finance",
+            "family": "Family",
+            "remedies": "Cosmic Remedy"
+        },
+        "cosmic_alignment": "Cosmic Alignment",
+        "alignment_desc": "Current planetary relationships affecting your energy. Harmonious aspects bring ease, while Challenging aspects offer growth.",
+        "transit_status": "Transit Status",
+        "transit_desc": "Real-time planetary positions influencing the collective mood.",
+        "spiritual_focus": "Spiritual Focus",
+        "spiritual_focus_desc": "The current cosmic alignment suggests a window for deep manifestation. Focus on clarity and concise intentions today.",
+        "cosmic_note": "Cosmic Note",
+        "cosmic_note_desc": "With {{moon}} energy influencing the emotional field, remain objective during tense discussions.",
+        "empty_state": {
+            "title": "The stars are waiting",
+            "description": "To reveal your daily guidance, we need to know your celestial alignment. Search for your sign or enter your birth details."
+        },
+        "aspects": {
+            "Conjunction": "Conjunction",
+            "Opposition": "Opposition",
+            "Trine": "Trine",
+            "Square": "Square",
+            "Sextile": "Sextile",
+            "harmonious": "Harmonious",
+            "challenging": "Challenging"
+        }
+    },
+    "report": {
+        "status": {
+            "analyzing_cosmos": "Analyzing Cosmos...",
+            "loading_wisdom": "Loading Wisdom...",
+            "gathering_celestial": "Gathering Celestial Data...",
+            "formulating_path": "Formulating Life Path...",
+            "powered_by": "Powered by",
+            "generating": "Generating Your Cosmic Blueprint...",
+            "synthesizing": "Synthesizing Planetary Data...",
+            "failed": "Generation Failed",
+            "try_again": "Try Again",
+            "no_data": "No Report Data Found",
+            "go_back": "Go Back",
+            "downloading": "Downloading...",
+            "download_pdf": "Download PDF"
+        },
+        "header": {
+            "title": "Cosmic Destiny Report",
+            "subtitle": "A unified analysis of your celestial blueprint",
+            "premium_profile": "Premium Cosmic Profile"
+        },
+        "tabs": {
+            "overview": "Overview",
+            "charts": "Charts",
+            "locational": "Locational"
+        },
+        "sections": {
+            "executive_summary": "Executive Summary",
+            "numerology": "Numerology",
+            "western_astrology": "Western Astrology",
+            "vedic_astrology": "Vedic Astrology",
+            "vedic_remedies": "Vedic Remedies",
+            "western_experience": "Western Astrology Experience",
+            "psychological_analysis": "Psychological Analysis",
+            "vedic_kundli_insights": "Vedic Kundli Insights",
+            "vedic_life_analysis": "Vedic Life Analysis",
+            "ai_executive_summary": "AI Executive Summary",
+            "deep_ai_analysis": "Deep AI Analysis",
+            "deep_ai_pending": "Analysis pending..."
+        },
+        "numerology": {
+            "life_path_number": "Life Path Number",
+            "destiny_number": "Destiny Number",
+            "soul_urge_number": "Soul Urge Number",
+            "personality_number": "Personality Number",
+            "title": "Numerology",
+            "life_path": "Life Path",
+            "core_essence": "Core Essence",
+            "expression": "Expression",
+            "destiny": "Destiny",
+            "soul_urge": "Soul Urge",
+            "system": "System",
+            "calculation": "Calculation"
+        },
+        "western": {
+            "title": "Western Astrology",
+            "sun_sign": "Sun Sign",
+            "moon_sign": "Moon Sign",
+            "rising": "Rising Sign",
+            "ascendant_sign": "Ascendant Sign",
+            "planetary_blueprint": "Planetary Blueprint",
+            "active_placements": "Active Placements",
+            "insights": "Western Insights",
+            "life_sectors": "Life Sectors",
+            "energy_flow": "Energy Flow",
+            "tropical_zodiac": "Tropical Zodiac",
+            "life_sectors_desc": "Numbered houses define where life events occur. 1st is Self, 10th is Career.",
+            "energy_flow_desc": "Aspect lines show energy dialogues. Red = Growth Challenges, Blue = Natural Flow.",
+            "tropical_zodiac_desc": "Favored in Western astrology for alignment with seasons and psychological growth.",
+            "planet": "Planet",
+            "sign": "Sign",
+            "house_short": "H",
+            "pos_short": "Pos",
+            "dominant_element": "Dominant Element",
+            "modality": "Modality"
+        },
+        "vedic": {
+            "ascendant": "Ascendant (Lagna)",
+            "moon_sign": "Moon Sign (Rashi)",
+            "nakshatra": "Nakshatra",
+            "current_dasha": "Current Dasha",
+            "cosmic_alignment": "Cosmic Alignment",
+            "lahiri_ayanamsa": "Lahiri Ayanamsa",
+            "graha": "Graha (Planet)",
+            "status": "Status",
+            "house_short": "H",
+            "sign": "Sign",
+            "title": "Vedic Astrology",
+            "tithi": "Tithi",
+            "current_mahadasha": "Current Mahadasha",
+            "kp_system": "KP System",
+            "kp_analysis": "KP Analysis",
+            "source_kp": "Source: Krishnamurti Paddhati"
+        },
+        "remedies": {
+            "gemstone": "Gemstone",
+            "color": "Color",
+            "mantra": "Mantra",
+            "deity": "Deity",
+            "title": "Vedic Remedies",
+            "subtitle": "Personalized Cosmic Cures",
+            "dasha_influence": "Dasha Influence",
+            "wear_on": "Wear On",
+            "metal": "Metal",
+            "rudraksha": "Rudraksha",
+            "deity_focus": "Deity Focus",
+            "sacred_mantra": "Sacred Mantra",
+            "instructions": "Instructions"
+        }
+    },
+    "daily": {
+        "title": "Daily Guidance",
+        "for": "for",
+        "powered_by": "Powered by",
+        "reading_stars": "Reading the stars...",
+        "error_load": "Unable to load insights for this category.",
+        "alerts": {
+            "title": "Cosmic Alerts",
+            "no_warnings": "No major cosmic warnings today. The skies are clear!"
+        },
+        "calendar": {
+            "title": "Astro Calendar",
+            "desc": "View monthly favorable days, festivals, and muhurats."
+        },
+        "stats": {
+            "lucky_color": "Lucky Color",
+            "lucky_number": "Lucky Number"
+        },
+        "categories": {
+            "love": "Love",
+            "career": "Career",
+            "finance": "Finance",
+            "health": "Health"
+        },
+        "advice": {
+            "title": "Cosmic Advice"
+        }
+    },
+    "numerology_page": {
+        "title": "Numerology Reading",
+        "subtitle": "Your Numbers Revealed",
+        "seeker": "Seeker",
+        "profile_label": "Numerology Profile",
+        "birth_date": "Birth Date",
+        "analysis_type": "Analysis Type",
+        "core_numbers_title": "Your Core Numbers",
+        "science_success": "Science of Success Report",
+        "fadic_number": "Fadic No.",
+        "symbol": "Symbol",
+        "color": "Color",
+        "positive": "Positive Qualities",
+        "challenges": "Challenges",
+        "occupations": "Suitable Occupations",
+        "harmonies": "Harmonies & Luck",
+        "lucky_gems": "Lucky Gems",
+        "harmonious_numbers": "Harmonious Numbers",
+        "lucky_days": "Lucky Days",
+        "next_destiny": "Next Destiny Year",
+        "ai_insights": {
+            "title": "AI-Powered",
+            "subtitle": "Insights",
+            "generated_by": "Generated by",
+            "model": "Model"
+        },
+        "cta": {
+            "title": "Explore More",
+            "desc": "Discover how your numerology numbers align with your astrological chart for deeper insights.",
+            "birth_chart": "View Birth Chart",
+            "kundali": "View Kundali"
+        },
+        "descriptions": {
+            "life_path": "Your life purpose and the path you are meant to walk",
+            "expression": "Your natural talents and how you express yourself",
+            "soul_urge": "Your inner desires and what motivates you at the deepest level",
+            "personality": "How others perceive you and your outer personality",
+            "birthday": "Special gifts and talents from your day of birth"
+        }
+    }
+}

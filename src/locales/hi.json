@@ -1,0 +1,235 @@
+{
+    "common": {
+        "loading": "लोड हो रहा है...",
+        "back_to_universe": "ब्रह्मांड की ओर वापस",
+        "daily_guidance": "दैनिक मार्गदर्शन",
+        "todays_insight": "आज की अंतर्दृष्टि",
+        "browse_signs": "राशियाँ देखें",
+        "enter_details": "विवरण दर्ज करें"
+    },
+    "nav": {
+        "horoscopes": "राशिफल",
+        "zodiac_signs": "राशियाँ",
+        "numerology": "अंकशास्त्र",
+        "calendar": "पंचांग",
+        "profiles": "प्रोफाइल",
+        "login": "लॉग इन",
+        "logout": "लॉग आउट"
+    },
+    "horoscope": {
+        "title": "{{sign}} राशिफल",
+        "stats": {
+            "energy": "ऊर्जा स्तर",
+            "lucky_number": "शुभ अंक",
+            "lucky_color": "शुभ रंग",
+            "mood": "मनोदशा"
+        },
+        "categories": {
+            "title": "विस्तृत ब्रह्मांडीय विश्लेषण",
+            "love": "प्रेम",
+            "career": "करियर",
+            "finance": "वित्त",
+            "family": "परिवार",
+            "remedies": "ब्रह्मांडीय उपाय"
+        },
+        "cosmic_alignment": "ग्रह संरेखण",
+        "alignment_desc": "आपकी ऊर्जा को प्रभावित करने वाले वर्तमान ग्रहीय संबंध।",
+        "transit_status": "गोचर स्थिति",
+        "transit_desc": "सामूहिक मनोदशा को प्रभावित करने वाली वास्तविक समय की ग्रहों की स्थिति।",
+        "spiritual_focus": "आध्यात्मिक ध्यान",
+        "spiritual_focus_desc": "वर्तमान ब्रह्मांडीय संरेखण गहरी अभिव्यक्ति के लिए एक खिड़की का सुझाव देता है। आज स्पष्टता और संक्षिप्त इरादों पर ध्यान दें।",
+        "cosmic_note": "ब्रह्मांडीय नोट",
+        "cosmic_note_desc": "चूंकि {{moon}} ऊर्जा भावनात्मक क्षेत्र को प्रभावित कर रही है, तनावपूर्ण चर्चाओं के दौरान निष्पक्ष रहें।",
+        "empty_state": {
+            "title": "तारे आपकी प्रतीक्षा कर रहे हैं",
+            "description": "आपका दैनिक मार्गदर्शन प्रकट करने के लिए, हमें आपके खगोलीय संरेखण को जानने की आवश्यकता है। अपनी राशि खोजें या अपना जन्म विवरण दर्ज करें।"
+        },
+        "aspects": {
+            "Conjunction": "युति",
+            "Opposition": "प्रतियुति",
+            "Trine": "त्रिकोण",
+            "Square": "केंद्र",
+            "Sextile": "लाभ",
+            "harmonious": "सामंजस्यपूर्ण",
+            "challenging": "चुनौतीपूर्ण"
+        }
+    },
+    "report": {
+        "status": {
+            "analyzing_cosmos": "ब्रह्मांड का विश्लेषण...",
+            "loading_wisdom": "ज्ञान लोड हो रहा है...",
+            "gathering_celestial": "खगोलीय डेटा एकत्र हो रहा है...",
+            "formulating_path": "जीवन पथ तैयार हो रहा है...",
+            "powered_by": "द्वारा संचालित",
+            "generating": "आपका ब्रह्मांडीय खाका तैयार हो रहा है...",
+            "synthesizing": "ग्रहीय डेटा का संश्लेषण...",
+            "failed": "रिपोर्ट जनरेशन विफल",
+            "try_again": "पुनः प्रयास करें",
+            "no_data": "कोई रिपोर्ट डेटा नहीं मिला",
+            "go_back": "वापस जाओ",
+            "downloading": "डाउनलोड हो रहा है...",
+            "download_pdf": "पीडीएफ डाउनलोड करें"
+        },
+        "header": {
+            "title": "कॉस्मिक डेस्टिनी रिपोर्ट",
+            "subtitle": "आपके आकाशीय खाका का एक एकीकृत विश्लेषण",
+            "premium_profile": "प्रीमियम कॉस्मिक प्रोफाइल"
+        },
+        "tabs": {
+            "overview": "अवलोकन",
+            "charts": "कुंडली",
+            "locational": "स्थानीय"
+        },
+        "sections": {
+            "executive_summary": "कार्यकारी सारांश",
+            "numerology": "अंकशास्त्र",
+            "western_astrology": "पश्चिमी ज्योतिष",
+            "vedic_astrology": "वैदिक ज्योतिष",
+            "vedic_remedies": "वैदिक उपाय",
+            "western_experience": "पश्चिमी ज्योतिष अनुभव",
+            "psychological_analysis": "मनोवैज्ञानिक विश्लेषण",
+            "vedic_kundli_insights": "वैदिक कुंडली अंतर्दृष्टि",
+            "vedic_life_analysis": "वैदिक जीवन विश्लेषण",
+            "ai_executive_summary": "एआई कार्यकारी सारांश",
+            "deep_ai_analysis": "गहरा एआई विश्लेषण",
+            "deep_ai_pending": "विश्लेषण लंबित..."
+        },
+        "numerology": {
+            "life_path_number": "जीवन पथ संख्या",
+            "destiny_number": "भाग्य संख्या",
+            "soul_urge_number": "आत्मा प्रेरणा संख्या",
+            "personality_number": "व्यक्तित्व संख्या",
+            "title": "अंकशास्त्र",
+            "life_path": "जीवन पथ",
+            "core_essence": "मूल सार",
+            "expression": "अभिव्यक्ति",
+            "destiny": "भाग्य",
+            "soul_urge": "आत्मा प्रेरणा",
+            "system": "प्रणाली",
+            "calculation": "गणना"
+        },
+        "western": {
+            "title": "पश्चिमी ज्योतिष",
+            "sun_sign": "सूर्य राशि",
+            "moon_sign": "चंद्र राशि",
+            "rising": "उदय राशि",
+            "ascendant_sign": "लग्न राशि",
+            "planetary_blueprint": "ग्रहीय खाका",
+            "active_placements": "सक्रिय स्थितियां",
+            "insights": "पश्चिमी अंतर्दृष्टि",
+            "life_sectors": "जीवन के क्षेत्र",
+            "energy_flow": "ऊर्जा प्रवाह",
+            "tropical_zodiac": "उष्णकटिबंधीय राशि चक्र",
+            "life_sectors_desc": "संख्या वाले घर परिभाषित करते हैं कि जीवन की घटनाएं कहां होती हैं। पहला स्वयं है, 10वां करियर है।",
+            "energy_flow_desc": "दृष्टि रेखाएं ऊर्जा संवाद दिखाती हैं। लाल = विकास चुनौतियां, नीला = प्राकृतिक प्रवाह।",
+            "tropical_zodiac_desc": "ऋतुओं और मनोवैज्ञानिक विकास के साथ संरेखण के लिए पश्चिमी ज्योतिष में पसंदीदा।",
+            "planet": "ग्रह",
+            "sign": "राशि",
+            "house_short": "भाव",
+            "pos_short": "स्थिति",
+            "dominant_element": "प्रमुख तत्व",
+            "modality": "लक्षण"
+        },
+        "vedic": {
+            "ascendant": "लग्न",
+            "moon_sign": "चंद्र राशि",
+            "nakshatra": "नक्षत्र",
+            "current_dasha": "वर्तमान दशा",
+            "cosmic_alignment": "ग्रह संरेखण",
+            "lahiri_ayanamsa": "लाहिड़ी अयनांश",
+            "graha": "ग्रह",
+            "status": "स्थिति",
+            "house_short": "भाव",
+            "sign": "राशि",
+            "title": "वैदिक ज्योतिष",
+            "tithi": "तिथि",
+            "current_mahadasha": "वर्तमान महादशा",
+            "kp_system": "केपी प्रणाली",
+            "kp_analysis": "केपी विश्लेषण",
+            "source_kp": "स्रोत: कृष्णमूर्ति पद्धति"
+        },
+        "remedies": {
+            "gemstone": "रत्न",
+            "color": "रंग",
+            "mantra": "मंत्र",
+            "deity": "देवता",
+            "title": "वैदिक उपाय",
+            "subtitle": "व्यक्तिगत ब्रह्मांडीय निदान",
+            "dasha_influence": "दशा प्रभाव",
+            "wear_on": "धारण करें",
+            "metal": "धातु",
+            "rudraksha": "रुद्राक्ष",
+            "deity_focus": "देवता ध्यान",
+            "sacred_mantra": "पवित्र मंत्र",
+            "instructions": "निर्देश"
+        }
+    },
+    "daily": {
+        "title": "दैनिक मार्गदर्शन",
+        "for": "के लिए",
+        "powered_by": "द्वारा संचालित",
+        "reading_stars": "सितारों को पढ़ना...",
+        "error_load": "इस श्रेणी के लिए अंतर्दृष्टि लोड करने में असमर्थ।",
+        "alerts": {
+            "title": "ब्रह्मांडीय अलर्ट",
+            "no_warnings": "आज कोई बड़ी ब्रह्मांडीय चेतावनी नहीं। आसमान साफ ​​है!"
+        },
+        "calendar": {
+            "title": "खगोल कैलेंडर",
+            "desc": "मासिक शुभ दिन, त्योहार और मुहूर्त देखें।"
+        },
+        "stats": {
+            "lucky_color": "शुभ रंग",
+            "lucky_number": "शुभ अंक"
+        },
+        "categories": {
+            "love": "प्रेम",
+            "career": "करियर",
+            "finance": "वित्त",
+            "health": "स्वास्थ्य"
+        },
+        "advice": {
+            "title": "ब्रह्मांडीय सलाह"
+        }
+    },
+    "numerology_page": {
+        "title": "अंकशास्त्र विवरण",
+        "subtitle": "आपके अंक प्रकट हुए",
+        "seeker": "साधक",
+        "profile_label": "अंकशास्त्र प्रोफ़ाइल",
+        "birth_date": "जन्म तिथि",
+        "analysis_type": "विश्लेषण प्रकार",
+        "core_numbers_title": "आपके मुख्य अंक",
+        "science_success": "सफलता का विज्ञान रिपोर्ट",
+        "fadic_number": "फेडिक संख्या",
+        "symbol": "प्रतीक",
+        "color": "रंग",
+        "positive": "सकारात्मक गुण",
+        "challenges": "चुनौतियां",
+        "occupations": "उपयुक्त व्यवसाय",
+        "harmonies": "सद्भाव और भाग्य",
+        "lucky_gems": "भाग्यशाली रत्न",
+        "harmonious_numbers": "सामंजस्यपूर्ण अंक",
+        "lucky_days": "शुभ दिन",
+        "next_destiny": "अगला भाग्य वर्ष",
+        "ai_insights": {
+            "title": "AI-संचालित",
+            "subtitle": "अंतर्दृष्टि",
+            "generated_by": "द्वारा उत्पन्न",
+            "model": "मॉडल"
+        },
+        "cta": {
+            "title": "और देखें",
+            "desc": "जानें कि आपके अंकशास्त्र नंबर गहरी अंतर्दृष्टि के लिए आपके ज्योतिषीय चार्ट के साथ कैसे संरेखित होते हैं।",
+            "birth_chart": "जन्म कुंडली देखें",
+            "kundali": "कुंडली देखें"
+        },
+        "descriptions": {
+            "life_path": "आपका जीवन उद्देश्य और वह मार्ग जिस पर आप चलने के लिए बने हैं",
+            "expression": "आपकी स्वाभाविक प्रतिभा और आप खुद को कैसे व्यक्त करते हैं",
+            "soul_urge": "आपकी आंतरिक इच्छाएं और आपको गहरे स्तर पर क्या प्रेरित करता है",
+            "personality": "दूसरे आपको कैसे देखते हैं और आपका बाहरी व्यक्तित्व",
+            "birthday": "आपके जन्म के दिन से विशेष उपहार और प्रतिभाएं"
+        }
+    }
+}

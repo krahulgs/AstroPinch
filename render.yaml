@@ -1,0 +1,38 @@
+services:
+  # --- Backend API (FastAPI) ---
+  - type: web
+    name: astropinch-api
+    env: python
+    region: ohio
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: astropinch-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+  # --- Frontend (Vite Static Site) ---
+  - type: web
+    name: astropinch-app
+    env: static
+    region: ohio
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://astropinch-api.onrender.com # Adjust this if your service name differs
+
+databases:
+  - name: astropinch-db
+    plan: free
+    region: ohio

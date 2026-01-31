@@ -3,7 +3,7 @@ services:
   - type: web
     name: astropinch-api
     env: python
-    region: ohio
+    region: oregon
     plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -21,12 +21,10 @@ services:
         sync: false
 
   # --- Frontend (Vite Static Site) ---
-  - type: web
+  - type: static_site
     name: astropinch-app
-    env: static
-    plan: free
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    publishDir: ./dist
     envVars:
       - key: VITE_API_URL
         value: https://astropinch-api.onrender.com # Adjust this if your service name differs
@@ -34,4 +32,4 @@ services:
 databases:
   - name: astropinch-db
     plan: free
-    region: ohio
+    region: oregon

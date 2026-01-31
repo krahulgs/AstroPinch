@@ -8,6 +8,7 @@ from services.kerykeion_engine import KerykeionService
 from services.external_apis import ExternalAPIService
 from services.astrology_aggregator import AstrologyAggregator
 from services.numerology_service import get_numerology_data
+from services.ai_service import generate_numerology_insights
 from generate_report import ReportGenerator
 from routers import profile_router, auth_router, insights_router, chat_router
 from database import engine, Base

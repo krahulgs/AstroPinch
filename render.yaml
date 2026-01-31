@@ -21,10 +21,9 @@ services:
         sync: false
 
   # --- Frontend (Vite Static Site) ---
-  - type: web
+  - type: static
     name: astropinch-app
     env: static
-    region: ohio
     plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist

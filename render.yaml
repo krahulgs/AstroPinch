@@ -21,7 +21,7 @@ services:
         sync: false
 
   # --- Frontend (Vite Static Site) ---
-  - type: static
+  - type: web
     name: astropinch-app
     env: static
     plan: free

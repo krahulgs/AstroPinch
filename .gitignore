@@ -6,6 +6,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*.db
+*.sqlite
+*.sqlite3
+debug_*.json
+report_test.json
+response.json
+test_results.log
+KPAstrology.pdf
+de421.bsp
+de421.bsp.download
 
 node_modules
 dist

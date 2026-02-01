@@ -276,7 +276,27 @@ class PDFReportService:
                 story.append(Paragraph(str(career), styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
         
+        # --- Marriage & Relationship Analysis ---
+        relationship = report_data.get('vedic_astrology', {}).get('relationship_analysis')
+        if relationship:
+            story.append(Paragraph("Marriage & Relationships", styles['SectionHeader']))
+            if isinstance(relationship, dict):
+                for section, text in relationship.items():
+                    if text and section != 'raw_response':
+                        title = section.replace('_', ' ').title()
+                        story.append(Paragraph(f"<b>{title}</b>", styles['NormalText']))
+                        # If list, format as bullets
+                        if isinstance(text, list):
+                            text_content = "<br/>".join([f"• {item}" for item in text])
+                        else:
+                            text_content = str(text)
+                        story.append(Paragraph(text_content, styles['NormalText']))
+            else:
+                story.append(Paragraph(str(relationship), styles['NormalText']))
+            story.append(Spacer(1, 0.3*inch))
+        
         # --- Graha Effects (Planet-in-House) ---
+
         graha_effects = report_data.get('vedic_astrology', {}).get('graha_effects')
         if graha_effects:
             story.append(Paragraph("Graha Effects (Planetary Influences)", styles['SectionHeader']))

@@ -905,12 +905,9 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
 def generate_career_analysis(name, planets, panchang, lang="en"):
     """
     Generates a specific Career analysis based on Vedic chart.
-    Fields: Best suited careers, Job vs Business, Growth Timeline, Earning Pattern, Suggestion.
     """
-    if not client and not model:
-        return None
-
     import json
+
     
     # Construct Context
     planet_list = []
@@ -1021,3 +1018,108 @@ def generate_career_analysis(name, planets, panchang, lang="en"):
     except Exception as e:
         print(f"Fallback Logic Error: {e}")
         return None
+
+def generate_relationship_analysis(name, planets, panchang, lang="en"):
+    """
+    Generates a specific Relationship and Marriage analysis based on Vedic chart.
+    """
+    import json
+
+    
+    # Construct Context
+    planet_list = []
+    if planets:
+        for p in planets:
+            try:
+                name_p = p.get('name', 'Unknown')
+                sign_p = p.get('sign', 'Unknown')
+                house_p = p.get('house', '?')
+                planet_list.append(f"- {name_p} in {sign_p} (House {house_p})")
+            except: pass
+    
+    planet_data = "\n".join(planet_list)
+    
+    pan_nak = panchang.get('nakshatra', {}).get('name', 'Unknown') if panchang else 'Unknown'
+    pan_asc = panchang.get('ascendant', {}).get('name', 'Unknown') if panchang else 'Unknown'
+
+    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
+
+    prompt = f"""You are an expert Relationship & Marriage Astrologer.
+    Using the user’s birth details, analyze the marriage and relationships based on 7th house, Venus, Jupiter, and Mars.
+    
+    **User Chart**:
+    Name: {name}
+    Ascendant: {pan_asc}
+    Nakshatra: {pan_nak}
+    Planets:
+    {planet_data}
+
+    **Task**:
+    Output strictly valid JSON with the following structure:
+    {{
+        "ideal_partner": "Describe qualities of the ideal partner based on 7th house/Venus/Jupiter (Max 2 sentences)",
+        "marriage_outlook": "Overall outlook for married life/long-term unions",
+        "compatibility_style": "How the user behaves in relationships",
+        "challenges": ["Challenge 1", "Challenge 2"],
+        "relationship_tip": "One specific actionable advice for harmony"
+    }}
+
+    **Tone**:
+    - Empathetic, warm, and professional
+    - Realistic but encouraging
+    - No fear-mongering
+    - Focus on growth and understanding
+
+    {lang_instruction}
+    """
+
+    # Try Groq (Preferred)
+    if client:
+        try:
+            response = client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.3-70b-versatile",
+                temperature=0.7,
+                response_format={"type": "json_object"}
+            )
+            return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            print(f"Groq Relationship Analysis failed: {e}")
+
+    # FINAL FALLBACK: Rule-Based Generation
+    try:
+        print("Using Rule-Based Fallback for Relationship Analysis...")
+        venus = next((p for p in planets if p.get('name') == 'Venus'), None)
+        jupiter = next((p for p in planets if p.get('name') == 'Jupiter'), None)
+        
+        dominant = venus if venus else jupiter
+        sign = dominant.get('sign', 'Aries') if dominant else 'Aries'
+        
+        traits = {
+            'Aries': "passionate, direct, and energetic",
+            'Taurus': "stable, loyal, and appreciative of comfort",
+            'Gemini': "intellectual, communicative, and versatile",
+            'Cancer': "nurturing, emotional, and family-oriented",
+            'Leo': "generous, charismatic, and loyal",
+            'Virgo': "practical, devoted, and detail-oriented",
+            'Libra': "harmonious, romantic, and diplomatic",
+            'Scorpio': "intense, transformative, and deeply loyal",
+            'Sagittarius': "adventurous, honest, and philosophical",
+            'Capricorn': "disciplined, serious, and committed",
+            'Aquarius': "independent, unconventional, and friendly",
+            'Pisces': "imaginative, empathetic, and spiritual"
+        }
+        
+        quality = traits.get(sign, "balanced")
+        
+        return {
+            "ideal_partner": f"You are likely to be drawn to someone who is {quality}. A partner who shares your values and respects your independence will be a great match.",
+            "marriage_outlook": "Your chart suggests a path towards finding deep meaning through long-term partnership, with growth coming through shared experiences.",
+            "compatibility_style": f"In relationships, you tend to be {quality}, valuing direct communication and emotional honesty.",
+            "challenges": ["Balancing individual needs with partner's expectations", "Maintaining long-term excitement"],
+            "relationship_tip": "Focus on consistent communication and expressing appreciation for the small things to keep the bond strong."
+        }
+    except Exception as e:
+        print(f"Relationship Fallback Logic Error: {e}")
+        return None
+

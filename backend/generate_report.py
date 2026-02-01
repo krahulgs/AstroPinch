@@ -79,6 +79,20 @@ class ReportGenerator:
             print(f"Career Analysis Error: {e}")
             career_analysis = None
 
+        # New: Specific Relationship Analysis
+        try:
+            from services.ai_service import generate_relationship_analysis
+            relationship_analysis = generate_relationship_analysis(
+                name,
+                vedic_full['planets'],
+                vedic_full['panchang'],
+                lang=lang
+            )
+        except Exception as e:
+            print(f"Relationship Analysis Error: {e}")
+            relationship_analysis = None
+
+
         # 3. Numerology (Standard + Hilary Gerard + Groq AI + Loshu)
         # Now passing vedic_full and western_chart to get_numerology_data for AI context
         print("- Fetching Numerology Data (with Dual AI Context)...")
@@ -138,8 +152,10 @@ class ReportGenerator:
                 "loshu_grid": loshu_data,  # Moved here
                 "vedic_personality_analysis": vedic_personality_analysis, # Added this
                 "career_analysis": career_analysis, # Added this
+                "relationship_analysis": relationship_analysis, # Added this
                 "avakhada": vedic_full.get('avakhada') # New section
             },
+
             "astrocartography": acg_locations,
             "predictions_summary": predictions
         }

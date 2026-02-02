@@ -520,6 +520,10 @@ const ConsolidatedReport = () => {
                                 <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-amber-800">
                                     Proprietary Vedic Engine
                                 </span>
+                                <span className="hidden md:inline text-slate-300">•</span>
+                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-800">
+                                    Kerykeion Engine
+                                </span>
                             </div>
                         </div>
                     </div>

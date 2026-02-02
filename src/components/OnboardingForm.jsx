@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Clock, User, Search, Loader } from 'lucide-react';
+import { MapPin, Calendar, Clock, User, Search, Loader, Star } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 
 const OnboardingForm = ({ onSuccess, initialData = null }) => {
@@ -27,6 +27,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
 
     useEffect(() => {
         if (initialData) {
+            const time = initialData.birth_time || '';
+            let amPm = 'AM';
+            if (time) {
+                const [h] = time.split(':').map(Number);
+                amPm = h >= 12 ? 'PM' : 'AM';
+            }
+
             setFormData({
                 name: initialData.name || '',
                 gender: initialData.gender || 'male',
@@ -50,6 +57,8 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
             setLocationQuery('');
         }
     }, [initialData]);
+
+
 
     const handleSearchLocation = async () => {
         if (!locationQuery) return;
@@ -94,10 +103,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         e.preventDefault();
         setLoading(true);
         try {
+            // Filter out am_pm as it's not in the backend schema
+            const { am_pm, ...payload } = formData;
+
             if (initialData) {
-                await updateProfile(initialData.id, formData);
+                await updateProfile(initialData.id, payload);
             } else {
-                await addProfile(formData);
+                await addProfile(payload);
             }
             if (onSuccess) onSuccess();
         } catch (err) {
@@ -134,6 +146,8 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                             <Calendar className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input
                                 type="date"
+                                required
+                                max={new Date().toISOString().split("T")[0]}
                                 value={formData.birth_date}
                                 onChange={e => setFormData({ ...formData, birth_date: e.target.value })}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
@@ -308,7 +322,15 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         </div>
                         <div className="flex justify-between border-b border-gray-200 pb-2">
                             <span className="text-secondary">Date/Time</span>
-                            <span className="text-primary font-bold">{formData.birth_date} • {formData.birth_time}</span>
+                            <span className="text-primary font-bold">
+                                {formData.birth_date} • {(() => {
+                                    if (!formData.birth_time) return '';
+                                    const [h, m] = formData.birth_time.split(':').map(Number);
+                                    const h12 = h % 12 || 12;
+                                    const ampm = h >= 12 ? 'PM' : 'AM';
+                                    return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                                })()}
+                            </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-secondary">Place</span>

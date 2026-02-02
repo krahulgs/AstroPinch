@@ -134,7 +134,12 @@ const ProfileManagement = () => {
                                     <p className="text-xs font-mono text-slate-500">
                                         {profile.latitude?.toFixed(4)}, {profile.longitude?.toFixed(4)}
                                     </p>
-                                    <p>{profile.birth_date} at {profile.birth_time}</p>
+                                    <p>{profile.birth_date} at {(() => {
+                                        const [h, m] = profile.birth_time.split(':').map(Number);
+                                        const h12 = h % 12 || 12;
+                                        const ampm = h >= 12 ? 'PM' : 'AM';
+                                        return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                                    })()}</p>
                                 </div>
 
                                 <div className="space-y-3 mt-auto">

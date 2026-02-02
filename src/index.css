@@ -61,6 +61,7 @@
   }
 
   --animate-pulse-slow: pulse-slow 8s ease-in-out infinite;
+  --animate-spin-slow: orbit 20s linear infinite;
   --animate-scan: scan 4s linear infinite;
 
   @keyframes pulse-slow {
@@ -88,8 +89,11 @@
   }
 
   --animate-orbit-slow: orbit 60s linear infinite;
+  --animate-orbit-slow-rev: orbit-rev 60s linear infinite;
   --animate-orbit-med: orbit-rev 40s linear infinite;
+  --animate-orbit-med-rev: orbit 40s linear infinite;
   --animate-orbit-fast: orbit 30s linear infinite;
+  --animate-orbit-fast-rev: orbit-rev 30s linear infinite;
 
   @keyframes orbit {
     from {
@@ -110,6 +114,29 @@
       transform: rotate(0deg);
     }
   }
+
+  /* Infinite Scroll Animation */
+  --animate-scroll-left: scroll-left 40s linear infinite;
+
+  @keyframes scroll-left {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer utilities {
+  .pause-animation {
+    animation-play-state: paused;
+  }
+
+  .hover\:pause-animation:hover {
+    animation-play-state: paused;
+  }
 }
 
 @layer base {
@@ -129,6 +156,7 @@
     font-weight: 400;
     letter-spacing: -0.01em;
     line-height: 1.6;
+    overflow-x: hidden;
   }
 
   /* Subtle light background pattern */
@@ -144,11 +172,6 @@
       radial-gradient(circle at 80% 80%, rgba(33, 191, 6, 0.03) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
-  }
-
-  #root {
-    position: relative;
-    z-index: 1;
   }
 
   h1,
@@ -270,7 +293,9 @@
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }

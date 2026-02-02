@@ -455,22 +455,105 @@ JSON only:"""
         # if model:
         #    ...
 
-        return None # Return None if Groq fails
+        # Fallback to Static Template if AI fails
+    # if model: ... (Gemini removed per user request)
+
+        print("AI Service Failed or Unavailable. generating robust fallback...")
+        return generate_vedic_summary_fallback(name, planets, panchang, doshas)
             
     except Exception as e:
         print(f"Vedic AI Summary Final Failure for {name}: {e}")
         traceback.print_exc()
-        traceback.print_exc()
         # Return a structured fallback
-        return {
-            "personality_analysis": {"title": "Birth Chart Analysis", "content": "Analyzing your core traits... Please refresh in a moment."},
-            "emotional_core": {"title": "Emotional Core", "content": "Assessing emotional patterns..."},
-            "career_path": {"title": "Career & Financial Growth", "content": "Professional path analysis is currently being synthesized. If this persists, please try regenerating your report."},
-            "relationships": {"title": "Marriage & Relationships", "content": "Analysis is being prepared. Please try regenerating in a few moments."},
-            "life_phase": {"title": "Current Life Phase", "content": "Synthesizing planetary periods..."},
-            "dosha_check": {"title": "Dosha Awareness", "content": "Analysis of cosmic balance is being prepared. Please try regenerating in a few moments."},
-            "remedies": {"title": "Personal Remedies", "content": "Preparing personalized guidance..."}
+        return generate_vedic_summary_fallback(name, planets, panchang, doshas)
+
+def generate_vedic_summary_fallback(name, planets, panchang, doshas):
+    """
+    Generates a scientifically grounded fallback report based on Astrological Rules
+    when AI services are unavailable.
+    """
+    # 1. Determine Ascendant & Dominant Traits
+    asc_name = 'Unknown'
+    if panchang and 'ascendant' in panchang:
+        asc_name = panchang['ascendant'].get('name', 'Unknown')
+    
+    # Simple Ascendant Keywords
+    asc_map = {
+        'Aries': "dynamic, courageous, and action-oriented",
+        'Taurus': "stable, practical, and artistry-loving",
+        'Gemini': "intellectual, communicative, and versatile",
+        'Cancer': "intuitive, nurturing, and emotionally deep",
+        'Leo': "charismatic, generous, and born to lead",
+        'Virgo': "analytical, detailed, and service-oriented",
+        'Libra': "diplomatic, harmonious, and aesthetics-focused",
+        'Scorpio': "intense, transformative, and resilient",
+        'Sagittarius': "optimistic, philosophical, and adventurous",
+        'Capricorn': "disciplined, ambitious, and structured",
+        'Aquarius': "innovative, humanitarian, and independent",
+        'Pisces': "compassionate, imaginative, and spiritual"
+    }
+    core_trait = asc_map.get(asc_name, "unique and multifaceted")
+
+    # 2. Personality Analysis Fallback
+    personality_content = {
+        "title": "Vedic Life Portrait",
+        "content": {
+            "Personality": f"Your Rising Sign is {asc_name}, which indicates you are naturally {core_trait}. You approach the world with a distinct energy that sets you apart.",
+            "Emotional Nature": "Your emotional core is deep and receptive, guided by the Moon's influence in your chart.",
+            "Strengths": "Resilience, adaptability, and a strong sense of purpose are your key assets.",
+            "Challenges": "Balancing your inner needs with external demands can sometimes be a focus area.",
+            "Life Theme": f"Growth through {core_trait.split(',')[1] if ',' in core_trait else 'self-expression'}."
         }
+    }
+
+    # 3. Career Path Fallback
+    # Check Saturn/Sun for career hints
+    saturn = next((p for p in planets if p.get('name') == 'Saturn'), None)
+    saturn_sign = saturn.get('sign', 'Unknown') if saturn else 'Unknown'
+    
+    career_content = (
+        f"With your Ascendant in {asc_name} and Saturn in {saturn_sign}, your career path is marked by a need for both stability and expression. "
+        "You tend to thrive in roles that allow for autonomy. Success is indicated through persistence and building specialized skills. "
+        "Financially, a steady accumulation approach works best for you, avoiding impulsive risks."
+    )
+
+    # 4. Relationships Fallback
+    # Check Venus
+    venus = next((p for p in planets if p.get('name') == 'Venus'), None)
+    venus_sign = venus.get('sign', 'Unknown') if venus else 'Unknown'
+    
+    relation_content = {
+        "Needs": "Emotional connection and mutual respect.",
+        "Partner": f"Someone who balances your {asc_name} energy - likely grounded yet inspiring.",
+        "Strengths": "Loyalty and commitment.",
+        "Challenges": "Communication clarity during stressful times.",
+        "Tip": "Focus on shared values to build a lasting bond."
+    }
+
+    # 5. Dosha Check Fallback
+    dosha_text = "Your chart shows a balanced distribution of energy. "
+    if doshas and doshas.get('manglik', {}).get('present'):
+        dosha_text = "Manglik influence is present, indicating high energy and passion. This can be channeled into productive pursuits and dynamic relationships."
+    else:
+        dosha_text += "No major destabilizing Doshas are prominent, suggesting a smoother path with fewer karmic obstructs."
+
+    # 6. Remedies (Generic Safe)
+    remedies_content = [
+        {"type": "Mindset", "remedy": "Practice daily gratitude to align with positive Jupiter energy."},
+        {"type": "Lifestyle", "remedy": "Maintain a regular sleep schedule to balance the Moon's influence."},
+        {"type": "Service", "remedy": "Helping the less fortunate on Saturdays strengthens Saturn."}
+    ]
+
+    return {
+        "personality_analysis": personality_content,
+        "emotional_core": {"title": "Emotional Core", "content": f"Your emotional nature is colored by the stars at your birth. Focus on inner stability."},
+        "career_path": {"title": "Career & Financial Growth", "content": career_content},
+        "relationships": {"title": "Marriage & Relationships", "content": relation_content},
+        "life_phase": {"title": "Current Life Phase", "content": "You are currently navigating a phase of learning and growth. Trust the timing of your life."},
+        "transit_analysis": {"title": "Monthly Transit Pulse", "content": {"Active Themes": "Change & Adaptation", "Affirmation": "I am aligned with the cosmic flow."}},
+        "dosha_check": {"title": "Dosha Awareness", "content": dosha_text},
+        "remedies": {"title": "Soul Remedies", "content": remedies_content}
+    }
 
 def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None, context=None, lang="en"):
     """
@@ -645,14 +728,10 @@ Respond with the summary text only."""
         print(f"Executive Summary AI Error: {e}")
         return None
 
-def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en"):
+def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en", dob=None, place=None, age=None):
     """
-    Generates a specific Vedic chart analysis (Personality, Emotional Nature, Strengths, Challenges, Life Theme).
+    Generates a high-quality, detailed Vedic personality analysis without astrological jargon.
     """
-    # If client/model missing, we just proceed to fallback logic below instead of returning None
-    # if not client and not model:
-    #     return None
-
     import json
     
     # Construct Context
@@ -663,6 +742,7 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
                 name_p = p.get('name', 'Unknown')
                 sign_p = p.get('sign', 'Unknown')
                 house_p = p.get('house', '?')
+                # Include a human-readable interpretation hint for the AI based on sign only
                 planet_list.append(f"- {name_p} in {sign_p} (House {house_p})")
             except: pass
     
@@ -675,45 +755,60 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     pan_nak = get_val(panchang.get('nakshatra')) if panchang else 'Unknown'
     pan_asc = get_val(panchang.get('ascendant')) if panchang else 'Unknown'
 
+    birth_context = f"Name: {name}"
+    if dob: birth_context += f", DOB: {dob}"
+    if age: birth_context += f", Age: {age}"
+    if place: birth_context += f", Place: {place}"
+
     # Dosha Info
     dosha_str = "None"
     if doshas and doshas.get('manglik', {}).get('present'):
         m_data = doshas.get('manglik', {})
         dosha_str = f"Manglik (Intensity: {m_data.get('intensity')}, Reason: {m_data.get('reason')})"
 
-    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in Hindi language (Devanagari script) using simple English loanwords where appropriate." if lang == "hi" else "Respond in plain, simple, and detailed English."
 
-    prompt = f"""You are a friendly and encouraging Vedic Astrologer.
-    Using the user’s birth details, analyze the Vedic birth chart.
+    prompt = f"""You are a world-class life coach and personality expert who uses Vedic wisdom to help people understand themselves.
     
-    **User Chart**:
-    Name: {name}
-    Ascendant: {pan_asc}
-    Nakshatra: {pan_nak}
-    Doshas: {dosha_str}
-    Planets:
+    **Your Goal**: Provide a DEEP and DETAILED analysis of the user's personality based on their birth chart.
+    
+    **Birth Details**:
+    {birth_context}
+    
+    **Astrological Data (For your reference, DO NOT mention house numbers or technical terms in output)**:
+    - Primary Sign (Ascendant): {pan_asc}
+    - Emotional Core (Nakshatra): {pan_nak}
+    - Planetary Alignments:
     {planet_data}
+    - Key Findings: {dosha_str}
 
-    **Task**:
-    Output strictly valid JSON with the following structure:
+    **Strict Rules for Output**:
+    1. **NO ASTROLOGICAL JARGON**: Do not mention "Houses," "Lords," "Signs," "Conjunctions," "Aspects," "Dasha," or "Sub Lord."
+    2. **USE PLAIN ENGLISH**: Describe the traits as a modern psychologist or life coach would.
+    3. **BE DETAILED**: Each point in 'overall_personality' must be at least 40-50 words long.
+    4. **TONE**: Warm, empowering, and insightful.
+    
+    **Required JSON Structure**:
     {{
-        "overall_personality": ["Point 1", "Point 2", "Point 3", "Point 4 (Mention Manglik presence/absence here)"],
-        "emotional_nature": "Brief clear description",
-        "strengths": ["Strength 1", "Strength 2"],
-        "challenges": ["Challenge 1", "Challenge 2"],
-        "life_theme": "One clear life theme"
+        "overall_personality": [
+            "A detailed 50-word paragraph about their core nature and how they interact with the world.",
+            "A detailed 50-word paragraph about their mental approach, thinking patterns, and intellectual strengths.",
+            "A detailed 50-word paragraph about their social style, reputation, and how others perceive them.",
+            "A detailed 50-word paragraph about their inner drive, willpower, and life energy."
+        ],
+        "manglik_status": "A simple, jargon-free statement about the presence or absence of Manglik Dosha and what it means for them in plain English.",
+        "emotional_nature": "A detailed 60-80 word analysis of their inner feelings, needs, and emotional triggers based on {pan_nak}.",
+        "strengths": [
+            "Specific strength 1 described in 20-30 words",
+            "Specific strength 2 described in 20-30 words",
+            "Specific strength 3 described in 20-30 words"
+        ],
+        "challenges": [
+            "A potential hurdle described with a growth-mindset focus in 30 words",
+            "Another area for improvement described supportively in 30 words"
+        ],
+        "life_theme": "A powerful, detailed 40-word summary of their soul's mission or main life theme."
     }}
-
-    **Important**:
-    - If the user is Manglik (Doshas: Manglik...), YOU MUST MENTION IT in the 'overall_personality' or 'challenges'.
-    - If NOT Manglik, you may mention they are free from Manglik Dosha in 'strengths'.
-
-    **Tone**:
-    - Friendly
-    - Clear
-    - Encouraging
-    - No jargons
-    - Max 120 words total content
 
     {lang_instruction}
     """

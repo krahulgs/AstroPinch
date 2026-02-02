@@ -6,7 +6,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import AstrocartographyChart from '../components/charts/AstrocartographyChart';
 import ChatWidget from '../components/ChatWidget';
-import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap } from 'lucide-react';
+import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -35,7 +35,7 @@ class ErrorBoundary extends React.Component {
                         <p className="text-secondary mb-6 text-sm">We encountered an error while generating your report.</p>
 
                         <div className="bg-gray-50 p-4 rounded-xl text-left mb-6 overflow-hidden">
-                            <p className="text-xs text-red-600 font-mono break-all">
+                            <p className="text-sm text-red-600 font-mono break-all">
                                 {this.state.error?.toString()}
                             </p>
                         </div>
@@ -49,7 +49,7 @@ class ErrorBoundary extends React.Component {
                         >
                             Reset & Reload
                         </button>
-                        <p className="mt-4 text-[10px] text-slate-400">
+                        <p className="mt-4 text-sm text-slate-400">
                             If this persists, try clearing your browser cache.
                         </p>
                     </div>
@@ -76,7 +76,7 @@ const LoshuGridDisplay = ({ loshuData }) => {
         <div className="mt-6 space-y-4">
             <div className="flex items-center justify-between">
                 <h4 className="text-xs font-black text-primary uppercase tracking-widest">Loshu Grid (Vedic Numerology)</h4>
-                <div className="flex gap-2 text-[10px] font-bold">
+                <div className="flex gap-2 text-xs font-bold">
                     <span className="bg-amber-100/50 text-amber-800 px-2 py-1 rounded">Mulank: {loshuData.mulank}</span>
                     <span className="bg-purple-100/50 text-purple-800 px-2 py-1 rounded">Bhagyank: {loshuData.bhagyank}</span>
                 </div>
@@ -95,7 +95,7 @@ const LoshuGridDisplay = ({ loshuData }) => {
                                 {num}
                             </span>
                             {count > 1 && (
-                                <span className="text-[9px] text-amber-600 font-bold leading-none">
+                                <span className="text-sm text-amber-600 font-bold leading-none">
                                     x{count}
                                 </span>
                             )}
@@ -107,10 +107,10 @@ const LoshuGridDisplay = ({ loshuData }) => {
             {/* Planes Analysis */}
             {loshuData.completed_planes?.length > 0 && (
                 <div className="space-y-2">
-                    <p className="text-[10px] text-secondary font-bold uppercase">Active Yogas (Planes)</p>
+                    <p className="text-sm text-secondary font-bold uppercase">Active Yogas (Planes)</p>
                     <div className="flex flex-wrap gap-2">
                         {loshuData.completed_planes.map(plane => (
-                            <span key={plane} className="px-2 py-1 text-[9px] bg-emerald-50 text-emerald-700 rounded-md font-bold border border-emerald-100">
+                            <span key={plane} className="px-2 py-1 text-sm bg-emerald-50 text-emerald-700 rounded-md font-bold border border-emerald-100">
                                 {plane}
                             </span>
                         ))}
@@ -121,10 +121,10 @@ const LoshuGridDisplay = ({ loshuData }) => {
             {/* Remedies (Collapsible or truncated) */}
             {loshuData.remedies && (
                 <div className="bg-white p-3 rounded-xl border border-gray-100">
-                    <p className="text-[10px] text-amber-700 font-bold uppercase mb-2">Key Remedies (Missing Numbers)</p>
+                    <p className="text-sm text-amber-700 font-bold uppercase mb-2">Key Remedies (Missing Numbers)</p>
                     <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-1">
                         {Object.entries(loshuData.remedies).slice(0, 3).map(([num, remedy]) => (
-                            <div key={num} className="text-[10px] text-slate-600 leading-tight border-l-2 border-amber-200 pl-2">
+                            <div key={num} className="text-xs text-slate-600 leading-tight border-l-2 border-amber-200 pl-2">
                                 <span className="font-bold text-slate-700">#{num}:</span> {remedy}
                             </div>
                         ))}
@@ -243,7 +243,7 @@ const VedicChartsDisplay = ({ userData }) => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-black text-primary uppercase tracking-tight">Lagna Chart</h3>
-                                <p className="text-xs text-purple-600 font-bold uppercase tracking-widest">D1 - Birth Chart</p>
+                                <p className="text-sm text-purple-600 font-bold uppercase tracking-widest">D1 - Birth Chart</p>
                             </div>
                         </div>
 
@@ -262,7 +262,7 @@ const VedicChartsDisplay = ({ userData }) => {
                         )}
 
                         <div className="mt-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                            <p className="text-xs text-purple-700 text-center italic">
+                            <p className="text-sm text-purple-700 text-center italic">
                                 The Lagna (Ascendant) chart shows planetary positions at birth and indicates your personality, life path, and karmic influences.
                             </p>
                         </div>
@@ -276,7 +276,7 @@ const VedicChartsDisplay = ({ userData }) => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-black text-primary uppercase tracking-tight">Navamsa Chart</h3>
-                                <p className="text-xs text-amber-600 font-bold uppercase tracking-widest">D9 - Dharma Chart</p>
+                                <p className="text-sm text-amber-600 font-bold uppercase tracking-widest">D9 - Dharma Chart</p>
                             </div>
                         </div>
 
@@ -295,7 +295,7 @@ const VedicChartsDisplay = ({ userData }) => {
                         )}
 
                         <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                            <p className="text-xs text-amber-700 text-center italic">
+                            <p className="text-sm text-amber-700 text-center italic">
                                 The Navamsa (D9) chart reveals your inner self, marriage prospects, spiritual path, and the fruits of your karma.
                             </p>
                         </div>
@@ -475,13 +475,53 @@ const ConsolidatedReport = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center space-y-4">
-                    <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto"></div>
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-bold text-primary animate-pulse">{t('report.status.generating')}</h2>
-                        <p className="text-secondary">{t('report.status.synthesizing')}</p>
-                        <p className="text-slate-500 text-xs uppercase tracking-widest">{t('report.status.powered_by')}</p>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50/50 relative overflow-hidden">
+                {/* Background Decor */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+
+                <div className="relative z-10 text-center space-y-8 max-w-lg px-6 animate-in fade-in zoom-in duration-700">
+                    {/* Premium Spinner */}
+                    <div className="relative w-24 h-24 mx-auto">
+                        <div className="absolute inset-0 border-4 border-purple-100 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                        {/* Inner Ring */}
+                        <div className="absolute inset-4 border-4 border-amber-50 rounded-full opacity-50"></div>
+                        <div className="absolute inset-4 border-4 border-amber-500 border-b-transparent rounded-full animate-spin duration-[3s]"></div>
+
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Sparkles className="w-8 h-8 text-purple-600 animate-pulse" />
+                        </div>
+                    </div>
+
+                    {/* Text Content */}
+                    <div className="space-y-4">
+                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-700">
+                            {t('report.status.generating', 'Generating Your Cosmic Blueprint...')}
+                        </h2>
+                        <p className="text-lg text-slate-500 font-medium animate-pulse">
+                            {t('report.status.synthesizing', 'Synthesizing Planetary Data...')}
+                        </p>
+                    </div>
+
+                    {/* Powered By Footer */}
+                    <div className="pt-8 border-t border-purple-100/50 flex flex-col items-center gap-3">
+                        <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+                            <Activity className="w-3 h-3" /> Powered By
+                        </div>
+                        <div className="glass-panel px-6 py-3 rounded-2xl bg-white/60 border border-white/50 shadow-sm backdrop-blur-sm">
+                            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center">
+                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
+                                    NASA JPL Planetary Data
+                                </span>
+                                <span className="hidden md:inline text-slate-300">•</span>
+                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-amber-800">
+                                    Proprietary Vedic Engine
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -522,15 +562,21 @@ const ConsolidatedReport = () => {
                     <div className="flex flex-col items-center">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 mb-4 shadow-sm">
                             <Sparkles className="w-4 h-4 text-purple-600" />
-                            <span className="text-[10px] md:text-xs font-bold text-purple-700 uppercase tracking-widest">{t('report.header.premium_profile')}</span>
+                            <span className="text-xs md:text-sm font-bold text-purple-700 uppercase tracking-widest">{t('report.header.premium_profile')}</span>
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black text-primary mb-2 tracking-tighter">
                             {report.profile?.name}
                         </h1>
                         <p className="text-sm md:text-xl text-secondary font-medium">
-                            {report.profile?.dob} • {report.profile?.tob}
+                            {report.profile?.dob} • {(() => {
+                                if (!report.profile?.tob) return '';
+                                const [h, m] = report.profile.tob.split(':').map(Number);
+                                const h12 = h % 12 || 12;
+                                const ampm = h >= 12 ? 'PM' : 'AM';
+                                return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                            })()}
                         </p>
-                        <p className="text-xs md:text-base text-secondary/70">
+                        <p className="text-sm md:text-base text-secondary/70">
                             {report.profile?.place}
                         </p>
                     </div>
@@ -613,7 +659,7 @@ const ConsolidatedReport = () => {
                                         <Scroll className="w-6 h-6 text-purple-600" />
                                         <div>
                                             <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.title')}</h3>
-                                            <p className="text-xs text-purple-600">{report.vedic_astrology.ayanamsa?.name}</p>
+                                            <p className="text-sm text-purple-600">{report.vedic_astrology.ayanamsa?.name}</p>
                                         </div>
                                     </div>
 
@@ -631,59 +677,30 @@ const ConsolidatedReport = () => {
 
                                             <div className="space-y-4">
                                                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                                    <div className="text-[11px] font-black text-secondary uppercase tracking-widest">{t('report.vedic.nakshatra')}</div>
+                                                    <div className="text-xs font-black text-secondary uppercase tracking-widest">{t('report.vedic.nakshatra')}</div>
                                                     <div className="text-right">
                                                         <div className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.nakshatra?.name}</div>
-                                                        <div className="text-[9px] text-purple-600 uppercase font-black">{report.vedic_astrology.panchang?.nakshatra?.lord}</div>
+                                                        <div className="text-xs text-purple-600 uppercase font-black">{report.vedic_astrology.panchang?.nakshatra?.lord}</div>
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                                    <div className="text-[11px] font-black text-secondary uppercase tracking-widest">{t('report.vedic.tithi')}</div>
+                                                    <div className="text-xs font-black text-secondary uppercase tracking-widest">{t('report.vedic.tithi')}</div>
                                                     <div className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.tithi?.name}</div>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                                    <div className="text-[11px] font-black text-secondary uppercase tracking-widest">Yoga</div>
+                                                    <div className="text-xs font-black text-secondary uppercase tracking-widest">Yoga</div>
                                                     <div className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.yoga?.name}</div>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                                    <div className="text-[11px] font-black text-secondary uppercase tracking-widest">Karana</div>
+                                                    <div className="text-xs font-black text-secondary uppercase tracking-widest">Karana</div>
                                                     <div className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.karana?.name}</div>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                                    <div className="text-[11px] font-black text-secondary uppercase tracking-widest">{t('report.vedic.current_mahadasha')}</div>
+                                                    <div className="text-xs font-black text-secondary uppercase tracking-widest">{t('report.vedic.current_mahadasha')}</div>
                                                     <div className="text-sm font-bold text-purple-600">{report.vedic_astrology.dasha?.[0]?.planet || report.vedic_astrology.dasha?.active_mahadasha}</div>
                                                 </div>
                                             </div>
 
-                                            {/* Manglik Analysis - Always Show */}
-                                            {report.vedic_astrology.doshas?.manglik && (
-                                                <div className={`mt-4 p-3 rounded-xl border ${report.vedic_astrology.doshas.manglik.present ? 'bg-red-100 border-red-200' : 'bg-green-100 border-green-200'}`}>
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <div className={`text-[11px] font-black uppercase tracking-widest ${report.vedic_astrology.doshas.manglik.present ? 'text-red-900' : 'text-green-900'}`}>
-                                                            Manglik Dosha
-                                                        </div>
-                                                        <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${report.vedic_astrology.doshas.manglik.present ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
-                                                            {report.vedic_astrology.doshas.manglik.present ? 'YES' : 'NO'}
-                                                        </div>
-                                                    </div>
-
-                                                    {report.vedic_astrology.doshas.manglik.present ? (
-                                                        <div className="space-y-2">
-                                                            <div className="flex justify-between items-center text-[10px]">
-                                                                <span className="text-red-700 font-bold">Intensity:</span>
-                                                                <span className="text-red-800">{report.vedic_astrology.doshas.manglik.intensity || 'High'}</span>
-                                                            </div>
-                                                            <p className="text-[10px] text-red-600 leading-tight bg-white/50 p-2 rounded-lg">
-                                                                {report.vedic_astrology.doshas.manglik.reason}
-                                                            </p>
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-[10px] text-green-700 leading-tight">
-                                                            Mars is well-placed. No Manglik Dosha effects found in this chart.
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
                                         </div>
 
                                         {/* Right Column: AI Analysis */}
@@ -695,7 +712,7 @@ const ConsolidatedReport = () => {
                                                             <div className="mb-6 p-4 bg-white/50 rounded-2xl border border-purple-100 shadow-sm">
                                                                 <div className="flex items-center gap-2 mb-3">
                                                                     <Moon className="w-4 h-4 text-purple-600" />
-                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Avakhada Chakra Details</span>
+                                                                    <span className="text-sm font-black text-primary uppercase tracking-widest">Avakhada Chakra Details</span>
                                                                 </div>
                                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                                                     {[
@@ -709,9 +726,9 @@ const ConsolidatedReport = () => {
                                                                         { label: 'Tatwa', value: report.vedic_astrology.avakhada.tatwa, color: 'orange', desc: "Element" }
                                                                     ].map((item, idx) => (
                                                                         <div key={idx} className="flex flex-col group/item relative">
-                                                                            <span className={`text-[8px] font-black uppercase text-slate-400 group-hover/item:text-primary transition-colors`}>{item.label}</span>
-                                                                            <span className="text-[11px] font-black text-primary">{item.value}</span>
-                                                                            <div className="absolute top-[-20px] left-0 hidden group-hover/item:block bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded whitespace-nowrap z-20">
+                                                                            <span className={`text-xs font-black uppercase text-slate-400 group-hover/item:text-primary transition-colors`}>{item.label}</span>
+                                                                            <span className="text-sm font-black text-primary">{item.value}</span>
+                                                                            <div className="absolute top-[-20px] left-0 hidden group-hover/item:block bg-slate-900 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap z-20">
                                                                                 {item.desc}
                                                                             </div>
                                                                         </div>
@@ -727,43 +744,36 @@ const ConsolidatedReport = () => {
                                                             </h4>
                                                             <ul className="space-y-2">
                                                                 {report.vedic_astrology.vedic_personality_analysis.overall_personality?.map((point, i) => (
-                                                                    <li key={i} className="flex gap-2 text-xs text-slate-600">
+                                                                    <li key={i} className="flex gap-2 text-sm text-slate-600">
                                                                         <span className="text-purple-400">•</span>
                                                                         {point}
                                                                     </li>
                                                                 ))}
                                                             </ul>
+
+                                                            {report.vedic_astrology.vedic_personality_analysis.manglik_status && (
+                                                                <div className="mt-4 p-3 rounded-lg bg-purple-50 border border-purple-100/50">
+                                                                    <div className="text-xs font-black text-purple-700 uppercase tracking-widest mb-1">
+                                                                        Manglik Analysis
+                                                                    </div>
+                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                                                                        {report.vedic_astrology.vedic_personality_analysis.manglik_status}
+                                                                    </p>
+                                                                </div>
+                                                            )}
                                                         </div>
 
-                                                        {/* Manglik Status Badge in Right Column */}
-                                                        {report.vedic_astrology.doshas?.manglik && (
-                                                            <div className={`p-3 rounded-xl border flex items-center justify-between ${report.vedic_astrology.doshas.manglik.present ? 'bg-red-100 border-red-200' : 'bg-green-100 border-green-200'}`}>
-                                                                <div>
-                                                                    <div className={`text-[10px] font-black uppercase tracking-widest leading-none mb-1 ${report.vedic_astrology.doshas.manglik.present ? 'text-red-900' : 'text-green-900'}`}>
-                                                                        Manglik Status
-                                                                    </div>
-                                                                    <div className={`text-xs ${report.vedic_astrology.doshas.manglik.present ? 'text-red-700' : 'text-green-700'}`}>
-                                                                        {report.vedic_astrology.doshas.manglik.present
-                                                                            ? `Present (${report.vedic_astrology.doshas.manglik.intensity || 'High'} Intensity)`
-                                                                            : 'Not Present (Mars is well-placed)'}
-                                                                    </div>
-                                                                </div>
-                                                                <div className={`text-xs font-bold px-3 py-1 rounded-full ${report.vedic_astrology.doshas.manglik.present ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
-                                                                    {report.vedic_astrology.doshas.manglik.present ? 'Manglik' : 'Non-Manglik'}
-                                                                </div>
-                                                            </div>
-                                                        )}
 
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                             <div>
-                                                                <h5 className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Emotional Nature</h5>
-                                                                <p className="text-xs text-slate-600 leading-relaxed italic">
+                                                                <h5 className="text-xs font-black text-secondary uppercase tracking-widest mb-1">Emotional Nature</h5>
+                                                                <p className="text-sm text-slate-600 leading-relaxed italic">
                                                                     "{report.vedic_astrology.vedic_personality_analysis.emotional_nature}"
                                                                 </p>
                                                             </div>
                                                             <div>
-                                                                <h5 className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Life Theme</h5>
-                                                                <p className="text-xs text-purple-700 font-bold leading-relaxed">
+                                                                <h5 className="text-xs font-black text-secondary uppercase tracking-widest mb-1">Life Theme</h5>
+                                                                <p className="text-sm text-purple-700 font-bold leading-relaxed">
                                                                     {report.vedic_astrology.vedic_personality_analysis.life_theme}
                                                                 </p>
                                                             </div>
@@ -771,14 +781,14 @@ const ConsolidatedReport = () => {
 
                                                         <div className="space-y-3 pt-2 border-t border-purple-100/50">
                                                             <div>
-                                                                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mr-2">Strengths:</span>
-                                                                <span className="text-xs text-slate-600">
+                                                                <span className="text-sm font-bold text-emerald-600 uppercase tracking-wider mr-2">Strengths:</span>
+                                                                <span className="text-sm text-slate-600">
                                                                     {report.vedic_astrology.vedic_personality_analysis.strengths?.join(", ")}
                                                                 </span>
                                                             </div>
                                                             <div>
-                                                                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mr-2">Challenges:</span>
-                                                                <span className="text-xs text-slate-600">
+                                                                <span className="text-sm font-bold text-amber-600 uppercase tracking-wider mr-2">Challenges:</span>
+                                                                <span className="text-sm text-slate-600">
                                                                     {report.vedic_astrology.vedic_personality_analysis.challenges?.join(", ")}
                                                                 </span>
                                                             </div>
@@ -786,7 +796,7 @@ const ConsolidatedReport = () => {
                                                     </div>
 
                                                     <div className="mt-6 text-center">
-                                                        <p className="text-[10px] text-slate-400 italic">
+                                                        <p className="text-sm text-slate-400 italic">
                                                             "This chart shows tendencies, not fixed destiny."
                                                         </p>
                                                     </div>
@@ -794,7 +804,7 @@ const ConsolidatedReport = () => {
                                             ) : (
                                                 <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                                     <Brain className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="text-xs">Generating detailed personality analysis...</p>
+                                                    <p className="text-sm">Generating detailed personality analysis...</p>
                                                 </div>
                                             )}
                                         </div>
@@ -803,112 +813,143 @@ const ConsolidatedReport = () => {
                             )}
 
                             {/* KP System Card */}
-                            {report.vedic_astrology?.kp_system && (
-                                <div className="col-span-full glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
-                                    <div className="absolute top-0 right-0 p-6 opacity-5">
-                                        <Star className="w-32 h-32 text-primary" />
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Star className="w-6 h-6 text-emerald-600" />
+                            {/* Dasha Timeline Section (Promoted) */}
+                            <div className="col-span-full glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
+                                            <Activity className="w-7 h-7 text-indigo-600" />
+                                        </div>
                                         <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
-                                            <p className="text-xs text-emerald-600">Krishnamurti Paddhati</p>
+                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
+                                            <p className="text-indigo-600/60 text-sm font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        {/* Left Column: Planetary Table */}
-                                        <div className="space-y-4">
-                                            {/* Mobile View Cards */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
-                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                    <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-primary">{p.planet}</span>
-                                                            <span className="text-[10px] text-secondary uppercase">{p.sign.substring(0, 3)}</span>
-                                                        </div>
-                                                        <div className="flex gap-4 text-right">
-                                                            <div>
-                                                                <div className="text-[9px] text-secondary uppercase font-bold tracking-widest">Star</div>
-                                                                <div className="text-[11px] font-bold text-emerald-700">{p.star_lord}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-[9px] text-secondary uppercase font-bold tracking-widest">Sub</div>
-                                                                <div className="text-[11px] font-bold text-amber-700">{p.sub_lord}</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                    {/* Active Period Highlight Card */}
+                                    {report.vedic_astrology?.dasha?.active_mahadasha && (
+                                        <div className="mb-8 p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
+                                            {/* Cosmic Background Effect */}
+                                            <div className="absolute inset-0 opacity-20">
+                                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-300 transition-colors duration-1000"></div>
+                                                <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
                                             </div>
 
-                                            {/* Desktop View Table */}
-                                            <div className="hidden lg:block space-y-2">
-                                                <div className="grid grid-cols-4 text-xs font-bold text-secondary uppercase pb-2 border-b border-gray-100">
-                                                    <span>Planet</span>
-                                                    <span>Sign</span>
-                                                    <span>Star</span>
-                                                    <span>Sub</span>
-                                                </div>
-                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                    <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
-                                                        <span className="text-primary font-bold">{p.planet}</span>
-                                                        <span className="text-secondary text-xs">{p.sign.substring(0, 3)}</span>
-                                                        <span className="text-emerald-700 font-medium text-xs">{p.star_lord}</span>
-                                                        <span className="text-amber-700 font-medium text-xs">{p.sub_lord}</span>
+                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                                                <div className="flex items-center gap-4 md:gap-6">
+                                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
+                                                        <span className="text-2xl md:text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
                                                     </div>
-                                                ))}
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
+                                                            <span className="text-indigo-200 text-sm font-bold uppercase tracking-[0.2em]">Current Cycle</span>
+                                                        </div>
+                                                        <h3 className="text-2xl md:text-4xl font-serif italic">
+                                                            {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
+                                                        </h3>
+                                                        {report.vedic_astrology.dasha.active_antardasha && (
+                                                            <p className="text-indigo-200 mt-1 md:mt-2 text-sm font-medium flex items-center gap-2">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+                                                                {report.vedic_astrology.dasha.active_antardasha} Bhukti
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="md:text-right hidden md:block">
+                                                    <div className="inline-block px-5 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
+                                                        <span className="text-sm font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                    )}
 
-                                        {/* Right Column: Easy English Analysis */}
-                                        <div className="bg-emerald-50/50 rounded-2xl p-6 border border-emerald-100 relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                                                <Brain className="w-24 h-24 text-emerald-600" />
-                                            </div>
-
-                                            <div className="flex items-center gap-2 mb-4 relative z-10">
-                                                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                                                    <Brain className="w-4 h-4 text-emerald-700" />
+                                    {/* Mobile Card View */}
+                                    <div className="md:hidden space-y-3">
+                                        {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
+                                            <div key={i} className={`p-4 rounded-2xl border transition-all ${d.is_active ? 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-200' : 'bg-white border-indigo-50 shadow-sm'}`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${d.is_active ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                            {d.planet.substring(0, 2)}
+                                                        </div>
+                                                        <span className="font-bold text-slate-900 text-sm">{d.planet}</span>
+                                                    </div>
+                                                    {d.is_active && (
+                                                        <span className="px-2 py-0.5 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest animate-pulse">
+                                                            Active
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
-                                                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Easy English Interpretation</p>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">Start</span>
+                                                        <span className="text-slate-700 font-bold">{d.start}</span>
+                                                    </div>
+                                                    <div className="w-8 h-px bg-slate-100"></div>
+                                                    <div className="flex flex-col text-right">
+                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">End</span>
+                                                        <span className="text-slate-700 font-bold">{d.end}</span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        ))}
+                                    </div>
 
-                                            {report.vedic_astrology.kp_analysis ? (
-                                                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
-                                                    {report.vedic_astrology.kp_analysis.map((item, idx) => (
-                                                        <div key={idx} className={`p-3 rounded-xl border shadow-sm transition-all ${item.type && item.type !== 'General'
-                                                            ? 'bg-gradient-to-r from-emerald-50 to-white border-emerald-200'
-                                                            : 'bg-white border-emerald-100'
-                                                            }`}>
-                                                            {item.type && item.type !== 'General' && (
-                                                                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">
-                                                                    {item.type}
+                                    {/* Desktop Table View */}
+                                    <div className="hidden md:block overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                                        <table className="w-full text-left">
+                                            <thead>
+                                                <tr className="bg-indigo-50/50">
+                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Planetary Period</th>
+                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Start Date</th>
+                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">End Date</th>
+                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900 text-right">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-indigo-50">
+                                                {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
+                                                    <tr key={i} className={`group transition-all ${d.is_active ? 'bg-indigo-100/30' : 'hover:bg-indigo-50/20'}`}>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${d.is_active ? 'bg-indigo-600 text-white shadow-md' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                                    {d.planet.substring(0, 2)}
                                                                 </div>
+                                                                <span className="font-bold text-slate-900 tracking-tight">
+                                                                    {d.planet} Mahadasha
+                                                                    {d.is_active && report.vedic_astrology?.dasha?.active_antardasha && (
+                                                                        <span className="text-indigo-600 ml-2">/ {report.vedic_astrology.dasha.active_antardasha} Bhukti</span>
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.start}</td>
+                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.end}</td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            {d.is_active ? (
+                                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest shadow-sm animate-pulse">
+                                                                    Current Phase
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">
+                                                                    {new Date(d.start) > new Date() ? 'Upcoming' : 'Past'}
+                                                                </span>
                                                             )}
-                                                            <p className="text-xs text-slate-600 leading-relaxed"
-                                                                dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-emerald-800 font-bold">$1</strong>') }}
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center justify-center h-40 text-xs text-secondary italic">
-                                                    Analysis unavailable for this chart.
-                                                </div>
-                                            )}
-                                        </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
 
-                                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
-                                        <p className="text-[10px] text-emerald-700 uppercase tracking-widest font-bold">
-                                            {t('report.vedic.source_kp')}
-                                        </p>
+                                    <div className="mt-6 flex items-center gap-2 text-xs text-indigo-400 font-bold uppercase tracking-widest justify-center">
+                                        <Info className="w-3 h-3" /> Based on {report.vedic_astrology?.panchang?.nakshatra?.name || 'Moon Nakshatra'} 120-year cosmic cycle
                                     </div>
                                 </div>
-                            )}
+                            </div>
 
                             {/* Vedic Remedies Card (Enhanced) */}
 
@@ -925,11 +966,11 @@ const ConsolidatedReport = () => {
                                             </div>
                                             <div>
                                                 <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">{t('report.remedies.title')}</h3>
-                                                <p className="text-amber-700 text-[10px] font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
+                                                <p className="text-amber-700 text-sm font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
                                             </div>
                                         </div>
                                         <div className="px-4 py-2 bg-white/60 border border-white/50 rounded-xl backdrop-blur-md shadow-sm">
-                                            <p className="text-[10px] text-secondary uppercase font-black tracking-widest mb-1">{t('report.remedies.dasha_influence')}</p>
+                                            <p className="text-sm text-secondary uppercase font-black tracking-widest mb-1">{t('report.remedies.dasha_influence')}</p>
                                             <p className="text-primary font-bold text-sm">{report.vedic_astrology.dasha?.[0]?.planet} Mahadasha</p>
                                         </div>
                                     </div>
@@ -940,7 +981,7 @@ const ConsolidatedReport = () => {
                                             <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                                 <Gem className="w-6 h-6 text-purple-600" />
                                             </div>
-                                            <div className="text-[10px] text-purple-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.gemstone')}</div>
+                                            <div className="text-xs text-purple-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.gemstone')}</div>
                                             <h4 className="text-xl md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.gemstone?.stone}</h4>
 
                                             <div className="space-y-3 pt-4 border-t border-gray-100">
@@ -953,7 +994,7 @@ const ConsolidatedReport = () => {
                                                     <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.metal}</span>
                                                 </div>
                                                 <div className="mt-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                                    <p className="text-[10px] text-purple-700 leading-relaxed italic text-center">
+                                                    <p className="text-sm text-purple-700 leading-relaxed italic text-center">
                                                         "Enhances {report.vedic_astrology.remedies?.gemstone?.life_area}"
                                                     </p>
                                                 </div>
@@ -965,14 +1006,14 @@ const ConsolidatedReport = () => {
                                             <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                                 <CircleDot className="w-6 h-6 text-amber-600" />
                                             </div>
-                                            <div className="text-[10px] text-amber-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.rudraksha')}</div>
+                                            <div className="text-xs text-amber-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.rudraksha')}</div>
                                             <h4 className="text-xl md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.rudraksha?.type}</h4>
 
                                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                                 <p className="text-sm text-secondary leading-relaxed italic">
                                                     "{report.vedic_astrology.remedies?.rudraksha?.benefits}"
                                                 </p>
-                                                <div className="flex items-center gap-2 text-[10px] font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
                                                     <Star className="w-3 h-3 fill-amber-700" />
                                                     {t('report.remedies.deity_focus')}: {report.vedic_astrology.remedies?.rudraksha?.deity}
                                                 </div>
@@ -984,19 +1025,19 @@ const ConsolidatedReport = () => {
                                             <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                                 <Mic2 className="w-6 h-6 text-emerald-600" />
                                             </div>
-                                            <div className="text-[10px] text-emerald-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.sacred_mantra')}</div>
+                                            <div className="text-xs text-emerald-600 uppercase font-black tracking-widest mb-2">{t('report.remedies.sacred_mantra')}</div>
                                             <h4 className="text-xl md:text-2xl font-bold text-primary italic mb-4 leading-relaxed">
                                                 "{report.vedic_astrology.remedies?.mantra?.sanskrit}"
                                             </h4>
 
                                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="text-[10px] text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
-                                                    <p className="text-xs text-emerald-700 leading-relaxed">
+                                                    <div className="text-xs text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
+                                                    <p className="text-sm text-emerald-700 leading-relaxed">
                                                         {report.vedic_astrology.remedies?.mantra?.instructions || "Chant 108 times daily in the morning."}
                                                     </p>
                                                 </div>
-                                                <div className="flex items-center justify-between text-[10px] font-bold text-secondary border-t border-gray-100 pt-3">
+                                                <div className="flex items-center justify-between text-xs font-bold text-secondary border-t border-gray-100 pt-3">
                                                     <span className="uppercase">{t('report.remedies.deity_focus')}</span>
                                                     <span className="text-emerald-700 uppercase">{report.vedic_astrology.remedies?.mantra?.deity}</span>
                                                 </div>
@@ -1036,7 +1077,7 @@ const ConsolidatedReport = () => {
                                                             <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">
                                                                 {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
                                                             </h3>
-                                                            <p className="text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                                            <p className="text-indigo-600 text-sm font-black uppercase tracking-widest flex items-center gap-2">
                                                                 <Sparkles className="w-3 h-3" /> Personalized Life Insights
                                                             </p>
                                                         </div>
@@ -1049,7 +1090,7 @@ const ConsolidatedReport = () => {
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                                                         {Object.entries(content).map(([label, text], i) => (
                                                                             <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
-                                                                                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 block mb-1">
+                                                                                <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
                                                                                     {label}
                                                                                 </span>
                                                                                 <p className={`text-slate-700 leading-relaxed ${label === 'Life Theme' ? 'text-lg font-bold italic text-indigo-800' : 'text-sm font-medium'}`}>
@@ -1102,40 +1143,7 @@ const ConsolidatedReport = () => {
                                                 })}
                                         </div>
 
-                                        {/* 3. The Pursuit: Career & Financial Growth */}
-                                        {report.vedic_astrology.ai_summary.career_path && (
-                                            <div className="mb-12">
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                                                        <Briefcase className="w-6 h-6 text-amber-600" />
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Career & Wealth</h3>
-                                                </div>
 
-                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-amber-50/30 border border-amber-100 shadow-xl relative overflow-hidden group">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                                                        <Briefcase className="w-40 h-40 text-amber-600" />
-                                                    </div>
-                                                    <div className="relative z-10">
-                                                        <div className="prose prose-amber max-w-none">
-                                                            <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                {typeof report.vedic_astrology.ai_summary.career_path.content === 'object'
-                                                                    ? JSON.stringify(report.vedic_astrology.ai_summary.career_path.content, null, 2)
-                                                                    : report.vedic_astrology.ai_summary.career_path.content}
-                                                            </p>
-                                                        </div>
-                                                        <div className="mt-8 pt-6 border-t border-amber-100 flex items-center justify-between">
-                                                            <div className="flex items-center gap-2 text-xs text-amber-600/60 font-black uppercase tracking-[0.2em]">
-                                                                <Sparkles className="w-4 h-4" /> Prosperity & Recognition
-                                                            </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                                                <Zap className="w-3 h-3" /> Growth Opportunities
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
 
                                         {/* 4. The Connection: Marriage & Relationships */}
                                         {report.vedic_astrology.ai_summary.relationships && (
@@ -1161,7 +1169,7 @@ const ConsolidatedReport = () => {
                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                             {Object.entries(relContent).map(([label, text], i) => (
                                                                                 <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
-                                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-pink-600 block mb-1">
+                                                                                    <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
                                                                                         {label}
                                                                                     </span>
                                                                                     <p className="text-slate-700 text-sm leading-relaxed">
@@ -1186,7 +1194,7 @@ const ConsolidatedReport = () => {
                                                             <div className="flex items-center gap-2 text-xs text-pink-600/60 font-black uppercase tracking-[0.2em]">
                                                                 <Heart className="w-4 h-4" /> Union & Partnership Insights
                                                             </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                            <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
                                                                 <Sparkles className="w-3 h-3" /> Relationship Harmony
                                                             </div>
                                                         </div>
@@ -1219,7 +1227,7 @@ const ConsolidatedReport = () => {
                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                             {Object.entries(transitContent).map(([label, text], i) => (
                                                                                 <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-blue-100 shadow-sm ${label === 'Affirmation' ? 'md:col-span-2 bg-blue-50/50 border-blue-200' : ''}`}>
-                                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 block mb-1">
+                                                                                    <span className="text-sm font-black uppercase tracking-widest text-blue-600 block mb-1">
                                                                                         {label}
                                                                                     </span>
                                                                                     <p className={`text-slate-700 leading-relaxed ${label === 'Affirmation' ? 'text-lg font-bold italic text-blue-800 text-center' : 'text-sm'}`}>
@@ -1244,7 +1252,7 @@ const ConsolidatedReport = () => {
                                                             <div className="flex items-center gap-2 text-xs text-blue-600/60 font-black uppercase tracking-[0.2em]">
                                                                 <Activity className="w-4 h-4" /> Live Cosmic Weather
                                                             </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                            <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
                                                                 <Sparkles className="w-3 h-3" /> Real-time Alignment
                                                             </div>
                                                         </div>
@@ -1253,106 +1261,9 @@ const ConsolidatedReport = () => {
                                             </div>
                                         )}
 
-                                        {/* 6. The Protection: Dosha Awareness */}
-                                        {report.vedic_astrology.ai_summary.dosha_check && (
-                                            <div className="mb-12">
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
-                                                        <ShieldAlert className="w-6 h-6 text-rose-600" />
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
-                                                </div>
 
-                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-rose-50/20 border border-rose-100 shadow-xl relative overflow-hidden group">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                                                        <ShieldAlert className="w-40 h-40 text-rose-600" />
-                                                    </div>
-                                                    <div className="relative z-10">
-                                                        <div className="prose prose-rose max-w-none">
-                                                            <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                {typeof report.vedic_astrology.ai_summary.dosha_check.content === 'object'
-                                                                    ? JSON.stringify(report.vedic_astrology.ai_summary.dosha_check.content, null, 2)
-                                                                    : report.vedic_astrology.ai_summary.dosha_check.content}
-                                                            </p>
-                                                        </div>
-                                                        <div className="mt-8 pt-6 border-t border-rose-100 flex items-center justify-between">
-                                                            <div className="flex items-center gap-2 text-xs text-rose-600/60 font-black uppercase tracking-[0.2em]">
-                                                                <ShieldAlert className="w-4 h-4" /> Cosmic Balance & Protection
-                                                            </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                                                <Sparkles className="w-3 h-3" /> Reassuring Guidance
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
 
-                                        {/* 7. The Healing: Soul Remedies & Alignment */}
-                                        {report.vedic_astrology.ai_summary.remedies && (
-                                            <div className="mb-12">
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                                        <Sparkles className="w-6 h-6 text-emerald-600" />
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Soul Remedies & Alignment</h3>
-                                                </div>
-                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-emerald-50/20 border border-emerald-100 shadow-xl relative overflow-hidden group">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                                                        <Leaf className="w-40 h-40 text-emerald-600" />
-                                                    </div>
-                                                    <div className="relative z-10">
-                                                        <div className="prose prose-emerald max-w-none">
-                                                            {(() => {
-                                                                const remediesContent = report.vedic_astrology.ai_summary.remedies.content;
 
-                                                                // Check if it's an array of structured remedies
-                                                                if (Array.isArray(remediesContent)) {
-                                                                    return (
-                                                                        <div className="space-y-4">
-                                                                            {remediesContent.map((item, i) => (
-                                                                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/60 border border-emerald-100 shadow-sm">
-                                                                                    <div className="mt-1 w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                                                                                        {item.type?.toLowerCase().includes('mantra') ? <Mic2 className="w-4 h-4 text-emerald-600" /> :
-                                                                                            item.type?.toLowerCase().includes('lifestyle') ? <Activity className="w-4 h-4 text-emerald-600" /> :
-                                                                                                <Heart className="w-4 h-4 text-emerald-600" />}
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">
-                                                                                            {item.type}
-                                                                                        </span>
-                                                                                        <p className="text-slate-700 text-sm md:text-base leading-relaxed">
-                                                                                            {item.remedy}
-                                                                                        </p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    );
-                                                                }
-
-                                                                // Default string rendering
-                                                                return (
-                                                                    <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                        {typeof remediesContent === 'object'
-                                                                            ? JSON.stringify(remediesContent, null, 2)
-                                                                            : remediesContent}
-                                                                    </p>
-                                                                );
-                                                            })()}
-                                                        </div>
-                                                        <div className="mt-8 pt-6 border-t border-emerald-100 flex items-center justify-between">
-                                                            <div className="flex items-center gap-2 text-xs text-emerald-600/60 font-black uppercase tracking-[0.2em]">
-                                                                <Heart className="w-4 h-4" /> Intention & Practical Wisdom
-                                                            </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                                                <Zap className="w-3 h-3" /> Empowering Habit Shifting
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
 
                                         {/* Other Life Insights Grid (Catch-all for any additional AI insights) */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -1387,7 +1298,7 @@ const ConsolidatedReport = () => {
                                             {report.vedic_astrology.ai_summary}
                                         </p>
                                         <div className="mt-6 pt-6 border-t border-indigo-100/50 flex justify-center">
-                                            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                                            <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest">
                                                 Note: Regenerate report to view enhanced card-based analysis.
                                             </p>
                                         </div>
@@ -1402,9 +1313,9 @@ const ConsolidatedReport = () => {
                                         <div className="flex items-center justify-between mb-6">
                                             <div className="flex items-center gap-3">
                                                 <Activity className="w-5 h-5 text-amber-600" />
-                                                <h4 className="font-black text-primary uppercase text-[10px] md:text-xs tracking-widest">{t('report.vedic.cosmic_alignment')}</h4>
+                                                <h4 className="font-black text-primary uppercase text-xs md:text-xs tracking-widest">{t('report.vedic.cosmic_alignment')}</h4>
                                             </div>
-                                            <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1 rounded-md">
+                                            <div className="text-xs font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1 rounded-md">
                                                 {t('report.vedic.lahiri_ayanamsa')}
                                             </div>
                                         </div>
@@ -1415,35 +1326,35 @@ const ConsolidatedReport = () => {
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-bold text-primary">{p.name}</span>
-                                                            <span className="text-[10px] text-secondary uppercase font-black">{p.sanskrit_name}</span>
+                                                            <span className="text-sm text-secondary uppercase font-black">{p.sanskrit_name}</span>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
                                                             {p.dignity?.status !== 'Neutral' ? (
-                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
+                                                                <span className={`text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
                                                                     p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-500' :
                                                                         'bg-red-500/20 text-red-500'
                                                                     }`}>
                                                                     {p.dignity?.status}
                                                                 </span>
                                                             ) : (
-                                                                <span className="text-[9px] text-slate-400 uppercase font-black">Neutral</span>
+                                                                <span className="text-sm text-slate-400 uppercase font-black">Neutral</span>
                                                             )}
                                                         </div>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50">
                                                         <div>
-                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
                                                             <div className="text-xs font-bold text-primary">{p.house}</div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
                                                             <div className="text-xs font-bold text-primary">{p.sign}</div>
                                                         </div>
                                                     </div>
                                                     {p.nakshatra && (
                                                         <div className="pt-2 border-t border-gray-200/50">
-                                                            <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
                                                             <div className="text-xs font-medium text-amber-800 italic">{p.nakshatra.name}</div>
                                                         </div>
                                                     )}
@@ -1455,10 +1366,10 @@ const ConsolidatedReport = () => {
                                             <table className="w-full text-left">
                                                 <thead>
                                                     <tr className="border-b border-gray-100">
-                                                        <th className="pb-3 text-[10px] font-black uppercase tracking-tighter text-secondary">{t('report.vedic.graha')}</th>
-                                                        <th className="pb-3 text-[10px] font-black uppercase tracking-tighter text-secondary">{t('report.vedic.status')}</th>
-                                                        <th className="pb-3 text-[10px] font-black uppercase tracking-tighter text-secondary text-center">{t('report.vedic.house_short')}</th>
-                                                        <th className="pb-3 text-[10px] font-black uppercase tracking-tighter text-secondary text-right">{t('report.vedic.sign')}</th>
+                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.graha')}</th>
+                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.status')}</th>
+                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-center">{t('report.vedic.house_short')}</th>
+                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-right">{t('report.vedic.sign')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100">
@@ -1466,20 +1377,20 @@ const ConsolidatedReport = () => {
                                                         <tr key={idx} className="group/row hover:bg-gray-50 transition-colors">
                                                             <td className="py-2.5">
                                                                 <div className="flex flex-col">
-                                                                    <span className="text-xs font-bold text-primary tracking-tight">{p.name} <span className="text-[10px] text-secondary">({p.sanskrit_name})</span></span>
-                                                                    <span className="text-[10px] text-amber-700/60 font-medium italic">{p.nakshatra?.name || ''}</span>
+                                                                    <span className="text-sm font-bold text-primary tracking-tight">{p.name} <span className="text-sm text-secondary">({p.sanskrit_name})</span></span>
+                                                                    <span className="text-sm text-amber-700/60 font-medium italic">{p.nakshatra?.name || ''}</span>
                                                                 </div>
                                                             </td>
                                                             <td className="py-2.5">
                                                                 {p.dignity?.status !== 'Neutral' ? (
-                                                                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-400' :
+                                                                    <span className={`text-xs font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-400' :
                                                                         p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-400' :
                                                                             'bg-red-500/20 text-red-400'
                                                                         }`}>
                                                                         {p.dignity?.status}
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="text-[9px] text-slate-500 uppercase font-bold">Neutral</span>
+                                                                    <span className="text-sm text-slate-500 uppercase font-bold">Neutral</span>
                                                                 )}
                                                             </td>
                                                             <td className="py-2.5 text-xs text-secondary text-center font-bold">{p.house}</td>
@@ -1512,7 +1423,7 @@ const ConsolidatedReport = () => {
                                                 </div>
                                             )}
 
-                                            <div className="mt-6 flex flex-wrap justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                                            <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-black uppercase tracking-widest text-indigo-400">
                                                 <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">North Indian</span>
                                                 <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Sidereal View</span>
                                                 <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Planet Positions</span>
@@ -1544,7 +1455,7 @@ const ConsolidatedReport = () => {
                                         </div>
                                         <div>
                                             <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
-                                            <p className="text-amber-600/60 text-[10px] font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
+                                            <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
                                         </div>
                                     </div>
 
@@ -1560,10 +1471,10 @@ const ConsolidatedReport = () => {
                                                             <p className="text-sm font-bold text-gray-900 capitalize">
                                                                 {effect.planet}
                                                             </p>
-                                                            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
+                                                            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
                                                         </div>
                                                     </div>
-                                                    <span className="px-3 py-1 bg-amber-50 rounded-full text-[10px] font-black text-amber-700 uppercase tracking-widest border border-amber-100">
+                                                    <span className="px-3 py-1 bg-amber-50 rounded-full text-sm font-black text-amber-700 uppercase tracking-widest border border-amber-100">
                                                         {effect.nature}
                                                     </span>
                                                 </div>
@@ -1591,7 +1502,7 @@ const ConsolidatedReport = () => {
                                         </div>
                                         <div>
                                             <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
-                                            <p className="text-red-900/60 text-[10px] font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
+                                            <p className="text-red-900/60 text-sm font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
                                         </div>
                                     </div>
 
@@ -1607,13 +1518,13 @@ const ConsolidatedReport = () => {
                                                         </div>
                                                         <div className="flex-1">
                                                             <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1 ${isPresent ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'}`}>
+                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest mt-1 ${isPresent ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'}`}>
                                                                 {isPresent ? 'Present' : 'Absent'}
                                                             </div>
                                                         </div>
                                                         {isPresent && (
                                                             <div className="text-right">
-                                                                <div className="text-[9px] text-rose-600 uppercase font-black tracking-widest mb-1">Intensity</div>
+                                                                <div className="text-xs text-rose-600 uppercase font-black tracking-widest mb-1">Intensity</div>
                                                                 <div className="text-xs font-black text-rose-700">{data.intensity}</div>
                                                             </div>
                                                         )}
@@ -1621,14 +1532,14 @@ const ConsolidatedReport = () => {
 
                                                     {isPresent && (
                                                         <div className="bg-white/60 p-3 rounded-xl border border-rose-200/50 mb-3">
-                                                            <p className="text-[10px] text-rose-800 font-bold leading-tight italic">
+                                                            <p className="text-sm text-rose-800 font-bold leading-tight italic">
                                                                 {data.reason}
                                                             </p>
                                                         </div>
                                                     )}
 
                                                     <div className="space-y-1">
-                                                        <div className="text-[9px] text-slate-400 uppercase font-black tracking-widest">Remedy</div>
+                                                        <div className="text-xs text-slate-400 uppercase font-black tracking-widest">Remedy</div>
                                                         <p className={`text-xs leading-relaxed ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-500 italic'}`}>
                                                             {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required.')}
                                                         </p>
@@ -1641,7 +1552,7 @@ const ConsolidatedReport = () => {
                                     <div className="hidden md:block overflow-x-auto -mx-4 md:mx-0">
                                         <table className="w-full border-separate border-spacing-y-3">
                                             <thead>
-                                                <tr className="text-[10px] text-slate-400 uppercase tracking-widest font-black">
+                                                <tr className="text-xs text-slate-400 uppercase tracking-widest font-black">
                                                     <th className="px-6 py-2 text-left">Dosha Detail</th>
                                                     <th className="px-6 py-2 text-left">Status</th>
                                                     <th className="px-6 py-2 text-left">Intensity</th>
@@ -1665,13 +1576,13 @@ const ConsolidatedReport = () => {
                                                                     </div>
                                                                     <div>
                                                                         <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                                        {isPresent && <div className="text-[10px] text-rose-600/70 font-bold leading-tight max-w-[200px] mt-1 italic">{data.reason}</div>}
-                                                                        {!isPresent && <div className="text-[10px] text-emerald-600/70 font-bold mt-1">Favorable Alignment</div>}
+                                                                        {isPresent && <div className="text-xs text-rose-600/70 font-bold leading-tight max-w-[200px] mt-1 italic">{data.reason}</div>}
+                                                                        {!isPresent && <div className="text-xs text-emerald-600/70 font-bold mt-1">Favorable Alignment</div>}
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-5 border-y border-transparent">
-                                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isPresent ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'}`}>
+                                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${isPresent ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'}`}>
                                                                     {isPresent ? (
                                                                         <>
                                                                             <AlertTriangle className="w-3 h-3" />
@@ -1713,143 +1624,130 @@ const ConsolidatedReport = () => {
                                 </div>
                             </div>
 
-                            {/* Dasha Timeline Section */}
-                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
-                                            <Activity className="w-7 h-7 text-indigo-600" />
-                                        </div>
+                            {report.vedic_astrology?.kp_system && (
+                                <div className="mt-12 glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
+                                    <div className="absolute top-0 right-0 p-6 opacity-5">
+                                        <Star className="w-32 h-32 text-primary" />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Star className="w-6 h-6 text-emerald-600" />
                                         <div>
-                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
-                                            <p className="text-indigo-600/60 text-[10px] font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
+                                            <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
+                                            <p className="text-sm text-emerald-600">Krishnamurti Paddhati</p>
                                         </div>
                                     </div>
 
-                                    {/* Active Period Highlight Card */}
-                                    {report.vedic_astrology?.dasha?.active_mahadasha && (
-                                        <div className="mb-8 p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
-                                            {/* Cosmic Background Effect */}
-                                            <div className="absolute inset-0 opacity-20">
-                                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-300 transition-colors duration-1000"></div>
-                                                <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Left Column: Planetary Table */}
+                                        <div className="space-y-4">
+                                            {/* Mobile View Cards */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-primary">{p.planet}</span>
+                                                            <span className="text-sm text-secondary uppercase">{p.sign.substring(0, 3)}</span>
+                                                        </div>
+                                                        <div className="flex gap-4 text-right">
+                                                            <div>
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Star</div>
+                                                                <div className="text-xs font-bold text-emerald-700">{p.star_lord}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Sub</div>
+                                                                <div className="text-xs font-bold text-amber-700">{p.sub_lord}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
 
-                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                                                <div className="flex items-center gap-4 md:gap-6">
-                                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
-                                                        <span className="text-2xl md:text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
+                                            {/* Desktop View Table */}
+                                            <div className="hidden lg:block space-y-2">
+                                                <div className="grid grid-cols-4 text-sm font-bold text-secondary uppercase pb-2 border-b border-gray-100">
+                                                    <span>Planet</span>
+                                                    <span>Sign</span>
+                                                    <span>Star</span>
+                                                    <span>Sub</span>
+                                                </div>
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
+                                                        <span className="text-primary font-bold">{p.planet}</span>
+                                                        <span className="text-secondary text-sm">{p.sign.substring(0, 3)}</span>
+                                                        <span className="text-emerald-700 font-medium text-sm">{p.star_lord}</span>
+                                                        <span className="text-amber-700 font-medium text-sm">{p.sub_lord}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Right Column: Easy English Analysis (Enhanced) */}
+                                        <div className="space-y-6 relative">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                                        <Scroll className="w-5 h-5 text-emerald-600" />
                                                     </div>
                                                     <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
-                                                            <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-[0.2em]">Current Cycle</span>
-                                                        </div>
-                                                        <h3 className="text-2xl md:text-4xl font-serif italic">
-                                                            {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
-                                                        </h3>
-                                                        {report.vedic_astrology.dasha.active_antardasha && (
-                                                            <p className="text-indigo-200 mt-1 md:mt-2 text-sm font-medium flex items-center gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-white/50"></span>
-                                                                {report.vedic_astrology.dasha.active_antardasha} Bhukti
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="md:text-right hidden md:block">
-                                                    <div className="inline-block px-5 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                        <span className="text-xs font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
+                                                        <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
+                                                        <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Detailed Personal Insights</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
 
-                                    {/* Mobile Card View */}
-                                    <div className="md:hidden space-y-3">
-                                        {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
-                                            <div key={i} className={`p-4 rounded-2xl border transition-all ${d.is_active ? 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-200' : 'bg-white border-indigo-50 shadow-sm'}`}>
-                                                <div className="flex justify-between items-center mb-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${d.is_active ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
-                                                            {d.planet.substring(0, 2)}
-                                                        </div>
-                                                        <span className="font-bold text-slate-900 text-sm">{d.planet}</span>
-                                                    </div>
-                                                    {d.is_active && (
-                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-600 text-white uppercase tracking-widest animate-pulse">
-                                                            Active
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex justify-between items-center text-[10px]">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">Start</span>
-                                                        <span className="text-slate-700 font-bold">{d.start}</span>
-                                                    </div>
-                                                    <div className="w-8 h-px bg-slate-100"></div>
-                                                    <div className="flex flex-col text-right">
-                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">End</span>
-                                                        <span className="text-slate-700 font-bold">{d.end}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            {report.vedic_astrology.kp_analysis ? (
+                                                <div className="grid grid-cols-1 gap-4 relative z-10">
+                                                    {report.vedic_astrology.kp_analysis.map((item, idx) => {
+                                                        // Helper to match icons and colors
+                                                        const getStyle = (type) => {
+                                                            const t = (type || '').toLowerCase();
+                                                            if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
+                                                            if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
+                                                            if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
+                                                            if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
+                                                            if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
+                                                            if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
+                                                            if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                            return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
+                                                        };
+                                                        const style = getStyle(item.type);
+                                                        const ItemIcon = style.icon;
 
-                                    {/* Desktop Table View */}
-                                    <div className="hidden md:block overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
-                                        <table className="w-full text-left">
-                                            <thead>
-                                                <tr className="bg-indigo-50/50">
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Planetary Period</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Start Date</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">End Date</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900 text-right">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-indigo-50">
-                                                {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
-                                                    <tr key={i} className={`group transition-all ${d.is_active ? 'bg-indigo-100/30' : 'hover:bg-indigo-50/20'}`}>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${d.is_active ? 'bg-indigo-600 text-white shadow-md' : 'bg-indigo-50 text-indigo-600'}`}>
-                                                                    {d.planet.substring(0, 2)}
+                                                        return (
+                                                            <div key={idx} className={`p-5 rounded-[1.5rem] border transition-all hover:bg-white hover:shadow-lg ${style.bg} ${style.border} group`}>
+                                                                <div className="flex gap-4">
+                                                                    <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${style.accent}`}>
+                                                                        <ItemIcon className={`w-5 h-5 ${style.color}`} />
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <span className={`text-xs font-black uppercase tracking-[0.2em] ${style.color}`}>
+                                                                            {item.type}
+                                                                        </span>
+                                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium"
+                                                                            dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>') }}
+                                                                        />
+                                                                    </div>
                                                                 </div>
-                                                                <span className="font-bold text-slate-900 tracking-tight">
-                                                                    {d.planet} Mahadasha
-                                                                    {d.is_active && report.vedic_astrology?.dasha?.active_antardasha && (
-                                                                        <span className="text-indigo-600 ml-2">/ {report.vedic_astrology.dasha.active_antardasha} Bhukti</span>
-                                                                    )}
-                                                                </span>
                                                             </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.start}</td>
-                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.end}</td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            {d.is_active ? (
-                                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-600 text-white uppercase tracking-widest shadow-sm animate-pulse">
-                                                                    Current Phase
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                                                    {new Date(d.start) > new Date() ? 'Upcoming' : 'Past'}
-                                                                </span>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                    <Brain className="w-8 h-8 mb-2 opacity-50" />
+                                                    <p className="text-sm italic">Personalized interpretation is being ready...</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    <div className="mt-6 flex items-center gap-2 text-[10px] text-indigo-400 font-bold uppercase tracking-widest justify-center">
-                                        <Info className="w-3 h-3" /> Based on {report.vedic_astrology?.panchang?.nakshatra?.name || 'Moon Nakshatra'} 120-year cosmic cycle
+                                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+                                        <p className="text-sm text-emerald-700 uppercase tracking-widest font-bold">
+                                            {t('report.vedic.source_kp')}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </section>
 
                     </div>
@@ -1870,7 +1768,7 @@ const ConsolidatedReport = () => {
                                                 </div>
                                                 <div>
                                                     <h2 className="text-2xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Career & Finance</h2>
-                                                    <p className="text-amber-600 text-[10px] font-black uppercase tracking-[0.3em]">Professional Destiny Analysis</p>
+                                                    <p className="text-amber-600 text-sm font-black uppercase tracking-[0.3em]">Professional Destiny Analysis</p>
                                                 </div>
                                             </div>
 
@@ -1881,22 +1779,24 @@ const ConsolidatedReport = () => {
                                                 <div className="relative z-10">
                                                     <div className="prose prose-amber prose-xl max-w-none">
                                                         <p className="text-xl leading-relaxed text-slate-800 font-medium whitespace-pre-line selection:bg-amber-100">
-                                                            {report.vedic_astrology.ai_summary.career_path.content}
+                                                            {typeof report.vedic_astrology.ai_summary.career_path === 'string'
+                                                                ? report.vedic_astrology.ai_summary.career_path
+                                                                : report.vedic_astrology.ai_summary.career_path.content}
                                                         </p>
                                                     </div>
 
                                                     <div className="mt-12 pt-8 border-t border-amber-100/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
                                                         <div className="flex items-center gap-4">
                                                             <div className="flex -space-x-2">
-                                                                <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">10H</div>
-                                                                <div className="w-8 h-8 rounded-full bg-indigo-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">11H</div>
-                                                                <div className="w-8 h-8 rounded-full bg-emerald-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">🎯</div>
+                                                                <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center text-xs font-bold">10H</div>
+                                                                <div className="w-8 h-8 rounded-full bg-indigo-200 border-2 border-white flex items-center justify-center text-xs font-bold">11H</div>
+                                                                <div className="w-8 h-8 rounded-full bg-emerald-200 border-2 border-white flex items-center justify-center text-xs font-bold">🎯</div>
                                                             </div>
-                                                            <span className="text-xs text-amber-700 font-black uppercase tracking-widest italic">Based on Karma & Labha Houses</span>
+                                                            <span className="text-sm text-amber-700 font-black uppercase tracking-widest italic">Based on Karma & Labha Houses</span>
                                                         </div>
                                                         <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-full border border-amber-100 shadow-sm">
                                                             <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
-                                                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Optimized for Your Birth Chart</span>
+                                                            <span className="text-sm text-slate-500 font-bold uppercase tracking-widest">Optimized for Your Birth Chart</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1962,7 +1862,7 @@ const ConsolidatedReport = () => {
                                                 </div>
 
                                                 {/* Best Suited Careers */}
-                                                {report.vedic_astrology.career_analysis.best_careers && (
+                                                {report.vedic_astrology.career_analysis.best_careers && Array.isArray(report.vedic_astrology.career_analysis.best_careers) && (
                                                     <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
                                                         <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                                                         <div className="relative z-10">
@@ -1985,8 +1885,8 @@ const ConsolidatedReport = () => {
                                             <div className="p-8 mt-8 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-slate-400">
                                                 <div className="flex flex-col items-center">
                                                     <Briefcase className="w-8 h-8 mb-2 opacity-50" />
-                                                    <span className="text-xs uppercase tracking-widest font-bold">Additional Career Metrics Unavailable</span>
-                                                    <p className="text-[10px] mt-1">Regenerate report to view detailed Job/Business analysis.</p>
+                                                    <span className="text-sm uppercase tracking-widest font-bold">Additional Career Metrics Unavailable</span>
+                                                    <p className="text-sm mt-1">Regenerate report to view detailed Job/Business analysis.</p>
                                                 </div>
                                             </div>
                                         )}
@@ -2000,7 +1900,7 @@ const ConsolidatedReport = () => {
                                             </div>
                                             <div>
                                                 <h2 className="text-3xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Analysis Summary</h2>
-                                                <p className="text-indigo-600 text-xs font-black uppercase tracking-[0.3em]">Comprehensive Vedic Insights</p>
+                                                <p className="text-indigo-600 text-sm font-black uppercase tracking-[0.3em]">Comprehensive Vedic Insights</p>
                                             </div>
                                         </div>
                                         <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl">
@@ -2010,7 +1910,7 @@ const ConsolidatedReport = () => {
                                                     : "Professional destiny analysis is being prepared for your specific chart. Please regenerate to unlock the full card-based experience."}
                                             </p>
                                             <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
                                                     {typeof report.vedic_astrology.ai_summary === 'string' ? "Legacy Report Format" : "Enhanced Analysis Pending"}
                                                 </p>
                                                 <button
@@ -2057,7 +1957,7 @@ const ConsolidatedReport = () => {
                                             </div>
                                             <div>
                                                 <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
-                                                <p className="text-purple-100 text-[9px] uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
+                                                <p className="text-purple-100 text-sm uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
                                             </div>
                                         </div>
                                         <div className="prose prose-invert max-w-none">
@@ -2084,32 +1984,32 @@ const ConsolidatedReport = () => {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                                <div className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.numerology.life_path')}</div>
+                                                <div className="text-xs font-black text-secondary uppercase tracking-widest mb-1">{t('report.numerology.life_path')}</div>
                                                 <div className="text-3xl font-bold text-pink-600">{report.numerology.life_path}</div>
-                                                <div className="text-[10px] text-slate-400 font-bold uppercase">
+                                                <div className="text-xs text-slate-400 font-bold uppercase">
                                                     {typeof report.numerology.detailed_analysis?.life_path === 'object'
                                                         ? report.numerology.detailed_analysis.life_path.title
                                                         : t('report.numerology.core_essence')}
                                                 </div>
                                             </div>
                                             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                                <div className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.numerology.expression')}</div>
+                                                <div className="text-xs font-black text-secondary uppercase tracking-widest mb-1">{t('report.numerology.expression')}</div>
                                                 <div className="text-3xl font-bold text-purple-600">{report.numerology.expression}</div>
-                                                <div className="text-[10px] text-slate-400 font-bold uppercase">
+                                                <div className="text-xs text-slate-400 font-bold uppercase">
                                                     {typeof report.numerology.detailed_analysis?.expression === 'object'
                                                         ? report.numerology.detailed_analysis.expression.title
                                                         : t('report.numerology.destiny')}
                                                 </div>
                                             </div>
                                             <div className="bg-gray-50 p-4 rounded-xl border-l-4 border-emerald-500 border-t border-r border-b border-gray-100 col-span-2 md:col-span-1 md:col-start-1 md:col-end-3">
-                                                <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">{t('report.numerology.soul_urge')}</div>
+                                                <div className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">{t('report.numerology.soul_urge')}</div>
                                                 <div className="text-3xl font-black text-primary">{report.numerology?.soul_urge}</div>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase">{report.numerology?.detailed_analysis?.soul_urge?.title}</p>
+                                                <p className="text-sm text-slate-400 font-bold uppercase">{report.numerology?.detailed_analysis?.soul_urge?.title}</p>
                                             </div>
                                         </div>
 
                                         <div className="bg-purple-50 p-3 rounded-xl border border-purple-100 text-center mt-auto">
-                                            <p className="text-[10px] text-purple-700 uppercase tracking-widest font-bold">
+                                            <p className="text-sm text-purple-700 uppercase tracking-widest font-bold">
                                                 {t('report.numerology.system')}: {report.numerology?.phillips_profile?.metadata?.calculation_method || t('report.numerology.calculation')}
                                             </p>
                                         </div>
@@ -2127,7 +2027,7 @@ const ConsolidatedReport = () => {
                                             <LoshuGridDisplay loshuData={report.vedic_astrology?.loshu_grid} />
                                         </div>
                                         <div className="bg-amber-50 p-3 rounded-xl border border-amber-100 text-center mt-auto">
-                                            <p className="text-[10px] text-amber-700 uppercase tracking-widest font-bold">
+                                            <p className="text-sm text-amber-700 uppercase tracking-widest font-bold">
                                                 Vedic-Numerology Integration
                                             </p>
                                         </div>
@@ -2201,16 +2101,16 @@ const ConsolidatedReport = () => {
                                                                 <MapPin className="w-4 h-4 text-emerald-600" />
                                                                 <h3 className="text-xl font-black text-primary italic tracking-tight">{loc.city}</h3>
                                                             </div>
-                                                            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md font-black uppercase tracking-widest">
+                                                            <span className="text-sm bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md font-black uppercase tracking-widest">
                                                                 {loc.angle}
                                                             </span>
                                                         </div>
                                                         <div className="text-right">
                                                             <div className="text-2xl font-black text-primary">{loc.planet}</div>
-                                                            <span className="text-[9px] text-secondary uppercase tracking-widest font-black">
+                                                            <span className="text-sm text-secondary uppercase tracking-widest font-black">
                                                                 {loc.angle} Line
                                                             </span>
-                                                            <div className="text-[9px] text-slate-400 font-mono mt-1">
+                                                            <div className="text-xs text-slate-400 font-mono mt-1">
                                                                 {Number(loc.lat || 0).toFixed(2)}°, {Number(loc.lng || 0).toFixed(2)}°
                                                             </div>
                                                         </div>
@@ -2218,11 +2118,11 @@ const ConsolidatedReport = () => {
 
                                                     <div className="space-y-3">
                                                         <div>
-                                                            <div className="text-[10px] text-secondary uppercase font-black tracking-widest mb-1">Potential Effect</div>
+                                                            <div className="text-xs text-secondary uppercase font-black tracking-widest mb-1">Potential Effect</div>
                                                             <p className="text-sm text-emerald-700 font-bold">{loc.effect_title}</p>
                                                         </div>
                                                         <div className="pt-3 border-t border-gray-100">
-                                                            <p className="text-xs text-secondary leading-relaxed font-medium italic">
+                                                            <p className="text-sm text-secondary leading-relaxed font-medium italic">
                                                                 {loc.description}
                                                             </p>
                                                         </div>
@@ -2231,8 +2131,8 @@ const ConsolidatedReport = () => {
                                                                 <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${loc.intensity * 10}% ` }}></div>
                                                             </div>
                                                             <div className="flex justify-between mt-1">
-                                                                <span className="text-[10px] text-slate-400">Intensity</span>
-                                                                <span className="text-[10px] text-emerald-600 font-bold">{loc.intensity}/10</span>
+                                                                <span className="text-sm text-slate-400">Intensity</span>
+                                                                <span className="text-sm text-emerald-600 font-bold">{loc.intensity}/10</span>
                                                             </div>
                                                         </div>
                                                     </div>

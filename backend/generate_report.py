@@ -55,12 +55,22 @@ class ReportGenerator:
         # New: Detailed Vedic Personality Analysis (Right Section)
         try:
             from services.ai_service import generate_vedic_chart_analysis
+            from datetime import datetime
+            
+            # Rough age calculation
+            birth_date = datetime(year, month, day)
+            today = datetime.now()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            
             vedic_personality_analysis = generate_vedic_chart_analysis(
                 name, 
                 vedic_full['planets'], 
                 vedic_full['panchang'], 
                 doshas=vedic_full.get('doshas', {}),
-                lang=lang
+                lang=lang,
+                dob=f"{day}-{month}-{year}",
+                place=city,
+                age=age
             )
         except Exception as e:
             print(f"Vedic Personality Analysis Error: {e}")

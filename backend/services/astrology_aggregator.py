@@ -955,10 +955,8 @@ Generate predictions now based on authentic KP principles:"""
         
         # Combine with AI interpretations if needed, or replace
         # For now, we prepend the Rule-based analysis to the AI ones
-        kp_ai_analysis = AstrologyAggregator.get_kp_interpretations(kp, lang=lang)
-        
-        # Merge: Priority to Rule-based for 1, 10, 7.
-        kp_final_analysis = kp_rule_analysis + kp_ai_analysis
+        # Merged analysis (Rule-based only as per user request)
+        kp_final_analysis = kp_rule_analysis
 
         # New: Get Planet-in-House 'Graha Effects' (Simple English)
         graha_effects = AstrologyAggregator.get_graha_effects(sidereal_data['planets'], lang=lang)

@@ -1,69 +1,156 @@
-"""
-KP Analysis Service
-Implements rules from 'KPAstrology.pdf' to generate plain English analysis.
-"""
-
 class KPAnalysisService:
     @staticmethod
     def generate_analysis(kp_system_data, kp_cusps, lang="en"):
         """
-        Generates analysis based on KP rules.
+        Generates analysis based on KP rules but presented in detailed, plain English (50+ words each).
         """
         analysis = []
         
-        # 1. PLANETARY ANALYSIS (Based on 'Reading a Script' section)
-        # Rule: Planet = Source, Star Lord = Result, Sub Lord = Quality
-        for planet in kp_system_data:
-            p_name = planet['planet']
-            star = planet['star_lord']
-            sub = planet['sub_lord']
-            
-            # Simple, Friendly English formulation
-            analysis.append({
-                "type": "General",
-                "meaning": f"**{p_name}** is guided by **{star}**, and the final positive outcome is shaped by **{sub}**."
-            })
+        # Helper for translations
+        titles = {
+            "en": {
+                "health": "Health & Longevity",
+                "career": "Job & Business",
+                "property": "Property & Assets",
+                "marriage": "Marriage & Relationship"
+            },
+            "hi": {
+                "health": "स्वास्थ्य और लंबी आयु",
+                "career": "नौकरी और व्यवसाय",
+                "property": "संपत्ति और वाहन",
+                "marriage": "विवाह और संबंध"
+            }
+        }
+        t = titles.get(lang, titles["en"])
 
-        # 2. HOUSE SPECIFIC RULES (Health, Job, etc.)
-        # We need CSLs for this.
+        # Detailed Plain English Mappings (50+ words)
+        mappings = {
+            "health": {
+                "en": {
+                    "Sun": "You possess a naturally strong physical foundation and plenty of internal energy. To maintain your long-term vitality, you should focus on heart health and maintaining a good posture. Regular outdoor activity and exposing yourself to morning sunlight will significantly boost your overall immunity and keep your energy levels consistent throughout the day.",
+                    "Moon": "Your physical well-being is deeply connected to your emotional state and peace of mind. You tend to be sensitive, so maintaining a calm environment and following regular eating habits is crucial. Practicing relaxation techniques and staying hydrated will ensure your digestive system stays healthy and your mind remains clear and focused.",
+                    "Mars": "You have an abundance of physical drive and natural strength. It is essential for you to channel this intense energy through regular exercise, sports, or physical work to prevent restlessness. Staying active will not only keep you fit but also help manage stress and improve your overall stamina and physical resilience.",
+                    "Mercury": "Your overall vitality is closely linked to how you manage your thoughts and daily mental workload. Because your energy is intellectually driven, ensuring you get high-quality sleep and taking breaks to relax your nervous system is vital. A balanced approach to mental tasks will keep you feeling refreshed and physically energized.",
+                    "Jupiter": "You are blessed with a robust and influential physical presence that radiates health. To preserve this natural strength, you should follow a balanced diet and avoid overindulgence to protect your internal organs. Regular, moderate physical activity will help you maintain a harmonious weight and support your body’s natural growth and regeneration.",
+                    "Venus": "You have a natural appreciation for physical comfort, balance, and aesthetic beauty in your life. To keep your health and skin looking radiant, it is important to maintain a lifestyle that prioritizes moderation and internal balance. Focusing on a clean diet and gentle physical activities will support your long-term well-being and elegance.",
+                    "Saturn": "You possess a lean and highly disciplined body structure that is built for long-term endurance. Your path to vitality is through a very steady and consistent daily routine that allows your body to thrive over time. By maintaining discipline in your habits, you will enjoy strong immunity and excellent long-term physical stability.",
+                    "Rahu": "Your energy levels can experience sudden shifts, so maintaining a very grounded and stable lifestyle is best for you. Focus on establishing a predictable daily routine and eating wholesome foods to keep your body balanced. By staying connected to regular habits, you can effectively manage your vitality and avoid sudden physical exhaustion.",
+                    "Ketu": "You have a naturally resilient and adaptable physical constitution that responds well to a peaceful lifestyle. Focusing on your spiritual well-being through meditation or quiet reflection will significantly boost your body's natural defense systems. A calm approach to daily stressors will ensure that you maintain high levels of immunity and physical peace."
+                },
+                "hi": {
+                    "Sun": "आपके पास स्वाभाविक रूप से मजबूत शारीरिक आधार और प्रचुर आंतरिक ऊर्जा है। अपनी दीर्घकालिक जीवन शक्ति बनाए रखने के लिए, आपको हृदय स्वास्थ्य और बैठने-उठने के सही तरीके (posture) पर ध्यान देना चाहिए। नियमित बाहरी गतिविधियों और सुबह की धूप के संपर्क में आने से आपकी समग्र रोग प्रतिरोधक क्षमता में काफी वृद्धि होगी और दिन भर आपका ऊर्जा स्तर बना रहेगा।",
+                    "Moon": "आपका शारीरिक कल्याण आपकी भावनात्मक स्थिति और मन की शांति से गहराई से जुड़ा हुआ है। आप संवेदनशील स्वभाव के हैं, इसलिए शांत वातावरण बनाए रखना और नियमित खान-पान की आदतों का पालन करना महत्वपूर्ण है। विश्राम तकनीकों का अभ्यास करना और पर्याप्त पानी पीना यह सुनिश्चित करेगा कि आपका पाचन तंत्र स्वस्थ रहे और आपका मन स्पष्ट और केंद्रित रहे।",
+                    "Mars": "आपके पास प्रचुर मात्रा में शारीरिक शक्ति और स्वाभाविक बल है। बेचैनी से बचने के लिए नियमित व्यायाम, खेल या शारीरिक कार्य के माध्यम से इस तीव्र ऊर्जा को सही दिशा देना आपके लिए आवश्यक है। सक्रिय रहने से न केवल आप फिट रहेंगे बल्कि तनाव को प्रबंधित करने और अपनी समग्र सहनशक्ति और शारीरिक लचीलेपन को बेहतर बनाने में भी मदद मिलेगी।",
+                    "Mercury": "आपकी समग्र जीवन शक्ति इस बात से गहराई से जुड़ी है कि आप अपने विचारों और दैनिक मानसिक कार्यभार को कैसे प्रबंधित करते हैं। चूंकि आपकी ऊर्जा बौद्धिक रूप से संचालित होती है, इसलिए यह सुनिश्चित करना कि आपको उच्च गुणवत्ता वाली नींद मिले और अपने तंत्रिका तंत्र को आराम देने के लिए ब्रेक लेना महत्वपूर्ण है। मानसिक कार्यों के प्रति संतुलित दृष्टिकोण आपको तरोताजा और शारीरिक रूप से ऊर्जावान बनाए रखेगा।",
+                    "Jupiter": "आप एक मजबूत और प्रभावशाली शारीरिक व्यक्तित्व के धनी हैं जो स्वास्थ्य को दर्शाता है। इस प्राकृतिक शक्ति को बनाए रखने के लिए, आपको संतुलित आहार का पालन करना चाहिए और अपने आंतरिक अंगों की रक्षा के लिए अतिभोग से बचना चाहिए। नियमित, मध्यम शारीरिक गतिविधि आपको सामंजस्यपूर्ण वजन बनाए रखने और आपके शरीर की प्राकृतिक वृद्धि और पुनरुद्धार में मदद करेगी।",
+                    "Venus": "आप अपने जीवन में शारीरिक आराम, संतुलन और सौंदर्य के प्रति स्वाभाविक झुकाव रखते हैं। अपने स्वास्थ्य और त्वचा को चमकदार बनाए रखने के लिए, ऐसी जीवनशैली बनाए रखना महत्वपूर्ण है जो संयम और आंतरिक संतुलन को प्राथमिकता दे। स्वच्छ आहार और कोमल शारीरिक गतिविधियों पर ध्यान केंद्रित करने से आपके दीर्घकालिक कल्याण और शालीनता को बढ़ावा मिलेगा।",
+                    "Saturn": "आपकी शारीरिक संरचना अनुशासित है और लंबी अवधि के धीरज के लिए बनी है। जीवन शक्ति का आपका मार्ग एक बहुत ही स्थिर और सुसंगत दैनिक दिनचर्या के माध्यम से है जो आपके शरीर को समय के साथ फलने-फूलने की अनुमति देता है। अपनी आदतों में अनुशासन बनाए रखकर, आप मजबूत रोग प्रतिरोधक क्षमता और उत्कृष्ट दीर्घकालिक शारीरिक स्थिरता का आनंद लेंगे।",
+                    "Rahu": "आपके ऊर्जा स्तर में अचानक बदलाव आ सकते हैं, इसलिए एक बहुत ही स्थिर और संतुलित जीवनशैली बनाए रखना आपके लिए सबसे अच्छा है। अपने शरीर को संतुलित रखने के लिए एक अनुमानित दैनिक दिनचर्या स्थापित करने और पौष्टिक भोजन खाने पर ध्यान दें। नियमित आदतों से जुड़े रहकर, आप अपनी जीवन शक्ति को प्रभावी ढंग से प्रबंधित कर सकते हैं और अचानक शारीरिक थकावट से बच सकते हैं।",
+                    "Ketu": "आपके पास स्वाभाविक रूप से लचीला और अनुकूलनीय शारीरिक गठन है जो शांतिपूर्ण जीवनशैली के प्रति अच्छी प्रतिक्रिया देता है। ध्यान या शांत चिंतन के माध्यम से अपने आध्यात्मिक कल्याण पर ध्यान केंद्रित करने से आपके शरीर की प्राकृतिक रक्षा प्रणाली को काफी बढ़ावा मिलेगा। दैनिक तनावों के प्रति शांत दृष्टिकोण यह सुनिश्चित करेगा कि आप उच्च स्तर की रोग प्रतिरोधक क्षमता और शारीरिक शांति बनाए रखें।"
+                }
+            },
+            "career": {
+                "en": {
+                    "Sun": "You are naturally destined for professional roles that involve significant leadership, authority, and management responsibilities. Your ability to take charge and inspire others makes you highly suitable for government positions or high-level executive roles. You will find the most success when you are in a position where you can make important decisions and lead a team toward a common goal.",
+                    "Moon": "Your professional strengths lie in fields that require deep creativity, empathy, and excellent interpersonal skills. You are likely to excel in industries related to travel, hospitality, or any role that involves caring for others or managing public relations. Your intuitive nature allows you to understand people's needs effectively, leading to a fulfilling career path centered around service and creative expression.",
+                    "Mars": "You are built for a dynamic career that involves technical expertise, engineering, or active land management. Roles that require courage, quick decision-making, and physical energy suit you best. You will find great satisfaction in professions where you can see tangible results of your hard work, whether in construction, technology, or any field that demands a hands-on and energetic approach to problem-solving.",
+                    "Mercury": "Success in your professional life comes through effective communication, intellectual networking, and analytical tasks. Whether you are involved in writing, accounting, marketing, or teaching, your ability to process information and share it with others is your greatest asset. You will thrive in environments that challenge your mind and allow you to build extensive professional connections through your words and ideas.",
+                    "Jupiter": "You are naturally inclined toward professional roles that involve sharing wisdom, providing high-level advice, or teaching others. Fields such as finance, law, education, or consulting are where you will find the most rewards and respect. Your ability to see the bigger picture and guide others with integrity ensures a respected and stable career path marked by continuous learning and growth.",
+                    "Venus": "A fulfilling career for you is one that aligns with your love for aesthetics, luxury, and the fine arts. You will excel in design, entertainment, fashion, or any industry that celebrates beauty and comfort. Your natural charm and creative vision allow you to succeed in roles where you can bring harmony and elegance to your work, attracting prosperity and professional satisfaction.",
+                    "Saturn": "You are most successful in structured professions that require long-term commitment, patience, and extreme attention to detail. Whether in large-scale organizations, traditional industries, or specialized service roles, your disciplined approach ensures steady growth and lasting achievements. You find your greatest professional rewards through consistency and by taking on responsibilities that demand a high level of reliability and structure.",
+                    "Rahu": "You thrive in modern, fast-paced career paths that involve cutting-edge technology, innovative research, or unconventional approaches. You are drawn to fields that challenge traditional norms and allow you to explore new frontiers. Your ability to adapt to change and think outside the box will bring you success in data-driven industries or any role that requires a futuristic and bold perspective.",
+                    "Ketu": "Your professional path is often linked to spiritual research, technical innovation, or roles that require a unique sense of observation and detachment. You are well-suited for specialized fields where deep concentration and a quest for deeper truth are required. You find the most satisfaction in work that allows you to operate independently and use your intuitive insights to solve complex, unconventional problems."
+                },
+                "hi": {
+                    "Sun": "आप स्वाभाविक रूप से उन पेशेवर भूमिकाओं के लिए बने हैं जिनमें महत्वपूर्ण नेतृत्व, अधिकार और प्रबंधन की जिम्मेदारियां शामिल हैं। दूसरों को प्रेरित करने और कमान संभालने की आपकी क्षमता आपको सरकारी पदों या उच्च स्तरीय कार्यकारी भूमिकाओं के लिए अत्यधिक उपयुक्त बनाती है। आप सबसे अधिक सफलता तब पाएंगे जब आप ऐसी स्थिति में होंगे जहाँ आप महत्वपूर्ण निर्णय ले सकें और एक टीम को साझा लक्ष्य की ओर ले जा सकें।",
+                    "Moon": "आपकी पेशेवर ताकत उन क्षेत्रों में निहित है जिनमें गहरी रचनात्मकता, सहानुभूति और उत्कृष्ट पारस्परिक कौशल की आवश्यकता होती है। आप यात्रा, आतिथ्य, या किसी भी ऐसी भूमिका में उत्कृष्ट प्रदर्शन करने की संभावना रखते हैं जिसमें दूसरों की देखभाल करना या जनसंपर्क प्रबंधित करना शामिल हो। आपका सहज स्वभाव आपको लोगों की जरूरतों को प्रभावी ढंग से समझने की अनुमति देता है, जिससे सेवा और रचनात्मक अभिव्यक्ति के आसपास केंद्रित एक संतोषजनक करियर पथ बनता है।",
+                    "Mars": "आप एक गतिशील करियर के लिए बने हैं जिसमें तकनीकी विशेषज्ञता, इंजीनियरिंग या सक्रिय भूमि प्रबंधन शामिल है। ऐसी भूमिकाएँ जिनमें साहस, त्वरित निर्णय लेने और शारीरिक ऊर्जा की आवश्यकता होती है, आप पर सबसे अच्छी लगती हैं। आपको उन व्यवसायों में बहुत संतुष्टि मिलेगी जहाँ आप अपनी कड़ी मेहनत के ठोस परिणाम देख सकें, चाहे वह निर्माण, प्रौद्योगिकी, या कोई भी क्षेत्र हो जो समस्या-समाधान के लिए ऊर्जावान दृष्टिकोण की मांग करता हो।",
+                    "Mercury": "आपके पेशेवर जीवन में सफलता प्रभावी संचार, बौद्धिक नेटवर्किंग और विश्लेषणात्मक कार्यों के माध्यम से आती है। चाहे आप लेखन, लेखा, विपणन या शिक्षण में शामिल हों, जानकारी को संसाधित करने और उसे दूसरों के साथ साझा करने की आपकी क्षमता आपकी सबसे बड़ी संपत्ति है। आप उन वातावरणों में फलेंगे-फूलेंगे जो आपके दिमाग को चुनौती देते हैं और आपको अपने शब्दों और विचारों के माध्यम से व्यापक पेशेवर संबंध बनाने की अनुमति देते हैं।",
+                    "Jupiter": "आप स्वाभाविक रूप से उन पेशेवर भूमिकाओं की ओर झुके हुए हैं जिनमें ज्ञान साझा करना, उच्च स्तरीय सलाह देना या दूसरों को सिखाना शामिल है। वित्त, कानून, शिक्षा या परामर्श जैसे क्षेत्र वे हैं जहाँ आपको सबसे अधिक पुरस्कार और सम्मान मिलेगा। बड़ी तस्वीर देखने और ईमानदारी के साथ दूसरों का मार्गदर्शन करने की आपकी क्षमता निरंतर सीखने और विकास द्वारा चिह्नित एक सम्मानित और स्थिर करियर पथ सुनिश्चित करती है।",
+                    "Venus": "आपके लिए एक संतोषजनक करियर वह है जो सौंदर्यशास्त्र, विलासिता और ललित कलाओं के प्रति आपके प्रेम के अनुरूप हो। आप डिजाइन, मनोरंजन, फैशन या किसी भी ऐसे उद्योग में उत्कृष्ट प्रदर्शन करेंगे जो सुंदरता और आराम का जश्न मनाता है। आपका स्वाभाविक आकर्षण और रचनात्मक दृष्टि आपको उन भूमिकाओं में सफल होने की अनुमति देती है जहाँ आप अपने काम में सामंजस्य और शालीनता ला सकते हैं, जिससे समृद्धि और पेशेवर संतुष्टि आकर्षित होती है।",
+                    "Saturn": "आप उन संरचित व्यवसायों में सबसे सफल होते हैं जिनमें दीर्घकालिक प्रतिबद्धता, धैर्य और विवरणों पर अत्यधिक ध्यान देने की आवश्यकता होती है। चाहे बड़े पैमाने के संगठनों में हो, पारंपरिक उद्योगों में, या विशेष सेवा भूमिकाओं में, आपका अनुशासित दृष्टिकोण निरंतर विकास और स्थायी उपलब्धियां सुनिश्चित करता है। आप निरंतरता के माध्यम से और उन जिम्मेदारियों को निभाकर अपना सबसे बड़ा पेशेवर पुरस्कार पाते हैं जो उच्च स्तर की विश्वसनीयता और संरचना की मांग करती हैं।",
+                    "Rahu": "आप आधुनिक, तेज गति वाले करियर पथों में फलते-फूलते हैं जिनमें अत्याधुनिक तकनीक, नवीन शोध या अपरंपरागत दृष्टिकोण शामिल होते हैं। आप उन क्षेत्रों की ओर आकर्षित होते हैं जो पारंपरिक मानदंडों को चुनौती देते हैं और आपको नई सीमाओं का पता लगाने की अनुमति देते हैं। परिवर्तन के अनुकूल होने और लीक से हटकर सोचने की आपकी क्षमता आपको डेटा-संचालित उद्योगों या किसी भी ऐसी भूमिका में सफलता दिलाएगी जिसमें भविष्यवादी और साहसिक दृष्टिकोण की आवश्यकता हो।",
+                    "Ketu": "आपका पेशेवर मार्ग अक्सर आध्यात्मिक अनुसंधान, तकनीकी नवाचार या उन भूमिकाओं से जुड़ा होता है जिनमें अवलोकन और वैराग्य की अनूठी भावना की आवश्यकता होती है। आप उन विशेष क्षेत्रों के लिए उपयुक्त हैं जहाँ गहन एकाग्रता और गहरे सत्य की खोज की आवश्यकता होती है। आपको उस काम में सबसे अधिक संतुष्टि मिलती है जो आपको स्वतंत्र रूप से काम करने और जटिल, अपरंपरागत समस्याओं को हल करने के लिए अपनी सहज अंतर्दृष्टि का उपयोग करने की अनुमति देता है।"
+                }
+            },
+            "marriage": {
+                "en": {
+                    "Sun": "Your ideal life partner is someone who is highly respected in society and naturally carries themselves with authority and grace. Your relationship will thrive on mutual admiration and a shared sense of pride in each other's achievements. You are likely to build a home that is governed by traditional values and a strong sense of responsibility toward family and social standing.",
+                    "Moon": "The foundation of your long-term relationship will be a very deep and sensitive emotional connection between you and your partner. You will find comfort in sharing your feelings openly and supporting each other through life's ups and downs with great empathy. Your home will be a peaceful sanctuary where emotional security and mutual care are prioritized above everything else.",
+                    "Mars": "You will experience a highly dynamic and energetic partnership where both you and your spouse actively pursue your goals together. Your relationship will be marked by honesty, courage, and a proactive approach to solving problems as a team. Maintaining a healthy balance of independent activities and shared physical pursuits will keep the excitement and bond in your marriage strong and vibrant.",
+                    "Mercury": "For you, the most important aspect of a successful marriage is mental compatibility and the ability to have endless, interesting conversations. You and your partner will enjoy exploring new ideas, traveling together, and staying socially active. A relationship built on intellectual friendship, shared humor, and clear communication will ensure lasting happiness and a very lively domestic life.",
+                    "Jupiter": "Your marital life will be characterized by extreme stability, mutual respect, and a shared dedication to wisdom and learning. You and your partner are likely to follow traditional values and support each other's growth with kindness and patience. The strength of your bond lies in your shared philosophy of life and your ability to guide each other toward a meaningful and prosperous future.",
+                    "Venus": "A harmonious and romantic partnership is destined for you, where love, beauty, and physical comfort are central themes. You and your spouse will share a deep appreciation for the finer things in life and will work together to create a beautiful and elegant living environment. Your relationship will flourish through frequent gestures of affection and a shared desire for a luxurious and peaceful life.",
+                    "Saturn": "You value deep commitment and practical stability in your marriage, often choosing a partner who provides a strong sense of security and reliability. Your relationship will grow stronger over time as you work together to build a solid foundation for your future. Through loyalty, patience, and shared responsibility, you will create a long-lasting and deeply meaningful union that stands the test of time.",
+                    "Rahu": "Your life partnership may be quite unconventional and could involve a spouse from a very different cultural or social background. You and your partner will thrive by embracing change and maintaining a flexible outlook toward traditional expectations. This unique bond will allow you both to explore new perspectives and build a life that is distinct, exciting, and full of modern growth.",
+                    "Ketu": "You seek a partnership based on a very deep, quiet understanding and a shared interest in spiritual or intellectual growth. Your relationship will be defined by mutual respect for each other's need for space and reflection. By focusing on a simple, meaningful lifestyle together, you and your partner will cultivate a bond that is spiritually fulfilling and built on a foundation of profound inner peace."
+                },
+                "hi": {
+                    "Sun": "आपका आदर्श जीवनसाथी वह है जो समाज में अत्यधिक सम्मानित हो और स्वाभाविक रूप से अधिकार और शालीनता के साथ खुद को पेश करे। आपका रिश्ता आपसी प्रशंसा और एक-दूसरे की उपलब्धियों पर गर्व की साझा भावना पर फलेगा-फूलेगा। आप एक ऐसा घर बनाने की संभावना रखते हैं जो पारंपरिक मूल्यों और परिवार तथा सामाजिक स्थिति के प्रति जिम्मेदारी की मजबूत भावना से शासित हो।",
+                    "Moon": "आपके दीर्घकालिक रिश्ते की नींव आपके और आपके साथी के बीच एक बहुत गहरा और संवेदनशील भावनात्मक जुड़ाव होगा। आप अपनी भावनाओं को खुलकर साझा करने और बड़ी सहानुभूति के साथ जीवन के उतार-चढ़ाव में एक-दूसरे का समर्थन करने में सुकून पाएंगे। आपका घर एक शांतिपूर्ण आश्रय होगा जहाँ भावनात्मक सुरक्षा और आपसी देखभाल को हर चीज़ से ऊपर प्राथमिकता दी जाएगी।",
+                    "Mars": "आप एक बहुत ही गतिशील और ऊर्जावान साझेदारी का अनुभव करेंगे जहाँ आप और आपके जीवनसाथी दोनों सक्रिय रूप से मिलकर अपने लक्ष्यों का पीछा करेंगे। आपके रिश्ते में ईमानदारी, साहस और एक टीम के रूप में समस्याओं को हल करने के लिए एक सक्रिय दृष्टिकोण होगा। स्वतंत्र गतिविधियों और साझा शारीरिक प्रयासों का स्वस्थ संतुलन बनाए रखना आपके विवाह में उत्साह और बंधन को मजबूत और जीवंत बनाए रखेगा।",
+                    "Mercury": "आपके लिए, एक सफल विवाह का सबसे महत्वपूर्ण पहलू मानसिक अनुकूलता और अंतहीन, दिलचस्प बातचीत करने की क्षमता है। आप और आपके साथी नए विचारों की खोज करने, एक साथ यात्रा करने और सामाजिक रूप से सक्रिय रहने का आनंद लेंगे। बौद्धिक मित्रता, साझा हास्य और स्पष्ट संचार पर आधारित रिश्ता स्थायी खुशी और एक बहुत ही जीवंत पारिवारिक जीवन सुनिश्चित करेगा।",
+                    "Jupiter": "आपका वैवाहिक जीवन अत्यधिक स्थिरता, आपसी सम्मान और ज्ञान तथा सीखने के प्रति साझा समर्पण द्वारा जाना जाएगा। आप और आपके जीवनसाथी पारंपरिक मूल्यों का पालन करने और दया तथा धैर्य के साथ एक-दूसरे के विकास का समर्थन करने की संभावना रखते हैं। आपके बंधन की ताकत जीवन के आपके साझा दर्शन और एक-दूसरे को एक सार्थक और समृद्ध भविष्य की ओर ले जाने की आपकी क्षमता में निहित है।",
+                    "Venus": "आपके लिए एक सामंजस्यपूर्ण और रोमांटिक साझेदारी तय है, जहाँ प्यार, सुंदरता और शारीरिक आराम केंद्रीय विषय होंगे। आप और आपके जीवनसाथी जीवन की बेहतर चीजों के लिए गहरी प्रशंसा साझा करेंगे और एक सुंदर और सुरुचिपूर्ण रहने का वातावरण बनाने के लिए मिलकर काम करेंगे। आपका रिश्ता स्नेह के लगातार संकेतों और एक शानदार और शांतिपूर्ण जीवन की साझा इच्छा के माध्यम से फलेगा-फूलेगा।",
+                    "Saturn": "आप अपने विवाह में गहरी प्रतिबद्धता और व्यावहारिक स्थिरता को महत्व देते हैं, अक्सर ऐसे साथी को चुनते हैं जो सुरक्षा और विश्वसनीयता की मजबूत भावना प्रदान करता है। जैसे-जैसे आप अपने भविष्य के लिए एक ठोस आधार बनाने के लिए मिलकर काम करेंगे, समय के साथ आपका रिश्ता और मजबूत होता जाएगा। वफादारी, धैर्य और साझा जिम्मेदारी के माध्यम से, आप एक लंबे समय तक चलने वाला और गहरा सार्थक मिलन बनाएंगे जो समय की कसौटी पर खरा उतरता है।",
+                    "Rahu": "आपकी जीवन साझेदारी काफी अपरंपरागत हो सकती है और इसमें बहुत अलग सांस्कृतिक या सामाजिक पृष्ठभूमि वाला जीवनसाथी शामिल हो सकता है। आप और आपके साथी बदलाव को अपनाकर और पारंपरिक अपेक्षाओं के प्रति लचीला दृष्टिकोण रखकर फलेंगे-फूलेंगे। यह अनूठा बंधन आप दोनों को नए दृष्टिकोण तलाशने और एक ऐसा जीवन बनाने की अनुमति देगा जो अलग, रोमांचक और आधुनिक विकास से भरा हो।",
+                    "Ketu": "आप बहुत गहरी, शांत समझ और आध्यात्मिक या बौद्धिक विकास में साझा रुचि पर आधारित साझेदारी की तलाश करते हैं। आपका रिश्ता एक-दूसरे की एकांत और चिंतन की आवश्यकता के प्रति आपसी सम्मान द्वारा परिभाषित होगा। एक साथ सरल, सार्थक जीवनशैली पर ध्यान केंद्रित करके, आप और आपके साथी एक ऐसा बंधन विकसित करेंगे जो आध्यात्मिक रूप से संतोषजनक होगा और गहरे आंतरिक शांति की नींव पर बना होगा।"
+                }
+            }
+        }
+
         if kp_cusps:
-            # --- Health & Longevity (1st CSL) ---
-            # Rule: 1st CSL signifying 1, 5, 9, 11 (Good) vs 6, 8, 12 (Bad).
-            # Simplified: Look at the 1st CSL Planet itself and its nature.
+            # 1. Health & Longevity
             csl_1 = kp_cusps.get("1", {}).get("sub_lord")
             if csl_1:
-                analysis.append({
-                    "type": "Health",
-                    "meaning": f"**Vitality**: The planet **{csl_1}** is a key guardian of your health. Focusing on positive habits related to this planet will boost your energy and well-being."
-                })
+                meaning_text = mappings["health"].get(lang, mappings["health"]["en"]).get(csl_1, "You have a natural ability to maintain your health through consistent balance and positive habits.")
+                analysis.append({"type": t["health"], "meaning": meaning_text})
 
-            # --- Job vs Business (10th CSL) ---
-            # Rule: 10th CSL signifying 7 (Business) or 6 (Job).
+            # 2. Job & Business
             csl_10 = kp_cusps.get("10", {}).get("sub_lord")
             if csl_10:
-                analysis.append({
-                    "type": "Career",
-                    "meaning": f"**Career Path**: Your professional success is influenced by **{csl_10}**. This suggests you have unique talents that can shine brightly in a path suited to your true nature."
-                })
-                
-                # GOLDEN RULE 1 (from PDF):
-                # "The house occupied by the nakshatra of 10th Cuspal Sub lord is the most important house in your career."
-                # We need to find the Nakshatra Lord of the 10th CSL.
-                # 1. Find the 10th CSL planet in our planet list.
-                csl_10_planet_data = next((p for p in kp_system_data if p['planet'] == csl_10), None)
-                if csl_10_planet_data:
-                    star_of_csl_10 = csl_10_planet_data['star_lord']
-                    analysis.append({
-                        "type": "Career Secret",
-                        "meaning": f"**Success Tip**: A special 'Golden Rule' for you! Your career will flourish when you align with the energy of **{star_of_csl_10}**. Trust your instincts here for great results."
-                    })
+                msg = mappings["career"].get(lang, mappings["career"]["en"]).get(csl_10, "Success is promised in your chosen path through dedication and hard work.")
+                analysis.append({"type": t["career"], "meaning": msg})
 
-            # --- Marriage (7th CSL) ---
+            # 3. Property & Assets
+            csl_4 = kp_cusps.get("4", {}).get("sub_lord")
+            if csl_4:
+                prop_map_detailed = mappings["career"] # Using the same structure idea
+                # Reuse the logic but for property map contents
+                msg = mappings["career"].get(lang, {}).get(csl_4) # Placeholder for detailed property if needed, but I'll use the specific property text from memory/PDF alignment
+                
+                # Manual entry for property to ensure 50+ words
+                prop_entries = {
+                    "en": {
+                        "Sun": "You are very likely to acquire valuable property and assets through family inheritance or through your connections with influential people. Your home will be a place of prestige and will reflect your high standing in society. Maintaining a focus on long-term family security will ensure that your assets continue to grow and provide a legacy for future generations.",
+                        "Moon": "A peaceful and serene living environment near a water source or influenced by your mother's legacy is predicted for you. You find great comfort in a home that provides emotional security and a quiet atmosphere. Your assets are likely to be acquired in a way that prioritizes family harmony and a connection to your roots and ancestral heritage.",
+                        "Mars": "You have a natural advantage and the necessary energy to acquire land and property through your own bold efforts and quick decision-making. Whether through construction, real estate, or land management, your proactive approach ensures that you successfully build a solid physical foundation for yourself. Your property will be a symbol of your drive and hard-earned achievements.",
+                        "Mercury": "Your ideal home is likely to be situated in a green, pleasant, and intellectually stimulating environment with many windows and natural light. You will find success in acquiring assets that allow for flexibility and ease of communication. Your living space will often serve as a hub for interesting conversations and will be marked by its adaptability and modern, airy feel.",
+                        "Jupiter": "You are destined to own a spacious, comfortable, and dignified home that reflects your wise and prosperous nature. Your assets will likely be acquired through legal, traditional, and growth-oriented means, ensuring that they provide long-term stability and respect. Your home will be a place where wisdom is shared and where religious or intellectual pursuits are given great priority.",
+                        "Venus": "Your property and assets will be characterized by extreme luxury, beauty, and refined aesthetic appeal. You have a natural talent for creating a harmonious and elegant living environment that provides both comfort and social prestige. Your success in acquiring high-value assets is linked to your appreciation for life's finer things and your ability to attract romantic and balanced energy.",
+                        "Saturn": "Ownership of a home and significant assets comes to you through steady, patient effort and a long-term commitment to your goals. You are likely to acquire older, traditional, or very well-structured properties that provide deep security. Your disciplined approach to financial planning ensures that your assets stand the test of time and provide a reliable foundation for your later years.",
+                        "Rahu": "You may acquire property and significant assets in very unique or unconventional ways, often in locations that are modern or distinct. Your living environment will reflect your innovative and bold personality, often challenging traditional norms. By staying open to new opportunities and unconventional real estate trends, you will build a sophisticated and impressive portfolio of assets.",
+                        "Ketu": "You may experience frequent changes in your place of residence or may prefer a home that features a very unique, minimalist, and quiet layout. Your approach to assets is one of detachment and spiritual alignment, where the quality of inner peace is more important than material show. You find the most comfort in a living space that allows for deep reflection and personal freedom."
+                    },
+                    "hi": {
+                        "Sun": "आपको पारिवारिक विरासत के माध्यम से या प्रभावशाली लोगों के साथ अपने संबंधों के माध्यम से मूल्यवान संपत्ति और संपत्ति प्राप्त होने की बहुत संभावना है। आपका घर प्रतिष्ठा का स्थान होगा और समाज में आपके उच्च स्तर को दर्शाएगा। दीर्घकालिक पारिवारिक सुरक्षा पर ध्यान केंद्रित करना यह सुनिश्चित करेगा कि आपकी संपत्ति बढ़ती रहे और भविष्य की पीढ़ियों के लिए एक विरासत प्रदान करे।",
+                        "Moon": "आपके लिए जल स्रोत के पास या आपकी माता की विरासत से प्रभावित एक शांतिपूर्ण और शांत रहने वाले वातावरण की भविष्यवाणी की गई है। आपको ऐसे घर में बहुत सुकून मिलता है जो भावनात्मक सुरक्षा और शांत वातावरण प्रदान करता है। आपकी संपत्ति इस तरह से अर्जित होने की संभावना है जो पारिवारिक सद्भाव और आपकी जड़ों तथा पैतृक विरासत के साथ जुड़ाव को प्राथमिकता देती है।",
+                        "Mars": "आपके पास अपने साहसी प्रयासों और त्वरित निर्णय लेने के माध्यम से भूमि और संपत्ति प्राप्त करने का स्वाभाविक लाभ और आवश्यक ऊर्जा है। चाहे निर्माण, रियल एस्टेट, या भूमि प्रबंधन के माध्यम से, आपका सक्रिय दृष्टिकोण यह सुनिश्चित करता है कि आप सफलतापूर्वक अपने लिए एक ठोस शारीरिक आधार बनाएं। आपकी संपत्ति आपके उत्साह और कड़ी मेहनत से अर्जित उपलब्धियों का प्रतीक होगी।",
+                        "Mercury": "आपका आदर्श घर कई खिड़कियों और प्राकृतिक रोशनी के साथ एक हरे-भरे, सुखद और बौद्धिक रूप से उत्तेजक वातावरण में स्थित होने की संभावना है। आप ऐसी संपत्ति प्राप्त करने में सफलता पाएंगे जो लचीलेपन और संचार की आसानी की अनुमति देती है। आपका रहने का स्थान अक्सर दिलचस्प बातचीत का केंद्र होगा और अपनी अनुकूलनशीलता और आधुनिक, हवादार अनुभव द्वारा पहचाना जाएगा।",
+                        "Jupiter": "आप एक विशाल, आरामदायक और प्रतिष्ठित घर के स्वामी होने के लिए नियत हैं जो आपके बुद्धिमान और समृद्ध स्वभाव को दर्शाता है। आपकी संपत्ति कानूनी, पारंपरिक और विकास-उन्मुख साधनों के माध्यम से अर्जित होने की संभावना है, जिससे यह सुनिश्चित होता है कि वे दीर्घकालिक स्थिरता और सम्मान प्रदान करें। आपका घर एक ऐसा स्थान होगा जहाँ ज्ञान साझा किया जाता है और जहाँ धार्मिक या बौद्धिक गतिविधियों को अत्यधिक प्राथमिकता दी जाती है।",
+                        "Venus": "आपकी संपत्ति और संपत्ति की विशेषता अत्यधिक विलासिता, सुंदरता और परिष्कृत कलात्मक अपील होगी। आपके पास एक सामंजस्यपूर्ण और सुरुचिपूर्ण रहने का वातावरण बनाने की स्वाभाविक प्रतिभा है जो आराम और सामाजिक प्रतिष्ठा दोनों प्रदान करती है। उच्च मूल्य की संपत्ति प्राप्त करने में आपकी सफलता जीवन की बेहतर चीजों के लिए आपकी प्रशंसा और रोमांटिक और संतुलित ऊर्जा को आकर्षित करने की आपकी क्षमता से जुड़ी है।",
+                        "Saturn": "घर और महत्वपूर्ण संपत्ति का स्वामित्व आपके पास स्थिर, धैर्यवान प्रयास और आपके लक्ष्यों के प्रति दीर्घकालिक प्रतिबद्धता के माध्यम से आता है। आप पुरानी, पारंपरिक, या बहुत अच्छी तरह से संरचित संपत्तियां प्राप्त करने की संभावना रखते हैं जो गहरी सुरक्षा प्रदान करती हैं। वित्तीय योजना के प्रति आपका अनुशासित दृष्टिकोण यह सुनिश्चित करता है कि आपकी संपत्ति समय की कसौटी पर खरी उतरे और आपके बाद के वर्षों के लिए एक विश्वसनीय आधार प्रदान करे।",
+                        "Rahu": "आप बहुत ही विशिष्ट या अपरंपरागत तरीकों से संपत्ति और महत्वपूर्ण संपत्ति प्राप्त कर सकते हैं, अक्सर उन स्थानों पर जो आधुनिक या अलग होते हैं। आपका रहने का वातावरण आपके अभिनव और साहसी व्यक्तित्व को दर्शाएगा, जो अक्सर पारंपरिक मानदंडों को चुनौती देता है। नए अवसरों और अपरंपरागत रियल एस्टेट रुझानों के प्रति खुले रहकर, आप संपत्ति का एक परिष्कृत और प्रभावशाली पोर्टफोलियो बनाएंगे।",
+                        "Ketu": "आप अपने निवास स्थान में बार-बार परिवर्तन का अनुभव कर सकते हैं या ऐसे घर को पसंद कर सकते हैं जिसमें बहुत विशिष्ट, न्यूनतम और शांत लेआउट हो। संपत्ति के प्रति आपका दृष्टिकोण वैराग्य और आध्यात्मिक संरेखण का है, जहाँ भौतिक प्रदर्शन की तुलना में आंतरिक शांति की गुणवत्ता अधिक महत्वपूर्ण है। आपको ऐसे रहने के स्थान में सबसे अधिक सुकून मिलता है जो गहन चिंतन और व्यक्तिगत स्वतंत्रता की अनुमति देता है।"
+                    }
+                }
+                msg = prop_entries.get(lang, prop_entries["en"]).get(csl_4, "You will find great success in building a stable physical foundation and acquiring property that provides security and comfort for you and your family throughout your life.")
+                analysis.append({"type": t["property"], "meaning": msg})
+
+            # 4. Marriage & Relationship
             csl_7 = kp_cusps.get("7", {}).get("sub_lord")
             if csl_7:
-                analysis.append({
-                    "type": "Relationships",
-                    "meaning": f"**Love & Harmony**: The planet **{csl_7}** plays a role in your relationships. It brings its own flavor to your connections, helping you find balance and happiness with partners."
-                })
+                msg = mappings["marriage"].get(lang, mappings["marriage"]["en"]).get(csl_7, "A deeply fulfilling and balanced relationship is promised, built on mutual respect and shared goals for a happy future together.")
+                analysis.append({"type": t["marriage"], "meaning": msg})
 
         return analysis

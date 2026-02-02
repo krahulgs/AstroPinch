@@ -36,7 +36,13 @@ const BirthChart = () => {
                     {userData.name}'s Natal Chart
                 </h2>
                 <p className="text-secondary">
-                    Born on {new Date(userData.date).toLocaleDateString()} at {userData.time} in {userData.place}
+                    Born on {new Date(userData.date).toLocaleDateString()} at {(() => {
+                        if (!userData.time) return '';
+                        const [h, m] = userData.time.split(':').map(Number);
+                        const h12 = h % 12 || 12;
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                    })()} in {userData.place}
                 </p>
                 <div className="pt-4">
                     <Link

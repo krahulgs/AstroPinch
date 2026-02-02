@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useChart } from '../context/ChartContext';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home } from 'lucide-react';
+import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home, Star } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 
 const horoscopes = {
@@ -27,21 +27,17 @@ const Horoscope = () => {
     const [selectedSign, setSelectedSign] = useState(null);
     const [dynamicData, setDynamicData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [showTechnical, setShowTechnical] = useState(false);
     const { t, i18n } = useTranslation();
 
-    useEffect(() => {
-        const signParam = routeSign || searchParams.get('sign');
-        let sign = signParam || chartData?.sun_sign;
-
-        if (sign) {
-            // Standardize casing (e.g. "aries" -> "Aries")
-            sign = sign.charAt(0).toUpperCase() + sign.slice(1).toLowerCase();
-            if (horoscopes[sign]) {
-                setSelectedSign(sign);
-                fetchDynamicHoroscope(sign);
-            }
-        }
-    }, [searchParams, chartData, routeSign, i18n.language]);
+    const zodiacSigns = [
+        { name: 'Aries', symbol: '♈' }, { name: 'Taurus', symbol: '♉' },
+        { name: 'Gemini', symbol: '♊' }, { name: 'Cancer', symbol: '♋' },
+        { name: 'Leo', symbol: '♌' }, { name: 'Virgo', symbol: '♍' },
+        { name: 'Libra', symbol: '♎' }, { name: 'Scorpio', symbol: '♏' },
+        { name: 'Sagittarius', symbol: '♐' }, { name: 'Capricorn', symbol: '♑' },
+        { name: 'Aquarius', symbol: '♒' }, { name: 'Pisces', symbol: '♓' }
+    ];
 
     const fetchDynamicHoroscope = async (sign) => {
         setLoading(true);
@@ -58,336 +54,204 @@ const Horoscope = () => {
         }
     };
 
-    if (!selectedSign && (!userData || !chartData)) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-in fade-in zoom-in">
-                <div className="relative">
-                    <div className="absolute inset-0 bg-amber-400/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
-                    <Sun className="w-20 h-20 text-amber-400 animate-spin-slow relative z-10" />
-                </div>
-                <div className="space-y-4">
-                    <h2 className="text-5xl font-black text-indigo-950 tracking-tighter uppercase italic">{t('horoscope.empty_state.title')}</h2>
-                    <p className="text-slate-600 max-w-lg mx-auto font-medium">
-                        {t('horoscope.empty_state.description')}
-                    </p>
-                </div>
-                <div className="flex gap-4">
-                    <Link to="/" className="px-8 py-4 bg-indigo-900 text-white rounded-full font-black uppercase text-sm hover:scale-105 transition-transform shadow-lg">
-                        Browse Signs
-                    </Link>
-                    <Link to="/chart" className="px-8 py-4 bg-white text-black rounded-full font-black uppercase text-sm hover:scale-105 transition-transform">
-                        Enter Details
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        const signParam = routeSign || searchParams.get('sign');
+        // Default to Aries if no sign is specified
+        let sign = signParam || chartData?.sun_sign || 'Aries';
 
-    const currentSign = selectedSign || chartData?.sun_sign;
+        if (sign) {
+            // Standardize casing (e.g. "aries" -> "Aries")
+            sign = sign.charAt(0).toUpperCase() + sign.slice(1).toLowerCase();
+            if (horoscopes[sign]) {
+                setSelectedSign(sign);
+                fetchDynamicHoroscope(sign);
+            }
+        }
+    }, [searchParams, chartData, routeSign, i18n.language]);
+
+    // Removed blocking empty state to ensure page always renders with a default or selected sign
+
+
+    const currentSign = selectedSign || chartData?.sun_sign || 'Aries';
     const displayPrediction = dynamicData?.prediction || horoscopes[currentSign] || "The stars are currently recalibrating for your journey. Check back shortly.";
 
     return (
-        <div className="min-h-screen flex flex-col justify-center max-w-7xl mx-auto space-y-12 py-10 px-6">
-            <Link to="/" className="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors font-black uppercase text-xs tracking-widest group">
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to universe
+        <div className="min-h-screen max-w-7xl mx-auto py-10 px-6">
+            <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest mb-8">
+                <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>
 
-            <div className="text-center space-y-4 relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/5 blur-[100px] -z-10"></div>
-                <span className="text-amber-500 font-black tracking-[0.4em] uppercase text-xs">{t('common.daily_guidance')}</span>
-                <h2 className="text-6xl sm:text-7xl font-black text-primary tracking-tighter leading-none uppercase italic">
-                    {t('horoscope.title', { sign: currentSign })}
-                </h2>
-                <div className="flex items-center justify-center gap-3 text-secondary font-bold uppercase text-xs tracking-widest">
-                    <Sparkles className="w-4 h-4" />
-                    {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    <Sparkles className="w-4 h-4" />
+            {/* 1. Sign Selector Bar (Professional Navigation) */}
+            <div className="mb-12 overflow-x-auto pb-4 no-scrollbar">
+                <div className="flex gap-3 justify-start md:justify-center min-w-max">
+                    {zodiacSigns.map((z) => (
+                        <Link
+                            key={z.name}
+                            to={`/horoscope/${z.name.toLowerCase()}`}
+                            className={`flex flex-col items-center justify-center w-16 h-20 rounded-2xl border transition-all duration-200 ${currentSign === z.name
+                                ? 'bg-indigo-900 border-indigo-900 text-white shadow-lg scale-110 z-10'
+                                : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-200 hover:text-indigo-600'
+                                }`}
+                        >
+                            <span className="text-2xl mb-1">{z.symbol}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wide">{z.name.slice(0, 3)}</span>
+                        </Link>
+                    ))}
                 </div>
             </div>
 
-            <div className={`relative p-12 md:p-16 rounded-3xl overflow-hidden group transition-opacity duration-500 bg-white border border-indigo-100 shadow-2xl ${loading ? 'opacity-50' : 'opacity-100'}`}>
-                {/* Subtle gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-white to-violet-50/50"></div>
+            {/* 2. Main Hero Section */}
+            <div className="text-center space-y-4 mb-12">
+                <span className="inline-block py-1 px-4 rounded-full bg-amber-50 text-amber-600 font-bold uppercase text-[10px] tracking-widest border border-amber-100">
+                    Daily Guidance
+                </span>
+                <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic">
+                    {t('horoscope.title', { sign: currentSign })}
+                </h1>
+                <p className="text-slate-500 font-medium tracking-wide uppercase text-sm">
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                </p>
+            </div>
 
-                {/* Decorative sun icon */}
-                <div className="absolute top-8 right-8 opacity-5 group-hover:opacity-10 group-hover:rotate-12 transition-all duration-1000">
-                    <Sun className="w-40 h-40 text-amber-500" />
+            <div className={`space-y-12 transition-opacity duration-500 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+
+                {/* 3. Prediction & Key Stats Card */}
+                <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-indigo-900/5 border border-slate-100 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+
+                    <div className="relative z-10 space-y-10">
+                        <div className="text-center max-w-4xl mx-auto">
+                            <h3 className="text-2xl md:text-4xl text-slate-800 leading-snug font-serif italic mb-8">
+                                "{displayPrediction}"
+                            </h3>
+                            <div className="h-1 w-24 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto rounded-full opacity-50"></div>
+                        </div>
+
+                        {/* Quick Stats Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 border-t border-slate-100 pt-10">
+                            {[
+                                { label: t('horoscope.stats.energy'), value: `${(dynamicData?.energy_level || 4) * 20}%`, icon: "⚡", color: "text-amber-500" },
+                                { label: t('horoscope.stats.lucky_number'), value: dynamicData?.lucky_number || '27', icon: "#", color: "text-indigo-500" },
+                                { label: t('horoscope.stats.lucky_color'), value: dynamicData?.lucky_color || 'Indigo', icon: "🎨", color: "text-fuchsia-500" },
+                                { label: t('horoscope.stats.mood'), value: dynamicData?.mood || 'Neutral', icon: "☺", color: "text-emerald-500" },
+                            ].map((stat, i) => (
+                                <div key={i} className="flex flex-col items-center p-4 rounded-2xl bg-slate-50/50">
+                                    <span className={`text-2xl mb-2 ${stat.color}`}>{stat.icon}</span>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{stat.label}</span>
+                                    <span className="text-lg font-bold text-slate-900">{stat.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="relative z-10 space-y-12">
-                    {/* Main prediction text */}
-                    <div className="space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-100 to-indigo-100 rounded-full border border-violet-200">
-                            <Sparkles className="w-4 h-4 text-violet-700" />
-                            <span className="text-xs font-bold text-violet-900 uppercase tracking-wider font-serif">{t('common.todays_insight')}</span>
-                        </div>
+                {/* 4. Life Areas Grid (Clean & Professional) */}
+                {dynamicData?.categories && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {Object.entries(dynamicData.categories).map(([key, cat]) => {
+                            if (key === 'remedies') return null;
 
-                        <p className="text-2xl md:text-3xl text-indigo-950 leading-relaxed font-serif italic">
-                            "{displayPrediction.split(' ').map((word, i) => {
-                                const planets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
-                                const aspects = ['Conjunction', 'Opposition', 'Trine', 'Square', 'Sextile'];
-                                const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+                            const icons = {
+                                love: <Heart className="w-6 h-6 text-rose-500" />,
+                                career: <Briefcase className="w-6 h-6 text-indigo-500" />,
+                                finance: <Coins className="w-6 h-6 text-emerald-500" />,
+                                family: <Home className="w-6 h-6 text-amber-500" />
+                            };
 
-                                const cleanWord = word.replace(/[.,!?]/g, '');
-                                if (planets.includes(cleanWord)) {
-                                    return <span key={i} className="text-amber-600 font-bold">{word} </span>;
-                                } else if (aspects.includes(cleanWord)) {
-                                    return <span key={i} className="text-purple-600 font-bold">{word} </span>;
-                                } else if (signs.includes(cleanWord)) {
-                                    return <span key={i} className="text-blue-600 font-bold">{word} </span>;
-                                }
-                                return word + ' ';
-                            })}"
-                        </p>
-                    </div>
+                            const styles = {
+                                love: "bg-rose-50/30 border-rose-100 hover:border-rose-200",
+                                career: "bg-indigo-50/30 border-indigo-100 hover:border-indigo-200",
+                                finance: "bg-emerald-50/30 border-emerald-100 hover:border-emerald-200",
+                                family: "bg-amber-50/30 border-amber-100 hover:border-amber-200"
+                            };
 
-                    {/* Divider */}
-                    <div className="h-px w-full bg-gradient-to-r from-transparent via-indigo-200 to-transparent"></div>
-
-                    {/* Stats grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {/* Energy Level */}
-                        <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
-                            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest font-serif">{t('horoscope.stats.energy')}</p>
-                            <div className="flex gap-1.5">
-                                {Array.from({ length: dynamicData?.energy_level || 4 }).map((_, i) => <div key={i} className="w-full h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"></div>)}
-                                {Array.from({ length: 5 - (dynamicData?.energy_level || 4) }).map((_, i) => <div key={i} className="w-full h-2 bg-amber-100 rounded-full"></div>)}
-                            </div>
-                        </div>
-
-                        {/* Lucky Number */}
-                        <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100">
-                            <p className="text-[10px] font-bold text-indigo-800 uppercase tracking-widest font-serif">{t('horoscope.stats.lucky_number')}</p>
-                            <p className="text-3xl font-serif font-bold text-indigo-700">{dynamicData?.lucky_number || '27'}</p>
-                        </div>
-
-                        {/* Lucky Color */}
-                        <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-fuchsia-50 border border-violet-100">
-                            <p className="text-[10px] font-bold text-violet-800 uppercase tracking-widest font-serif">{t('horoscope.stats.lucky_color')}</p>
-                            <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: dynamicData?.lucky_color?.replace(' ', '').toLowerCase() || '#fbbf24' }}></div>
-                                <p className="text-sm font-bold text-violet-900 uppercase font-serif">{dynamicData?.lucky_color || 'Indigo'}</p>
-                            </div>
-                        </div>
-
-                        {/* Mood */}
-                        <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
-                            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest font-serif">{t('horoscope.stats.mood')}</p>
-                            <p className="text-sm font-bold text-emerald-900 uppercase tracking-wide font-serif">{dynamicData?.mood || 'Neutral'}</p>
-                        </div>
-                    </div>
-
-                    {dynamicData?.categories && (
-                        <div className="space-y-8 pt-10 border-t border-indigo-100">
-                            <h3 className="text-3xl font-serif text-indigo-950 flex items-center gap-3 italic">
-                                <Moon className="w-6 h-6 text-violet-600" />
-                                {t('horoscope.categories.title')}
-                            </h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {Object.entries(dynamicData.categories).map(([key, cat]) => {
-                                    if (key === 'remedies') return null;
-
-                                    const categoryStyles = {
-                                        love: {
-                                            borderColor: "border-rose-100",
-                                            bgColor: "bg-rose-50/30",
-                                            badgeColor: "bg-rose-100 text-rose-700",
-                                            iconColor: "text-rose-500",
-                                            titleColor: "text-rose-950",
-                                            summaryColor: "text-rose-900",
-                                            detailColor: "text-rose-700 border-rose-200"
-                                        },
-                                        career: {
-                                            borderColor: "border-sky-100",
-                                            bgColor: "bg-sky-50/30",
-                                            badgeColor: "bg-sky-100 text-sky-700",
-                                            iconColor: "text-sky-500",
-                                            titleColor: "text-sky-950",
-                                            summaryColor: "text-sky-900",
-                                            detailColor: "text-sky-700 border-sky-200"
-                                        },
-                                        finance: {
-                                            borderColor: "border-emerald-100",
-                                            bgColor: "bg-emerald-50/30",
-                                            badgeColor: "bg-emerald-100 text-emerald-700",
-                                            iconColor: "text-emerald-500",
-                                            titleColor: "text-emerald-950",
-                                            summaryColor: "text-emerald-900",
-                                            detailColor: "text-emerald-700 border-emerald-200"
-                                        },
-                                        family: {
-                                            borderColor: "border-amber-100",
-                                            bgColor: "bg-amber-50/30",
-                                            badgeColor: "bg-amber-100 text-amber-700",
-                                            iconColor: "text-amber-500",
-                                            titleColor: "text-amber-950",
-                                            summaryColor: "text-amber-900",
-                                            detailColor: "text-amber-700 border-amber-200"
-                                        }
-                                    };
-
-                                    const style = categoryStyles[key] || categoryStyles.love;
-
-                                    return (
-                                        <div key={key} className={`p-8 rounded-2xl border ${style.borderColor} ${style.bgColor} hover:shadow-xl hover:-translate-y-1 transition-all duration-500`}>
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between mb-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-12 h-12 ${style.badgeColor} rounded-full flex items-center justify-center`}>
-                                                        {key === 'love' && <Heart className="w-5 h-5" />}
-                                                        {key === 'career' && <Briefcase className="w-5 h-5" />}
-                                                        {key === 'finance' && <Coins className="w-5 h-5" />}
-                                                        {key === 'family' && <Home className="w-5 h-5" />}
-                                                    </div>
-                                                    <div>
-                                                        <h4 className={`text-lg font-serif font-bold capitalize ${style.titleColor}`}>{cat.title}</h4>
-                                                        <p className="text-xs text-slate-500 font-medium tracking-wider uppercase">{cat.status}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="space-y-4">
-                                                <p className={`text-lg leading-relaxed font-serif ${style.summaryColor}`}>
-                                                    {cat.summary}
-                                                </p>
-                                                <div className="space-y-3 pt-2">
-                                                    {cat.details?.map((detail, i) => (
-                                                        <p key={i} className={`text-sm leading-relaxed pl-4 border-l-2 italic ${style.detailColor}`}>
-                                                            {detail}
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            </div>
+                            return (
+                                <div key={key} className={`p-8 rounded-[2rem] border ${styles[key] || styles.love} transition-all duration-300 hover:shadow-lg`}>
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                                            {icons[key] || <Star className="w-6 h-6" />}
                                         </div>
-                                    );
-                                })}
-                            </div>
-
-                            {dynamicData.categories.remedies && (
-                                <div className="mt-12">
-                                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-900 to-indigo-900 p-8 md:p-12 text-white shadow-2xl">
-                                        <div className="absolute top-0 right-0 p-12 opacity-10">
-                                            <Sparkles className="w-64 h-64" />
-                                        </div>
-
-                                        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
-                                            <div className="space-y-6">
-                                                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                                                    <Sparkles className="w-8 h-8 text-amber-300" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-3xl font-serif italic mb-2">Cosmic Remedy</h4>
-                                                    <p className="text-indigo-200 text-sm font-medium tracking-wider uppercase">Priority Solution</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-8">
-                                                <div className="space-y-2">
-                                                    <p className="text-xs font-bold text-amber-300 uppercase tracking-widest">Physical</p>
-                                                    <p className="text-indigo-100 text-sm leading-relaxed">{dynamicData.categories.remedies.solution?.physical}</p>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <p className="text-xs font-bold text-violet-300 uppercase tracking-widest">Meditative</p>
-                                                    <p className="text-indigo-100 text-sm leading-relaxed">{dynamicData.categories.remedies.solution?.meditative}</p>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <p className="text-xs font-bold text-sky-300 uppercase tracking-widest">Behavioral</p>
-                                                    <p className="text-indigo-100 text-sm leading-relaxed">{dynamicData.categories.remedies.solution?.behavioral}</p>
-                                                </div>
+                                        <div>
+                                            <h4 className="text-xl font-bold text-slate-900 capitalize">{cat.title}</h4>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <div className={`w-2 h-2 rounded-full ${key === 'love' ? 'bg-rose-400' : 'bg-indigo-400'}`}></div>
+                                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{cat.status}</span>
                                             </div>
                                         </div>
                                     </div>
+                                    <p className="text-slate-600 leading-relaxed font-medium mb-6">
+                                        {cat.summary}
+                                    </p>
+                                    <ul className="space-y-3">
+                                        {cat.details?.map((detail, idx) => (
+                                            <li key={idx} className="flex gap-3 text-sm text-slate-500">
+                                                <span className="text-slate-300 transform translate-y-1">●</span>
+                                                {detail}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            )}
-                        </div>
-                    )}
+                            );
+                        })}
+                    </div>
+                )}
 
-                    {dynamicData?.aspects && dynamicData.aspects.length > 0 && (
-                        <div className="space-y-8 pt-10 border-t border-indigo-100">
-                            <div>
-                                <h4 className="text-2xl font-serif text-indigo-950 flex items-center gap-3 italic">
-                                    <Sparkles className="w-6 h-6 text-indigo-500" />
-                                    {t('horoscope.cosmic_alignment')}
-                                </h4>
-                                <p className="text-sm text-slate-600 mt-2 leading-relaxed max-w-2xl">
-                                    {t('horoscope.alignment_desc')}
-                                </p>
+                {/* 5. Daily Power Actions (Remedies) */}
+                {dynamicData?.categories?.remedies?.solution && (
+                    <div className="bg-slate-900 rounded-[2.5rem] p-10 md:p-14 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-4 mb-10">
+                                <Sparkles className="w-8 h-8 text-amber-400" />
+                                <h3 className="text-3xl font-serif italic">Daily Power Actions</h3>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {dynamicData.aspects.map((aspect, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl flex items-center justify-between group bg-white border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-2xl w-10 h-10 flex items-center justify-center bg-indigo-50 rounded-full text-indigo-600">
-                                                {aspect.symbol}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-indigo-900 font-serif">
-                                                    {aspect.p1} {t(`horoscope.aspects.${aspect.type}`)} {aspect.p2}
-                                                </p>
-                                                <p className="text-xs text-slate-500 font-medium tracking-wide">
-                                                    Orb: {aspect.orb}°
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className={`text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider ${aspect.type === 'Trine' || aspect.type === 'Sextile' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                            {aspect.type === 'Trine' || aspect.type === 'Sextile' ? t('horoscope.aspects.harmonious') : t('horoscope.aspects.challenging')}
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    { title: "Physical", body: dynamicData.categories.remedies.solution.physical, color: "bg-amber-500" },
+                                    { title: "Mental", body: dynamicData.categories.remedies.solution.meditative, color: "bg-indigo-500" },
+                                    { title: "Spiritual", body: dynamicData.categories.remedies.solution.behavioral, color: "bg-rose-500" },
+                                ].map((action, i) => (
+                                    <div key={i} className="flex flex-col gap-4">
+                                        <div className={`w-12 h-1 ${action.color} rounded-full`}></div>
+                                        <div>
+                                            <h4 className="font-bold text-lg mb-2">{action.title} Focus</h4>
+                                            <p className="text-slate-300 leading-relaxed text-sm">
+                                                {action.body}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    <div className="pt-8 border-t border-indigo-100">
-                        <div className="space-y-2 mb-6">
-                            <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-widest">
-                                <Compass className="w-4 h-4" /> {t('horoscope.transit_status')}
-                            </div>
-                            <p className="text-sm text-slate-600 leading-relaxed max-w-2xl">
-                                {t('horoscope.transit_desc')}
-                            </p>
-                        </div>
-                        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4">
-                            {dynamicData?.transits && Object.entries(dynamicData.transits).map(([planet, sign]) => (
-                                <span key={planet} className="text-xs bg-white px-3 py-1.5 rounded-full text-indigo-900 border border-indigo-100 whitespace-nowrap shadow-sm font-medium">
-                                    <span className="font-bold text-indigo-600 uppercase">{planet}</span> in {sign}
-                                </span>
+                {/* 6. Technical Details (Collapsible for Cleanliness) */}
+                <div className="border-t border-slate-200 pt-8 text-center">
+                    <button
+                        onClick={() => setShowTechnical(!showTechnical)}
+                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors"
+                    >
+                        {showTechnical ? "Hide Planetary Alignments" : "View Planetary Alignments"}
+                        {showTechnical ? <Compass className="w-4 h-4 rotate-180" /> : <Compass className="w-4 h-4" />}
+                    </button>
+
+                    {showTechnical && dynamicData?.aspects && (
+                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in slide-in-from-top-4 fade-in duration-300 text-left">
+                            {dynamicData.aspects.map((aspect, idx) => (
+                                <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-700">
+                                        {aspect.p1} {aspect.symbol} {aspect.p2}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 uppercase tracking-wider">{aspect.type}</span>
+                                </div>
                             ))}
                         </div>
-                    </div>
+                    )}
+                </div>
 
-                    <p className="text-slate-400 italic text-[10px] uppercase tracking-[0.2em] pt-4 text-center">
-                        {userData?.name ? `Personalized for ${userData.name}. ` : ""}
-                        Generated by unified cosmic engine.
-                    </p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-8 rounded-3xl bg-indigo-900 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-10">
-                        <Sparkles className="w-32 h-32" />
-                    </div>
-                    <div className="relative z-10 space-y-4">
-                        <h4 className="text-xl font-serif italic text-indigo-200">{t('horoscope.spiritual_focus')}</h4>
-                        <p className="text-indigo-50 leading-relaxed font-light">
-                            {t('horoscope.spiritual_focus_desc')}
-                        </p>
-                    </div>
-                </div>
-                <div className="p-8 rounded-3xl bg-white border border-amber-100 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-5">
-                        <Sun className="w-32 h-32 text-amber-500" />
-                    </div>
-                    <div className="relative z-10 space-y-4">
-                        <h4 className="text-xl font-serif italic text-amber-600">{t('horoscope.cosmic_note')}</h4>
-                        <p className="text-slate-600 leading-relaxed">
-                            {t('horoscope.cosmic_note_desc', { moon: dynamicData?.transits?.moon || 'Moon' })}
-                        </p>
-                    </div>
-                </div>
             </div>
         </div>
     );

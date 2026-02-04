@@ -8,6 +8,7 @@ const InputForm = () => {
     const navigate = useNavigate();
     const { saveUserData, loading, error: serverError } = useChart();
 
+    const [progress, setProgress] = useState(0);
     const [formData, setFormData] = useState({
         name: '',
         date: '',
@@ -31,10 +32,30 @@ const InputForm = () => {
             return;
         }
 
-        // The time is already stored in 24h format in formData.time
+        // Simulate progress while fetching
+        setProgress(0);
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 95) {
+                    clearInterval(interval);
+                    return 95;
+                }
+                const increment = Math.floor(Math.random() * 5) + 2;
+                return Math.min(prev + increment, 95);
+            });
+        }, 300);
+
         const report = await saveUserData(formData);
+
+        clearInterval(interval);
+
         if (report) {
-            navigate('/report/consolidated', { state: { userData: formData, preFetchedReport: report } });
+            setProgress(100);
+            setTimeout(() => {
+                navigate('/report/consolidated', { state: { userData: formData, preFetchedReport: report } });
+            }, 500);
+        } else {
+            setProgress(0);
         }
     };
 
@@ -129,9 +150,20 @@ const InputForm = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:scale-[1.02] hover:shadow-primary/50 transition-all duration-300 mt-6 disabled:opacity-50 disabled:hover:scale-100"
+                            className="w-full relative bg-gradient-to-r from-primary to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:scale-[1.02] hover:shadow-primary/50 transition-all duration-300 mt-6 disabled:opacity-50 disabled:hover:scale-100 overflow-hidden"
                         >
-                            {loading ? 'Aligning Stars...' : 'Reveal My Chart'}
+                            {/* Progress Fill */}
+                            {loading && (
+                                <div
+                                    className="absolute left-0 top-0 bottom-0 bg-white/20 transition-all duration-500 ease-out"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            )}
+
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {loading ? `Aligning Stars... ${progress}%` : 'Reveal My Chart'}
+                            </span>
                         </button>
                     </form>
                 </div>

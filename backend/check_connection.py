@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "http://localhost:8000/api/report/consolidated"
+url = "https://astropinch-api.onrender.com/api/report/consolidated"
 # Dummy data based on BirthDetails model
 data = {
     "name": "Test User",

@@ -2,7 +2,7 @@ import requests
 import uuid
 import sys
 
-BASE_URL = "http://localhost:8000/api/auth"
+BASE_URL = "https://astropinch-api.onrender.com/api/auth"
 
 def test_auth():
     # 1. Register

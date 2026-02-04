@@ -1,7 +1,7 @@
 import requests
 import time
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://astropinch-api.onrender.com"
 TEST_EMAIL = "test_login_user@example.com"
 TEST_PASSWORD = "TestPassword123!"
 TEST_NAME = "Login Tester"

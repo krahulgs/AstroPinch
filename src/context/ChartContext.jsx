@@ -14,6 +14,7 @@ export const ChartProvider = ({ children }) => {
     const [chartAnalysis, setChartAnalysis] = useState(null);
     const [bestPrediction, setBestPrediction] = useState(null);
     const [numerologyData, setNumerologyData] = useState(null);
+    const [consolidatedReport, setConsolidatedReport] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -47,77 +48,57 @@ export const ChartProvider = ({ children }) => {
                 marital_status: data.marital_status
             };
 
-            // Fetch all data in parallel
-            const [dataRes, svgRes, lunarRes, kundaliRes, analysisRes, predRes, numRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/api/chart`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/chart/svg`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/chart/svg/lunar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/chart/svg/kundali`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/chart/analysis`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/predictions/best`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }),
-                fetch(`${API_BASE_URL}/api/numerology`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                })
-            ]);
+            // Optimization: Fetch only the consolidated report instead of 7 parallel requests
+            // This is much safer for Render Free Tier to avoid overloading the single worker instance.
+            const response = await fetch(`${API_BASE_URL}/api/report/consolidated`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
 
-            if (!dataRes.ok || !svgRes.ok || !lunarRes.ok || !kundaliRes.ok || !analysisRes.ok || !predRes.ok || !numRes.ok) {
-                throw new Error('Failed to fetch genealogical data');
+            if (!response.ok) {
+                throw new Error('Failed to generate consolidated report');
             }
 
-            const result = await dataRes.json();
-            const svgResult = await svgRes.json();
-            const lunarResult = await lunarRes.json();
-            const kundaliResult = await kundaliRes.json();
-            const analysisResult = await analysisRes.json();
-            const predResult = await predRes.json();
-            const numResult = await numRes.json();
+            const report = await response.json();
 
-            setChartData(result);
-            setChartSvg(svgResult.svg);
-            setLunarSvg(lunarResult.svg);
-            setKundaliSvg(kundaliResult.svg);
-            setChartAnalysis(analysisResult);
-            setBestPrediction(predResult);
-            setNumerologyData(numResult);
+            // Map the consolidated report data to context fields for compatibility
+            setConsolidatedReport(report);
+            setNumerologyData(report.numerology);
+            setChartData(report.western_astrology);
+            setKundaliSvg(report.vedic_astrology?.chart_svg);
+            setChartAnalysis(report.vedic_astrology?.kundali_analysis);
+            setBestPrediction(report.predictions_summary);
+
+            // Note: SVG/Lunar might need separate fetches if not in consolidated, 
+            // but we can fetch them lazily in components or add them to the report.
+
             setUserData(data);
             setLoading(false);
-            return true;
+            return report;
         } catch (error) {
             console.error("Failed to fetch chart data:", error);
-            setError("Failed to connect to the server. Please ensure the backend is running.");
+            setError("The server is taking too long to respond. Please try again or check your connection.");
             setLoading(false);
             return false;
         }
     };
 
     return (
-        <ChartContext.Provider value={{ userData, chartData, chartSvg, lunarSvg, kundaliSvg, chartAnalysis, bestPrediction, numerologyData, saveUserData, loading, error }}>
+        <ChartContext.Provider value={{
+            userData,
+            chartData,
+            chartSvg,
+            lunarSvg,
+            kundaliSvg,
+            chartAnalysis,
+            bestPrediction,
+            numerologyData,
+            consolidatedReport,
+            saveUserData,
+            loading,
+            error
+        }}>
             {children}
         </ChartContext.Provider>
     );

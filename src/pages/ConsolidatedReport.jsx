@@ -710,6 +710,17 @@ const ConsolidatedReport = () => {
             setLoading(true);
             setError(null);
 
+            // Optimization: If report was already fetched during navigation, use it!
+            if (location.state?.preFetchedReport) {
+                const preData = location.state.preFetchedReport;
+                setReport(preData);
+                if (preData.vedic_astrology?.chart_svg) {
+                    setVedicSvg(preData.vedic_astrology.chart_svg);
+                }
+                setLoading(false);
+                return;
+            }
+
             // Decompose date/time if strict strings are passed
             let payload = { ...userData };
 

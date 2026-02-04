@@ -32,9 +32,9 @@ const InputForm = () => {
         }
 
         // The time is already stored in 24h format in formData.time
-        const success = await saveUserData(formData);
-        if (success) {
-            navigate('/report/consolidated');
+        const report = await saveUserData(formData);
+        if (report) {
+            navigate('/report/consolidated', { state: { userData: formData, preFetchedReport: report } });
         }
     };
 

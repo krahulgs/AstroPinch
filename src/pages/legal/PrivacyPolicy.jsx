@@ -1,9 +1,15 @@
 import React from 'react';
 import { ShieldCheck, Lock, Eye, FileText } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const PrivacyPolicy = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="Privacy Policy"
+                description="Your privacy is our priority. Read our privacy policy to understand how we protect your personal and birth data."
+                url="/privacy"
+            />
             {/* Header */}
             <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 mb-4">

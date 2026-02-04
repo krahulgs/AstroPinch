@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, MapPin, Sparkles, Moon } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const CalendarPage = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -255,6 +256,11 @@ const CalendarPage = () => {
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-6">
+            <SEO
+                title="Hindu Panchang & Festival Calendar 2026-2027"
+                description="Explore the Vedic Panchang, Hindu festivals, and auspicious muhurats. Real-time astrological data, Tithi, Nakshatra, and Rashi for any date."
+                url="/calendar"
+            />
             <div className="max-w-6xl mx-auto space-y-8">
 
                 {/* Professional Panchang Header (Modern Theme) */}

@@ -1,9 +1,15 @@
 import React from 'react';
 import { Users, LineChart, Globe, Zap, Check } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const Partnership = () => {
     return (
         <div className="max-w-6xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="Partnership & API"
+                description="Scale your astrology practice or integrate cosmic intelligence into your application. Explore whitelabel reports and our high-performance astrology API."
+                url="/partnership"
+            />
             <div className="text-center mb-16">
                 <span className="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 font-semibold text-sm mb-4">Join Our Ecosystem</span>
                 <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 mb-6">

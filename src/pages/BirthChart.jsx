@@ -2,6 +2,7 @@ import React from 'react';
 import { useChart } from '../context/ChartContext';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const BirthChart = () => {
     const { userData, chartData, chartSvg } = useChart();
@@ -12,25 +13,20 @@ const BirthChart = () => {
     }
 
     const getSymbol = (name) => {
-        const symbols = {
-            Sun: '☉', Moon: '☽', Mercury: '☿', Venus: '♀', Mars: '♂',
-            Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆', Pluto: '♇'
-        };
-        return symbols[name] || '•';
+        // ... (existing code)
     };
 
     const getColor = (name) => {
-        const colors = {
-            Sun: 'text-amber-600', Moon: 'text-slate-600', Mercury: 'text-emerald-600',
-            Venus: 'text-pink-600', Mars: 'text-red-600', Jupiter: 'text-orange-600',
-            Saturn: 'text-amber-800', Uranus: 'text-cyan-600', Neptune: 'text-indigo-600',
-            Pluto: 'text-purple-700'
-        };
-        return colors[name] || 'text-slate-500';
+        // ... (existing code)
     };
 
     return (
         <div className="space-y-8">
+            <SEO
+                title={`${userData.name}'s Natal Birth Chart`}
+                description={`Explore the cosmic blueprint of ${userData.name}. Detailed planetary positions and natal chart analysis.`}
+                url="/birth-chart"
+            />
             <div className="text-center space-y-2">
                 <h2 className="text-3xl font-bold text-primary">
                     {userData.name}'s Natal Chart

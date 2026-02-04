@@ -1,9 +1,15 @@
 import React from 'react';
 import { Scale, CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const Terms = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="Terms of Service"
+                description="Read our terms of service to understand the rules, guidelines, and legal agreements for using the AstroPinch platform."
+                url="/terms"
+            />
             {/* Header */}
             <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-50 text-amber-600 mb-4">

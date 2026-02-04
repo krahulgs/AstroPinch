@@ -2,6 +2,7 @@ import React from 'react';
 import { useChart } from '../context/ChartContext';
 import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Predictions = () => {
     const { userData, chartData } = useChart();
@@ -43,6 +44,11 @@ const Predictions = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-12 pt-10">
+            <SEO
+                title="Your Life Predictions"
+                description="Unlock the secrets of your timeline with aggregated analysis from multiple cosmic engines."
+                url="/predictions"
+            />
             <div className="text-center space-y-2">
                 <span className="text-primary font-medium tracking-widest uppercase text-sm">The Unified Oracle</span>
                 <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">

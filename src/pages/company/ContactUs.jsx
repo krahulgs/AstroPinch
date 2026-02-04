@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, MapPin, Send } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const ContactUs = () => {
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -16,6 +17,11 @@ const ContactUs = () => {
 
     return (
         <div className="max-w-6xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="Contact Us"
+                description="Have questions or need support? Reach out to the AstroPinch team. We're here to help you navigate your cosmic journey."
+                url="/contact"
+            />
             <div className="text-center mb-16">
                 <h1 className="text-4xl font-bold text-slate-900 mb-4">Get in Touch</h1>
                 <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -38,17 +44,6 @@ const ContactUs = () => {
                                     <h4 className="font-semibold text-slate-900">Email Us</h4>
                                     <p className="text-slate-500 text-sm mb-1">Our support team is available 24/7.</p>
                                     <a href="mailto:support@astropinch.com" className="text-blue-600 hover:underline font-medium">support@astropinch.com</a>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 shrink-0">
-                                    <Phone className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-slate-900">Call Us</h4>
-                                    <p className="text-slate-500 text-sm mb-1">Mon-Fri from 9am to 6pm IST.</p>
-                                    <a href="tel:+919876543210" className="text-blue-600 hover:underline font-medium">+91 98765 43210</a>
                                 </div>
                             </div>
 

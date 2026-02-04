@@ -1,9 +1,15 @@
 import React from 'react';
 import { Sparkles, Brain, Scroll, Heart } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const AboutUs = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="About Us"
+                description="Discover the vision behind AstroPinch. Learn how we bridge ancient Vedic wisdom with cutting-edge AI to provide precise, actionable astrological guidance."
+                url="/about"
+            />
             {/* Hero Section */}
             <div className="text-center mb-16">
                 <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 mb-6">

@@ -7,6 +7,7 @@ import {
     AlertTriangle, Calendar as CalendarIcon,
     ArrowLeft, Bell, Sparkles, Moon
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const DailyInsights = () => {
     const { t, i18n } = useTranslation();
@@ -15,7 +16,7 @@ const DailyInsights = () => {
     const profile = location.state?.profile;
 
     // Derived from profile or defaults
-    const sign = profile?.western_sign || 'Aries'; // Fallback if not computed yet, or passed from backend
+    const sign = profile?.western_sign || 'Aries';
 
     const [activeTab, setActiveTab] = useState('love');
     const [loading, setLoading] = useState(true);
@@ -28,7 +29,6 @@ const DailyInsights = () => {
         const fetchDailyData = async () => {
             setLoading(true);
             try {
-                // Post to /api/insights/daily with profile details and language
                 const payload = { ...profile, lang: i18n.language };
                 const response = await fetch(`${API_BASE_URL}/api/insights/daily`, {
                     method: 'POST',
@@ -71,6 +71,11 @@ const DailyInsights = () => {
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+            <SEO
+                title={`Daily Insights - ${profile?.name}`}
+                description={`Get personalized daily guidance, cosmic alerts, and lucky numbers for ${profile?.name}. Based on real-time planetary transits.`}
+            />
+
 
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">

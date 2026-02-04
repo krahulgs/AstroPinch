@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, CreditCard, Shield } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const FAQItem = ({ question, answer }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +28,11 @@ const FAQItem = ({ question, answer }) => {
 const HelpCenter = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="Help Center & FAQs"
+                description="Find answers to common questions about Vedic astrology, our calculation methods, data privacy, and report options."
+                url="/help"
+            />
             {/* Header */}
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-bold text-slate-900 mb-6">How can we help you?</h1>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChart } from '../context/ChartContext';
 import { User, Calendar, Clock, Loader2 } from 'lucide-react';
 import CitySearch from '../components/ui/CitySearch';
+import SEO from '../components/SEO';
 
 const InputForm = () => {
     const navigate = useNavigate();
@@ -65,6 +66,11 @@ const InputForm = () => {
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-transparent">
+            <SEO
+                title="Create Your Free Kundali"
+                description="Enter your birth details to generate your free Vedic birth chart (Kundali) and get personalized life predictions."
+                url="/chart"
+            />
             <div className="max-w-2xl mx-auto pt-10 pb-20 px-4 relative z-10">
                 <div className="glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden border border-primary/10 shadow-lg">
                     {/* Glow Effects */}

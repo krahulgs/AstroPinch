@@ -1,5 +1,5 @@
-import React from 'react';
-import { UserPlus, Cpu, FileText, CheckCircle } from 'lucide-react';
+import { UserPlus, Cpu, FileText, Brain } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 const HowItWorks = () => {
     const steps = [
@@ -31,6 +31,11 @@ const HowItWorks = () => {
 
     return (
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+            <SEO
+                title="How It Works"
+                description="Learn about the technology and methodology behind AstroPinch. From planetary calculations with Swiss Ephemeris to AI-driven synthesis of Vedic logic."
+                url="/how-it-works"
+            />
             <div className="text-center mb-16">
                 <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">How AstroPinch Works</h1>
                 <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -74,7 +79,5 @@ const HowItWorks = () => {
     );
 };
 
-// Import Brain separately as it was used in step 3 but forgot to import
-import { Brain } from 'lucide-react';
 
 export default HowItWorks;

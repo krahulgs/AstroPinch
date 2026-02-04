@@ -24,11 +24,13 @@ services:
   - type: web
     name: astropinch-app
     runtime: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
         value: https://astropinch-api.onrender.com # Adjust this if your service name differs
+      - key: NPM_CONFIG_LEGACY_PEER_DEPS
+        value: "true"
     routes:
       - type: rewrite
         source: /*

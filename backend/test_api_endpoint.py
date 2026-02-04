@@ -23,7 +23,7 @@ print("="*60)
 
 try:
     response = requests.post(
-        "http://localhost:8000/api/chart/lagna/north",
+        "https://astropinch-api.onrender.com/api/chart/lagna/north",
         json=payload
     )
     

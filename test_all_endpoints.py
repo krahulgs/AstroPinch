@@ -1,7 +1,7 @@
 import requests
 import json
 
-url_base = "http://127.0.0.1:8000"
+url_base = "https://astropinch-api.onrender.com"
 endpoints = [
     "/api/chart",
     "/api/chart/svg",

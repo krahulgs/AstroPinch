@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "http://127.0.0.1:8000/api/chart"
+url = "https://astropinch-api.onrender.com/api/chart"
 payload = {
     "name": "Test User",
     "year": 1990,

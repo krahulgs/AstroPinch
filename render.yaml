@@ -29,6 +29,10 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://astropinch-api.onrender.com # Adjust this if your service name differs
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
 databases:
   - name: astropinch-db

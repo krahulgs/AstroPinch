@@ -8,6 +8,7 @@ import AstrocartographyChart from '../components/charts/AstrocartographyChart';
 import ChatWidget from '../components/ChatWidget';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp } from 'lucide-react';
+import SEO from '../components/SEO';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -868,6 +869,10 @@ const ConsolidatedReport = () => {
 
     return (
         <div className="min-h-screen pb-20 pt-10 px-0 md:px-4 max-w-7xl mx-auto space-y-8 relative animate-fade-in">
+            <SEO
+                title={`Consolidated Report - ${userData?.name}`}
+                description={`Comprehensive Vedic astrology and numerology report for ${userData?.name}. Personal insights, predictions, and remedies.`}
+            />
             <ChatWidget reportData={report} />
 
             {/* Header */}

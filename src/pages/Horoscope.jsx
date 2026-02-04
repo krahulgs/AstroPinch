@@ -4,6 +4,7 @@ import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home, Star } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
+import SEO from '../components/SEO';
 
 const horoscopes = {
     Aries: "Today is a day for action. Your energy is high, and obstacles seem smaller than usual.",
@@ -77,6 +78,11 @@ const Horoscope = () => {
 
     return (
         <div className="min-h-screen max-w-7xl mx-auto py-10 px-6">
+            <SEO
+                title={`${currentSign} Daily Horoscope`}
+                description={`Get your real-time ${currentSign} horoscope. Insights on love, career, and personal energy for ${new Date().toLocaleDateString()}.`}
+                url={`/horoscope/${currentSign.toLowerCase()}`}
+            />
             <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest mb-8">
                 <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>

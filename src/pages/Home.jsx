@@ -3,6 +3,7 @@ import { ArrowRight, Star, Heart, Calendar, Sparkles, Calculator, BookOpen, Chev
 import { Link, Navigate } from 'react-router-dom';
 import ZodiacIcons from '../components/ZodiacIcons';
 import { useProfile } from '../context/ProfileContext';
+import SEO from '../components/SEO';
 
 const Home = () => {
     const { token } = useProfile();
@@ -64,6 +65,10 @@ const Home = () => {
 
     return (
         <div className="min-h-screen flex flex-col">
+            <SEO
+                title="Home"
+                description="Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through AstroPinch."
+            />
             {/* Hero Section - Sleek, Modern, Two-Column */}
             <section className="relative min-h-[80vh] flex items-center justify-center px-6 overflow-hidden">
                 {/* Background Image */}

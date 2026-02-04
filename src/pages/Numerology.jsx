@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useChart } from '../context/ChartContext';
 import { Navigate, Link } from 'react-router-dom';
 import { Hash, Sparkles, Brain, Heart, User as UserIcon, Calendar, TrendingUp, AlertTriangle, Target } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Numerology = () => {
     const { t, i18n } = useTranslation();
@@ -171,6 +172,11 @@ const Numerology = () => {
 
     return (
         <div className="space-y-12 pb-20">
+            <SEO
+                title="Numerology Analysis"
+                description="Discover your destiny with personalized numerology analysis. Insights on your Life Path, Destiny, and Soul numbers."
+                url="/numerology"
+            />
             {loading && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm">
                     <div className="animate-spin w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full"></div>

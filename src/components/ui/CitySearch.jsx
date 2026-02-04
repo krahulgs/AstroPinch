@@ -58,7 +58,8 @@ const CitySearch = ({ onSelect, defaultValue = '' }) => {
 
             setIsLoading(true);
             try {
-                const searchQuery = query.toLowerCase().includes('india') ? query : `${query} India`;
+                // Remove the India-only bias. Let users search globally.
+                const searchQuery = query;
                 const response = await fetch(
                     `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=20&language=en&format=json`
                 );
@@ -71,7 +72,7 @@ const CitySearch = ({ onSelect, defaultValue = '' }) => {
                     country: city.country,
                     latitude: city.latitude,
                     longitude: city.longitude,
-                    timezone: city.timezone || "Asia/Kolkata"
+                    timezone: city.timezone || "UTC" // Dynamic timezone
                 })) : [];
 
                 // Merge and filter
@@ -82,11 +83,16 @@ const CitySearch = ({ onSelect, defaultValue = '' }) => {
                     }
                 });
 
+                // Prioritize requested countries: India (legacy), USA, UK, UAE, Canada, Australia
+                const priorityCountries = ['India', 'United States', 'United Kingdom', 'United Arab Emirates', 'Canada', 'Australia'];
+
                 setResults(merged.sort((a, b) => {
-                    const aIsIndia = a.country === 'India';
-                    const bIsIndia = b.country === 'India';
-                    if (aIsIndia && !bIsIndia) return -1;
-                    if (!aIsIndia && bIsIndia) return 1;
+                    const aPriority = priorityCountries.indexOf(a.country);
+                    const bPriority = priorityCountries.indexOf(b.country);
+
+                    if (aPriority !== -1 && bPriority === -1) return -1;
+                    if (aPriority === -1 && bPriority !== -1) return 1;
+                    if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
 
                     // Priority for cities in our local high-accuracy list
                     const aIsLocal = indianCities.some(lc => lc.name === a.name);

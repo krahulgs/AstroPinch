@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+Sitemap: https://astropinch.com/sitemap.xml

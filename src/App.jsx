@@ -19,6 +19,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 
 // Company Pages
 import AboutUs from './pages/company/AboutUs';
@@ -43,6 +44,7 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <ChartProvider>
         <ProfileProvider>
           <AppLayout>

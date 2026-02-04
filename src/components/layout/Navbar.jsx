@@ -9,7 +9,7 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, login, logout, token } = useProfile();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const isActive = (path) => location.pathname === path;
@@ -19,7 +19,6 @@ const Navbar = () => {
 
     const navItems = [
         { name: 'nav.horoscopes', path: '/horoscope', icon: Star },
-        { name: 'nav.zodiac_signs', path: '/zodiac', icon: Star },
         { name: 'nav.numerology', path: '/numerology', icon: Hash },
         { name: 'nav.calendar', path: '/calendar', icon: Calendar },
         { name: 'nav.profiles', path: '/profiles', icon: User },
@@ -28,10 +27,7 @@ const Navbar = () => {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isHomePage && !isMenuOpen
-            ? 'bg-transparent border-transparent'
-            : 'bg-[#0a0a0b]/90 backdrop-blur-xl border-b border-white/10'
-            }`}>
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-[#0a0a20]/70 backdrop-blur-xl border-b border-white/10`}>
             <div className="max-w-7xl mx-auto px-4 md:px-6">
                 <div className="flex items-center justify-between h-20">
                     <div className="flex items-center gap-4">
@@ -78,21 +74,6 @@ const Navbar = () => {
 
                     {/* Right side actions */}
                     <div className="flex items-center gap-2 md:gap-4">
-                        {/* Language Toggle */}
-                        <button
-                            onClick={() => {
-                                const newLang = i18n.language === 'en' ? 'hi' : 'en';
-                                i18n.changeLanguage(newLang);
-                            }}
-                            className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs font-bold transition-all border ${isHomePage && !isMenuOpen
-                                ? 'bg-white/10 hover:bg-white/20 text-white border-white/20'
-                                : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
-                                }`}
-                        >
-                            <span>{i18n.language === 'en' ? 'EN' : 'HI'}</span>
-                            <span className="opacity-50">/</span>
-                            <span className="opacity-50">{i18n.language === 'en' ? 'HI' : 'EN'}</span>
-                        </button>
 
                         <div className="hidden sm:flex items-center gap-2 md:gap-4">
                             {token ? (

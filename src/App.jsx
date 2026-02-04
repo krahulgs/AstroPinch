@@ -20,6 +20,19 @@ import Register from './pages/Register';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
 
+// Company Pages
+import AboutUs from './pages/company/AboutUs';
+import HowItWorks from './pages/company/HowItWorks';
+import ContactUs from './pages/company/ContactUs';
+import HelpCenter from './pages/company/HelpCenter';
+import Partnership from './pages/company/Partnership';
+
+// Legal Pages
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import Terms from './pages/legal/Terms';
+import Disclaimer from './pages/legal/Disclaimer';
+import RefundPolicy from './pages/legal/RefundPolicy';
+
 const ProtectedRoute = ({ children }) => {
   const { token, loading } = useProfile();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-primary">Loading...</div>;
@@ -57,6 +70,19 @@ function App() {
                   <div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><DailyInsights /></div>
                 </ProtectedRoute>
               } />
+
+              {/* Company Pages */}
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/help" element={<HelpCenter />} />
+              <Route path="/partnership" element={<Partnership />} />
+
+              {/* Legal Pages */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
             </Routes>
           </AppLayout>
         </ProfileProvider>

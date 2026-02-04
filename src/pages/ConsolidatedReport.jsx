@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { API_BASE_URL } from '../api/config';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +6,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import AstrocartographyChart from '../components/charts/AstrocartographyChart';
 import ChatWidget from '../components/ChatWidget';
-import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -106,11 +107,13 @@ const LoshuGridDisplay = ({ loshuData }) => {
 
             {/* Planes Analysis */}
             {loshuData.completed_planes?.length > 0 && (
-                <div className="space-y-2">
-                    <p className="text-sm text-secondary font-bold uppercase">Active Yogas (Planes)</p>
+                <div className="space-y-3">
+                    <p className="text-[10px] text-secondary font-black uppercase tracking-widest flex items-center gap-2">
+                        <Activity className="w-3 h-3 text-emerald-500" /> Active Yogas (Planes)
+                    </p>
                     <div className="flex flex-wrap gap-2">
                         {loshuData.completed_planes.map(plane => (
-                            <span key={plane} className="px-2 py-1 text-sm bg-emerald-50 text-emerald-700 rounded-md font-bold border border-emerald-100">
+                            <span key={plane} className="px-3 py-1.5 text-[10px] md:text-xs bg-emerald-50 text-emerald-700 rounded-full font-black border border-emerald-100 shadow-sm">
                                 {plane}
                             </span>
                         ))}
@@ -118,14 +121,21 @@ const LoshuGridDisplay = ({ loshuData }) => {
                 </div>
             )}
 
-            {/* Remedies (Collapsible or truncated) */}
-            {loshuData.remedies && (
-                <div className="bg-white p-3 rounded-xl border border-gray-100">
-                    <p className="text-sm text-amber-700 font-bold uppercase mb-2">Key Remedies (Missing Numbers)</p>
-                    <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-1">
-                        {Object.entries(loshuData.remedies).slice(0, 3).map(([num, remedy]) => (
-                            <div key={num} className="text-xs text-slate-600 leading-tight border-l-2 border-amber-200 pl-2">
-                                <span className="font-bold text-slate-700">#{num}:</span> {remedy}
+            {/* Remedies (Dynamic based on Missing Numbers) */}
+            {loshuData.remedies && Object.keys(loshuData.remedies).length > 0 && (
+                <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-4 rounded-2xl border border-amber-100/50">
+                    <p className="text-[10px] text-amber-800 font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                        <Leaf className="w-3 h-3 text-amber-600" /> Key Remedies (Missing Numbers)
+                    </p>
+                    <div className="space-y-3">
+                        {Object.entries(loshuData.remedies).map(([num, remedy]) => (
+                            <div key={num} className="flex gap-3 items-start group">
+                                <div className="w-6 h-6 rounded-lg bg-white border border-amber-200 flex items-center justify-center text-[10px] font-black text-amber-700 shadow-sm group-hover:scale-110 transition-transform">
+                                    {num}
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                                    {remedy}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -306,6 +316,272 @@ const VedicChartsDisplay = ({ userData }) => {
     );
 };
 
+const YearlyPredictionGraph = ({ data, userData }) => {
+    // Generate synthetic heatmap data
+    const tracks = [
+        { id: 'summary', name: 'SUMMARY', height: 40 },
+        { id: 'career', name: 'CAREER', height: 30 },
+        { id: 'health', name: 'HEALTH', height: 30 },
+        { id: 'family', name: 'FAMILY', height: 30 },
+        { id: 'finance', name: 'FINANCE', height: 30 },
+    ];
+
+    // Determine Start Year from UserData (DOB)
+    const getBirthYear = () => {
+        if (!userData?.date) return new Date().getFullYear() - 30; // Default fallback
+        const dateStr = String(userData.date);
+        // Handle YYYY-MM-DD
+        if (dateStr.includes('-')) {
+            const parts = dateStr.split('-');
+            if (parts[0].length === 4) return parseInt(parts[0]); // YYYY-MM-DD
+            if (parts[2].length === 4) return parseInt(parts[2]); // DD-MM-YYYY
+        }
+        return new Date().getFullYear() - 30;
+    };
+
+    const startYear = getBirthYear();
+    const endYear = startYear + 100; // 100 Year Horizon
+    const totalYears = endYear - startYear;
+    const yearWidth = 60; // Pixels per year
+
+    // Calculate "NOW" position
+    const currentYearVal = new Date().getFullYear();
+    const nowOffsetYears = currentYearVal - startYear;
+    // Clamp cursor between 0 and total width if needed, or hide if out of range
+    const showNowCursor = nowOffsetYears >= 0 && nowOffsetYears <= totalYears;
+    const nowCursorLeft = showNowCursor ? nowOffsetYears * yearWidth : 0;
+
+
+    // Helper to generate random heatmap strips
+    const generateStrips = (trackId) => {
+        const strips = [];
+        let currentYear = startYear;
+        while (currentYear < endYear) {
+            const duration = Math.random() * 0.5 + 0.1; // Granular strips (months/weeks)
+            const intensity = Math.random();
+            let color;
+            if (intensity < 0.3) {
+                // Red (Bad)
+                color = `rgba(220, 38, 38, ${0.5 + Math.random() * 0.5})`;
+            } else if (intensity > 0.6) {
+                // Green (Good)
+                color = `rgba(34, 197, 94, ${0.5 + Math.random() * 0.5})`;
+            } else {
+                // Neutral
+                color = `rgba(255, 255, 255, ${0.1 + Math.random() * 0.2})`;
+            }
+
+            strips.push({
+                start: currentYear,
+                duration: duration,
+                end: Math.min(currentYear + duration, endYear),
+                color: color
+            });
+            currentYear += duration;
+        }
+        return strips;
+    };
+
+    const scrollContainerRef = useRef(null);
+
+    useEffect(() => {
+        if (scrollContainerRef.current && showNowCursor) {
+            const containerWidth = scrollContainerRef.current.clientWidth;
+            const scrollPos = nowCursorLeft - (containerWidth / 2) + (yearWidth / 2);
+            // Use setTimeout to ensure layout is settled
+            setTimeout(() => {
+                scrollContainerRef.current?.scrollTo({ left: scrollPos, behavior: 'smooth' });
+            }, 100);
+        }
+    }, [nowCursorLeft, showNowCursor, yearWidth]);
+
+    return (
+        <div className="rounded-[1.5rem] bg-white border border-slate-200 shadow-xl overflow-hidden relative font-sans select-none flex flex-col">
+            {/* Professional Light Header - Fixed at Top */}
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between z-10 relative shadow-sm">
+                <div className="flex items-center gap-3">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800 tracking-wide">ASTRO-TEMPORAL FORECAST ENGINE</h3>
+                        <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">VedAstro V.4.2 // 100-Year Life Cycle (DOB: {startYear})</p>
+                    </div>
+                </div>
+                {/* Legend */}
+                <div className="hidden md:flex items-center gap-2 text-[10px] uppercase font-bold tracking-wider bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                    <span className="text-red-500">Challenge</span>
+                    <div className="w-16 h-2 rounded-full bg-gradient-to-r from-red-500 via-white to-green-500 border border-slate-100"></div>
+                    <span className="text-emerald-600">Success</span>
+                </div>
+            </div>
+
+            {/* Live Status Bar (Current Projection) */}
+            <div className="bg-white px-6 py-3 border-b border-slate-100 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 z-10 relative">
+                <div className="flex items-center gap-2 shrink-0">
+                    <div className="relative">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping absolute top-0 left-0 opacity-75"></div>
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full relative z-10"></div>
+                    </div>
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">Live Status</span>
+                    <span className="text-[10px] text-slate-400 font-mono border-l border-slate-200 pl-2">
+                        {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                </div>
+
+                <div className="flex-1 flex items-center gap-4">
+                    <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner relative group">
+                        {/* Background segments */}
+                        <div className="absolute inset-0 flex">
+                            <div className="w-1/3 h-full border-r border-white/50"></div>
+                            <div className="w-1/3 h-full border-r border-white/50"></div>
+                        </div>
+                        {/* Live Value Bar */}
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-emerald-400 to-green-400 w-[78%] relative">
+                            <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-white/80 shadow-[0_0_10px_white]"></div>
+                        </div>
+                    </div>
+                    <div className="text-right shrink-0 min-w-[100px]">
+                        <div className="text-sm font-black text-emerald-600 leading-none">78%</div>
+                        <div className="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest">Very Positive</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Scrollable Container */}
+            <div ref={scrollContainerRef} className="overflow-x-auto custom-scrollbar relative bg-slate-50/50">
+                <div style={{ width: `${totalYears * yearWidth}px` }} className="min-w-full">
+
+                    {/* Overall Vitality Trend Line Graph */}
+                    {/* Overall Vitality Trend Line Graph */}
+                    <div className="relative h-24 border-b border-slate-200">
+                        <div className="sticky left-6 top-0 z-10 w-max mb-2 pt-2">
+                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-white/80 px-2 py-0.5 rounded-full border border-blue-100 shadow-sm backdrop-blur-sm">
+                                Overall Vitality Trend
+                            </span>
+                        </div>
+
+                        {(() => {
+                            // Dynamic Trend Generation inside the render
+                            const trendHeight = 80;
+                            const points = [];
+                            for (let i = 0; i <= totalYears * 5; i++) {
+                                const x = (i / 5) * yearWidth;
+                                const offset = i / 10;
+                                const yVal = Math.sin(offset) * 0.25 + Math.cos(offset * 2.5) * 0.15 + 0.5;
+                                const y = trendHeight - (Math.max(0.1, Math.min(0.9, yVal)) * trendHeight);
+                                points.push({ x, y });
+                            }
+                            const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+                            const areaPath = `M0,${trendHeight} ${points.map(p => `L${p.x},${p.y}`).join(' ')} L${totalYears * yearWidth},${trendHeight} Z`;
+
+                            return (
+                                <svg width={totalYears * yearWidth} height={trendHeight} className="overflow-visible block mt-1 absolute bottom-0">
+                                    <defs>
+                                        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                                        </linearGradient>
+                                    </defs>
+                                    {/* Light Grid Lines */}
+                                    <line x1="0" y1={trendHeight * 0.2} x2={totalYears * yearWidth} y2={trendHeight * 0.2} stroke="#cbd5e1" strokeDasharray="2 2" strokeWidth="1" opacity="0.6" />
+                                    <line x1="0" y1={trendHeight * 0.5} x2={totalYears * yearWidth} y2={trendHeight * 0.5} stroke="#cbd5e1" strokeDasharray="2 2" strokeWidth="1" opacity="0.4" />
+                                    <line x1="0" y1={trendHeight * 0.8} x2={totalYears * yearWidth} y2={trendHeight * 0.8} stroke="#cbd5e1" strokeDasharray="2 2" strokeWidth="1" opacity="0.6" />
+
+                                    <path d={areaPath} fill="url(#trendGradient)" />
+                                    <polyline points={polylinePoints} fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" />
+                                </svg>
+                            );
+                        })()}
+                    </div>
+
+                    {/* Timeline Ruler */}
+                    <div className="flex bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        {Array.from({ length: totalYears }).map((_, i) => {
+                            const year = startYear + i;
+                            const isCurrent = year === currentYearVal;
+                            return (
+                                <div
+                                    key={year}
+                                    className={`flex-shrink-0 border-l border-slate-200 text-[10px] font-mono font-bold flex items-center justify-center relative group transition-all duration-300 ${isCurrent ? 'bg-blue-600 text-white shadow-lg scale-110 z-20 rounded-md ring-2 ring-blue-200 transform -translate-y-1' : 'text-slate-400 hover:bg-white'}`}
+                                    style={{ width: `${yearWidth}px`, height: '32px' }}
+                                >
+                                    {year}
+                                    {/* Small tick mark */}
+                                    {!isCurrent && <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Tracks Container */}
+                    <div className="p-6 space-y-4">
+                        {/* Current Year Cursor */}
+                        {showNowCursor && (
+                            <div
+                                className="absolute top-0 bottom-0 w-[2px] bg-blue-500 z-20 pointer-events-none shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                                style={{ left: `${nowCursorLeft}px` }}
+                            >
+                                <div className="sticky top-10 ml-1.5 bg-blue-600 text-[9px] text-white px-1.5 py-0.5 rounded font-bold shadow-lg w-max z-30">
+                                    NOW
+                                </div>
+                            </div>
+                        )}
+
+
+
+                        {/* HIDDEN AS PER USER REQUEST
+                        {tracks.map((track) => (
+                            <div key={track.id} className="relative">
+                                <div className="sticky left-6 flex items-center gap-2 mb-1 z-10 w-max bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
+                                    {track.id === 'career' && <Briefcase className="w-3 h-3 text-slate-400" />}
+                                    {track.id === 'health' && <Heart className="w-3 h-3 text-slate-400" />}
+                                    {track.id === 'family' && <Home className="w-3 h-3 text-slate-400" />}
+                                    {track.id === 'finance' && <Gem className="w-3 h-3 text-slate-400" />}
+                                    {track.id === 'summary' && <Layers className="w-3 h-3 text-blue-500" />}
+                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                        {track.name}
+                                    </span>
+                                </div>
+
+                                <div className="w-full h-10 bg-slate-100 rounded-md overflow-hidden flex relative border border-slate-200 shadow-inner">
+                                    {generateStrips(track.id).map((strip, i) => (
+                                        <div
+                                            key={i}
+                                            className="h-full hover:brightness-110 transition-all"
+                                            style={{
+                                                width: `${(strip.duration / totalYears) * 100}%`,
+                                                backgroundColor: strip.color,
+                                            }}
+                                            title={`${strip.start.toFixed(1)} - ${strip.end.toFixed(1)}`}
+                                        ></div>
+                                    ))}
+
+                                    {Array.from({ length: totalYears }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className="absolute top-0 bottom-0 border-l border-slate-300/20 pointer-events-none"
+                                            style={{ left: `${(i / totalYears) * 100}%` }}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                        */}
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Info */}
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500 font-mono z-10">
+                <div className="flex items-center gap-2">
+                    <Info className="w-3 h-3" />
+                    <span>SCROLL TO VIEW FUTURE PREDICTIONS &rarr;</span>
+                </div>
+                <span>ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+            </div>
+        </div>
+    );
+};
+
 const ConsolidatedReport = () => {
     const { t, i18n } = useTranslation();
     const location = useLocation();
@@ -391,6 +667,41 @@ const ConsolidatedReport = () => {
     const [activeTab, setActiveTab] = useState('vedic');
     const [westernSvg, setWesternSvg] = useState(null);
     const [vedicSvg, setVedicSvg] = useState(null);
+    const [predictionGraphData, setPredictionGraphData] = useState(null);
+
+    // Fetch Graph Data Independently
+    useEffect(() => {
+        const fetchGraphData = async () => {
+            if (!userData) return;
+            try {
+                let payload = { ...userData };
+                if (typeof userData.date === 'string' && userData.date.includes('-')) {
+                    const [y, m, d] = userData.date.split('-').map(Number);
+                    payload.year = y; payload.month = m; payload.day = d;
+                }
+                if (typeof userData.time === 'string' && userData.time.includes(':')) {
+                    const [h, min] = userData.time.split(':').map(Number);
+                    payload.hour = h; payload.minute = min;
+                }
+                if (!payload.city && payload.place) payload.city = payload.place;
+                if (!payload.city && payload.location_name) payload.city = payload.location_name;
+
+                const res = await fetch(`${API_BASE_URL}/api/vedastro/prediction-graph`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setPredictionGraphData(data.graph_data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch graph", error);
+            }
+        };
+        fetchGraphData();
+    }, [userData]);
 
     const generateReport = useCallback(async () => {
         if (!userData) return;
@@ -485,10 +796,10 @@ const ConsolidatedReport = () => {
                 <div className="relative z-10 text-center space-y-8 max-w-lg px-6 animate-in fade-in zoom-in duration-700">
                     {/* Premium Spinner */}
                     <div className="relative w-24 h-24 mx-auto">
-                        <div className="absolute inset-0 border-4 border-purple-100 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-purple-200/30 rounded-full"></div>
                         <div className="absolute inset-0 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                        {/* Inner Ring */}
-                        <div className="absolute inset-4 border-4 border-amber-50 rounded-full opacity-50"></div>
+
+                        <div className="absolute inset-4 border-4 border-amber-200/30 rounded-full opacity-50"></div>
                         <div className="absolute inset-4 border-4 border-amber-500 border-b-transparent rounded-full animate-spin duration-[3s]"></div>
 
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -506,25 +817,15 @@ const ConsolidatedReport = () => {
                         </p>
                     </div>
 
-                    {/* Powered By Footer */}
-                    <div className="pt-8 border-t border-purple-100/50 flex flex-col items-center gap-3">
-                        <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+                    {/* Powered By Footer - Floating Mode */}
+                    <div className="pt-8 border-t border-purple-100 flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
                             <Activity className="w-3 h-3" /> Powered By
                         </div>
-                        <div className="glass-panel px-6 py-3 rounded-2xl bg-white/60 border border-white/50 shadow-sm backdrop-blur-sm">
-                            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center">
-                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
-                                    NASA JPL Planetary Data
-                                </span>
-                                <span className="hidden md:inline text-slate-300">•</span>
-                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-amber-800">
-                                    Proprietary Vedic Engine
-                                </span>
-                                <span className="hidden md:inline text-slate-300">•</span>
-                                <span className="text-sm font-bold text-slate-700 bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-800">
-                                    Kerykeion Engine
-                                </span>
-                            </div>
+                        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 bg-transparent">
+                            <span className="text-xs font-bold text-blue-500/80 uppercase tracking-wider">NASA JPL Data</span>
+                            <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider">Vedic Engine</span>
+                            <span className="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Kerykeion</span>
                         </div>
                     </div>
                 </div>
@@ -609,14 +910,6 @@ const ConsolidatedReport = () => {
                         <Scroll className={`w-4 h-4 transition-colors ${activeTab === 'vedic' ? 'text-purple-600' : 'text-slate-400'}`} />
                         {t('report.tabs.vedic', 'Vedic Astrology')}
                         {activeTab === 'vedic' && <div className="absolute bottom-0 left-0 w-full h-1 bg-purple-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(147,51,234,0.3)]"></div>}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('career')}
-                        className={`flex-none px-6 py-4 font-bold text-xs md:text-sm tracking-widest uppercase transition-all duration-300 relative group flex items-center gap-2 whitespace-nowrap ${activeTab === 'career' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'} `}
-                    >
-                        <Briefcase className={`w-4 h-4 transition-colors ${activeTab === 'career' ? 'text-amber-600' : 'text-slate-400'}`} />
-                        {t('report.tabs.career', 'Career')}
-                        {activeTab === 'career' && <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-600 rounded-full animate-fade-in shadow-[0_0_10px_rgba(245,158,11,0.3)]"></div>}
                     </button>
                     <button
                         onClick={() => setActiveTab('numerology')}
@@ -1449,6 +1742,9 @@ const ConsolidatedReport = () => {
                                 <VedicChartsDisplay userData={userData} />
                             </div>
 
+                            {/* VedAstro Yearly Prediction Graph */}
+                            <YearlyPredictionGraph data={predictionGraphData} userData={userData} />
+
                             {/* Graha Insights - Full Width & Non-Scrollable */}
                             <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
@@ -1758,193 +2054,6 @@ const ConsolidatedReport = () => {
                 )
                 }
 
-                {/* CAREER TAB */}
-                {
-                    activeTab === 'career' && (
-                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            {report.vedic_astrology?.ai_summary ? (
-                                typeof report.vedic_astrology.ai_summary === 'object' && report.vedic_astrology.ai_summary.career_path ? (
-                                    <>
-                                        <div className="space-y-8">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center shadow-lg">
-                                                    <Briefcase className="w-8 h-8 text-amber-600" />
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-2xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Career & Finance</h2>
-                                                    <p className="text-amber-600 text-sm font-black uppercase tracking-[0.3em]">Professional Destiny Analysis</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="glass-panel p-5 md:p-12 rounded-[3rem] bg-amber-50/30 border border-amber-100 shadow-2xl relative overflow-hidden group">
-                                                <div className="absolute top-0 right-0 p-12 opacity-5 transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-12">
-                                                    <Briefcase className="w-64 h-64 text-amber-600" />
-                                                </div>
-                                                <div className="relative z-10">
-                                                    <div className="prose prose-amber prose-xl max-w-none">
-                                                        <p className="text-xl leading-relaxed text-slate-800 font-medium whitespace-pre-line selection:bg-amber-100">
-                                                            {typeof report.vedic_astrology.ai_summary.career_path === 'string'
-                                                                ? report.vedic_astrology.ai_summary.career_path
-                                                                : report.vedic_astrology.ai_summary.career_path.content}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="mt-12 pt-8 border-t border-amber-100/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="flex -space-x-2">
-                                                                <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center text-xs font-bold">10H</div>
-                                                                <div className="w-8 h-8 rounded-full bg-indigo-200 border-2 border-white flex items-center justify-center text-xs font-bold">11H</div>
-                                                                <div className="w-8 h-8 rounded-full bg-emerald-200 border-2 border-white flex items-center justify-center text-xs font-bold">🎯</div>
-                                                            </div>
-                                                            <span className="text-sm text-amber-700 font-black uppercase tracking-widest italic">Based on Karma & Labha Houses</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-full border border-amber-100 shadow-sm">
-                                                            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
-                                                            <span className="text-sm text-slate-500 font-bold uppercase tracking-widest">Optimized for Your Birth Chart</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Detailed Career Analysis Grid */}
-                                        {report.vedic_astrology.career_analysis ? (
-                                            <div className="space-y-8 mt-12">
-                                                {/* AI Breakdown Grid */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {/* Job vs Business */}
-                                                    <div className="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-lg group hover:border-amber-200 transition-all">
-                                                        <div className="flex items-center gap-4 mb-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
-                                                                <Briefcase className="w-6 h-6 text-amber-600" />
-                                                            </div>
-                                                            <h4 className="font-black text-primary uppercase text-xs tracking-widest">Job vs Business</h4>
-                                                        </div>
-                                                        <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                                            {report.vedic_astrology.career_analysis.job_vs_business}
-                                                        </p>
-                                                    </div>
-
-                                                    {/* Growth Timeline */}
-                                                    <div className="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-lg group hover:border-blue-200 transition-all">
-                                                        <div className="flex items-center gap-4 mb-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                                                                <Activity className="w-6 h-6 text-blue-600" />
-                                                            </div>
-                                                            <h4 className="font-black text-primary uppercase text-xs tracking-widest">Growth Timeline</h4>
-                                                        </div>
-                                                        <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                                            {report.vedic_astrology.career_analysis.growth_timeline}
-                                                        </p>
-                                                    </div>
-
-                                                    {/* Earning Pattern */}
-                                                    <div className="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-lg group hover:border-emerald-200 transition-all">
-                                                        <div className="flex items-center gap-4 mb-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
-                                                                <Gem className="w-6 h-6 text-emerald-600" />
-                                                            </div>
-                                                            <h4 className="font-black text-primary uppercase text-xs tracking-widest">Earning Pattern</h4>
-                                                        </div>
-                                                        <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                                            {report.vedic_astrology.career_analysis.earning_pattern}
-                                                        </p>
-                                                    </div>
-
-                                                    {/* Actionable Suggestion */}
-                                                    <div className="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-lg group hover:border-purple-200 transition-all">
-                                                        <div className="flex items-center gap-4 mb-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center">
-                                                                <Sparkles className="w-6 h-6 text-purple-600" />
-                                                            </div>
-                                                            <h4 className="font-black text-primary uppercase text-xs tracking-widest">Suggestion</h4>
-                                                        </div>
-                                                        <p className="text-sm text-slate-600 leading-relaxed font-bold italic">
-                                                            "{report.vedic_astrology.career_analysis.actionable_suggestion}"
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Best Suited Careers */}
-                                                {report.vedic_astrology.career_analysis.best_careers && Array.isArray(report.vedic_astrology.career_analysis.best_careers) && (
-                                                    <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
-                                                        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                                                        <div className="relative z-10">
-                                                            <h3 className="text-xl font-black uppercase tracking-widest mb-6 flex items-center gap-3">
-                                                                <Star className="w-5 h-5 text-amber-400" />
-                                                                Best Suited Fields
-                                                            </h3>
-                                                            <div className="flex flex-wrap gap-3">
-                                                                {report.vedic_astrology.career_analysis.best_careers.map((career, idx) => (
-                                                                    <span key={idx} className="px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all font-bold text-sm backdrop-blur-sm">
-                                                                        {career}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <div className="p-8 mt-8 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-slate-400">
-                                                <div className="flex flex-col items-center">
-                                                    <Briefcase className="w-8 h-8 mb-2 opacity-50" />
-                                                    <span className="text-sm uppercase tracking-widest font-bold">Additional Career Metrics Unavailable</span>
-                                                    <p className="text-sm mt-1">Regenerate report to view detailed Job/Business analysis.</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    /* Legacy String Fallback or Missing Career Path */
-                                    <div className="space-y-8">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
-                                                <Scroll className="w-8 h-8 text-indigo-600" />
-                                            </div>
-                                            <div>
-                                                <h2 className="text-3xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">Analysis Summary</h2>
-                                                <p className="text-indigo-600 text-sm font-black uppercase tracking-[0.3em]">Comprehensive Vedic Insights</p>
-                                            </div>
-                                        </div>
-                                        <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl">
-                                            <p className="text-lg md:text-xl leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                {typeof report.vedic_astrology.ai_summary === 'string'
-                                                    ? report.vedic_astrology.ai_summary
-                                                    : "Professional destiny analysis is being prepared for your specific chart. Please regenerate to unlock the full card-based experience."}
-                                            </p>
-                                            <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                                                <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-                                                    {typeof report.vedic_astrology.ai_summary === 'string' ? "Legacy Report Format" : "Enhanced Analysis Pending"}
-                                                </p>
-                                                <button
-                                                    onClick={generateReport}
-                                                    className="px-8 py-3 bg-amber-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-amber-700 transition-all shadow-lg shadow-amber-900/20 flex items-center gap-2"
-                                                >
-                                                    <Sparkles className="w-4 h-4" /> Regenerate Full Report
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            ) : (
-                                <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-8 bg-amber-50/20 rounded-[3rem] border border-dashed border-amber-200">
-                                    <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mb-6">
-                                        <Briefcase className="w-10 h-10 text-amber-600" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-primary uppercase italic mb-2">Analyzing Professional Path...</h3>
-                                    <p className="text-secondary max-w-sm">Please regenerate your report to unlock the deep AI Career & Financial analysis for your chart.</p>
-                                    <button
-                                        onClick={generateReport}
-                                        className="mt-6 px-8 py-3 bg-amber-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-amber-700 transition-all shadow-lg shadow-amber-900/20"
-                                    >
-                                        Click to Regenerate
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )
-                }
 
                 {/* NUMEROLOGY TAB */}
                 {

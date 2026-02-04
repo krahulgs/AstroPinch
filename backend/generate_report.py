@@ -76,18 +76,19 @@ class ReportGenerator:
             print(f"Vedic Personality Analysis Error: {e}")
             vedic_personality_analysis = None
         
-        # New: Specific Career Analysis
-        try:
-            from services.ai_service import generate_career_analysis
-            career_analysis = generate_career_analysis(
-                name,
-                vedic_full['planets'],
-                vedic_full['panchang'],
-                lang=lang
-            )
-        except Exception as e:
-            print(f"Career Analysis Error: {e}")
-            career_analysis = None
+        # New: Specific Career Analysis - DISABLED
+        career_analysis = None
+        # try:
+        #     from services.ai_service import generate_career_analysis
+        #     career_analysis = generate_career_analysis(
+        #         name,
+        #         vedic_full['planets'],
+        #         vedic_full['panchang'],
+        #         lang=lang
+        #     )
+        # except Exception as e:
+        #     print(f"Career Analysis Error: {e}")
+        #     career_analysis = None
 
         # New: Specific Relationship Analysis
         try:

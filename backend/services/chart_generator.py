@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.patches as patches
 import io
 import numpy as np
@@ -137,13 +138,15 @@ class ChartGenerator:
         Generates a PNG bytes buffer for South Indian Chart
         planets: list of dicts [{'planet': 'Sun', 'sign_id': 1}, ...]
         """
-        fig, ax = plt.subplots(figsize=(6, 6))
+        fig = Figure(figsize=(6, 6))
+        FigureCanvas(fig) # Attach canvas
+        ax = fig.add_subplot(111)
+        
         ChartGenerator._draw_south_indian_chart(ax, planets, None)
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+        fig.savefig(buf, format='png', bbox_inches='tight', dpi=100)
         buf.seek(0)
-        plt.close(fig)
         return buf
 
     @staticmethod
@@ -153,7 +156,8 @@ class ChartGenerator:
         western_data: dict containing 'planets' (list) and 'houses' (list)
         """
         try:
-            fig = plt.figure(figsize=(8, 8))
+            fig = Figure(figsize=(8, 8))
+            FigureCanvas(fig)
             ax = fig.add_subplot(111, projection='polar')
             
             # 1. Draw Zodiac Ring
@@ -173,8 +177,6 @@ class ChartGenerator:
                 
             # 2. Plot Planets
             # Need to convert planet longitude (0-360) to radians
-            # Western data 'planets': [{'name': 'Sun', 'sign': 'Aries', 'position': 12.5 (relative to sign), 'abs_pos': ?}, ...]
-            # We need absolute position. If not available, construct from sign.
             
             planets = western_data.get('planets', [])
             sign_map = {n: i for i, n in enumerate(["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"])}
@@ -185,19 +187,11 @@ class ChartGenerator:
                 if isinstance(sign_str, dict): sign_str = sign_str.get('name')
                 
                 # Check for absolute position if available, else derive
-                # Assuming 'position' is relative to sign
-                # If specific 'abs_pos' key exists use that.
-                # 'position' in kerykeion output is usually absolute longitude? No, usually relative in 'pos'.
-                # Let's rely on constructing from sign index * 30 + pos
-                
                 sign_idx = sign_map.get(sign_str, 0)
                 deg_in_sign = float(p.get('position', 0))
                 abs_deg = sign_idx * 30 + deg_in_sign
                 
                 # Convert to radians for polar plot
-                # Matplotlib polar 0 is usually East? We want Aries at ?
-                # Standard: 0 is East (3 o'clock). Aries usually starts at 9 o'clock (180) or 0 (Ascendant).
-                # Let's just plot standard 0-360.
                 angle_rad = abs_deg * (np.pi / 180)
                 
                 # Plot line from center
@@ -209,11 +203,15 @@ class ChartGenerator:
 
             # 3. Draw Houses (Cusps) if available
             houses = western_data.get('houses', [])
-            for h in houses:
-                # h usually has 'degree' (absolute)
-                deg = float(h.get('degree', 0))
-                angle_rad = deg * (np.pi / 180)
-                ax.plot([angle_rad, angle_rad], [0, 2], color='red', alpha=0.4, linestyle='--')
+            try:
+                for h in houses:
+                    # h usually has 'degree' (absolute)
+                    deg = float(h.get('degree', 0))
+                    angle_rad = deg * (np.pi / 180)
+                    ax.plot([angle_rad, angle_rad], [0, 2], color='red', alpha=0.4, linestyle='--')
+            except Exception as e:
+                # Fallback if house data malformed
+                pass
 
             ax.set_yticklabels([])
             ax.set_xticklabels([])
@@ -221,18 +219,17 @@ class ChartGenerator:
             ax.spines['polar'].set_visible(False)
             
             buf = io.BytesIO()
-            plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+            fig.savefig(buf, format='png', bbox_inches='tight', dpi=100)
             buf.seek(0)
-            plt.close(fig)
             return buf
         except Exception as e:
             print(f"Western Chart Error: {e}")
             # Return empty 1x1 image on error
-            fig = plt.figure(figsize=(1, 1))
+            fig = Figure(figsize=(1, 1))
+            FigureCanvas(fig)
             buf = io.BytesIO()
-            plt.savefig(buf, format='png')
+            fig.savefig(buf, format='png')
             buf.seek(0)
-            plt.close(fig)
             return buf
 
     @staticmethod
@@ -242,7 +239,10 @@ class ChartGenerator:
         locations: list of dicts {'city': 'Name', 'lat': 0, 'lng': 0, ...}
         """
         try:
-            fig, ax = plt.subplots(figsize=(10, 5))
+            fig = Figure(figsize=(10, 5))
+            FigureCanvas(fig)
+            ax = fig.add_subplot(111)
+            
             # Background - Light Blue
             ax.set_facecolor('#e6f3ff')
             ax.set_xlim(-180, 180)
@@ -270,17 +270,16 @@ class ChartGenerator:
             ax.set_ylabel("Latitude")
             
             buf = io.BytesIO()
-            plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+            fig.savefig(buf, format='png', bbox_inches='tight', dpi=100)
             buf.seek(0)
-            plt.close(fig)
             return buf
         except Exception as e:
             print(f"Map Gen Error: {e}")
-            fig = plt.figure(figsize=(1, 1))
+            fig = Figure(figsize=(1, 1))
+            FigureCanvas(fig)
             buf = io.BytesIO()
-            plt.savefig(buf, format='png')
+            fig.savefig(buf, format='png')
             buf.seek(0)
-            plt.close(fig)
             return buf
 
     @staticmethod
@@ -291,7 +290,10 @@ class ChartGenerator:
         planets: list of dicts [{'planet': 'Sun', 'house': 1}, ...]
         ascendant_house: which house number contains the ascendant (usually 1)
         """
-        fig, ax = plt.subplots(figsize=(7, 7))
+        fig = Figure(figsize=(7, 7))
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+        
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 10)
         ax.axis('off')
@@ -372,9 +374,8 @@ class ChartGenerator:
                    ha='center', va='center', color='darkblue')
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
+        fig.savefig(buf, format='png', bbox_inches='tight', dpi=120)
         buf.seek(0)
-        plt.close(fig)
         return buf
 
     @staticmethod

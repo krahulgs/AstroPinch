@@ -20,13 +20,40 @@ RAPIDAPI_HOST = "numerology-api4.p.rapidapi.com"
 ROXY_API_KEY = os.getenv("ROXY_API_KEY", "")
 ROXY_API_BASE = "https://roxyapi.com/api/v1"
 
-def generate_ai_insights(name, birth_date_str, fadic_data, vedic_data=None, western_data=None, context=None, lang="en"):
+def generate_ai_insights(name, birth_date_str, fadic_data, loshu_data=None, vedic_data=None, western_data=None, context=None, lang="en"):
     """
     Generates personalized numerology insights using Groq AI.
     Updated to include Vedic AND Western (Kerykeion) context.
+    Fixed: Successfully handles both list and dictionary dasha formats to prevent crashes.
     """
+    # Helper for fallback to avoid repetition
+    def get_fallback():
+        try:
+             advice = fadic_data.get('qualities', {}).get('positive', 'Focus on your strengths.')
+             challenges = fadic_data.get('qualities', {}).get('negative', 'Be mindful of your weaknesses.')
+             symbol = fadic_data.get('symbol', 'Unknown')
+             
+             fallback_text = f"""
+             **The Core Vibration**
+             Your Fadic Number matches the vibration of **{symbol}**. {fadic_data.get('description', '')} 
+             
+             **Vedic Alignment**
+             Birth Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Calculated separately'}. 
+             This celestial alignment adds a layer of depth to your {symbol} energy.
+             
+             **The Path to Success**
+             To achieve your highest potential, amplify your core strengths: {advice}. Success comes when you balance these opposing forces.
+             
+             **Future Outlook**
+             As a {fadic_data.get('fadic_type', 'Seeker')}, your destiny is forged by action. 
+             """
+             return fallback_text
+        except:
+             return "AI Insights currently unavailable. Please focus on the detailed Numerology and Astrology sections above."
+
     if not GROQ_API_KEY:
-        return None
+        print("Warning: GROQ_API_KEY missing. Returning fallback numerology insights.")
+        return get_fallback()
 
     print(f"Generating insights using Groq API (Model: llama-3.3-70b-versatile)...")
     try:
@@ -40,6 +67,15 @@ def generate_ai_insights(name, birth_date_str, fadic_data, vedic_data=None, west
             if p: ctx_str += f"Profession: {p}\n"
             if m: ctx_str += f"Marital Status: {m}\n"
         
+        # Safe Dasha Extraction
+        dasha_lord = "Unknown"
+        if vedic_data:
+            d_data = vedic_data.get('dasha')
+            if isinstance(d_data, dict):
+                dasha_lord = f"{d_data.get('active_mahadasha', 'Unknown')} - {d_data.get('active_antardasha', 'Unknown')}"
+            elif isinstance(d_data, list) and d_data:
+                dasha_lord = d_data[0].get('planet', 'Unknown')
+
         prompt = f"""
         Act as an expert Numerologist specializing in Hilary Gerard's "Science of Success" (1937).
         
@@ -54,11 +90,15 @@ def generate_ai_insights(name, birth_date_str, fadic_data, vedic_data=None, west
         
         Vedic Context:
         Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Unknown'}
-        Current Dasha: {vedic_data.get('dasha', [{}])[0].get('planet') if vedic_data and vedic_data.get('dasha') else 'Unknown'}
+        Current Dasha: {dasha_lord}
         
         Western Context:
         Sun Sign: {western_data.get('sun_sign') if western_data else 'Unknown'}
         Ascendant: {western_data.get('ascendant') if western_data else 'Unknown'}
+
+        Loshu Grid Missing Numbers & Remedies:
+        {', '.join(map(str, loshu_data.get('missing_numbers', []))) if loshu_data else 'None'}
+        Suggested Remedies: {loshu_data.get('remedies', {}) if loshu_data else 'None'}
 
         Provide a deep, personalized 4-paragraph reading:
         1. The Core Vibration: How their Fadic Number shapes their fundamental character.
@@ -84,29 +124,8 @@ def generate_ai_insights(name, birth_date_str, fadic_data, vedic_data=None, west
         return response.choices[0].message.content
     except Exception as e:
         print(f"Groq API Error: {e}")
-        # Fallback Template Generation
-        try:
-             advice = fadic_data.get('qualities', {}).get('positive', 'Focus on your strengths.')
-             challenges = fadic_data.get('qualities', {}).get('negative', 'Be mindful of your weaknesses.')
-             symbol = fadic_data.get('symbol', 'Unknown')
-             
-             fallback_text = f"""
-             **The Core Vibration**
-             Your Fadic Number matches the vibration of **{symbol}**. {fadic_data.get('description', '')} 
-             
-             **Vedic Alignment**
-             Birth Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Calculated separately'}. 
-             This celestial alignment adds a layer of depth to your {symbol} energy.
-             
-             **The Path to Success**
-             To achieve your highest potential, amplify your core strengths: {advice}. Success comes when you balance these opposing forces.
-             
-             **Future Outlook**
-             As a {fadic_data.get('fadic_type', 'Seeker')}, your destiny is forged by action. 
-             """
-             return fallback_text
-        except:
-             return "AI Insights currently unavailable. Please focus on the detailed Numerology and Astrology sections above."
+        return get_fallback()
+
 
 def calculate_numerology_rapidapi(name, year, month, day):
     """
@@ -268,7 +287,7 @@ def get_numerology_data(name, year, month, day, vedic_data=None, western_data=No
     data["loshu_grid"] = loshu_data
     
     # 3. Add Gemini AI Insights (if key configured)
-    ai_insights = generate_ai_insights(name, f"{year}-{month:02d}-{day:02d}", hilary_report, vedic_data=vedic_data, western_data=western_data, context=context, lang=lang)
+    ai_insights = generate_ai_insights(name, f"{year}-{month:02d}-{day:02d}", hilary_report, loshu_data=loshu_data, vedic_data=vedic_data, western_data=western_data, context=context, lang=lang)
     if ai_insights:
         data["ai_insights"] = ai_insights
         data["source"] = "groq-ai" # Mark as AI enhanced (Groq)

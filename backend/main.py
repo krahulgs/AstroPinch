@@ -10,7 +10,7 @@ from services.astrology_aggregator import AstrologyAggregator
 from services.numerology_service import get_numerology_data
 from services.ai_service import generate_numerology_insights
 from generate_report import ReportGenerator
-from routers import profile_router, auth_router, insights_router, chat_router
+from routers import profile_router, auth_router, insights_router, chat_router, vedastro_router
 from database import engine, Base
 
 app = FastAPI()
@@ -34,6 +34,7 @@ app.include_router(auth_router.router)
 app.include_router(profile_router.router)
 app.include_router(insights_router.router)
 app.include_router(chat_router.router)
+app.include_router(vedastro_router.router)
 
 # Allow CORS for React Frontend
 app.add_middleware(

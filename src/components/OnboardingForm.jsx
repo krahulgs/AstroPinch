@@ -133,7 +133,10 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                             <input
                                 type="text"
                                 value={formData.name}
-                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                onChange={e => {
+                                    const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                    setFormData({ ...formData, name: filteredValue });
+                                }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
                                 placeholder="Enter Full Name"
                             />

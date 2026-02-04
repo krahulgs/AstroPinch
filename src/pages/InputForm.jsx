@@ -61,7 +61,14 @@ const InputForm = () => {
     };
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'name') {
+            // Remove numeric values and special characters, allow only letters and spaces
+            const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            setFormData({ ...formData, [name]: filteredValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     return (

@@ -96,7 +96,10 @@ const Register = () => {
                                                 className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none focus:border-primary/50 transition-all font-medium placeholder:text-gray-400"
                                                 placeholder="Full Name"
                                                 value={formData.full_name}
-                                                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                                                onChange={(e) => {
+                                                    const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                    setFormData({ ...formData, full_name: filteredValue });
+                                                }}
                                             />
                                         </div>
 

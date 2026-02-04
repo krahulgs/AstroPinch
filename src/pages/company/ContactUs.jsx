@@ -6,7 +6,13 @@ const ContactUs = () => {
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'name') {
+            const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            setFormData({ ...formData, [name]: filteredValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = (e) => {

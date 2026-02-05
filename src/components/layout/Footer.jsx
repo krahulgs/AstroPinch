@@ -165,8 +165,20 @@ const Footer = () => {
                     </div>
 
                     <div className="flex flex-col md:flex-row justify-between items-center text-xs text-slate-400 pt-8 border-t border-slate-100">
-                        <div className="mb-2 md:mb-0 text-center md:text-left">
+                        <div className="mb-4 md:mb-0 text-center md:text-left">
                             &copy; {currentYear} AstroPinch.com – Best Online Astrology & Horoscope Website. All Rights Reserved.
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all">
+                                <span className="text-[10px] font-bold uppercase tracking-tighter">A PinchMind company</span>
+                                <a href="https://www.pinchmind.com" target="_blank" rel="noopener noreferrer">
+                                    <img
+                                        src="https://assets.zyrosite.com/Yg24V0DOrlf9Bj77/blue-and-black-minimalist-brand-logo-7-m6L2WwZKBpiE33Ev.png"
+                                        alt="PinchMind"
+                                        className="h-5"
+                                    />
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -173,8 +173,8 @@ const Footer = () => {
                                 <span className="text-[10px] font-bold uppercase tracking-tighter">A PinchMind company</span>
                                 <a href="https://www.pinchmind.com" target="_blank" rel="noopener noreferrer">
                                     <img
-                                        src="https://assets.zyrosite.com/Yg24V0DOrlf9Bj77/blue-and-black-minimalist-brand-logo-7-m6L2WwZKBpiE33Ev.png"
-                                        alt="PinchMind"
+                                        src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/Yg24V0DOrlf9Bj77/blue-and-black-minimalist-brand-logo-8-Y4LPNK4WWvCoJnKG.png"
+                                        alt="A PinchMind company"
                                         className="h-5"
                                     />
                                 </a>

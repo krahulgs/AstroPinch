@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, User } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, User, Minus, Maximize2, Bot, Info, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 
 const ChatWidget = ({ reportData }) => {
@@ -9,7 +9,7 @@ const ChatWidget = ({ reportData }) => {
         {
             id: 'welcome',
             role: 'assistant',
-            text: "Hello! I'm Astra, your personal astrology guide. I have analyzed your entire profile. Ask me anything about your career, relationships, or future transits!"
+            text: "Welcome to your celestial guidance. I've analyzed your cosmic blueprint and I'm ready to answer any questions about your destiny, career, or relationships."
         }
     ]);
     const [input, setInput] = useState('');
@@ -32,45 +32,50 @@ const ChatWidget = ({ reportData }) => {
     const CHAT_LIMIT = 10;
     const isLimitReached = messageCount >= CHAT_LIMIT;
 
+    const suggestedQuestions = [
+        "What does my career look like this year?",
+        "Tell me about my relationship compatibility.",
+        "What are my strengths based on my chart?",
+        "Any major financial transits upcoming?"
+    ];
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
+        if (isOpen && !isMinimized) {
+            scrollToBottom();
+        }
+    }, [messages, isOpen, isMinimized, isLoading]);
 
-    const handleSend = async () => {
-        if (!input.trim() || !reportData || isLimitReached) return;
+    const handleSend = async (customInput = null) => {
+        const messageText = customInput || input;
+        if (!messageText.trim() || !reportData || isLimitReached) return;
 
-        const userMessage = { id: Date.now(), role: 'user', text: input };
+        const userMessage = { id: Date.now(), role: 'user', text: messageText };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
-        // Update count
         const newCount = messageCount + 1;
         setMessageCount(newCount);
         localStorage.setItem('astra_chat_count', newCount.toString());
 
         try {
-            // Helper to get planet sign
             const getPlanetSign = (planets, planetName) => {
                 if (!Array.isArray(planets)) return 'Unknown';
                 const p = planets.find(pl => pl.name === planetName);
                 return p ? p.sign : 'Unknown';
             };
 
-            // Helper to format Dasha
             const getDashaString = (dashaData) => {
-                // Check if it's the object structure from VedicAstroEngine
                 if (dashaData && typeof dashaData === 'object' && !Array.isArray(dashaData)) {
                     return {
                         active_mahadasha: dashaData.active_mahadasha || 'Unknown',
                         active_antardasha: dashaData.active_antardasha || 'Unknown'
                     };
                 }
-                // Fallback for array structure (legacy)
                 if (Array.isArray(dashaData) && dashaData.length >= 1) {
                     const maha = dashaData[0]?.planet || 'Unknown';
                     const antar = dashaData[1]?.planet || 'Unknown';
@@ -79,12 +84,10 @@ const ChatWidget = ({ reportData }) => {
                 return { active_mahadasha: 'Unknown', active_antardasha: 'Unknown' };
             };
 
-            // Construct context from reportData
             const context = {
                 name: reportData.profile?.name,
                 place: reportData.profile?.place,
                 date_time: `${reportData.profile?.dob} ${reportData.profile?.tob}`,
-
                 vedic: {
                     ascendant: reportData.vedic_astrology?.panchang?.ascendant?.name,
                     moon_sign: getPlanetSign(reportData.vedic_astrology?.planets, 'Moon'),
@@ -110,12 +113,11 @@ const ChatWidget = ({ reportData }) => {
                 body: JSON.stringify({
                     message: userMessage.text,
                     context: context,
-                    history: messages.slice(-5) // Send last 5 messages for context
+                    history: messages.slice(-5)
                 })
             });
 
             if (!response.ok) throw new Error("Failed to get response");
-
             const data = await response.json();
 
             setMessages(prev => [...prev, {
@@ -129,7 +131,7 @@ const ChatWidget = ({ reportData }) => {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                text: "I'm having a little trouble connecting to the cosmic data right now. Please try again."
+                text: "The cosmic signals are slightly distorted. Please try your question again in a moment."
             }]);
         } finally {
             setIsLoading(false);
@@ -140,131 +142,200 @@ const ChatWidget = ({ reportData }) => {
         if (e.key === 'Enter') handleSend();
     };
 
-    // Minimized View
     if (isOpen && isMinimized) {
         return (
-            <div className="fixed bottom-6 right-6 z-50">
+            <div className="fixed bottom-6 right-6 z-[9999]">
                 <button
                     onClick={() => setIsMinimized(false)}
-                    className="bg-white p-4 rounded-full shadow-2xl border border-purple-100 relative group transition-all hover:scale-110"
+                    className="group relative flex items-center gap-3 bg-white p-2 pr-5 rounded-full shadow-2xl border border-purple-100 transition-all hover:scale-105 active:scale-95 overflow-hidden"
                 >
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    <Sparkles className="w-6 h-6 text-purple-600" />
-                    <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        Chat with Astra
-                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-purple-200">
+                        <Sparkles className="w-6 h-6 text-white" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                    </div>
+                    <div className="relative flex flex-col items-start">
+                        <span className="text-xs font-black text-purple-900 tracking-tight uppercase leading-none">Astra AI</span>
+                        <span className="text-[10px] text-purple-500 font-bold uppercase tracking-widest mt-1">Tap to Resume</span>
+                    </div>
                 </button>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] flex flex-col items-end">
+        <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[9999] flex flex-col items-end pointer-events-none">
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 rounded-full shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-105 group relative"
+                    className="pointer-events-auto bg-gradient-to-br from-purple-600 via-indigo-700 to-indigo-900 p-5 rounded-2xl shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all hover:scale-110 active:scale-95 group relative mb-2"
                 >
-                    <Sparkles className="w-6 h-6 text-white animate-pulse" />
-                    <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-3 py-1.5 rounded-xl shadow-lg font-bold text-sm opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none hidden md:block">
-                        Ask Astra AI
-                    </span>
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+                    <Sparkles className="w-8 h-8 text-white animate-glow" />
+                    <div className="absolute -top-3 -right-3 bg-white text-purple-600 text-[10px] font-black px-2 py-1 rounded-lg border border-purple-100 shadow-xl shadow-purple-200/50 scale-0 group-hover:scale-100 transition-transform origin-bottom-left">
+                        FREE HELP
+                    </div>
                 </button>
             )}
 
             {isOpen && (
-                <div className="bg-white rounded-2xl shadow-2xl border border-purple-100 w-[calc(100vw-2rem)] md:w-[400px] h-[70vh] md:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 flex justify-between items-center text-white shrink-0">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                                <Sparkles className="w-5 h-5 text-white" />
+                <div className="pointer-events-auto bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-2rem)] md:w-[450px] h-[75vh] md:h-[650px] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-500 origin-bottom-right">
+                    {/* Header: Premium Glassmorphic Design */}
+                    <div className="relative bg-indigo-950 p-6 flex justify-between items-center overflow-hidden shrink-0">
+                        {/* Decorative background elements */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+
+                        <div className="relative z-10 flex items-center gap-4">
+                            <div className="relative">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center border border-white/20 shadow-xl overflow-hidden group">
+                                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
+                                    <Sparkles className="w-7 h-7 text-white relative z-10 group-hover:rotate-12 transition-transform" />
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-4 border-indigo-950"></div>
                             </div>
                             <div>
-                                <h3 className="font-bold text-sm">Astra AI Guide</h3>
-                                <p className="text-[10px] text-purple-100 opacity-80 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                                    Online • Profile Loaded
-                                </p>
+                                <h3 className="text-white font-black text-lg tracking-tight leading-none mb-1.5 flex items-center gap-2">
+                                    Astra AI Guide
+                                    <span className="bg-white/10 text-purple-200 text-[9px] font-black px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-widest">PRO</span>
+                                </h3>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[10px] text-indigo-200 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.5)]"></div>
+                                        Active Prediction Engine
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex gap-1">
-                            <button onClick={() => setIsOpen(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                                <X className="w-4 h-4" />
+
+                        <div className="relative z-10 flex gap-2">
+                            <button
+                                onClick={() => setIsMinimized(true)}
+                                className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-colors"
+                            >
+                                <Minus className="w-5 h-5 text-white/70" />
+                            </button>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-rose-500/20 rounded-xl border border-white/10 group transition-colors"
+                            >
+                                <X className="w-5 h-5 text-white/70 group-hover:text-rose-400" />
                             </button>
                         </div>
                     </div>
 
-                    {/* Messages Area */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 relative">
-                        {/* Background pattern */}
-                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                            style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #6b7280 1px, transparent 0)', backgroundSize: '24px 24px' }}>
+                    {/* Messages Area: Polished Scrolled Surface */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#f8faff] relative">
+                        {/* Subtle Background Pattern */}
+                        <div className="absolute inset-0 opacity-[0.4] pointer-events-none"
+                            style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')" }}>
                         </div>
 
                         {messages.map((msg) => (
                             <div
                                 key={msg.id}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-500`}
                             >
-                                <div className={`
-                                    max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm
-                                    ${msg.role === 'user'
-                                        ? 'bg-purple-600 text-white rounded-tr-sm'
-                                        : 'bg-white text-slate-700 border border-gray-100 rounded-tl-sm'
-                                    }
-                                `}>
-                                    {msg.text}
+                                <div className={`flex flex-col gap-1.5 ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[85%]`}>
+                                    <div className={`
+                                        p-4 md:p-5 rounded-[2rem] text-sm leading-[1.6] shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative
+                                        ${msg.role === 'user'
+                                            ? 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-tr-md shadow-indigo-600/10'
+                                            : 'bg-white text-slate-700 border border-indigo-100/50 rounded-tl-md'
+                                        }
+                                    `}>
+                                        {msg.text}
+                                    </div>
+                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-2 opacity-60">
+                                        {msg.role === 'user' ? 'You' : 'Powered by AstroPinch'}
+                                    </span>
                                 </div>
                             </div>
                         ))}
+
+                        {/* Suggested Questions Grid */}
+                        {messages.length === 1 && !isLoading && (
+                            <div className="pt-4 grid grid-cols-1 gap-2 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 px-1">Suggested Inquiries</p>
+                                {suggestedQuestions.map((q, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => handleSend(q)}
+                                        className="text-left p-3 rounded-2xl bg-indigo-50 border border-indigo-100/60 text-indigo-700 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                                    >
+                                        {q}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                <div className="bg-white p-5 rounded-[1.5rem] rounded-tl-md border border-indigo-100/50 shadow-sm flex items-center gap-3">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                    </div>
+                                    <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Analyzing your stars...</span>
                                 </div>
                             </div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input Area */}
-                    <div className="p-4 bg-white border-t border-gray-100 shrink-0">
+                    {/* Input Area: Modern Layout */}
+                    <div className="p-6 bg-white border-t border-indigo-50 shrink-0">
                         {isLimitReached ? (
-                            <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-center space-y-2">
-                                <p className="text-xs font-bold text-amber-800">Free Chat Limit Reached (10/10)</p>
-                                <p className="text-[10px] text-amber-600">Upgrade to premium for unlimited cosmic queries!</p>
-                            </div>
-                        ) : (
-                            <div className="relative flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    placeholder="Ask about your stars..."
-                                    className="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-sm text-slate-700 font-medium placeholder:text-slate-400"
-                                    disabled={isLoading}
-                                />
-                                <button
-                                    onClick={handleSend}
-                                    disabled={isLoading || !input.trim()}
-                                    className="absolute right-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-purple-200"
-                                >
-                                    <Send className="w-4 h-4" />
+                            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-5 rounded-3xl text-center space-y-3 shadow-sm animate-in zoom-in-95">
+                                <div className="flex justify-center">
+                                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-600">
+                                        <ShieldCheck className="w-6 h-6" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-amber-900 leading-none mb-1">Celestial Quota Full</p>
+                                    <p className="text-[11px] text-amber-700 font-medium">You've reached your monthly 10 queries. Upgrade to Pro for unlimited guidance.</p>
+                                </div>
+                                <button className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-colors shadow-lg shadow-amber-500/20">
+                                    Upgrade to Pro
                                 </button>
                             </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="relative group">
+                                    <input
+                                        type="text"
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyPress={handleKeyPress}
+                                        placeholder="Type your cosmic query..."
+                                        className="w-full pl-6 pr-14 py-4.5 rounded-[1.8rem] bg-indigo-50/30 border border-indigo-100/80 focus:outline-none focus:border-indigo-400 focus:bg-white focus:shadow-[0_0_0_5px_rgba(79,70,229,0.05)] transition-all text-sm text-slate-800 font-medium placeholder:text-slate-400"
+                                        disabled={isLoading}
+                                    />
+                                    <button
+                                        onClick={() => handleSend()}
+                                        disabled={isLoading || !input.trim()}
+                                        className="absolute right-2 top-1.5 bottom-1.5 w-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:grayscale shadow-lg shadow-indigo-600/20 active:scale-95"
+                                    >
+                                        <Send className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                <div className="flex justify-between items-center px-2">
+                                    <div className="flex items-center gap-1.5 opacity-50">
+                                        <Bot className="w-3.5 h-3.5 text-slate-500" />
+                                        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Secured AI Node</span>
+                                    </div>
+                                    <div className={`flex items-center gap-2 py-1 px-3 rounded-full border ${isLimitReached ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-indigo-50/50 border-indigo-100 text-indigo-600'}`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${isLimitReached ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>
+                                        <span className="text-[9px] font-black uppercase tracking-widest">
+                                            {messageCount}/{CHAT_LIMIT} Free Queries
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         )}
-                        <div className="flex justify-between items-center mt-2 px-1">
-                            <p className="text-[9px] text-slate-400">
-                                Powered by AstroAI Logic
-                            </p>
-                            <p className={`text-[9px] font-bold ${isLimitReached ? 'text-red-500' : 'text-slate-500'}`}>
-                                {messageCount}/{CHAT_LIMIT} Free Queries
-                            </p>
-                        </div>
                     </div>
                 </div>
             )}

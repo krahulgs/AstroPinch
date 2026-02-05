@@ -14,7 +14,23 @@ const ChatWidget = ({ reportData }) => {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [messageCount, setMessageCount] = useState(() => {
+        const savedCount = localStorage.getItem('astra_chat_count');
+        const lastReset = localStorage.getItem('astra_chat_last_reset');
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+
+        if (lastReset !== currentMonth) {
+            localStorage.setItem('astra_chat_last_reset', currentMonth);
+            localStorage.setItem('astra_chat_count', '0');
+            return 0;
+        }
+        return savedCount ? parseInt(savedCount, 10) : 0;
+    });
     const messagesEndRef = useRef(null);
+
+    const CHAT_LIMIT = 10;
+    const isLimitReached = messageCount >= CHAT_LIMIT;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -25,12 +41,17 @@ const ChatWidget = ({ reportData }) => {
     }, [messages, isOpen]);
 
     const handleSend = async () => {
-        if (!input.trim() || !reportData) return;
+        if (!input.trim() || !reportData || isLimitReached) return;
 
         const userMessage = { id: Date.now(), role: 'user', text: input };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
+
+        // Update count
+        const newCount = messageCount + 1;
+        setMessageCount(newCount);
+        localStorage.setItem('astra_chat_count', newCount.toString());
 
         try {
             // Helper to get planet sign
@@ -211,27 +232,39 @@ const ChatWidget = ({ reportData }) => {
 
                     {/* Input Area */}
                     <div className="p-4 bg-white border-t border-gray-100 shrink-0">
-                        <div className="relative flex items-center gap-2">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Ask about your stars..."
-                                className="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-sm text-slate-700 font-medium placeholder:text-slate-400"
-                                disabled={isLoading}
-                            />
-                            <button
-                                onClick={handleSend}
-                                disabled={isLoading || !input.trim()}
-                                className="absolute right-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-purple-200"
-                            >
-                                <Send className="w-4 h-4" />
-                            </button>
+                        {isLimitReached ? (
+                            <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-center space-y-2">
+                                <p className="text-xs font-bold text-amber-800">Free Chat Limit Reached (10/10)</p>
+                                <p className="text-[10px] text-amber-600">Upgrade to premium for unlimited cosmic queries!</p>
+                            </div>
+                        ) : (
+                            <div className="relative flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    placeholder="Ask about your stars..."
+                                    className="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-sm text-slate-700 font-medium placeholder:text-slate-400"
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    onClick={handleSend}
+                                    disabled={isLoading || !input.trim()}
+                                    className="absolute right-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-purple-200"
+                                >
+                                    <Send className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center mt-2 px-1">
+                            <p className="text-[9px] text-slate-400">
+                                Powered by AstroAI Logic
+                            </p>
+                            <p className={`text-[9px] font-bold ${isLimitReached ? 'text-red-500' : 'text-slate-500'}`}>
+                                {messageCount}/{CHAT_LIMIT} Free Queries
+                            </p>
                         </div>
-                        <p className="text-[10px] text-center text-slate-400 mt-2">
-                            AI responses are based on your astrological profile.
-                        </p>
                     </div>
                 </div>
             )}

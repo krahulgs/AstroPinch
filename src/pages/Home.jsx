@@ -363,6 +363,102 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+            {/* NEW: AstroAI Chat Highlight Section */}
+            <section className="py-24 relative overflow-hidden bg-white">
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    <div className="bg-gradient-to-br from-purple-900 to-indigo-950 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl shadow-purple-950/20">
+                        {/* Decorative Background Elements */}
+                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
+
+                        <div className="grid lg:grid-cols-2 gap-16 items-center relative z-10">
+                            <div className="space-y-8">
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 backdrop-blur-md text-amber-400 font-bold text-[10px] uppercase tracking-[0.2em]">
+                                    <Sparkles className="w-3 h-3" />
+                                    AI-Powered Consultation
+                                </div>
+
+                                <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight leading-[1.1]">
+                                    Instant Answers to <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-indigo-200 to-white italic">Every Query</span>
+                                </h2>
+
+                                <p className="text-lg text-purple-100/70 font-light leading-relaxed max-w-lg">
+                                    Why wait for an appointment? Our advanced AstroAI analyzes your unique birth chart in real-time to provide precise answers about your career, love life, and health.
+                                </p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                            <Zap className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-sm text-white/90 font-medium">10 Free Queries Monthly</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+                                            <Cpu className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-sm text-white/90 font-medium">Real-time Predictions</span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <Link
+                                        to="/chart"
+                                        className="inline-flex items-center gap-4 px-10 py-5 bg-white text-black rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all duration-300 shadow-xl group/btn"
+                                    >
+                                        Start Free Chat
+                                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="relative">
+                                {/* Visual Mockup of Chat */}
+                                <div className="bg-white/10 backdrop-blur-3xl rounded-3xl border border-white/20 p-6 shadow-2xl relative z-10 animate-float">
+                                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/10">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center">
+                                            <Sparkles className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <div className="text-white font-bold text-sm">Astra AI Guide</div>
+                                            <div className="text-[10px] text-green-400 flex items-center gap-1">
+                                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                                Active & Waiting
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 mb-6">
+                                        <div className="p-3 bg-white/10 rounded-2xl rounded-tl-sm text-xs text-white/90 max-w-[80%] border border-white/5">
+                                            "Based on your Saturn transit in the 10th house, this is the perfect time for a career shift..."
+                                        </div>
+                                        <div className="p-3 bg-indigo-600 rounded-2xl rounded-tr-sm text-xs text-white max-w-[80%] ml-auto shadow-lg">
+                                            "Is this shift favorable for a startup?"
+                                        </div>
+                                        <div className="p-3 bg-white/10 rounded-2xl rounded-tl-sm text-xs text-white/90 max-w-[90%] border border-white/5">
+                                            "Yes, with Jupiter aspecting your Ascendant after April, the stars align for entrepreneurial success."
+                                        </div>
+                                    </div>
+
+                                    <div className="relative">
+                                        <div className="w-full bg-white/5 border border-white/20 rounded-xl py-3 px-4 text-xs text-white/50">
+                                            Type your query here...
+                                        </div>
+                                        <div className="absolute right-2 top-1.5 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                                            <ArrowRight className="w-4 h-4 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Background Rings */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] border border-white/5 rounded-full pointer-events-none"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border border-white/5 rounded-full pointer-events-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
 
 

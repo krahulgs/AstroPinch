@@ -164,11 +164,11 @@ const ChatWidget = ({ reportData }) => {
     }
 
     return (
-        <div className="fixed bottom-0 right-4 md:right-12 z-[9999] flex flex-col items-end pointer-events-none">
+        <div className="fixed bottom-4 right-4 md:right-12 z-[9999] flex flex-col items-end pointer-events-none">
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="pointer-events-auto bg-gradient-to-br from-purple-600 via-indigo-700 to-indigo-900 p-5 rounded-2xl shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all hover:scale-110 active:scale-95 group relative mb-8"
+                    className="pointer-events-auto bg-gradient-to-br from-purple-600 via-indigo-700 to-indigo-900 p-5 rounded-2xl shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all hover:scale-110 active:scale-95 group relative mb-4"
                 >
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
                     <Sparkles className="w-8 h-8 text-white animate-glow" />
@@ -179,7 +179,7 @@ const ChatWidget = ({ reportData }) => {
             )}
 
             {isOpen && (
-                <div className="pointer-events-auto bg-white rounded-t-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-1rem)] md:w-[450px] h-[calc(100vh-20px)] max-h-[750px] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-500 origin-bottom">
+                <div className="pointer-events-auto bg-white rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-2rem)] md:w-[420px] h-[60vh] max-h-[550px] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-500 origin-bottom-right">
                     {/* Header: Premium Glassmorphic Design */}
                     <div className="relative bg-indigo-950 p-6 flex justify-between items-center overflow-hidden shrink-0">
                         {/* Decorative background elements */}

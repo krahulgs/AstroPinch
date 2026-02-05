@@ -179,7 +179,7 @@ const ChatWidget = ({ reportData }) => {
             )}
 
             {isOpen && (
-                <div className="pointer-events-auto bg-white rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-2rem)] md:w-[420px] h-[65vh] max-h-[620px] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-500 origin-bottom-right">
+                <div className="pointer-events-auto bg-white rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-2rem)] md:w-[420px] h-[70vh] max-h-[680px] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-500 origin-bottom-right">
                     {/* Header: Premium Glassmorphic Design */}
                     <div className="relative bg-indigo-950 p-6 flex justify-between items-center overflow-hidden shrink-0">
                         {/* Decorative background elements */}

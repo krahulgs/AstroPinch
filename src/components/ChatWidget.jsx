@@ -144,10 +144,10 @@ const ChatWidget = ({ reportData }) => {
 
     if (isOpen && isMinimized) {
         return (
-            <div className="fixed bottom-6 right-6 z-[9999]">
+            <div className="fixed bottom-0 right-4 md:right-12 z-[9999]">
                 <button
                     onClick={() => setIsMinimized(false)}
-                    className="group relative flex items-center gap-3 bg-white p-2 pr-5 rounded-full shadow-2xl border border-purple-100 transition-all hover:scale-105 active:scale-95 overflow-hidden"
+                    className="group relative flex items-center gap-3 bg-white p-2 pr-5 rounded-t-2xl shadow-2xl border-t border-x border-purple-100 transition-all hover:translate-y-[-4px] active:translate-y-0 overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-purple-200">
@@ -164,11 +164,11 @@ const ChatWidget = ({ reportData }) => {
     }
 
     return (
-        <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[9999] flex flex-col items-end pointer-events-none">
+        <div className="fixed bottom-0 right-4 md:right-12 z-[9999] flex flex-col items-end pointer-events-none">
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="pointer-events-auto bg-gradient-to-br from-purple-600 via-indigo-700 to-indigo-900 p-5 rounded-2xl shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all hover:scale-110 active:scale-95 group relative mb-2"
+                    className="pointer-events-auto bg-gradient-to-br from-purple-600 via-indigo-700 to-indigo-900 p-5 rounded-2xl shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all hover:scale-110 active:scale-95 group relative mb-8"
                 >
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
                     <Sparkles className="w-8 h-8 text-white animate-glow" />
@@ -179,7 +179,7 @@ const ChatWidget = ({ reportData }) => {
             )}
 
             {isOpen && (
-                <div className="pointer-events-auto bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-2rem)] md:w-[450px] h-[75vh] md:h-[650px] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-500 origin-bottom-right">
+                <div className="pointer-events-auto bg-white rounded-t-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-purple-50 w-[calc(100vw-1rem)] md:w-[450px] h-[calc(100vh-20px)] max-h-[750px] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-500 origin-bottom">
                     {/* Header: Premium Glassmorphic Design */}
                     <div className="relative bg-indigo-950 p-6 flex justify-between items-center overflow-hidden shrink-0">
                         {/* Decorative background elements */}

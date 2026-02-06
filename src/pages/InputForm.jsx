@@ -168,7 +168,7 @@ const InputForm = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-secondary text-sm font-medium ml-1">Time of Birth</label>
+                                <label className="text-secondary text-sm font-medium ml-1">Time of Birth (24 Hrs.)</label>
                                 <div className="relative group">
                                     <Clock className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
                                     <input

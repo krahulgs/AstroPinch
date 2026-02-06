@@ -192,7 +192,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                     </div>
 
                     <div>
-                        <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Time</label>
+                        <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Time (24 Hrs.)</label>
                         <div className="relative">
                             <Clock className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input

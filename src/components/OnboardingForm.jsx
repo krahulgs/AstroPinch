@@ -172,7 +172,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     if (val === '00') return; // Prevent 00
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val}` });
-                                    if (val.length === 2) monthRef.current?.focus();
+                                    if (val.length === 2) {
+                                        setTimeout(() => monthRef.current?.focus(), 10);
+                                    }
                                 }}
                                 onKeyDown={e => {
                                     if (e.key === 'Backspace' && !e.currentTarget.value) {
@@ -194,7 +196,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     if (val === '00') return; // Prevent 00
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${parts[0]}-${val}-${parts[2]}` });
-                                    if (val.length === 2) yearRef.current?.focus();
+                                    if (val.length === 2) {
+                                        setTimeout(() => yearRef.current?.focus(), 10);
+                                    }
                                 }}
                                 onKeyDown={e => {
                                     if (e.key === 'Backspace' && !e.currentTarget.value) {
@@ -215,7 +219,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 4);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${val}-${parts[1]}-${parts[2]}` });
-                                    if (val.length === 4) timeRef.current?.focus();
+                                    // Stop auto-movement after Year completion as per requirement
                                 }}
                                 onKeyDown={e => {
                                     if (e.key === 'Backspace' && !e.currentTarget.value) {

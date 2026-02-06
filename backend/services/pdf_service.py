@@ -11,6 +11,41 @@ import math
 from services.chart_generator import ChartGenerator
 from reportlab.graphics.shapes import Drawing, PolyLine, Rect, String
 
+# Register Hindi font support
+try:
+    # Try to use system fonts that support Devanagari
+    # Windows: Mangal, Nirmala UI
+    # Linux: Lohit Devanagari, Noto Sans Devanagari
+    hindi_font_paths = [
+        'C:\\Windows\\Fonts\\mangal.ttf',  # Windows Mangal
+        'C:\\Windows\\Fonts\\NirmalaS.ttf',  # Windows Nirmala UI Semilight
+        'C:\\Windows\\Fonts\\Nirmala.ttf',  # Windows Nirmala UI
+        '/usr/share/fonts/truetype/lohit-devanagari/Lohit-Devanagari.ttf',  # Linux
+        '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf',  # Linux Noto
+    ]
+    
+    hindi_font_registered = False
+    for font_path in hindi_font_paths:
+        if os.path.exists(font_path):
+            try:
+                pdfmetrics.registerFont(TTFont('HindiFont', font_path))
+                hindi_font_registered = True
+                print(f"Hindi font registered successfully from: {font_path}")
+                break
+            except Exception as e:
+                print(f"Failed to register font from {font_path}: {e}")
+                continue
+    
+    if not hindi_font_registered:
+        print("Warning: No Hindi font found. Hindi text may not display correctly in PDFs.")
+        # Use default font as fallback
+        HINDI_FONT = 'Helvetica'
+    else:
+        HINDI_FONT = 'HindiFont'
+except Exception as e:
+    print(f"Error setting up Hindi font: {e}")
+    HINDI_FONT = 'Helvetica'
+
 class PDFReportService:
     @staticmethod
     def _create_forecast_engine_chart(width, height):
@@ -550,11 +585,15 @@ class PDFReportService:
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
         
+        # Select font based on language
+        base_font = HINDI_FONT if lang == "hi" else 'Helvetica'
+        bold_font = HINDI_FONT if lang == "hi" else 'Helvetica-Bold'
+        
         styles = getSampleStyleSheet()
-        styles.add(ParagraphStyle(name='CenterTitle', parent=styles['Heading1'], alignment=1, spaceAfter=20, color=colors.purple))
-        styles.add(ParagraphStyle(name='SectionHeader', parent=styles['Heading2'], spaceBefore=15, spaceAfter=10, color=colors.darkblue))
-        styles.add(ParagraphStyle(name='ScoreHighlight', parent=styles['Normal'], fontSize=16, leading=20, alignment=1, spaceBefore=10, spaceAfter=10, textColor=colors.darkgreen))
-        styles.add(ParagraphStyle(name='NormalText', parent=styles['Normal'], spaceAfter=10, leading=14))
+        styles.add(ParagraphStyle(name='CenterTitle', parent=styles['Heading1'], alignment=1, spaceAfter=20, color=colors.purple, fontName=bold_font, fontSize=18))
+        styles.add(ParagraphStyle(name='SectionHeader', parent=styles['Heading2'], spaceBefore=15, spaceAfter=10, color=colors.darkblue, fontName=bold_font, fontSize=14))
+        styles.add(ParagraphStyle(name='ScoreHighlight', parent=styles['Normal'], fontSize=16, leading=20, alignment=1, spaceBefore=10, spaceAfter=10, textColor=colors.darkgreen, fontName=bold_font))
+        styles.add(ParagraphStyle(name='NormalText', parent=styles['Normal'], spaceAfter=10, leading=14, fontName=base_font))
         
         story = []
         
@@ -564,7 +603,7 @@ class PDFReportService:
         story.append(Spacer(1, 0.2*inch))
 
         # Names
-        name_style = ParagraphStyle(name='NameStyle', parent=styles['Normal'], fontSize=12, alignment=1, spaceAfter=5)
+        name_style = ParagraphStyle(name='NameStyle', parent=styles['Normal'], fontSize=12, alignment=1, spaceAfter=5, fontName=bold_font)
         story.append(Paragraph(f"<b>{result['bride']['name']}</b> (Bride) & <b>{result['groom']['name']}</b> (Groom)", name_style))
         story.append(Spacer(1, 0.3*inch))
 
@@ -594,6 +633,7 @@ class PDFReportService:
             ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
             ('ALIGN', (0,0), (-1,-1), 'CENTER'),
             ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+            ('FONTNAME', (0,0), (-1,-1), base_font),
             ('FONTSIZE', (0,0), (-1,-1), 9),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
         ]))

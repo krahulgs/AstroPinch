@@ -550,6 +550,80 @@ Your role is to analyze Kundali matching results that are already calculated pro
             return {"score": 5, "analysis": ["Transit analysis unavailable"], "recommendation": "Moderate"}
 
     @staticmethod
+    def generate_ai_analysis(bride_name, groom_name, kootas, total_score, b_manglik, g_manglik, doshas, lang="en"):
+        """
+        Generates AI summary of the match. 
+        If lang='hi', generates in English first for accuracy, then translates to Hindi.
+        """
+        try:
+            # 1. Construct the Analysis Prompt (English)
+            koota_summary = ", ".join([f"{k['name']}: {k['points']}/{k['max_points']}" for k in kootas])
+            dosha_summary = ", ".join([d['name'] for d in doshas if d['is_present']]) or "None"
+            
+            prompt = f"""
+            You are an expert Vedic Astrologer with deep knowledge of Ashta-Koota and relationship psychology.
+            Analyze the marriage compatibility for:
+            Bride: {bride_name}
+            Groom: {groom_name}
+            
+            Data:
+            - Total Guna Score: {total_score}/36
+            - Manglik Status: Bride ({b_manglik['status']}), Groom ({g_manglik['status']})
+            - Key Doshas Present: {dosha_summary}
+            - Koota Scores: {koota_summary}
+            
+            Task:
+            Write a professional, insightful 2-paragraph summary of their compatibility.
+            - Paragraph 1: Focus on the emotional connection, mental compatibility (Bhakoot), and longevity/health (Nadi).
+            - Paragraph 2: Provide a final verdict/recommendation on whether to proceed and what remedies (if any) are needed.
+            
+            Tone: Compassionate, traditional yet practical.
+            Output: Plain text only, no markdown formatting.
+            """
+            
+            # 2. Generate English Analysis (Using Gemini for best reasoning)
+            analysis_text = ""
+            try:
+                response = model.generate_content(prompt)
+                analysis_text = response.text
+            except Exception as e:
+                print(f"Gemini Gen Error: {e}")
+                # Fallback to Groq if Gemini fails
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama-3.3-70b-versatile",
+                )
+                analysis_text = chat_completion.choices[0].message.content
+
+            # 3. Translate if Hindi requested
+            if lang == "hi":
+                translation_prompt = f"""
+                Translate the following Vedic Astrology compatibility analysis into professional, high-quality Hindi (Devanagari script).
+                Maintain the astrological context and respectful tone. Use proper terms like 'वर' (Groom), 'वधू' (Bride), 'दोष' (Dosha).
+                
+                Text to translate:
+                {analysis_text}
+                
+                Output: Hindi translation only.
+                """
+                
+                try:
+                    # Use Gemini for translation (usually better at Indian languages)
+                    trans_response = model.generate_content(translation_prompt)
+                    return trans_response.text
+                except Exception as e:
+                    print(f"Translation Error: {e}")
+                    # Fallback translation if needed (though unlikely to be better)
+                    return analysis_text + " (Hindi translation unavailable)"
+            
+            return analysis_text
+
+        except Exception as e:
+            print(f"AI Generation Error: {e}")
+            msg = "AI Expert analysis is currently unavailable. Please rely on the score calculation."
+            return "AI विशेषज्ञ विश्लेषण वर्तमान में अनुपलब्ध है।" if lang == "hi" else msg
+
+    @staticmethod
     def _calculate_marriage_windows(bride_astro, groom_astro, bride_details, groom_details):
         """Calculate auspicious marriage timing windows"""
         from datetime import datetime, timedelta

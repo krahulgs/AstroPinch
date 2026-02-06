@@ -88,6 +88,53 @@ const KundaliMatch = () => {
                 </p>
             </div>
 
+            {/* Info Banner - Login & Create Profiles */}
+            {(!token || profiles.length === 0) && (
+                <div className="mb-8 p-6 rounded-3xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 shadow-lg">
+                    <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                            <Info className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-lg font-bold text-purple-900 mb-2">
+                                {!token ? "Login Required" : "Create Profiles to Get Started"}
+                            </h3>
+                            <p className="text-sm text-purple-700 mb-4">
+                                {!token
+                                    ? "Please login to your account to access Kundali Matching. Don't have an account? Register now to create profiles and check compatibility!"
+                                    : "You need to create at least two profiles (one male and one female) to perform Kundali matching. Create profiles for the bride and groom to get started."}
+                            </p>
+                            <div className="flex flex-wrap gap-3">
+                                {!token ? (
+                                    <>
+                                        <button
+                                            onClick={() => navigate('/login')}
+                                            className="px-6 py-2.5 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-md hover:shadow-lg"
+                                        >
+                                            Login Now
+                                        </button>
+                                        <button
+                                            onClick={() => navigate('/register')}
+                                            className="px-6 py-2.5 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-all border border-purple-200"
+                                        >
+                                            Register
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => navigate('/profiles')}
+                                        className="px-6 py-2.5 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                                    >
+                                        <Users className="w-4 h-4" />
+                                        Create Profiles
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Profile Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 {/* Bride Selection */}
@@ -161,9 +208,19 @@ const KundaliMatch = () => {
                 >
                     {loading ? <Loader className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                     Calculate Compatibility
+                    <ArrowRight className="w-5 h-5" />
                 </button>
             </div>
 
+            {/* Helper Text */}
+            {token && (!bride || !groom) && (
+                <div className="text-center mb-8">
+                    <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
+                        <Info className="w-4 h-4" />
+                        Please select both Bride and Groom profiles to calculate compatibility
+                    </p>
+                </div>
+            )}
             {error && (
                 <div className="max-w-2xl mx-auto p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-center flex items-center justify-center gap-3 font-bold mb-12 animate-in shake duration-500">
                     <AlertTriangle className="w-5 h-5" />

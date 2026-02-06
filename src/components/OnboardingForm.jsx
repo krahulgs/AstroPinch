@@ -371,7 +371,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     }}
                                     onKeyDown={e => e.key === 'Enter' && handleSearchLocation()}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
-                                    placeholder="Enter City of Birth"
+                                    placeholder="Enter Place of Birth"
                                 />
                             </div>
                             <button

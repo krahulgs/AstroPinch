@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChart } from '../context/ChartContext';
 import { User, Calendar, Clock, Loader2 } from 'lucide-react';
@@ -8,6 +8,10 @@ import SEO from '../components/SEO';
 const InputForm = () => {
     const navigate = useNavigate();
     const { saveUserData, loading, error: serverError } = useChart();
+
+    const dayRef = useRef(null);
+    const monthRef = useRef(null);
+    const yearRef = useRef(null);
 
     const [progress, setProgress] = useState(0);
     const [formData, setFormData] = useState({
@@ -118,6 +122,7 @@ const InputForm = () => {
                                 <div className="flex gap-2">
                                     <div className="relative flex-1 group">
                                         <input
+                                            ref={dayRef}
                                             type="number"
                                             placeholder="DD"
                                             min="1"
@@ -125,15 +130,17 @@ const InputForm = () => {
                                             required
                                             value={formData.date ? formData.date.split('-')[2] : ''}
                                             onChange={(e) => {
-                                                const day = e.target.value.padStart(2, '0').slice(-2);
+                                                const val = e.target.value.slice(0, 2);
                                                 const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${day}` });
+                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${val.padStart(2, '0')}` });
+                                                if (val.length === 2) monthRef.current?.focus();
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                     <div className="relative flex-1 group">
                                         <input
+                                            ref={monthRef}
                                             type="number"
                                             placeholder="MM"
                                             min="1"
@@ -141,15 +148,17 @@ const InputForm = () => {
                                             required
                                             value={formData.date ? formData.date.split('-')[1] : ''}
                                             onChange={(e) => {
-                                                const month = e.target.value.padStart(2, '0').slice(-2);
+                                                const val = e.target.value.slice(0, 2);
                                                 const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${month}-${parts[2]}` });
+                                                setFormData({ ...formData, date: `${parts[0]}-${val.padStart(2, '0')}-${parts[2]}` });
+                                                if (val.length === 2) yearRef.current?.focus();
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                     <div className="relative flex-[1.5] group">
                                         <input
+                                            ref={yearRef}
                                             type="number"
                                             placeholder="YYYY"
                                             min="1900"
@@ -157,9 +166,9 @@ const InputForm = () => {
                                             required
                                             value={formData.date ? formData.date.split('-')[0] : ''}
                                             onChange={(e) => {
-                                                const year = e.target.value;
+                                                const val = e.target.value.slice(0, 4);
                                                 const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${year}-${parts[1]}-${parts[2]}` });
+                                                setFormData({ ...formData, date: `${val}-${parts[1]}-${parts[2]}` });
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />

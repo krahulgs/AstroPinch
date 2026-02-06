@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Calendar, Clock, User, Search, Loader, Star } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 
@@ -7,6 +7,10 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const dayRef = useRef(null);
+    const monthRef = useRef(null);
+    const yearRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
@@ -147,6 +151,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Date</label>
                         <div className="flex gap-2">
                             <input
+                                ref={dayRef}
                                 type="number"
                                 placeholder="DD"
                                 min="1"
@@ -154,13 +159,15 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
                                 onChange={e => {
-                                    const day = e.target.value.padStart(2, '0').slice(-2);
+                                    const val = e.target.value.slice(0, 2);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${day}` });
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val.padStart(2, '0')}` });
+                                    if (val.length === 2) monthRef.current?.focus();
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <input
+                                ref={monthRef}
                                 type="number"
                                 placeholder="MM"
                                 min="1"
@@ -168,13 +175,15 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
                                 onChange={e => {
-                                    const month = e.target.value.padStart(2, '0').slice(-2);
+                                    const val = e.target.value.slice(0, 2);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${month}-${parts[2]}` });
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${val.padStart(2, '0')}-${parts[2]}` });
+                                    if (val.length === 2) yearRef.current?.focus();
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <input
+                                ref={yearRef}
                                 type="number"
                                 placeholder="YYYY"
                                 min="1900"
@@ -182,9 +191,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[0] : ''}
                                 onChange={e => {
-                                    const year = e.target.value;
+                                    const val = e.target.value.slice(0, 4);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${year}-${parts[1]}-${parts[2]}` });
+                                    setFormData({ ...formData, birth_date: `${val}-${parts[1]}-${parts[2]}` });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-[1.5]"
                             />

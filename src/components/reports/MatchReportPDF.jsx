@@ -1,41 +1,243 @@
 import React, { forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// Standard Hex colors to avoid 'oklch' error in html2canvas
+// Modern Premium Style for PDF Report
 const styles = {
-    container: { fontFamily: 'sans-serif', padding: '40px', backgroundColor: '#ffffff', color: '#111827', maxWidth: '800px', margin: '0 auto' },
-    header: { textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #f3e8ff', paddingBottom: '20px' },
-    title: { fontSize: '28px', fontWeight: 'bold', color: '#7e22ce', marginBottom: '8px', margin: 0 },
-    subtitle: { color: '#6b7280', margin: 0, fontSize: '14px' },
+    // Page Layout
+    page: {
+        padding: '50px',
+        background: '#ffffff',
+        fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+        color: '#334155',
+        maxWidth: '900px',
+        margin: '0 auto',
+        position: 'relative',
+        boxSizing: 'border-box'
+    },
 
-    profileBox: { display: 'flex', justifyContent: 'space-between', marginBottom: '30px', backgroundColor: '#faf5ff', padding: '20px', borderRadius: '12px', border: '1px solid #f3e8ff' },
-    profileCol: { textAlign: 'center', width: '50%' },
-    profileName: { fontWeight: '600', color: '#581c87', fontSize: '18px', marginBottom: '4px', margin: 0 },
-    label: { color: '#4b5563', fontSize: '14px', margin: 0 },
+    // Header Section
+    headerContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '50px',
+        borderBottom: '2px solid #f1f5f9',
+        paddingBottom: '25px'
+    },
+    brand: {
+        fontSize: '26px',
+        fontWeight: '900',
+        color: '#4f46e5',
+        letterSpacing: '-0.5px',
+        textTransform: 'uppercase'
+    },
+    meta: {
+        textAlign: 'right'
+    },
+    date: {
+        fontSize: '12px',
+        color: '#94a3b8',
+        marginBottom: '4px'
+    },
+    reportId: {
+        fontSize: '10px',
+        color: '#cbd5e1',
+        fontFamily: 'monospace'
+    },
 
-    scoreContainer: { textAlign: 'center', marginBottom: '30px' },
-    scoreCircle: { display: 'inline-block', padding: '20px', borderRadius: '50px', backgroundColor: '#f3e8ff', marginBottom: '10px' },
-    scoreTotal: { fontSize: '20px', color: '#a855f7' },
+    // Main Title Area
+    titleBox: {
+        textAlign: 'center',
+        marginBottom: '50px'
+    },
+    mainTitle: {
+        fontSize: '36px',
+        fontWeight: '800',
+        color: '#1e293b',
+        marginBottom: '8px',
+        margin: 0
+    },
+    subTitle: {
+        fontSize: '16px',
+        color: '#64748b',
+        maxWidth: '500px',
+        margin: '0 auto'
+    },
 
-    sectionTitle: { fontSize: '18px', fontWeight: 'bold', color: '#1f2937', marginBottom: '15px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' },
+    // Hero Section (Profiles + Score)
+    heroGrid: {
+        display: 'flex',
+        gap: '40px',
+        marginBottom: '50px',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 
-    table: { width: '100%', fontSize: '14px', borderCollapse: 'collapse', marginBottom: '30px' },
-    th: { backgroundColor: '#f3e8ff', color: '#581c87', padding: '10px', textAlign: 'left', border: '1px solid #e9d5ff' },
-    thCenter: { backgroundColor: '#f3e8ff', color: '#581c87', padding: '10px', textAlign: 'center', border: '1px solid #e9d5ff' },
-    td: { padding: '10px', border: '1px solid #f3e8ff', color: '#374151' },
-    tdPoints: { padding: '10px', border: '1px solid #f3e8ff', fontWeight: 'bold', color: '#7e22ce', textAlign: 'center' },
-    rowAlt: { backgroundColor: '#faf5ff' },
+    // Profile Card
+    profileCard: {
+        flex: 1,
+        padding: '30px',
+        backgroundColor: '#f8fafc',
+        borderRadius: '16px',
+        border: '1px solid #e2e8f0',
+        textAlign: 'center',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+    },
+    roleLabel: {
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        color: '#64748b',
+        marginBottom: '10px',
+        fontWeight: '700'
+    },
+    name: {
+        fontSize: '22px',
+        fontWeight: '800',
+        color: '#1e293b',
+        margin: 0,
+        lineHeight: '1.3'
+    },
 
-    // Grid manually simulated with flex for safety
-    analysisContainer: { display: 'flex', gap: '20px', marginBottom: '30px' },
-    manglikBox: { flex: 1, backgroundColor: '#fef2f2', padding: '20px', borderRadius: '8px', border: '1px solid #fee2e2' },
-    doshaBox: { flex: 1, backgroundColor: '#fff7ed', padding: '20px', borderRadius: '8px', border: '1px solid #ffedd5' },
-    redTitle: { fontWeight: 'bold', color: '#991b1b', marginBottom: '8px', fontSize: '16px', margin: 0 },
-    orangeTitle: { fontWeight: 'bold', color: '#9a3412', marginBottom: '8px', fontSize: '16px', margin: 0 },
-    ptext: { fontSize: '14px', color: '#374151', margin: '4px 0' },
+    // Central Score
+    scoreBox: {
+        width: '160px',
+        textAlign: 'center',
+        flexShrink: 0
+    },
+    scoreRing: {
+        width: '140px',
+        height: '140px',
+        borderRadius: '50%',
+        border: '12px solid #4f46e5', // Safe alternative to gradient
+        margin: '0 auto 15px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff'
+    },
+    scoreVal: {
+        fontSize: '48px',
+        fontWeight: '900',
+        color: '#4f46e5',
+        lineHeight: '1',
+        margin: 0
+    },
+    scoreMax: {
+        fontSize: '14px',
+        color: '#94a3b8',
+        marginTop: '0px'
+    },
+    scoreLabel: {
+        fontSize: '16px',
+        fontWeight: '700',
+        color: '#1e293b',
+        margin: 0
+    },
+    statusBadge: (score) => ({
+        display: 'inline-block',
+        marginTop: '8px',
+        padding: '4px 12px',
+        borderRadius: '99px',
+        fontSize: '12px',
+        fontWeight: '600',
+        backgroundColor: score >= 18 ? '#dcfce7' : '#fee2e2',
+        color: score >= 18 ? '#15803d' : '#b91c1c'
+    }),
 
-    aiBox: { backgroundColor: '#faf5ff', padding: '24px', borderRadius: '12px', border: '1px solid #f3e8ff', color: '#1f2937', lineHeight: '1.6', whiteSpace: 'pre-wrap', fontSize: '14px' },
-    footer: { textAlign: 'center', fontSize: '12px', color: '#9ca3af', marginTop: '40px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }
+    // Section Divider
+    sectionHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '25px',
+        borderBottom: '2px solid #e2e8f0',
+        paddingBottom: '12px',
+        marginTop: '40px'
+    },
+    sectionTitle: {
+        fontSize: '20px',
+        fontWeight: '800',
+        color: '#0f172a',
+        margin: 0
+    },
+
+    // Table Styling
+    table: {
+        width: '100%',
+        borderCollapse: 'separate',
+        borderSpacing: '0',
+        fontSize: '14px',
+        marginBottom: '40px'
+    },
+    th: {
+        textAlign: 'left',
+        padding: '16px',
+        color: '#64748b',
+        fontWeight: '700',
+        borderBottom: '2px solid #e2e8f0',
+        backgroundColor: '#f8fafc',
+        textTransform: 'uppercase',
+        fontSize: '11px',
+        letterSpacing: '1px'
+    },
+    td: {
+        padding: '14px 16px',
+        borderBottom: '1px solid #f1f5f9',
+        color: '#334155',
+        verticalAlign: 'middle'
+    },
+    tdScore: {
+        fontWeight: '800',
+        color: '#4f46e5',
+        fontSize: '15px'
+    },
+
+    // Manglik / Dosha Grid
+    grid2: {
+        display: 'flex',
+        gap: '30px',
+        marginBottom: '40px'
+    },
+    infoCard: {
+        flex: 1,
+        padding: '24px',
+        borderRadius: '12px',
+        backgroundColor: '#fff',
+        border: '1px solid #e2e8f0'
+    },
+    cardTitle: {
+        fontSize: '16px',
+        fontWeight: '700',
+        marginBottom: '12px',
+        display: 'block',
+        color: '#0f172a'
+    },
+
+    // AI Section
+    aiContainer: {
+        backgroundColor: '#f8fafc',
+        borderRadius: '16px',
+        padding: '35px',
+        border: '1px solid #e2e8f0',
+        borderLeft: '5px solid #8b5cf6',
+        position: 'relative'
+    },
+    aiContent: {
+        lineHeight: '1.8',
+        color: '#334155',
+        fontSize: '15px',
+        whiteSpace: 'pre-wrap',
+        fontFamily: '"Segoe UI", Roboto, sans-serif' // Ensure readable body font
+    },
+
+    footer: {
+        marginTop: '60px',
+        textAlign: 'center',
+        color: '#94a3b8',
+        fontSize: '11px',
+        borderTop: '1px solid #f1f5f9',
+        paddingTop: '20px'
+    }
 };
 
 const MatchReportPDF = forwardRef(({ matchResult, bride, groom }, ref) => {
@@ -44,63 +246,95 @@ const MatchReportPDF = forwardRef(({ matchResult, bride, groom }, ref) => {
     if (!matchResult || !bride || !groom) return null;
 
     return (
-        <div ref={ref} style={styles.container}>
+        <div ref={ref} style={styles.page}>
+
             {/* Header */}
-            <div style={styles.header}>
-                <h1 style={styles.title}>
+            <div style={styles.headerContainer}>
+                <div style={styles.brand}>
+                    ASTROPINCH
+                </div>
+                <div style={styles.meta}>
+                    <div style={styles.date}>{new Date().toLocaleDateString()}</div>
+                    <div style={styles.reportId}>ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
+                </div>
+            </div>
+
+            {/* Main Title */}
+            <div style={styles.titleBox}>
+                <h1 style={styles.mainTitle}>
                     {t('kundaliMatch.reportTitle', 'Vedic Compatibility Report')}
                 </h1>
-                <p style={styles.subtitle}>
-                    {t('common.generatedBy', 'Generated by AstroPinch')}
+                <p style={styles.subTitle}>
+                    {t('common.generatedBy', 'Generated by AstroPinch AI Engine')}
                 </p>
             </div>
 
-            {/* Profile Section */}
-            <div style={styles.profileBox}>
-                <div style={{ ...styles.profileCol, borderRight: '1px solid #e9d5ff' }}>
-                    <h3 style={styles.profileName}>{bride.name}</h3>
-                    <p style={styles.label}>{t('kundaliMatch.bride', 'Bride')}</p>
-                </div>
-                <div style={styles.profileCol}>
-                    <h3 style={styles.profileName}>{groom.name}</h3>
-                    <p style={styles.label}>{t('kundaliMatch.groom', 'Groom')}</p>
-                </div>
-            </div>
+            {/* Hero Section */}
+            <div style={styles.heroGrid}>
 
-            {/* Main Score */}
-            <div style={styles.scoreContainer}>
-                <div style={styles.scoreCircle}>
-                    <span style={{ fontSize: '32px', fontWeight: 'bold', color: matchResult.total_score >= 18 ? '#16a34a' : '#dc2626' }}>
-                        {matchResult.total_score}
+                {/* Bride */}
+                <div style={styles.profileCard}>
+                    <div style={styles.roleLabel}>{t('kundaliMatch.bride', 'Bride')}</div>
+                    <h3 style={styles.name}>{bride.name}</h3>
+                </div>
+
+                {/* Score Ring */}
+                <div style={styles.scoreBox}>
+                    <div style={{
+                        ...styles.scoreRing,
+                        borderColor: matchResult.total_score >= 18 ? '#22c55e' : '#ef4444'
+                    }}>
+                        <div>
+                            <div style={{
+                                ...styles.scoreVal,
+                                color: matchResult.total_score >= 18 ? '#22c55e' : '#ef4444'
+                            }}>{matchResult.total_score}</div>
+                            <div style={styles.scoreMax}>/ 36</div>
+                        </div>
+                    </div>
+                    <p style={styles.scoreLabel}>
+                        {t('kundaliMatch.overallScore', 'Overall Score')}
+                    </p>
+                    <span style={styles.statusBadge(matchResult.total_score)}>
+                        {matchResult.summary}
                     </span>
-                    <span style={styles.scoreTotal}>/36</span>
                 </div>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', margin: '8px 0', color: '#1f2937' }}>
-                    {t('kundaliMatch.overallScore', 'Overall Compatibility Score')}
-                </h2>
-                <p style={{ color: '#4b5563', maxWidth: '500px', margin: '0 auto', fontSize: '14px' }}>
-                    {matchResult.summary}
-                </p>
+
+                {/* Groom */}
+                <div style={styles.profileCard}>
+                    <div style={styles.roleLabel}>{t('kundaliMatch.groom', 'Groom')}</div>
+                    <h3 style={styles.name}>{groom.name}</h3>
+                </div>
+
             </div>
 
             {/* Ashta Koota Table */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={styles.sectionTitle}>
-                    {t('kundaliMatch.ashtaKoota', 'Ashta Koota Breakdown')}
-                </h3>
+            <div style={{ marginTop: '50px' }}>
+                <div style={styles.sectionHeader}>
+                    <h3 style={styles.sectionTitle}>{t('kundaliMatch.ashtaKoota', 'Ashta Koota Breakdown')}</h3>
+                </div>
+
                 <table style={styles.table}>
                     <thead>
                         <tr>
                             <th style={styles.th}>{t('kundaliMatch.area', 'Area')}</th>
-                            <th style={styles.thCenter}>{t('kundaliMatch.points', 'Points')}</th>
+                            <th style={{ ...styles.th, textAlign: 'center' }}>{t('kundaliMatch.points', 'Points')}</th>
                             <th style={styles.th}>{t('kundaliMatch.description', 'Description')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {matchResult.koota_details?.map((k, i) => (
-                            <tr key={i} style={i % 2 !== 0 ? styles.rowAlt : {}}>
-                                <td style={{ ...styles.td, fontWeight: '500' }}>{k.name}</td>
-                                <td style={styles.tdPoints}>{k.points}/{k.max_points}</td>
+                            <tr key={i}>
+                                <td style={{ ...styles.td, fontWeight: '600' }}>{k.name}</td>
+                                <td style={{ ...styles.td, textAlign: 'center' }}>
+                                    <span style={{
+                                        ...styles.tdScore,
+                                        color: (k.points === 0 || (k.name === 'Nadi' && k.points === 0) || (k.name === 'Bhakoot' && k.points === 0)) ? '#ef4444' : '#4f46e5'
+                                    }}>
+                                        {k.points}
+                                    </span>
+                                    <span style={{ color: '#94a3b8', fontSize: '12px' }}> / {k.max_points}</span>
+                                </td>
                                 <td style={styles.td}>{k.significance}</td>
                             </tr>
                         ))}
@@ -108,25 +342,37 @@ const MatchReportPDF = forwardRef(({ matchResult, bride, groom }, ref) => {
                 </table>
             </div>
 
-            {/* Manglik & Dosha */}
-            <div style={styles.analysisContainer}>
-                <div style={styles.manglikBox}>
-                    <h4 style={styles.redTitle}>{t('kundaliMatch.manglikAnalysis', 'Manglik Analysis')}</h4>
-                    <p style={styles.ptext}>
+            {/* Manglik & Dosha Grid */}
+            <div style={styles.sectionHeader}>
+                <h3 style={styles.sectionTitle}>{t('kundaliMatch.manglikAnalysis', 'Dosha Analysis')}</h3>
+            </div>
+            <div style={styles.grid2}>
+                <div style={{
+                    ...styles.infoCard,
+                    backgroundColor: '#fee2e2',
+                    borderColor: '#fca5a5'
+                }}>
+                    <span style={{ ...styles.cardTitle, color: '#991b1b' }}>Manglik Status</span>
+                    <div style={{ marginBottom: '8px', fontSize: '14px', color: '#7f1d1d' }}>
                         <strong>{t('kundaliMatch.bride', 'Bride')}:</strong> {matchResult.bride?.manglik_status}
-                    </p>
-                    <p style={styles.ptext}>
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#7f1d1d' }}>
                         <strong>{t('kundaliMatch.groom', 'Groom')}:</strong> {matchResult.groom?.manglik_status}
-                    </p>
+                    </div>
                 </div>
-                <div style={styles.doshaBox}>
-                    <h4 style={styles.orangeTitle}>{t('kundaliMatch.doshaAnalysis', 'Dosha Analysis')}</h4>
-                    <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '14px', color: '#374151' }}>
+
+                <div style={{
+                    ...styles.infoCard,
+                    backgroundColor: '#fff7ed',
+                    borderColor: '#fdba74'
+                }}>
+                    <span style={{ ...styles.cardTitle, color: '#9a3412' }}>Other Major Doshas</span>
+                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#7c2d12' }}>
                         {matchResult.doshas?.filter(d => d.is_present).map((d, i) => (
                             <li key={i} style={{ marginBottom: '4px' }}>{d.name}</li>
                         ))}
                         {!matchResult.doshas?.some(d => d.is_present) && (
-                            <li style={{ fontStyle: 'italic', color: '#6b7280', listStyle: 'none' }}>
+                            <li style={{ fontStyle: 'italic', listStyle: 'none' }}>
                                 {t('kundaliMatch.noMajorDoshas', 'No major doshas found')}
                             </li>
                         )}
@@ -135,18 +381,23 @@ const MatchReportPDF = forwardRef(({ matchResult, bride, groom }, ref) => {
             </div>
 
             {/* AI Analysis */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={styles.sectionTitle}>
-                    {t('kundaliMatch.expertAnalysis', 'Astrological Expert Analysis')}
-                </h3>
-                <div style={styles.aiBox}>
-                    {matchResult.ai_analysis}
+            <div style={{ marginTop: '40px', pageBreakInside: 'avoid' }}>
+                <div style={styles.sectionHeader}>
+                    <h3 style={{ ...styles.sectionTitle, color: '#6d28d9' }}>
+                        {t('kundaliMatch.expertAnalysis', 'Astrological Expert Analysis')}
+                    </h3>
+                </div>
+                <div style={styles.aiContainer}>
+                    <div style={styles.aiContent}>
+                        {matchResult.ai_analysis}
+                    </div>
                 </div>
             </div>
 
             {/* Footer */}
             <div style={styles.footer}>
                 <p>© {new Date().getFullYear()} AstroPinch. {t('common.allRightsReserved', 'All Rights Reserved')}.</p>
+                <p>www.astropinch.com</p>
             </div>
         </div>
     );

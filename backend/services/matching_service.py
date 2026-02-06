@@ -98,10 +98,42 @@ class MatchingService:
         transit_analysis = MatchingService._analyze_transits(bride_details, groom_details)
         marriage_windows = MatchingService._calculate_marriage_windows(bride_astro, groom_astro, bride_details, groom_details)
 
-        # AI Summary
+        # Prepare detailed briefs for AI analysis
+        def prepare_brief(astro_data, details):
+            # Get key planets
+            asc = astro_data.get('ascendant', {})
+            moon = get_planet(astro_data, 'Moon')
+            venus = get_planet(astro_data, 'Venus')
+            mars = get_planet(astro_data, 'Mars')
+            
+            # Calculate 7th house and its lord
+            asc_sign_idx = rashis.index(asc.get('sign', 'Aries')) if asc.get('sign') in rashis else 0
+            seventh_house_idx = (asc_sign_idx + 6) % 12
+            seventh_sign = rashis[seventh_house_idx]
+            seventh_lord = VedicAstroEngine._get_sign_lord(seventh_sign)
+            
+            # Get 7th lord planet and its dignity
+            seventh_lord_planet = get_planet(astro_data, seventh_lord)
+            seventh_lord_dignity = seventh_lord_planet.get('dignity', {}).get('status', 'Neutral') if seventh_lord_planet else 'Unknown'
+            
+            return {
+                'ascendant': asc.get('sign', 'Unknown'),
+                'moon_sign': moon['sign'] if moon else 'Unknown',
+                'nakshatra': moon['nakshatra']['name'] if moon else 'Unknown',
+                'venus_sign': venus['sign'] if venus else 'Unknown',
+                'mars_sign': mars['sign'] if mars else 'Unknown',
+                'seventh_lord': seventh_lord,
+                'seventh_lord_dignity': seventh_lord_dignity
+            }
+        
+        bride_brief = prepare_brief(bride_astro, bride_details)
+        groom_brief = prepare_brief(groom_astro, groom_details)
+        
+        # AI Summary with enhanced context
         ai_analysis = MatchingService.generate_ai_analysis(
-            bride_details['name'], groom_details['name'],
-            kootas, total_score, b_manglik, g_manglik, doshas, lang=lang
+            bride_brief, groom_brief,
+            kootas, total_score, b_manglik, g_manglik, doshas,
+            dasha_sync, navamsa_compat, lang=lang
         )
 
         return {
@@ -243,54 +275,84 @@ class MatchingService:
         ]
 
     @staticmethod
-    def generate_ai_analysis(b_name, g_name, kootas, total_score, b_manglik, g_manglik, doshas, lang="en"):
+    def generate_ai_analysis(bride_brief, groom_brief, kootas, total_score, b_manglik, g_manglik, doshas, dasha_sync, navamsa_compat, lang="en"):
         # Combine everything into a structured prompt
         koota_str = "\n".join([f"- {k['name']}: {k['points']}/{k['max_points']} ({k['bride_val']} vs {k['groom_val']})" for k in kootas])
         dosha_str = "\n".join([f"- {d['name']}: {'Present' if d['is_present'] else 'Absent'}" for d in doshas])
         
-        prompt = f"""You are a Vedic Astrology Kundali Matching Expert for an astrology application called “AstroPinch”. 
+        # Format planetary context for AI
+        context_str = f"""
+**Profile A (Bride)**:
+- Ascendant: {bride_brief['ascendant']}
+- Moon Sign: {bride_brief['moon_sign']} (Nakshatra: {bride_brief['nakshatra']})
+- 7th House Lord: {bride_brief['seventh_lord']} (Dignity: {bride_brief['seventh_lord_dignity']})
+- Venus: {bride_brief['venus_sign']}, Mars: {bride_brief['mars_sign']}
+- Manglik Status: {b_manglik['status']} (House: {b_manglik['house']})
 
-Your role is to analyze Kundali matching results that are already calculated programmatically and present them in a clear, neutral, and user-friendly manner for common users.
+**Profile B (Groom)**:
+- Ascendant: {groom_brief['ascendant']}
+- Moon Sign: {groom_brief['moon_sign']} (Nakshatra: {groom_brief['nakshatra']})
+- 7th House Lord: {groom_brief['seventh_lord']} (Dignity: {groom_brief['seventh_lord_dignity']})
+- Venus: {groom_brief['venus_sign']}, Mars: {groom_brief['mars_sign']}
+- Manglik Status: {g_manglik['status']} (House: {g_manglik['house']})
 
-**Bride**: {b_name}
-**Groom**: {g_name}
-**Total Guna Score**: {total_score}/36
-
-**Ashta-Koota Breakdown**:
+**Technical Matching Data**:
+- Guna Milan Score: {total_score}/36
+- Ashta-Koota Details: 
 {koota_str}
-
-**Manglik Status**:
-- Bride: {b_manglik['status']}
-- Groom: {g_manglik['status']}
-
-**Major Doshas**:
+- Major Doshas: 
 {dosha_str}
-
-### Your Responsibilities:
-1. Explain the **overall compatibility** in simple, non-alarming language.
-2. Interpret the **total Guna score** using defined ranges: 0-17 (Challenging), 18-24 (Average), 25-32 (Good), 33-36 (Excellent).
-3. Explain **each Koota** in 2–3 lines using everyday language.
-4. Highlight major risks and strong compatibility areas.
-5. If Manglik dosha exists, explain it calmly and mention standard cancellation conditions.
-6. Provide **practical remedies or suggestions**.
-7. End with a **balanced conclusion**.
-
-### Tone & Style:
-- Neutral, respectful, modern, Easy English.
-- No emojis. No absolute predictions of failure or guaranteed success.
-
-### Output Structure:
-1. Overall Match Summary
-2. Guna Score Interpretation
-3. Koota-wise Compatibility Table (summary form)
-4. Dosha Analysis
-5. Strengths of the Match
-6. Challenges to Be Aware Of
-7. Remedies / Practical Advice
-8. Final Guidance Note
-
-{ "Respond in Hindi (Devanagari script)." if lang == "hi" else "" }
+- Dasha Synchronization: {dasha_sync.get('recommendation', 'Neutral')} ({ dasha_sync.get('analysis', [])[0] if dasha_sync.get('analysis') else ''})
+- Navamsa Harmony: {navamsa_compat.get('recommendation', 'Neutral')}
 """
+
+        prompt = f"""You are an Expert Vedic Astrologer and Relationship Counselor. Your goal is to provide a deeply insightful and structured Kundali Match Analysis for two individuals.
+
+### Technical Context:
+{context_str}
+
+### Your Task:
+Provide a detailed matching report using EXACTLY the following 8 sections. Use simple, friendly, and empowering language. Avoid heavy jargon; explain technical terms briefly if used.
+
+IMPORTANT: Format each section header as plain bold text WITHOUT any special characters like asterisks or symbols. Just use the section number and title.
+
+1. Ashta-Koota Guna Milan
+   - Interpret the score of {total_score}/36. (Excellent: 33+, Good: 25-32, Average: 18-24, Weak: <18).
+   - Briefly mention the highlights from the 8 Kootas provided in the data.
+
+2. Manglik (Mangal Dosha) Analysis
+   - Analyze the Manglik status for both. Mention severity (Low if Mars is in 4/12, High if in 1/7/8).
+   - Explain the impact on harmony and if any cancellations apply (e.g., both being Manglik).
+
+3. Emotional and Mental Compatibility
+   - Based on Moon signs ({bride_brief['moon_sign']} and {groom_brief['moon_sign']}) and Nakshatras.
+   - Comment on emotional trust, bonding, and mutual understanding.
+
+4. Marriage and Long-Term Relationship Stability
+   - Use the 7th house lord data and Venus-Mars compatibility.
+   - Comment on commitment levels and the longevity of the union.
+
+5. Communication and Conflict Handling
+   - How both partners are likely to express emotions and resolve misunderstandings.
+
+6. Family, Lifestyle and Value Alignment
+   - Adjustment potential with family and overall lifestyle compatibility.
+
+7. Challenges and Remedies (If Required)
+   - Highlight 1-2 key planetary challenges and provide simple, positive remedies (e.g., specific mantras or acts of charity).
+
+8. Final Compatibility Verdict
+   - Provide an overall compatibility percentage.
+   - Give a clear recommendation (Yes/No/Proceed with Care) and a final piece of practical advice for a happy life.
+
+### Output Guidelines:
+- Use bullet points and short paragraphs.
+- Maintain a positive, respectful, and neutral tone.
+- No absolute predictions of fear. Focus on guidance.
+- Format section headers as bold text without special characters.
+- { "Respond EXCLUSIVELY in Hindi (Devanagari script)." if lang == "hi" else "Respond in English." }
+
+Answer:"""
 
         # Try Groq first
         if client:
@@ -299,7 +361,7 @@ Your role is to analyze Kundali matching results that are already calculated pro
                     messages=[{"role": "user", "content": prompt}], 
                     model="llama-3.3-70b-versatile", 
                     temperature=0.7,
-                    timeout=15 
+                    timeout=20 
                 )
                 return response.choices[0].message.content
             except Exception as e:
@@ -313,7 +375,154 @@ Your role is to analyze Kundali matching results that are already calculated pro
             except Exception as e:
                 print(f"Gemini AI Match Error: {e}")
 
-        return "AI Match Analysis is currently undergoing cosmic recalibration. Please check back in a moment for your personalized compatibility insights."
+        # Rule-based fallback analysis
+        return MatchingService._generate_fallback_analysis(
+            bride_brief, groom_brief, kootas, total_score, 
+            b_manglik, g_manglik, doshas, dasha_sync, navamsa_compat
+        )
+
+    @staticmethod
+    def _generate_fallback_analysis(bride_brief, groom_brief, kootas, total_score, b_manglik, g_manglik, doshas, dasha_sync, navamsa_compat):
+        """Generate detailed matching analysis when AI is unavailable"""
+        
+        # Determine overall compatibility level
+        if total_score >= 33:
+            overall_rating = "Excellent"
+            compatibility_pct = 90 + (total_score - 33)
+        elif total_score >= 25:
+            overall_rating = "Good"
+            compatibility_pct = 70 + ((total_score - 25) * 2)
+        elif total_score >= 18:
+            overall_rating = "Average"
+            compatibility_pct = 50 + ((total_score - 18) * 2.5)
+        else:
+            overall_rating = "Challenging"
+            compatibility_pct = 30 + (total_score * 1.1)
+        
+        compatibility_pct = int(min(99, max(30, compatibility_pct)))
+        
+        # Build analysis sections
+        analysis = []
+        
+        # Section 1: Ashta-Koota Guna Milan
+        analysis.append("1. Ashta-Koota Guna Milan\n")
+        analysis.append(f"Your compatibility score is {total_score} out of 36 points, which indicates an {overall_rating} match.")
+        
+        if total_score >= 25:
+            analysis.append("This is a positive score that suggests good harmony between you both. The traditional system shows strong alignment in key areas of married life.")
+        elif total_score >= 18:
+            analysis.append("This score suggests moderate compatibility. While there are areas of harmony, some aspects may require conscious effort and understanding from both partners.")
+        else:
+            analysis.append("This score indicates some challenges in compatibility. However, with mutual respect, communication, and effort, relationships can still thrive.")
+        
+        # Highlight strong kootas
+        strong_kootas = [k for k in kootas if k['points'] >= k['max_points'] * 0.7]
+        if strong_kootas:
+            analysis.append(f"\nStrong areas: {', '.join([k['name'] for k in strong_kootas[:3]])}.")
+        
+        # Section 2: Manglik Analysis
+        analysis.append("\n\n2. Manglik (Mangal Dosha) Analysis\n")
+        
+        if not b_manglik['is_manglik'] and not g_manglik['is_manglik']:
+            analysis.append("Neither partner has Manglik dosha, which is favorable for marital harmony. There are no Mars-related concerns affecting the relationship.")
+        elif b_manglik['is_manglik'] and g_manglik['is_manglik']:
+            analysis.append("Both partners have Manglik dosha, which creates a natural cancellation effect. When both have this placement, it neutralizes potential challenges and can actually strengthen the bond.")
+        else:
+            manglik_partner = "Bride" if b_manglik['is_manglik'] else "Groom"
+            house = b_manglik['house'] if b_manglik['is_manglik'] else g_manglik['house']
+            
+            if house in [4, 12]:
+                severity = "Low"
+                analysis.append(f"{manglik_partner} has Manglik dosha with low severity. This typically has minimal impact on married life and can be managed through mutual understanding.")
+            else:
+                severity = "Moderate to High"
+                analysis.append(f"{manglik_partner} has Manglik dosha. This suggests a strong, assertive personality. Open communication and respect for each other's independence will help maintain harmony.")
+        
+        # Section 3: Emotional & Mental Compatibility
+        analysis.append("\n\n3. Emotional and Mental Compatibility\n")
+        
+        moon_koota = next((k for k in kootas if k['name'] == 'Graha Maitri'), None)
+        if moon_koota and moon_koota['points'] >= 3:
+            analysis.append(f"Your Moon signs ({bride_brief['moon_sign']} and {groom_brief['moon_sign']}) show good mental compatibility. You're likely to understand each other's emotional needs and communicate effectively.")
+        else:
+            analysis.append(f"Your Moon signs ({bride_brief['moon_sign']} and {groom_brief['moon_sign']}) suggest different emotional styles. Taking time to understand how each other processes feelings will strengthen your bond.")
+        
+        analysis.append("Building trust through honest conversations and showing appreciation for each other's unique perspectives will deepen your emotional connection.")
+        
+        # Section 4: Marriage & Long-Term Stability
+        analysis.append("\n\n4. Marriage and Long-Term Relationship Stability\n")
+        
+        analysis.append(f"The 7th house (marriage house) is ruled by {bride_brief['seventh_lord']} for the bride and {groom_brief['seventh_lord']} for the groom.")
+        
+        if bride_brief['seventh_lord_dignity'] in ['Exalted', 'Own Sign']:
+            analysis.append("The bride's marriage indicators are strong, suggesting commitment and stability.")
+        if groom_brief['seventh_lord_dignity'] in ['Exalted', 'Own Sign']:
+            analysis.append("The groom's marriage indicators are strong, showing dedication to the partnership.")
+        
+        analysis.append("\nVenus (love and harmony) and Mars (passion and drive) positions suggest that balancing romance with practical partnership will create a fulfilling long-term relationship.")
+        
+        # Section 5: Communication & Conflict Handling
+        analysis.append("\n\n5. Communication and Conflict Handling\n")
+        
+        gana_koota = next((k for k in kootas if k['name'] == 'Gana'), None)
+        if gana_koota and gana_koota['points'] >= 4:
+            analysis.append("Your temperaments are well-matched. You're likely to handle disagreements calmly and find middle ground easily.")
+        else:
+            analysis.append("You may have different approaches to handling conflicts. One partner might be more direct while the other prefers a gentler approach. Recognizing these differences and adapting your communication style will help resolve misunderstandings smoothly.")
+        
+        analysis.append("Practice active listening and express appreciation regularly to maintain healthy communication.")
+        
+        # Section 6: Family, Lifestyle & Value Alignment
+        analysis.append("\n\n6. Family, Lifestyle and Value Alignment\n")
+        
+        varna_koota = next((k for k in kootas if k['name'] == 'Varna'), None)
+        bhakoot_koota = next((k for k in kootas if k['name'] == 'Bhakoot'), None)
+        
+        if bhakoot_koota and bhakoot_koota['points'] >= 5:
+            analysis.append("Your family values and lifestyle preferences align well. Adjusting to each other's families and creating a harmonious home environment should come naturally.")
+        else:
+            analysis.append("You may come from different family backgrounds or have varying lifestyle preferences. Discussing expectations about family roles, traditions, and daily routines early on will help create a comfortable shared life.")
+        
+        # Section 7: Challenges & Remedies
+        analysis.append("\n\n7. Challenges and Remedies (If Required)\n")
+        
+        present_doshas = [d for d in doshas if d['is_present']]
+        if present_doshas:
+            analysis.append("Key areas to be mindful of:")
+            for dosha in present_doshas[:2]:
+                if dosha['name'] == 'Nadi Dosha':
+                    analysis.append("\n- Health and wellness: Maintain healthy lifestyles and support each other's wellbeing.")
+                elif dosha['name'] == 'Bhakoot Dosha':
+                    analysis.append("\n- Family harmony: Be patient with each other's family dynamics and create your own traditions together.")
+                elif dosha['name'] == 'Gana Dosha':
+                    analysis.append("\n- Temperament differences: Respect each other's natural personality and find compromise in daily interactions.")
+            
+            analysis.append("\n\nSimple remedies:")
+            analysis.append("\n- Practice gratitude together daily")
+            analysis.append("\n- Spend quality time strengthening your bond")
+            analysis.append("\n- Support each other's personal growth and goals")
+        else:
+            analysis.append("No major planetary challenges detected. Focus on nurturing your relationship through regular communication and shared experiences.")
+        
+        # Section 8: Final Verdict
+        analysis.append("\n\n8. Final Compatibility Verdict\n")
+        
+        analysis.append(f"Overall Compatibility: {compatibility_pct}%\n")
+        
+        if total_score >= 25:
+            recommendation = "Yes - Proceed with Confidence"
+            advice = "Your compatibility indicators are positive. Focus on building a strong foundation of trust, communication, and mutual respect. Every relationship requires effort, but you have favorable planetary support for a happy married life."
+        elif total_score >= 18:
+            recommendation = "Proceed with Awareness"
+            advice = "Your compatibility shows both strengths and areas that need attention. Success in your relationship will depend on your willingness to understand each other, communicate openly, and work together through challenges. With conscious effort and commitment, you can build a fulfilling partnership."
+        else:
+            recommendation = "Proceed with Careful Consideration"
+            advice = "Your compatibility chart shows some significant differences. This doesn't mean the relationship cannot work, but it will require extra patience, understanding, and compromise from both partners. Consider spending more time together to understand each other deeply before making long-term commitments. Professional counseling or guidance may also be beneficial."
+        
+        analysis.append(f"Recommendation: {recommendation}\n")
+        analysis.append(f"\n{advice}")
+        
+        return "\n".join(analysis)
 
     @staticmethod
     def _analyze_dasha_synchronization(bride_astro, groom_astro, bride_details, groom_details):

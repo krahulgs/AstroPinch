@@ -391,26 +391,99 @@ const KundaliMatch = () => {
                                 <Sparkles className="w-32 h-32 text-purple-600" />
                             </div>
 
-                            <div className="flex flex-col lg:flex-row gap-12 relative z-10">
-                                <div className="lg:w-1/3 flex flex-col gap-6">
-                                    <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center border border-purple-100 shadow-inner">
-                                        <Sparkles className="w-8 h-8 text-purple-600 animate-pulse" />
-                                    </div>
-                                    <h3 className="text-3xl font-black text-primary uppercase italic tracking-tighter leading-none">
-                                        Cosmic <br />
-                                        <span className="text-purple-600">Guidance</span>
-                                    </h3>
-                                    <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                        <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></div>
-                                        <span className="text-[10px] font-black text-purple-900 uppercase tracking-widest">AI Expert Analysis</span>
-                                    </div>
-                                </div>
-                                <div className="lg:w-2/3">
-                                    <div className="prose prose-slate max-w-none">
-                                        <div className="text-slate-600 leading-relaxed font-medium whitespace-pre-line text-lg">
-                                            {result?.ai_analysis}
+                            <div className="flex flex-col gap-8 relative z-10">
+                                {/* Header */}
+                                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 border-b border-purple-100">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center border border-purple-100 shadow-inner">
+                                            <Sparkles className="w-8 h-8 text-purple-600 animate-pulse" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-3xl font-black text-primary uppercase italic tracking-tighter leading-none">
+                                                Cosmic <span className="text-purple-600">Guidance</span>
+                                            </h3>
+                                            <p className="text-sm text-slate-500 font-medium mt-1">Expert Compatibility Analysis</p>
                                         </div>
                                     </div>
+                                    <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-xl border border-purple-100 w-fit">
+                                        <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></div>
+                                        <span className="text-[10px] font-black text-purple-900 uppercase tracking-widest">AI Powered Insights</span>
+                                    </div>
+                                </div>
+
+                                {/* AI Analysis Content */}
+                                <div className="space-y-6">
+                                    {(() => {
+                                        const analysis = result?.ai_analysis || '';
+
+                                        // Parse the analysis into sections
+                                        const sections = analysis.split(/\n(?=\d+\.\s)/).filter(s => s.trim());
+
+                                        if (sections.length === 0) {
+                                            return (
+                                                <div className="text-slate-600 leading-relaxed font-medium whitespace-pre-line">
+                                                    {analysis}
+                                                </div>
+                                            );
+                                        }
+
+                                        return sections.map((section, idx) => {
+                                            const lines = section.split('\n').filter(l => l.trim());
+                                            if (lines.length === 0) return null;
+
+                                            // Extract section title (first line)
+                                            const titleLine = lines[0];
+                                            const titleMatch = titleLine.match(/^(\d+)\.\s*(.+)$/);
+                                            const sectionNumber = titleMatch ? titleMatch[1] : idx + 1;
+                                            const sectionTitle = titleMatch ? titleMatch[2] : titleLine;
+
+                                            // Rest of the content
+                                            const content = lines.slice(1).join('\n');
+
+                                            return (
+                                                <div key={idx} className="bg-white/50 rounded-2xl p-6 border border-purple-50 hover:border-purple-100 transition-all duration-300 hover:shadow-md">
+                                                    {/* Section Header */}
+                                                    <div className="flex items-start gap-4 mb-4">
+                                                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                                            <span className="text-white font-black text-lg">{sectionNumber}</span>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h4 className="text-xl font-black text-primary uppercase tracking-tight leading-tight">
+                                                                {sectionTitle}
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Section Content */}
+                                                    <div className="pl-14 space-y-3">
+                                                        {content.split('\n').map((line, lineIdx) => {
+                                                            const trimmedLine = line.trim();
+                                                            if (!trimmedLine) return null;
+
+                                                            // Check if it's a bullet point
+                                                            if (trimmedLine.startsWith('-')) {
+                                                                return (
+                                                                    <div key={lineIdx} className="flex items-start gap-3">
+                                                                        <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-purple-400 mt-2"></div>
+                                                                        <p className="text-slate-700 leading-relaxed font-medium flex-1">
+                                                                            {trimmedLine.substring(1).trim()}
+                                                                        </p>
+                                                                    </div>
+                                                                );
+                                                            }
+
+                                                            // Regular paragraph
+                                                            return (
+                                                                <p key={lineIdx} className="text-slate-700 leading-relaxed font-medium">
+                                                                    {trimmedLine}
+                                                                </p>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            );
+                                        });
+                                    })()}
                                 </div>
                             </div>
                         </div>

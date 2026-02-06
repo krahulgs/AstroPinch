@@ -46,44 +46,47 @@ class MatchingService:
         kootas = []
         total_score = 0
 
+        # Get translations
+        txt = MatchingService._get_koota_translations(lang)
+
         # --- 1. VARNA (Max 1) ---
         varna_points, b_varna, g_varna = MatchingService._calc_varna(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": "Varna", "significance": "Working personality & Ego", "bride_val": b_varna, "groom_val": g_varna, "points": varna_points, "max_points": 1})
+        kootas.append({"name": txt["Varna"]["name"], "significance": txt["Varna"]["desc"], "bride_val": b_varna, "groom_val": g_varna, "points": varna_points, "max_points": 1})
         total_score += varna_points
 
         # --- 2. VASHYA (Max 2) ---
         vashya_points, b_vashya, g_vashya = MatchingService._calc_vashya(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": "Vashya", "significance": "Dominance and Control", "bride_val": b_vashya, "groom_val": g_vashya, "points": vashya_points, "max_points": 2})
+        kootas.append({"name": txt["Vashya"]["name"], "significance": txt["Vashya"]["desc"], "bride_val": b_vashya, "groom_val": g_vashya, "points": vashya_points, "max_points": 2})
         total_score += vashya_points
 
         # --- 3. TARA (Max 3) ---
         tara_points = MatchingService._calc_tara(b_nak_idx, g_nak_idx)
-        kootas.append({"name": "Tara", "significance": "Destiny and Luck", "bride_val": "Nakshatra " + str(b_nak_idx + 1), "groom_val": "Nakshatra " + str(g_nak_idx + 1), "points": tara_points, "max_points": 3})
+        kootas.append({"name": txt["Tara"]["name"], "significance": txt["Tara"]["desc"], "bride_val": "Nakshatra " + str(b_nak_idx + 1), "groom_val": "Nakshatra " + str(g_nak_idx + 1), "points": tara_points, "max_points": 3})
         total_score += tara_points
 
         # --- 4. YONI (Max 4) ---
         yoni_points, b_yoni, g_yoni = MatchingService._calc_yoni(b_nak_idx, g_nak_idx)
-        kootas.append({"name": "Yoni", "significance": "Physical & Intimate Compatibility", "bride_val": b_yoni, "groom_val": g_yoni, "points": yoni_points, "max_points": 4})
+        kootas.append({"name": txt["Yoni"]["name"], "significance": txt["Yoni"]["desc"], "bride_val": b_yoni, "groom_val": g_yoni, "points": yoni_points, "max_points": 4})
         total_score += yoni_points
 
         # --- 5. GRAHA MAITRI (Max 5) ---
         maitri_points, b_lord, g_lord = MatchingService._calc_maitri(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": "Graha Maitri", "significance": "Mental and Intellectual Bond", "bride_val": b_lord, "groom_val": g_lord, "points": maitri_points, "max_points": 5})
+        kootas.append({"name": txt["Graha Maitri"]["name"], "significance": txt["Graha Maitri"]["desc"], "bride_val": b_lord, "groom_val": g_lord, "points": maitri_points, "max_points": 5})
         total_score += maitri_points
 
         # --- 6. GANA (Max 6) ---
         gana_points, b_gana, g_gana = MatchingService._calc_gana(b_nak_idx, g_nak_idx)
-        kootas.append({"name": "Gana", "significance": "Temperament and Behavior", "bride_val": b_gana, "groom_val": g_gana, "points": gana_points, "max_points": 6})
+        kootas.append({"name": txt["Gana"]["name"], "significance": txt["Gana"]["desc"], "bride_val": b_gana, "groom_val": g_gana, "points": gana_points, "max_points": 6})
         total_score += gana_points
 
         # --- 7. BHAKOOT (Max 7) ---
         bhakoot_points = MatchingService._calc_bhakoot(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": "Bhakoot", "significance": "Emotional and Family Life", "bride_val": rashis[b_rashi_idx], "groom_val": rashis[g_rashi_idx], "points": bhakoot_points, "max_points": 7})
+        kootas.append({"name": txt["Bhakoot"]["name"], "significance": txt["Bhakoot"]["desc"], "bride_val": rashis[b_rashi_idx], "groom_val": rashis[g_rashi_idx], "points": bhakoot_points, "max_points": 7})
         total_score += bhakoot_points
 
         # --- 8. NADI (Max 8) ---
         nadi_points, b_nadi, g_nadi = MatchingService._calc_nadi(b_nak_idx, g_nak_idx)
-        kootas.append({"name": "Nadi", "significance": "Health and Genetic Compatibility", "bride_val": b_nadi, "groom_val": g_nadi, "points": nadi_points, "max_points": 8})
+        kootas.append({"name": txt["Nadi"]["name"], "significance": txt["Nadi"]["desc"], "bride_val": b_nadi, "groom_val": g_nadi, "points": nadi_points, "max_points": 8})
         total_score += nadi_points
 
         # Manglik Analysis
@@ -130,6 +133,31 @@ class MatchingService:
             "transit_analysis": transit_analysis,
             "marriage_windows": marriage_windows
         }
+
+    @staticmethod
+    def _get_koota_translations(lang):
+        if lang and lang.lower().startswith("hi"):
+            return {
+                "Varna": {"name": "वर्ण (Varna)", "desc": "कार्य व्यक्तित्व और अहंकार"},
+                "Vashya": {"name": "वश्य (Vashya)", "desc": "प्रभुत्व और नियंत्रण"},
+                "Tara":   {"name": "तारा (Tara)", "desc": "भाग्य और नियति"},
+                "Yoni":   {"name": "योनि (Yoni)", "desc": "शारीरिक और आत्मीय संगतता"},
+                "Graha Maitri": {"name": "ग्रह मैत्री (Graha Maitri)", "desc": "मानसिक और बौद्धिक मैत्री"},
+                "Gana":   {"name": "गण (Gana)", "desc": "स्वभाव और व्यवहार"},
+                "Bhakoot": {"name": "भकूट (Bhakoot)", "desc": "भावनात्मक और पारिवारिक जीवन"},
+                "Nadi":   {"name": "नाड़ी (Nadi)", "desc": "स्वास्थ्य और आनुवंशिक संगतता"}
+            }
+        else:
+            return {
+                "Varna": {"name": "Varna", "desc": "Working personality & Ego"},
+                "Vashya": {"name": "Vashya", "desc": "Dominance and Control"},
+                "Tara":   {"name": "Tara", "desc": "Destiny and Luck"},
+                "Yoni":   {"name": "Yoni", "desc": "Physical & Intimate Compatibility"},
+                "Graha Maitri": {"name": "Graha Maitri", "desc": "Mental and Intellectual Bond"},
+                "Gana":   {"name": "Gana", "desc": "Temperament and Behavior"},
+                "Bhakoot": {"name": "Bhakoot", "desc": "Emotional and Family Life"},
+                "Nadi":   {"name": "Nadi", "desc": "Health and Genetic Compatibility"}
+            }
 
     @staticmethod
     def _is_manglik_check(astro_data, find_func):
@@ -560,8 +588,8 @@ Your role is to analyze Kundali matching results that are already calculated pro
             koota_summary = ", ".join([f"{k['name']}: {k['points']}/{k['max_points']}" for k in kootas])
             dosha_summary = ", ".join([d['name'] for d in doshas if d['is_present']]) or "None"
             
-            # Language Instruction (Hinglish for clarity)
-            lang_instruction = "IMPORTANT: Write in 'Hinglish' style: Use Hindi (Devanagari) for sentences, but keep key Astrological terms in English or provide English in brackets. Example: 'Mental Compatibility (मानसिक अनुकूलता) बहुत अच्छी है'. Tone: Conversational and clear." if lang and lang.lower().startswith("hi") else "Write the response in English."
+            # 1. Force English Generation first
+            lang_instruction = "Write the response in clear, professional English."
 
             prompt = f"""
             You are an expert Vedic Astrologer with deep knowledge of Ashta-Koota and relationship psychology.
@@ -585,22 +613,62 @@ Your role is to analyze Kundali matching results that are already calculated pro
             Output: Plain text only, no markdown formatting.
             """
             
-            # 2. Generate English Analysis (Using Gemini for best reasoning)
+            # 2. Generate English Analysis
             analysis_text = ""
             try:
                 response = model.generate_content(prompt)
                 analysis_text = response.text
             except Exception as e:
                 print(f"Gemini Gen Error: {e}")
-                # Fallback to Groq if Gemini fails
+                # Fallback to Groq
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model="llama-3.3-70b-versatile",
                 )
                 analysis_text = chat_completion.choices[0].message.content
 
-            # Direct return of generated content (multilingual supported by prompt)
-            return analysis_text
+            # 3. Translate if Hindi requested ONLY
+            if lang and lang.lower().startswith("hi"):
+                translation_prompt = f"""
+You are translating an astrology report from English to Hindi for an application called “AstroPinch”.
+
+Your goal is to produce a **clear, natural, and culturally appropriate Hindi translation** that feels professional and trustworthy.
+
+### Translation Rules: Use Google Translation API
+
+1. Maintain the **original meaning exactly**. Do not add, remove, or interpret content.
+2. Use **simple, neutral Hindi** that is easy for common users to understand.
+3. Preserve astrology terms accurately:
+   - Do NOT translate core Sanskrit terms.
+   - Keep words like: Kundali, Graha, Rashi, Nakshatra, Manglik, Guna, Dosha, Dasha as-is (English transliteration).
+4. Translate explanatory text into Hindi, not Sanskrit-heavy language.
+5. Avoid fear-inducing or dramatic wording.
+6. Maintain polite and respectful tone suitable for a formal astrology report.
+7. Keep formatting intact:
+   - Headings remain headings
+   - Bullet points remain bullet points
+   - Numbers, dates, scores must remain unchanged
+8. If a sentence sounds unnatural in literal Hindi, rephrase it naturally while preserving meaning.
+9. Do NOT include emojis, slang, or casual expressions.
+10. Output must be **ready for PDF download**.
+
+### Output Language:
+Hindi (Devanagari script)
+
+### Content Type:
+Astrology compatibility
+
+Input Text:
+{analysis_text}
+"""
+                try:
+                    # Use Gemini for translation
+                    trans_response = model.generate_content(translation_prompt)
+                    return trans_response.text
+                except Exception as ex:
+                    print(f"Translation Error: {ex}")
+                    return analysis_text + "\n(Hindi translation unavailable)"
+
             return analysis_text
 
         except Exception as e:

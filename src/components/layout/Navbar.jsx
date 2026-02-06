@@ -75,18 +75,7 @@ const Navbar = () => {
                     {/* Right side actions */}
                     <div className="flex items-center gap-2 md:gap-4">
 
-                        {/* Language Switcher */}
-                        <button
-                            onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
-                            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all border ${isHomePage && !isMenuOpen
-                                ? 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                                : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20 hover:bg-indigo-500/20'
-                                }`}
-                            title="Switch Language"
-                        >
-                            <Globe className="w-3.5 h-3.5" />
-                            <span>{i18n.language === 'en' ? 'EN' : 'HI'}</span>
-                        </button>
+
 
                         <div className="hidden sm:flex items-center gap-2 md:gap-4">
                             {token ? (
@@ -138,18 +127,7 @@ const Navbar = () => {
                     <div className="lg:hidden animate-in fade-in slide-in-from-top-4 duration-300 bg-[#0a0a0b] border-t border-white/10 pb-8 px-2 mt-2">
                         <div className="flex flex-col gap-1 pt-4">
                             {/* Mobile Language Switcher */}
-                            <button
-                                onClick={() => {
-                                    i18n.changeLanguage(i18n.language === 'en' ? 'hi' : 'en');
-                                    setIsMenuOpen(false);
-                                }}
-                                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/5 mb-2 hover:bg-white/10 text-left w-full"
-                            >
-                                <Globe className="w-5 h-5 text-indigo-400" />
-                                <span className="font-semibold text-indigo-100">
-                                    {i18n.language === 'en' ? 'Hindi (हिंदी)' : 'English'}
-                                </span>
-                            </button>
+
                             {navItems.map((item) => (
                                 <Link
                                     key={item.path}

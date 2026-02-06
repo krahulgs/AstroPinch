@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Users, ArrowRight, Loader, Sparkles, AlertTriangle, CheckCircle2, Info, Moon, Sun, Table } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 import SEO from '../components/SEO';
+import html2pdf from 'html2pdf.js';
+import MatchReportPDF from '../components/reports/MatchReportPDF';
 
 const KundaliMatch = () => {
     const { profiles, token } = useProfile();
@@ -18,6 +20,9 @@ const KundaliMatch = () => {
     const [error, setError] = useState(null);
     const [pdfLanguage, setPdfLanguage] = useState('en');
     const [downloadingPdf, setDownloadingPdf] = useState(false);
+
+    // Ref for the hidden report component
+    const reportRef = useRef(null);
 
     const handleMatch = async () => {
         if (!bride || !groom) return;
@@ -33,7 +38,7 @@ const KundaliMatch = () => {
                 body: JSON.stringify({
                     bride_id: bride.id,
                     groom_id: groom.id,
-                    lang: i18n.language
+                    lang: i18n.language // Logic always runs in current UI language, but we can refetch for PDF if needed
                 })
             });
 
@@ -58,42 +63,65 @@ const KundaliMatch = () => {
         }
     };
 
-    const handleDownloadPDF = async (language) => {
-        if (!bride || !groom) return;
-
+    const handleDownloadPDF = async (targetLanguage) => {
+        if (!result || !reportRef.current) return;
         setDownloadingPdf(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/kundali-match/pdf`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    bride_id: bride.id,
-                    groom_id: groom.id,
-                    lang: language
-                })
-            });
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Kundali_Match_${bride.name}_${groom.name}_${language.toUpperCase()}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            } else {
-                const errData = await response.json();
-                setError(errData.detail || "Failed to generate PDF");
+        const currentLang = i18n.language;
+
+        try {
+            // 1. If requested language is different, refetch results in that language
+            // This ensures the AI analysis text is translated by the backend
+            if (targetLanguage !== 'en') { // assuming result initially is in 'en' or currentLang
+                // We need to re-fetch to get the AI translation
+                const response = await fetch(`${API_BASE_URL}/api/kundali-match`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        bride_id: bride.id,
+                        groom_id: groom.id,
+                        lang: targetLanguage
+                    })
+                });
+                if (response.ok) {
+                    const translatedResult = await response.json();
+                    // Temporary update result for rendering
+                    setResult(translatedResult);
+                }
             }
+
+            // 2. Change UI language to render static labels in Hindi
+            await i18n.changeLanguage(targetLanguage);
+
+            // 3. Wait for render (small delay ensures fonts loaded/dom updated)
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 4. Generate PDF
+            const element = reportRef.current;
+            const opt = {
+                margin: [10, 10, 10, 10], // top, left, bottom, right
+                filename: `Kundali_Match_${bride.name}_${groom.name}_${targetLanguage.toUpperCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            await html2pdf().from(element).set(opt).save();
+
         } catch (err) {
-            console.error("PDF Download error:", err);
-            setError("Failed to download PDF. Please try again.");
+            console.error("PDF Generation Error:", err);
+            setError(`Failed to generate PDF: ${err.message || "Unknown error"}`);
         } finally {
+            // Restore Original State
+            await i18n.changeLanguage(currentLang);
+            // We might want to keep the translated result or revert? 
+            // Reverting might be complex if we overwrote `result`. 
+            // Ideally we should have used a separate state for `pdfResult`.
+            // But for now, keeping it is fine, or user can re-calculate.
+
             setDownloadingPdf(false);
         }
     };
@@ -596,6 +624,23 @@ const KundaliMatch = () => {
                     </button>
                 </div>
             )}
+            {/* 
+                PDF Report Template 
+                - Position fixed off-screen ensures it is rendered in the DOM with correct dimensions 
+                - z-index ensures it doesn't interfere with UI
+                - 'display: none' would cause empty PDF
+            */}
+            <div style={{
+                position: 'fixed',
+                left: '-2000px',
+                top: 0,
+                width: '800px', // Fixed A4 width roughly
+                zIndex: -100
+            }}>
+                <div id="pdf-report-container">
+                    <MatchReportPDF ref={reportRef} matchResult={result} bride={bride} groom={groom} />
+                </div>
+            </div>
         </div>
     );
 };

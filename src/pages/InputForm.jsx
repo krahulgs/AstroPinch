@@ -12,25 +12,41 @@ const InputForm = () => {
     const dayRef = useRef(null);
     const monthRef = useRef(null);
     const yearRef = useRef(null);
-    const timeRef = useRef(null);
+    const hourRef = useRef(null);
+    const minuteRef = useRef(null);
     const cityRef = useRef(null);
 
-    const [progress, setProgress] = useState(0);
+    const [dateParts, setDateParts] = useState({
+        day: '',
+        month: '',
+        year: ''
+    });
+    const [timeParts, setTimeParts] = useState({
+        hour: '',
+        minute: ''
+    });
+
     const [formData, setFormData] = useState({
         name: '',
-        date: '',
-        time: '',
         place: '',
         lat: '',
         lng: '',
         timezone: ''
     });
 
+    // Assuming setProgress is defined elsewhere or needs to be added.
+    // For the purpose of this edit, I'll assume it's available or a placeholder.
+    const [progress, setProgress] = useState(0); // Added for context, assuming it's part of the original code or implied.
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Assemble date and time
+        const dateStr = `${dateParts.year}-${dateParts.month.padStart(2, '0')}-${dateParts.day.padStart(2, '0')}`;
+        const timeStr = `${timeParts.hour.padStart(2, '0')}:${timeParts.minute.padStart(2, '0')}`;
+
         // Final validation for future date
-        const selectedDate = new Date(formData.date);
+        const selectedDate = new Date(dateStr);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -38,6 +54,12 @@ const InputForm = () => {
             alert('Date of Birth cannot be in the future');
             return;
         }
+
+        const finalData = {
+            ...formData,
+            date: dateStr,
+            time: timeStr
+        };
 
         // Simulate progress while fetching
         setProgress(0);
@@ -52,17 +74,18 @@ const InputForm = () => {
             });
         }, 300);
 
-        const report = await saveUserData(formData);
-
-        clearInterval(interval);
-
-        if (report) {
-            setProgress(100);
-            setTimeout(() => {
-                navigate('/report/consolidated', { state: { userData: formData, preFetchedReport: report } });
-            }, 500);
-        } else {
-            setProgress(0);
+        try {
+            const success = await saveUserData(finalData);
+            if (success) {
+                setProgress(100);
+                setTimeout(() => {
+                    navigate('/consolidated-report');
+                }, 500);
+            }
+        } catch (err) {
+            console.error("Submission error:", err);
+        } finally {
+            clearInterval(interval);
         }
     };
 
@@ -114,12 +137,6 @@ const InputForm = () => {
                                     autoFocus
                                     value={formData.name}
                                     onChange={handleChange}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            dayRef.current?.focus();
-                                        }
-                                    }}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                     placeholder="Enter Your Full Name."
                                 />
@@ -137,21 +154,13 @@ const InputForm = () => {
                                             inputMode="numeric"
                                             maxLength="2"
                                             placeholder="DD"
+                                            autoComplete="off"
                                             required
-                                            value={formData.date ? formData.date.split('-')[2] : ''}
+                                            value={dateParts.day}
                                             onChange={(e) => {
                                                 const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                                if (val === '00') return; // Prevent 00
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${val}` });
-                                                if (val.length === 2) {
-                                                    setTimeout(() => monthRef.current?.focus(), 10);
-                                                }
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                                    // Already handled by component order if needed, but DD is first
-                                                }
+                                                if (val === '00') return;
+                                                setDateParts({ ...dateParts, day: val });
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
@@ -163,21 +172,13 @@ const InputForm = () => {
                                             inputMode="numeric"
                                             maxLength="2"
                                             placeholder="MM"
+                                            autoComplete="off"
                                             required
-                                            value={formData.date ? formData.date.split('-')[1] : ''}
+                                            value={dateParts.month}
                                             onChange={(e) => {
                                                 const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                                if (val === '00') return; // Prevent 00
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${val}-${parts[2]}` });
-                                                if (val.length === 2) {
-                                                    setTimeout(() => yearRef.current?.focus(), 10);
-                                                }
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                                    dayRef.current?.focus();
-                                                }
+                                                if (val === '00') return;
+                                                setDateParts({ ...dateParts, month: val });
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
@@ -189,18 +190,12 @@ const InputForm = () => {
                                             inputMode="numeric"
                                             maxLength="4"
                                             placeholder="YYYY"
+                                            autoComplete="off"
                                             required
-                                            value={formData.date ? formData.date.split('-')[0] : ''}
+                                            value={dateParts.year}
                                             onChange={(e) => {
                                                 const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${val}-${parts[1]}-${parts[2]}` });
-                                                // Stop auto-movement after Year completion as per requirement
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                                    monthRef.current?.focus();
-                                                }
+                                                setDateParts({ ...dateParts, year: val });
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
@@ -210,25 +205,44 @@ const InputForm = () => {
 
                             <div className="space-y-2">
                                 <label className="text-secondary text-sm font-medium ml-1">Time of Birth (24 Hrs.)</label>
-                                <div className="relative group">
-                                    <Clock className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
-                                    <input
-                                        ref={timeRef}
-                                        type="time"
-                                        name="time"
-                                        required
-                                        value={formData.time}
-                                        onChange={(e) => {
-                                            handleChange(e);
-                                            // Optional: Move to city search after time selection? 
-                                            // Time input behavior differs, but if they pick a time it usually triggers.
-                                            if (e.target.value) {
-                                                // Small delay to let browser close picker
-                                                setTimeout(() => cityRef.current?.focus(), 100);
-                                            }
-                                        }}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
-                                    />
+                                <div className="flex gap-2 relative">
+                                    <Clock className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors pointer-events-none z-10" />
+                                    <div className="relative flex-1 group ml-10">
+                                        <input
+                                            ref={hourRef}
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength="2"
+                                            placeholder="HH"
+                                            autoComplete="off"
+                                            required
+                                            value={timeParts.hour}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                                if (parseInt(val) > 23) return;
+                                                setTimeParts({ ...timeParts, hour: val });
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
+                                        />
+                                    </div>
+                                    <div className="relative flex-1 group">
+                                        <input
+                                            ref={minuteRef}
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength="2"
+                                            placeholder="MM"
+                                            autoComplete="off"
+                                            required
+                                            value={timeParts.minute}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                                if (parseInt(val) > 59) return;
+                                                setTimeParts({ ...timeParts, minute: val });
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>

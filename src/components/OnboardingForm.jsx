@@ -11,16 +11,25 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
     const dayRef = useRef(null);
     const monthRef = useRef(null);
     const yearRef = useRef(null);
-    const timeRef = useRef(null);
+    const hourRef = useRef(null);
+    const minuteRef = useRef(null);
+
+    const [dateParts, setDateParts] = useState({
+        day: '',
+        month: '',
+        year: ''
+    });
+    const [timeParts, setTimeParts] = useState({
+        hour: '',
+        minute: ''
+    });
 
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
         gender: initialData?.gender || 'male',
-        birth_date: initialData?.birth_date || '',
-        birth_time: initialData?.birth_time || '',
         location_name: initialData?.location_name || '',
-        latitude: initialData?.latitude || 0,
-        longitude: initialData?.longitude || 0,
+        latitude: initialData?.latitude || '',
+        longitude: initialData?.longitude || '',
         relation: initialData?.relation || 'Self',
         profession: initialData?.profession || '',
         marital_status: initialData?.marital_status || 'Single'
@@ -32,21 +41,28 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
 
     useEffect(() => {
         if (initialData) {
-            const time = initialData.birth_time || '';
-            let amPm = 'AM';
-            if (time) {
-                const [h] = time.split(':').map(Number);
-                amPm = h >= 12 ? 'PM' : 'AM';
+            // Parse initial birth_date
+            if (initialData.birth_date) {
+                const [year, month, day] = initialData.birth_date.split('-');
+                setDateParts({ day: day || '', month: month || '', year: year || '' });
+            } else {
+                setDateParts({ day: '', month: '', year: '' });
+            }
+
+            // Parse initial birth_time
+            if (initialData.birth_time) {
+                const [hour, minute] = initialData.birth_time.split(':');
+                setTimeParts({ hour: hour || '', minute: minute || '' });
+            } else {
+                setTimeParts({ hour: '', minute: '' });
             }
 
             setFormData({
                 name: initialData.name || '',
                 gender: initialData.gender || 'male',
-                birth_date: initialData.birth_date || '',
-                birth_time: initialData.birth_time || '',
                 location_name: initialData.location_name || '',
-                latitude: initialData.latitude || 0,
-                longitude: initialData.longitude || 0,
+                latitude: initialData.latitude || '',
+                longitude: initialData.longitude || '',
                 relation: initialData.relation || 'Self',
                 profession: initialData.profession || '',
                 marital_status: initialData.marital_status || 'Single'
@@ -55,10 +71,12 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         } else {
             // Reset if adding new
             setFormData({
-                name: '', gender: 'male', birth_date: '', birth_time: '',
-                location_name: '', latitude: 0, longitude: 0,
+                name: '', gender: 'male',
+                location_name: '', latitude: '', longitude: '',
                 relation: 'Self', profession: '', marital_status: 'Single'
             });
+            setDateParts({ day: '', month: '', year: '' });
+            setTimeParts({ hour: '', minute: '' });
             setLocationQuery('');
         }
     }, [initialData]);
@@ -108,8 +126,15 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            // Filter out am_pm as it's not in the backend schema
-            const { am_pm, ...payload } = formData;
+            // Assemble date and time
+            const dateStr = `${dateParts.year || '1995'}-${(dateParts.month || '01').padStart(2, '0')}-${(dateParts.day || '01').padStart(2, '0')}`;
+            const timeStr = `${(timeParts.hour || '12').padStart(2, '0')}:${(timeParts.minute || '00').padStart(2, '0')}`;
+
+            const payload = {
+                ...formData,
+                birth_date: dateStr,
+                birth_time: timeStr
+            };
 
             if (initialData) {
                 await updateProfile(initialData.id, payload);
@@ -123,6 +148,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
             setLoading(false);
         }
     };
+
+    const isFormValid = () => {
+        return formData.name &&
+            dateParts.day && dateParts.month && dateParts.year &&
+            timeParts.hour && timeParts.minute;
+    };
+
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-3xl shadow-xl">
@@ -144,12 +176,6 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     filteredValue = filteredValue.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
                                     setFormData({ ...formData, name: filteredValue });
                                 }}
-                                onKeyDown={e => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        dayRef.current?.focus();
-                                    }
-                                }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
                                 placeholder="Enter Your Full Name."
                             />
@@ -165,21 +191,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 inputMode="numeric"
                                 maxLength="2"
                                 placeholder="DD"
+                                autoComplete="off"
                                 required
-                                value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
+                                value={dateParts.day}
                                 onChange={e => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                    if (val === '00') return; // Prevent 00
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val}` });
-                                    if (val.length === 2) {
-                                        setTimeout(() => monthRef.current?.focus(), 10);
-                                    }
-                                }}
-                                onKeyDown={e => {
-                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                        // DD is first
-                                    }
+                                    if (val === '00') return;
+                                    setDateParts({ ...dateParts, day: val });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
                             />
@@ -189,21 +207,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 inputMode="numeric"
                                 maxLength="2"
                                 placeholder="MM"
+                                autoComplete="off"
                                 required
-                                value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
+                                value={dateParts.month}
                                 onChange={e => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                    if (val === '00') return; // Prevent 00
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${val}-${parts[2]}` });
-                                    if (val.length === 2) {
-                                        setTimeout(() => yearRef.current?.focus(), 10);
-                                    }
-                                }}
-                                onKeyDown={e => {
-                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                        dayRef.current?.focus();
-                                    }
+                                    if (val === '00') return;
+                                    setDateParts({ ...dateParts, month: val });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
                             />
@@ -213,35 +223,58 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 inputMode="numeric"
                                 maxLength="4"
                                 placeholder="YYYY"
+                                autoComplete="off"
                                 required
-                                value={formData.birth_date ? formData.birth_date.split('-')[0] : ''}
+                                value={dateParts.year}
                                 onChange={e => {
                                     const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${val}-${parts[1]}-${parts[2]}` });
-                                    // Stop auto-movement after Year completion as per requirement
-                                }}
-                                onKeyDown={e => {
-                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
-                                        monthRef.current?.focus();
-                                    }
+                                    setDateParts({ ...dateParts, year: val });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors flex-[1.5]"
                             />
                         </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-4">
                         <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Time (24 Hrs.)</label>
-                        <div className="relative">
-                            <Clock className="absolute left-3 top-3 w-5 h-5 text-secondary" />
-                            <input
-                                ref={timeRef}
-                                type="time"
-                                value={formData.birth_time}
-                                onChange={e => setFormData({ ...formData, birth_time: e.target.value })}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
-                            />
+                        <div className="flex gap-2 relative">
+                            <Clock className="absolute left-3 top-3.5 w-5 h-5 text-secondary pointer-events-none z-10" />
+                            <div className="relative flex-1 ml-10">
+                                <input
+                                    ref={hourRef}
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength="2"
+                                    placeholder="HH"
+                                    autoComplete="off"
+                                    required
+                                    value={timeParts.hour}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                        if (parseInt(val) > 23) return;
+                                        setTimeParts({ ...timeParts, hour: val });
+                                    }}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                />
+                            </div>
+                            <div className="relative flex-1">
+                                <input
+                                    ref={minuteRef}
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength="2"
+                                    placeholder="MM"
+                                    autoComplete="off"
+                                    required
+                                    value={timeParts.minute}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                        if (parseInt(val) > 59) return;
+                                        setTimeParts({ ...timeParts, minute: val });
+                                    }}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                />
+                            </div>
                         </div>
                     </div>
 

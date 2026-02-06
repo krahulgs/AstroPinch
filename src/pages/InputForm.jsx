@@ -70,7 +70,9 @@ const InputForm = () => {
         const { name, value } = e.target;
         if (name === 'name') {
             // Remove numeric values and special characters, allow only letters and spaces
-            const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            let filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            // Apply Title Case (capitalize first letter of each word)
+            filteredValue = filteredValue.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
             setFormData({ ...formData, [name]: filteredValue });
         } else {
             setFormData({ ...formData, [name]: value });

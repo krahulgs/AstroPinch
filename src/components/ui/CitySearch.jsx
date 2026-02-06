@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2 } from 'lucide-react';
 import { indianCities } from '../../data/indianCities';
 
-const CitySearch = ({ onSelect, defaultValue = '' }) => {
+const CitySearch = ({ onSelect, defaultValue = '', inputRef }) => {
     const [query, setQuery] = useState(defaultValue);
     const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -134,6 +134,7 @@ const CitySearch = ({ onSelect, defaultValue = '' }) => {
         <div className="relative group" ref={wrapperRef}>
             <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-purple-600 transition-colors pointer-events-none" />
             <input
+                ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => {

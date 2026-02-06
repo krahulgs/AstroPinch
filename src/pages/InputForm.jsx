@@ -12,6 +12,8 @@ const InputForm = () => {
     const dayRef = useRef(null);
     const monthRef = useRef(null);
     const yearRef = useRef(null);
+    const timeRef = useRef(null);
+    const cityRef = useRef(null);
 
     const [progress, setProgress] = useState(0);
     const [formData, setFormData] = useState({
@@ -110,6 +112,12 @@ const InputForm = () => {
                                     autoFocus
                                     value={formData.name}
                                     onChange={handleChange}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            dayRef.current?.focus();
+                                        }
+                                    }}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                     placeholder="Enter Your Full Name."
                                 />
@@ -169,6 +177,7 @@ const InputForm = () => {
                                                 const val = e.target.value.slice(0, 4);
                                                 const parts = (formData.date || '1995-01-01').split('-');
                                                 setFormData({ ...formData, date: `${val}-${parts[1]}-${parts[2]}` });
+                                                if (val.length === 4) timeRef.current?.focus();
                                             }}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
@@ -181,11 +190,20 @@ const InputForm = () => {
                                 <div className="relative group">
                                     <Clock className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
                                     <input
+                                        ref={timeRef}
                                         type="time"
                                         name="time"
                                         required
                                         value={formData.time}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                            // Optional: Move to city search after time selection? 
+                                            // Time input behavior differs, but if they pick a time it usually triggers.
+                                            if (e.target.value) {
+                                                // Small delay to let browser close picker
+                                                setTimeout(() => cityRef.current?.focus(), 100);
+                                            }
+                                        }}
                                         className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                     />
                                 </div>
@@ -195,6 +213,7 @@ const InputForm = () => {
                         <div className="space-y-2">
                             <label className="text-secondary text-sm font-medium ml-1">Place of Birth</label>
                             <CitySearch
+                                inputRef={cityRef}
                                 onSelect={(city) => {
                                     setFormData(prev => ({
                                         ...prev,

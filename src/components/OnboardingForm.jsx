@@ -11,6 +11,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
     const dayRef = useRef(null);
     const monthRef = useRef(null);
     const yearRef = useRef(null);
+    const timeRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
@@ -141,6 +142,12 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                     setFormData({ ...formData, name: filteredValue });
                                 }}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        dayRef.current?.focus();
+                                    }
+                                }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
                                 placeholder="Enter Your Full Name."
                             />
@@ -194,6 +201,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     const val = e.target.value.slice(0, 4);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${val}-${parts[1]}-${parts[2]}` });
+                                    if (val.length === 4) timeRef.current?.focus();
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-[1.5]"
                             />
@@ -205,6 +213,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         <div className="relative">
                             <Clock className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input
+                                ref={timeRef}
                                 type="time"
                                 value={formData.birth_time}
                                 onChange={e => setFormData({ ...formData, birth_time: e.target.value })}

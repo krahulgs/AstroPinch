@@ -144,7 +144,7 @@ const CitySearch = ({ onSelect, defaultValue = '', inputRef }) => {
                 }}
                 onFocus={() => setIsOpen(true)}
                 className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all text-primary placeholder:text-slate-400"
-                placeholder="Enter City, District or Taluka..."
+                placeholder="Enter City of Birth"
                 required
             />
 

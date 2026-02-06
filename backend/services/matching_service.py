@@ -572,13 +572,19 @@ Your role is to analyze Kundali matching results that are already calculated pro
             # Beneficial planets for marriage
             beneficial_planets = ['Venus', 'Jupiter', 'Mercury', 'Moon']
             
-            # Find upcoming favorable Dasha periods (next 3 years)
+            # Find upcoming favorable periods (next 2 years for more practical results)
             current_date = datetime.now()
-            end_date = current_date + timedelta(days=365*3)
+            end_date = current_date + timedelta(days=365*2)
             
             favorable_windows = []
             
-            for b_period in bride_dasha.get('timeline', []):
+            # Get bride's current and upcoming Mahadashas
+            bride_timeline = bride_dasha.get('timeline', [])
+            groom_timeline = groom_dasha.get('timeline', [])
+            
+            # Strategy: Find periods where either person is in a beneficial Mahadasha
+            # and create windows for the next 2 years
+            for b_period in bride_timeline:
                 if not b_period.get('start') or not b_period.get('end'):
                     continue
                 
@@ -588,11 +594,16 @@ Your role is to analyze Kundali matching results that are already calculated pro
                 except:
                     continue
                 
+                # Skip if period is completely in the past or too far in future
                 if b_end < current_date or b_start > end_date:
                     continue
                 
-                if b_period.get('planet') in beneficial_planets:
-                    for g_period in groom_dasha.get('timeline', []):
+                b_planet = b_period.get('planet', '')
+                
+                # Check if bride's Mahadasha is beneficial
+                if b_planet in beneficial_planets:
+                    # Find groom's Mahadasha during this period
+                    for g_period in groom_timeline:
                         if not g_period.get('start') or not g_period.get('end'):
                             continue
                         
@@ -602,39 +613,133 @@ Your role is to analyze Kundali matching results that are already calculated pro
                         except:
                             continue
                         
-                        if g_end < current_date or g_start > end_date:
-                            continue
+                        # Check for overlap
+                        overlap_start = max(b_start, g_start, current_date)
+                        overlap_end = min(b_end, g_end, end_date)
                         
-                        if g_period.get('planet') in beneficial_planets:
-                            # Find overlap
-                            overlap_start = max(b_start, g_start, current_date)
-                            overlap_end = min(b_end, g_end, end_date)
+                        if overlap_start < overlap_end:
+                            g_planet = g_period.get('planet', '')
                             
-                            if overlap_start < overlap_end:
+                            # Calculate favorability
+                            if b_planet == g_planet and b_planet in beneficial_planets:
+                                favorability = "Excellent"
+                                score = 10
+                            elif g_planet in beneficial_planets:
+                                favorability = "Very Good"
+                                score = 8
+                            else:
+                                favorability = "Good"
+                                score = 6
+                            
+                            # Only add if duration is at least 30 days
+                            duration = (overlap_end - overlap_start).days
+                            if duration >= 30:
                                 favorable_windows.append({
                                     "start_date": overlap_start.strftime('%Y-%m-%d'),
                                     "end_date": overlap_end.strftime('%Y-%m-%d'),
-                                    "bride_dasha": b_period['planet'],
-                                    "groom_dasha": g_period['planet'],
-                                    "favorability": "High" if b_period['planet'] == g_period['planet'] else "Good"
+                                    "bride_dasha": b_planet,
+                                    "groom_dasha": g_planet,
+                                    "favorability": favorability,
+                                    "score": score,
+                                    "duration_days": duration
                                 })
             
-            # Sort by start date and limit to top 5
-            favorable_windows.sort(key=lambda x: x['start_date'])
-            favorable_windows = favorable_windows[:5]
+            # Also check when groom is in beneficial Dasha (to catch cases we might have missed)
+            for g_period in groom_timeline:
+                if not g_period.get('start') or not g_period.get('end'):
+                    continue
+                
+                try:
+                    g_start = datetime.strptime(g_period['start'], '%Y-%m-%d')
+                    g_end = datetime.strptime(g_period['end'], '%Y-%m-%d')
+                except:
+                    continue
+                
+                if g_end < current_date or g_start > end_date:
+                    continue
+                
+                g_planet = g_period.get('planet', '')
+                
+                if g_planet in beneficial_planets:
+                    for b_period in bride_timeline:
+                        if not b_period.get('start') or not b_period.get('end'):
+                            continue
+                        
+                        try:
+                            b_start = datetime.strptime(b_period['start'], '%Y-%m-%d')
+                            b_end = datetime.strptime(b_period['end'], '%Y-%m-%d')
+                        except:
+                            continue
+                        
+                        overlap_start = max(b_start, g_start, current_date)
+                        overlap_end = min(b_end, g_end, end_date)
+                        
+                        if overlap_start < overlap_end:
+                            b_planet = b_period.get('planet', '')
+                            
+                            # Check if we already have this window
+                            window_exists = any(
+                                w['start_date'] == overlap_start.strftime('%Y-%m-%d') and 
+                                w['end_date'] == overlap_end.strftime('%Y-%m-%d')
+                                for w in favorable_windows
+                            )
+                            
+                            if not window_exists:
+                                if b_planet == g_planet and b_planet in beneficial_planets:
+                                    favorability = "Excellent"
+                                    score = 10
+                                elif b_planet in beneficial_planets:
+                                    favorability = "Very Good"
+                                    score = 8
+                                else:
+                                    favorability = "Good"
+                                    score = 6
+                                
+                                duration = (overlap_end - overlap_start).days
+                                if duration >= 30:
+                                    favorable_windows.append({
+                                        "start_date": overlap_start.strftime('%Y-%m-%d'),
+                                        "end_date": overlap_end.strftime('%Y-%m-%d'),
+                                        "bride_dasha": b_planet,
+                                        "groom_dasha": g_planet,
+                                        "favorability": favorability,
+                                        "score": score,
+                                        "duration_days": duration
+                                    })
+            
+            # Sort by score (best first) and then by start date
+            favorable_windows.sort(key=lambda x: (-x['score'], x['start_date']))
+            
+            # Remove duplicates and limit to top 5
+            seen = set()
+            unique_windows = []
+            for w in favorable_windows:
+                key = (w['start_date'], w['end_date'])
+                if key not in seen:
+                    seen.add(key)
+                    unique_windows.append(w)
+                    if len(unique_windows) >= 5:
+                        break
+            
+            favorable_windows = unique_windows
             
             analysis = []
             if favorable_windows:
-                analysis.append(f"Found {len(favorable_windows)} auspicious marriage windows in next 3 years")
+                analysis.append(f"Found {len(favorable_windows)} auspicious marriage periods in next 2 years")
                 for i, window in enumerate(favorable_windows[:3], 1):
-                    analysis.append(f"{i}. {window['start_date']} to {window['end_date']} ({window['favorability']})")
+                    duration_months = window['duration_days'] // 30
+                    analysis.append(f"{i}. {window['start_date']} to {window['end_date']} - {window['favorability']} ({duration_months} months)")
+                if len(favorable_windows) > 3:
+                    analysis.append(f"Plus {len(favorable_windows) - 3} more favorable periods available")
             else:
-                analysis.append("Current period is suitable - consult astrologer for specific dates")
+                # If no windows found, provide current period info
+                analysis.append("Based on current Dasha periods, marriage can be planned")
+                analysis.append("Consult astrologer for specific muhurat selection")
             
             return {
                 "windows": favorable_windows,
                 "analysis": analysis,
-                "recommendation": "Multiple favorable periods identified" if favorable_windows else "Consult for personalized timing"
+                "recommendation": f"{len(favorable_windows)} favorable periods identified" if favorable_windows else "Current period suitable - consult for muhurat"
             }
         except Exception as e:
             print(f"Marriage Windows Error: {e}")

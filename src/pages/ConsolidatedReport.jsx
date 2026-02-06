@@ -2049,52 +2049,24 @@ const ConsolidatedReport = () => {
                     activeTab === 'numerology' && (
                         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {/* Numerology Header Section */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="md:col-span-2 glass-panel p-5 md:p-12 rounded-[2.5rem] relative overflow-hidden group bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-xl">
-                                    <div className="absolute inset-0 bg-white/10 opacity-50 mix-blend-overlay"></div>
-                                    <div className="relative z-10 space-y-6">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
-                                                <Brain className="w-7 h-7 text-white" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
-                                                <p className="text-purple-100 text-sm uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
-                                            </div>
+                            <div className="glass-panel p-5 md:p-12 rounded-[2.5rem] relative overflow-hidden group bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-xl">
+                                <div className="absolute inset-0 bg-white/10 opacity-50 mix-blend-overlay"></div>
+                                <div className="relative z-10 space-y-6">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
+                                            <Brain className="w-7 h-7 text-white" />
                                         </div>
-                                        <div className="prose prose-invert max-w-none">
-                                            <div className="text-lg leading-relaxed text-white font-medium italic">
-                                                {report.predictions_summary?.best_prediction || (report.numerology?.ai_insights && report.numerology.ai_insights.split('\n')[0])}
-                                            </div>
+                                        <div>
+                                            <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
+                                            <p className="text-purple-100 text-sm uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="prose prose-invert max-w-none">
+                                        <div className="text-lg leading-relaxed text-white font-medium italic">
+                                            {report.predictions_summary?.best_prediction || (report.numerology?.ai_insights && report.numerology.ai_insights.split('\n')[0])}
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Quick Stats Corner (Vedic Integration) */}
-                                {report.numerology?.loshu_grid && (
-                                    <div className="glass-panel p-6 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl flex flex-col justify-center items-center text-center space-y-4">
-                                        <div className="flex gap-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mulank</span>
-                                                <span className="text-3xl font-black text-pink-600">{report.numerology.loshu_grid.mulank}</span>
-                                            </div>
-                                            <div className="w-px h-10 bg-gray-100 self-center"></div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Bhagyank</span>
-                                                <span className="text-3xl font-black text-purple-600">{report.numerology.loshu_grid.bhagyank}</span>
-                                            </div>
-                                            <div className="w-px h-10 bg-gray-100 self-center"></div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Kua No.</span>
-                                                <span className="text-3xl font-black text-amber-600">{report.numerology.loshu_grid.kua}</span>
-                                            </div>
-                                        </div>
-                                        <div className="scale-75 origin-center">
-                                            <LoshuGridDisplay loshuData={report.numerology.loshu_grid} />
-                                        </div>
-                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter italic">Vedic-Numerology Power Numbers</p>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Section 1: The Core Numeric Vibration Grid */}
@@ -2458,7 +2430,7 @@ const ConsolidatedReport = () => {
                                 </div>
                             </section>
 
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            <div className="space-y-8">
                                 {/* Loshu Grid Details */}
                                 {report.numerology?.loshu_grid && (
                                     <div className="glass-panel p-8 rounded-[2.5rem] space-y-8 relative overflow-hidden bg-white border border-gray-100 shadow-xl h-full flex flex-col">
@@ -2511,65 +2483,6 @@ const ConsolidatedReport = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Science of Success (Hilary Gerard Model) */}
-                                {report.numerology?.science_of_success && (
-                                    <div className="glass-panel p-8 rounded-[2.5rem] bg-indigo-950 text-white shadow-2xl relative overflow-hidden h-full flex flex-col">
-                                        <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
-                                            <Shield className="w-48 h-48 text-white" />
-                                        </div>
-                                        <div className="relative z-10 space-y-8 flex-1">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/10">
-                                                    <Star className="w-7 h-7 text-amber-400" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">{t('numerology_page.science_success')}</h3>
-                                                    <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-[0.2em]">Based on Hilary Gerard's 1937 System</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                                    <div className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-1">{t('numerology_page.fadic_number')}</div>
-                                                    <div className="text-3xl font-black text-white">{report.numerology.science_of_success.fadic_number}</div>
-                                                    <div className="text-[10px] text-white/50 uppercase font-bold mt-1">{report.numerology.science_of_success.fadic_type}</div>
-                                                </div>
-                                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                                    <div className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-1">{t('numerology_page.symbol')}</div>
-                                                    <div className="text-3xl font-black text-white">{report.numerology.science_of_success.symbol}</div>
-                                                    <div className="text-[10px] text-white/50 uppercase font-bold mt-1">Ruling Force</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm space-y-4">
-                                                <div>
-                                                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-2">{t('numerology_page.positive')}</span>
-                                                    <p className="text-sm text-indigo-100 leading-relaxed font-medium">{report.numerology.science_of_success.qualities?.positive}</p>
-                                                </div>
-                                                <div className="pt-4 border-t border-white/5">
-                                                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest block mb-2">{t('numerology_page.challenges')}</span>
-                                                    <p className="text-sm text-indigo-100 leading-relaxed font-medium opacity-80">{report.numerology.science_of_success.qualities?.negative}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-8 grid grid-cols-3 gap-3">
-                                            <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                                <span className="text-[9px] font-black text-indigo-300 uppercase block mb-1">Destiny Year</span>
-                                                <span className="text-base font-black text-white">{report.numerology.science_of_success.next_destiny_year}</span>
-                                            </div>
-                                            <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                                <span className="text-[9px] font-black text-indigo-300 uppercase block mb-1">Color</span>
-                                                <span className="text-sm font-black text-white">{report.numerology.science_of_success.guidance?.lucky_colors?.[0]}</span>
-                                            </div>
-                                            <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                                <span className="text-[9px] font-black text-indigo-300 uppercase block mb-1">Day</span>
-                                                <span className="text-sm font-black text-white">{report.numerology.science_of_success.guidance?.lucky_days?.[0]}</span>
                                             </div>
                                         </div>
                                     </div>

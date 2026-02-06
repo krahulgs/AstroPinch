@@ -20,7 +20,7 @@ RAPIDAPI_HOST = "numerology-api4.p.rapidapi.com"
 ROXY_API_KEY = os.getenv("ROXY_API_KEY", "")
 ROXY_API_BASE = "https://roxyapi.com/api/v1"
 
-def generate_ai_insights(name, birth_date_str, fadic_data, loshu_data=None, vedic_data=None, western_data=None, context=None, lang="en"):
+def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None, vedic_data=None, western_data=None, context=None, lang="en"):
     """
     Generates personalized numerology insights using Groq AI.
     Updated to include Vedic AND Western (Kerykeion) context.
@@ -29,23 +29,22 @@ def generate_ai_insights(name, birth_date_str, fadic_data, loshu_data=None, vedi
     # Helper for fallback to avoid repetition
     def get_fallback():
         try:
-             advice = fadic_data.get('qualities', {}).get('positive', 'Focus on your strengths.')
-             challenges = fadic_data.get('qualities', {}).get('negative', 'Be mindful of your weaknesses.')
-             symbol = fadic_data.get('symbol', 'Unknown')
+             advice = numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('strength', 'Focus on your strengths.')
+             lp_val = numerology_data.get('life_path', 'Core')
              
              fallback_text = f"""
              **The Core Vibration**
-             Your Fadic Number matches the vibration of **{symbol}**. {fadic_data.get('description', '')} 
+             As a vibration **{lp_val}**, you possess natural leadership and creative potential. {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('text', '')} 
              
              **Vedic Alignment**
              Birth Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Calculated separately'}. 
-             This celestial alignment adds a layer of depth to your {symbol} energy.
+             This celestial alignment adds a layer of depth to your numeric energy.
              
              **The Path to Success**
-             To achieve your highest potential, amplify your core strengths: {advice}. Success comes when you balance these opposing forces.
+             To achieve your highest potential, amplify your core strengths: {advice}. Success comes when you balance your ambition with steady effort.
              
              **Future Outlook**
-             As a {fadic_data.get('fadic_type', 'Seeker')}, your destiny is forged by action. 
+             Your destiny is forged by action and alignment with your true self. 
              """
              return fallback_text
         except:
@@ -77,16 +76,18 @@ def generate_ai_insights(name, birth_date_str, fadic_data, loshu_data=None, vedi
                 dasha_lord = d_data[0].get('planet', 'Unknown')
 
         prompt = f"""
-        Act as an expert Numerologist specializing in Hilary Gerard's "Science of Success" (1937).
+        Act as an expert Numerologist specializing in Pythagorean and Vedic systems.
         
         Analyze the following profile:
         Name: {name}
         Birth Date: {birth_date_str}
         {ctx_str}
-        Fadic Number: {fadic_data.get('fadic_number')} ({fadic_data.get('fadic_type')})
+        Life Path Number: {numerology_data.get('life_path')}
+        Mulank: {loshu_data.get('mulank') if loshu_data else 'Unknown'}
+        Bhagyank: {loshu_data.get('bhagyank') if loshu_data else 'Unknown'}
         
-        Key Traits: {fadic_data.get('qualities', {}).get('positive')}
-        Challenges: {fadic_data.get('qualities', {}).get('negative')}
+        Detailed Analysis Traits: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('strength')}
+        Challenges to Master: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('caution')}
         
         Vedic Context:
         Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Unknown'}
@@ -101,10 +102,10 @@ def generate_ai_insights(name, birth_date_str, fadic_data, loshu_data=None, vedi
         Suggested Remedies: {loshu_data.get('remedies', {}) if loshu_data else 'None'}
 
         Provide a deep, personalized 4-paragraph reading:
-        1. The Core Vibration: How their Fadic Number shapes their fundamental character.
+        1. The Core Vibration: How their Life Path Number/Mulank shapes their fundamental character.
         2. Cosmic Alignment: How their Nakshatra (Vedic) and Sun Sign (Western) create a multidimensional identity.
         3. The Path to Success: Specific advice on leveraging their Numerology strengths alongside current Dasha energy.
-        4. Future Outlook: A motivational closing statement based on their "Science of Success" archetype.
+        4. Future Outlook: A motivational closing statement based on their unique cosmic signature.
         
         Tone: Mystical but practical, encouraging, and authoritative.
         Keep it under 300 words.
@@ -267,13 +268,11 @@ def get_numerology_data(name, year, month, day, vedic_data=None, western_data=No
         roxy_future = executor.submit(calculate_numerology_roxy, name, year, month, day)
         rapid_future = executor.submit(calculate_numerology_rapidapi, name, year, month, day)
         phillips_future = executor.submit(get_complete_numerology_profile, name, year, month, day)
-        hilary_future = executor.submit(HilaryNumerologyService.get_science_of_success_report, name, day, month, year)
         loshu_future = executor.submit(LoshuService.calculate_loshu_grid, day, month, year, gender)
 
         # Get results
         roxy_data = roxy_future.result()
         phillips_profile = phillips_future.result()
-        hilary_report = hilary_future.result()
         loshu_data = loshu_future.result()
 
         data = None
@@ -290,12 +289,11 @@ def get_numerology_data(name, year, month, day, vedic_data=None, western_data=No
                 data = calculate_numerology_fallback(name, year, month, day)
 
         # Attach integrations
-        data["science_of_success"] = hilary_report
         data["loshu_grid"] = loshu_data
         
         # Parallel Step 2: AI Insights (Dependent on previous results)
         ai_insights = generate_ai_insights(
-            name, f"{year}-{month:02d}-{day:02d}", hilary_report, 
+            name, f"{year}-{month:02d}-{day:02d}", data,
             loshu_data=loshu_data, vedic_data=vedic_data, 
             western_data=western_data, context=context, lang=lang
         )

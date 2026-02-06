@@ -13,53 +13,53 @@ from reportlab.graphics.shapes import Drawing, PolyLine, Rect, String
 
 # Register Hindi font support
 try:
-    # Use local fonts for maximum reliability
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current_dir) # Go up to backend/
-    font_dir = os.path.join(project_root, 'fonts')
-    
-    regular_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Regular.ttf')
-    bold_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Bold.ttf')
-    
     hindi_font_registered = False
-
-    if os.path.exists(regular_font_path):
-        try:
-            pdfmetrics.registerFont(TTFont('HindiFont', regular_font_path))
-            print(f"Hindi Regular font registered from: {regular_font_path}")
-            hindi_font_registered = True
-        except Exception as e:
-            print(f"Failed to register Regular font: {e}")
-
-    if os.path.exists(bold_font_path):
-        try:
-            pdfmetrics.registerFont(TTFont('HindiFont-Bold', bold_font_path))
-            print(f"Hindi Bold font registered from: {bold_font_path}")
-        except Exception as e:
-            print(f"Failed to register Bold font: {e}")
-            # Fallback for bold if only regular exists
-            if hindi_font_registered:
-                 pdfmetrics.registerFont(TTFont('HindiFont-Bold', regular_font_path))
-
     
+    # SYSTEM FONTS (Prioritize for Windows reliability)
+    # Mangal is the standard Devanagari font on Windows
+    win_fonts = [
+        r'C:\Windows\Fonts\mangal.ttf',      # Standard Hindi
+        r'C:\Windows\Fonts\Nirmala.ttf',     # Nirmala UI
+        r'C:\Windows\Fonts\NirmalaS.ttf',    # Nirmala UI Semilight
+        r'C:\Windows\Fonts\arialuni.ttf'     # Arial Unicode MS
+    ]
+    
+    for font_path in win_fonts:
+        if os.path.exists(font_path):
+            try:
+                # Register both Regular and Bold variants using the same file if needed
+                # Just to ensure we have *some* glyphs
+                pdfmetrics.registerFont(TTFont('HindiFont', font_path))
+                pdfmetrics.registerFont(TTFont('HindiFont-Bold', font_path)) 
+                hindi_font_registered = True
+                print(f"Registered System Hindi Font: {font_path}")
+                break
+            except Exception as e:
+                print(f"Failed to register system font {font_path}: {e}")
+
+    # LOCAL FONTS (Fallback if system fonts missing)
     if not hindi_font_registered:
-        print("Warning: Local Hindi fonts not found. Trying system fonts...")
-         # Fallback to system fonts (previous logic)
-        hindi_font_paths = [
-            'C:\\Windows\\Fonts\\mangal.ttf',
-            'C:\\Windows\\Fonts\\NirmalaS.ttf',
-            '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf',
-        ]
-        for font_path in hindi_font_paths:
-            if os.path.exists(font_path):
-                try:
-                    pdfmetrics.registerFont(TTFont('HindiFont', font_path))
-                    # Use same for bold if we only have one
-                    pdfmetrics.registerFont(TTFont('HindiFont-Bold', font_path))
-                    hindi_font_registered = True
-                    break
-                except:
-                    continue
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            font_dir = os.path.join(project_root, 'fonts')
+            
+            regular_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Regular.ttf')
+            bold_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Bold.ttf')
+
+            if os.path.exists(regular_font_path):
+                pdfmetrics.registerFont(TTFont('HindiFont', regular_font_path))
+                print(f"Registered Local Hindi Font: {regular_font_path}")
+                hindi_font_registered = True
+                
+                # Try to register bold separately
+                if os.path.exists(bold_font_path):
+                    pdfmetrics.registerFont(TTFont('HindiFont-Bold', bold_font_path))
+                else:
+                    pdfmetrics.registerFont(TTFont('HindiFont-Bold', regular_font_path))
+                    
+        except Exception as e:
+            print(f"Failed to register local fonts: {e}")
 
     if hindi_font_registered:
         HINDI_FONT = 'HindiFont'

@@ -2103,7 +2103,7 @@ const ConsolidatedReport = () => {
                                     <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
                                         <Activity className="w-6 h-6 text-pink-600" />
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">{t('numerology_page.core_numbers_title')}</h3>
+                                    <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">{t('numerology_page.core_numbers_title')}</h3>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2146,25 +2146,25 @@ const ConsolidatedReport = () => {
                                             <div key={idx} className={`${item.bg} p-8 rounded-[2.5rem] border ${item.border} hover:shadow-xl transition-all group relative overflow-hidden`}>
                                                 <div className="flex justify-between items-start mb-6">
                                                     <div>
-                                                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">{item.label}</h4>
-                                                        <p className="text-xs font-bold text-slate-400 italic mt-0.5">{item.subtitle}</p>
+                                                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-600 group-hover:text-indigo-900 transition-colors">{item.label}</h4>
+                                                        <p className="text-xs font-bold text-slate-500 italic mt-0.5">{item.subtitle}</p>
                                                     </div>
                                                     <div className={`text-5xl font-black ${item.color} leading-none drop-shadow-sm`}>{item.value}</div>
                                                 </div>
 
                                                 <div className="space-y-4 relative z-10">
-                                                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                                                    <p className="text-sm text-indigo-950 leading-relaxed font-bold">
                                                         {analysis.text || `Your vibration ${item.value} influences your journey and unique approach to life's challenges.`}
                                                     </p>
 
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                                                         <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white/50">
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">Strength</span>
-                                                            <p className="text-xs text-slate-600 font-bold">{analysis.strength || "Inherent natural talent"}</p>
+                                                            <p className="text-xs text-indigo-900/80 font-bold">{analysis.strength || "Inherent natural talent"}</p>
                                                         </div>
                                                         <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white/50">
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block mb-1">Caution</span>
-                                                            <p className="text-xs text-slate-600 font-bold">{analysis.caution || "Potential area for growth"}</p>
+                                                            <p className="text-xs text-indigo-900/80 font-bold">{analysis.caution || "Potential area for growth"}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2179,7 +2179,7 @@ const ConsolidatedReport = () => {
                                         { label: 'Maturity No.', value: report.numerology?.maturity, color: 'text-rose-600', bg: 'bg-rose-50/50' },
                                     ].map((item, idx) => (
                                         <div key={idx} className={`${item.bg} px-6 py-4 rounded-2xl border border-transparent flex items-center justify-between`}>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
                                             <span className={`text-xl font-black ${item.color}`}>{item.value}</span>
                                         </div>
                                     ))}
@@ -2193,8 +2193,8 @@ const ConsolidatedReport = () => {
                                         <Clock className="w-6 h-6 text-indigo-600" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Personal Cycles</h3>
-                                        <p className="text-xs font-bold text-slate-400 -mt-1 uppercase tracking-widest">Where numerology becomes useful</p>
+                                        <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">Personal Cycles</h3>
+                                        <p className="text-xs font-bold text-slate-500 -mt-1 uppercase tracking-widest">Where numerology becomes useful</p>
                                     </div>
                                 </div>
 
@@ -2246,7 +2246,7 @@ const ConsolidatedReport = () => {
                                                         </div>
                                                         <div>
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">What to Start</span>
-                                                            <p className="text-xs text-slate-600 font-bold leading-relaxed">{cycle.analysis?.start || "Begin new ventures that align with your purpose."}</p>
+                                                            <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.start || "Begin new ventures that align with your purpose."}</p>
                                                         </div>
                                                     </div>
 
@@ -2256,7 +2256,7 @@ const ConsolidatedReport = () => {
                                                         </div>
                                                         <div>
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 block mb-1">Focus On</span>
-                                                            <p className="text-xs text-slate-600 font-bold leading-relaxed">{cycle.analysis?.focus || "Maintain discipline and awareness in your daily tasks."}</p>
+                                                            <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.focus || "Maintain discipline and awareness in your daily tasks."}</p>
                                                         </div>
                                                     </div>
 
@@ -2266,7 +2266,7 @@ const ConsolidatedReport = () => {
                                                         </div>
                                                         <div>
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block mb-1">Avoid</span>
-                                                            <p className="text-xs text-slate-600 font-bold leading-relaxed">{cycle.analysis?.avoid || "Steer clear of impulsive decisions and unnecessary conflict."}</p>
+                                                            <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.avoid || "Steer clear of impulsive decisions and unnecessary conflict."}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2316,7 +2316,7 @@ const ConsolidatedReport = () => {
                                                         <div key={idx} className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-3xl group hover:bg-white/10 transition-all">
                                                             <div className="flex items-center gap-3 mb-3">
                                                                 <item.icon className="w-4 h-4 text-emerald-400" />
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
                                                             </div>
                                                             <p className="text-sm font-bold text-white leading-snug">{item.value || "Not ideal this cycle"}</p>
                                                         </div>
@@ -2391,7 +2391,7 @@ const ConsolidatedReport = () => {
                                                 <div key={idx} className={`${item.bg} p-6 rounded-3xl border border-transparent hover:border-white hover:shadow-md transition-all`}>
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <item.icon className={`w-4 h-4 ${item.color}`} />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
                                                     </div>
                                                     <p className="text-sm font-bold text-slate-700 leading-snug">{item.value || "Calculating support energy..."}</p>
                                                 </div>
@@ -2403,7 +2403,7 @@ const ConsolidatedReport = () => {
                                                 <Sparkles className="w-12 h-12 text-violet-600" />
                                             </div>
                                             <h5 className="text-[10px] font-black uppercase tracking-widest text-violet-500 mb-2">Simple Suggestion</h5>
-                                            <p className="text-sm text-slate-700 font-bold italic relative z-10 leading-relaxed">
+                                            <p className="text-sm text-indigo-900 font-bold italic relative z-10 leading-relaxed">
                                                 "{report.numerology?.detailed_analysis?.name_insight?.suggestion || "Consistency in how you write and speak your name will stabilize your core vibration."}"
                                             </p>
                                         </div>
@@ -2418,8 +2418,8 @@ const ConsolidatedReport = () => {
                                         <Sparkles className="w-6 h-6 text-amber-600" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Lucky Elements</h3>
-                                        <p className="text-xs font-bold text-slate-400 -mt-1 uppercase tracking-widest">Your cosmic toolkit for success ✨</p>
+                                        <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">Lucky Elements</h3>
+                                        <p className="text-xs font-bold text-slate-500 -mt-1 uppercase tracking-widest">Your cosmic toolkit for success ✨</p>
                                     </div>
                                 </div>
 
@@ -2434,8 +2434,8 @@ const ConsolidatedReport = () => {
                                             <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
                                                 <item.icon className={`w-6 h-6 ${item.color}`} />
                                             </div>
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{item.label}</span>
-                                            <p className="text-sm font-black text-slate-700 leading-snug">{item.value || "Calculating..."}</p>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{item.label}</span>
+                                            <p className="text-sm font-black text-indigo-950 leading-snug">{item.value || "Calculating..."}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -2466,7 +2466,7 @@ const ConsolidatedReport = () => {
                                             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
                                                 <Sparkles className="w-6 h-6 text-amber-600" />
                                             </div>
-                                            <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">Advanced Loshu Grid Analysis</h3>
+                                            <h3 className="text-lg md:text-xl font-bold text-indigo-950 uppercase tracking-widest">Advanced Loshu Grid Analysis</h3>
                                         </div>
 
                                         <div className="flex-1 space-y-8">
@@ -2475,8 +2475,8 @@ const ConsolidatedReport = () => {
                                                     <LoshuGridDisplay loshuData={report.numerology.loshu_grid} showAnalysis={false} />
                                                     <div className="mt-4 p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-center">
                                                         <div className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Kua Number</div>
-                                                        <div className="text-3xl font-black text-primary">{report.numerology.loshu_grid.kua}</div>
-                                                        <div className="text-[10px] text-slate-400 font-bold mt-1">Universal Frequency</div>
+                                                        <div className="text-3xl font-black text-indigo-950">{report.numerology.loshu_grid.kua}</div>
+                                                        <div className="text-[10px] text-slate-500 font-bold mt-1">Universal Frequency</div>
                                                     </div>
                                                 </div>
                                                 <div className="flex-1 space-y-6 w-full">

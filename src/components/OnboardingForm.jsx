@@ -169,9 +169,10 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                             <User className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input
                                 type="text"
+                                maxLength="60"
                                 value={formData.name}
                                 onChange={e => {
-                                    let filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                    let filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 60);
                                     // Apply Title Case (capitalize first letter of each word)
                                     filteredValue = filteredValue.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
                                     setFormData({ ...formData, name: filteredValue });

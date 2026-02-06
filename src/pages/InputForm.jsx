@@ -92,8 +92,8 @@ const InputForm = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'name') {
-            // Remove numeric values and special characters, allow only letters and spaces
-            let filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            // Limit length to 60 characters
+            let filteredValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 60);
             // Apply Title Case (capitalize first letter of each word)
             filteredValue = filteredValue.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
             setFormData({ ...formData, [name]: filteredValue });
@@ -135,6 +135,7 @@ const InputForm = () => {
                                     name="name"
                                     required
                                     autoFocus
+                                    maxLength="60"
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"

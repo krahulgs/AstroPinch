@@ -159,53 +159,68 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         <div className="flex gap-2">
                             <input
                                 ref={dayRef}
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                maxLength="2"
                                 placeholder="DD"
-                                min="1"
-                                max="31"
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
                                 onChange={e => {
-                                    let val = e.target.value.slice(0, 2);
-                                    if (val === '00') val = '01';
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                    if (val === '00') return; // Prevent 00
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val.padStart(2, '0')}` });
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val}` });
                                     if (val.length === 2) monthRef.current?.focus();
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                onKeyDown={e => {
+                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                        // DD is first
+                                    }
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
                             />
                             <input
                                 ref={monthRef}
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                maxLength="2"
                                 placeholder="MM"
-                                min="1"
-                                max="12"
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
                                 onChange={e => {
-                                    let val = e.target.value.slice(0, 2);
-                                    if (val === '00') val = '01';
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                    if (val === '00') return; // Prevent 00
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${val.padStart(2, '0')}-${parts[2]}` });
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${val}-${parts[2]}` });
                                     if (val.length === 2) yearRef.current?.focus();
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                onKeyDown={e => {
+                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                        dayRef.current?.focus();
+                                    }
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors"
                             />
                             <input
                                 ref={yearRef}
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                maxLength="4"
                                 placeholder="YYYY"
-                                min="1900"
-                                max={new Date().getFullYear()}
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[0] : ''}
                                 onChange={e => {
-                                    const val = e.target.value.slice(0, 4);
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${val}-${parts[1]}-${parts[2]}` });
                                     if (val.length === 4) timeRef.current?.focus();
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-[1.5]"
+                                onKeyDown={e => {
+                                    if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                        monthRef.current?.focus();
+                                    }
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors flex-[1.5]"
                             />
                         </div>
                     </div>

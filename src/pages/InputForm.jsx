@@ -131,57 +131,72 @@ const InputForm = () => {
                                     <div className="relative flex-1 group">
                                         <input
                                             ref={dayRef}
-                                            type="number"
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength="2"
                                             placeholder="DD"
-                                            min="1"
-                                            max="31"
                                             required
                                             value={formData.date ? formData.date.split('-')[2] : ''}
                                             onChange={(e) => {
-                                                let val = e.target.value.slice(0, 2);
-                                                if (val === '00') val = '01';
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                                if (val === '00') return; // Prevent 00
                                                 const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${val.padStart(2, '0')}` });
+                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${val}` });
                                                 if (val.length === 2) monthRef.current?.focus();
                                             }}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                                    // Already handled by component order if needed, but DD is first
+                                                }
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
                                     </div>
                                     <div className="relative flex-1 group">
                                         <input
                                             ref={monthRef}
-                                            type="number"
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength="2"
                                             placeholder="MM"
-                                            min="1"
-                                            max="12"
                                             required
                                             value={formData.date ? formData.date.split('-')[1] : ''}
                                             onChange={(e) => {
-                                                let val = e.target.value.slice(0, 2);
-                                                if (val === '00') val = '01';
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                                if (val === '00') return; // Prevent 00
                                                 const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${val.padStart(2, '0')}-${parts[2]}` });
+                                                setFormData({ ...formData, date: `${parts[0]}-${val}-${parts[2]}` });
                                                 if (val.length === 2) yearRef.current?.focus();
                                             }}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                                    dayRef.current?.focus();
+                                                }
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
                                     </div>
                                     <div className="relative flex-[1.5] group">
                                         <input
                                             ref={yearRef}
-                                            type="number"
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength="4"
                                             placeholder="YYYY"
-                                            min="1900"
-                                            max={new Date().getFullYear()}
                                             required
                                             value={formData.date ? formData.date.split('-')[0] : ''}
                                             onChange={(e) => {
-                                                const val = e.target.value.slice(0, 4);
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 4);
                                                 const parts = (formData.date || '1995-01-01').split('-');
                                                 setFormData({ ...formData, date: `${val}-${parts[1]}-${parts[2]}` });
                                                 if (val.length === 4) timeRef.current?.focus();
                                             }}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Backspace' && !e.currentTarget.value) {
+                                                    monthRef.current?.focus();
+                                                }
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
                                         />
                                     </div>
                                 </div>

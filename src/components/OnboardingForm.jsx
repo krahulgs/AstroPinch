@@ -166,7 +166,8 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
                                 onChange={e => {
-                                    const val = e.target.value.slice(0, 2);
+                                    let val = e.target.value.slice(0, 2);
+                                    if (val === '00') val = '01';
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${val.padStart(2, '0')}` });
                                     if (val.length === 2) monthRef.current?.focus();
@@ -182,7 +183,8 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 required
                                 value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
                                 onChange={e => {
-                                    const val = e.target.value.slice(0, 2);
+                                    let val = e.target.value.slice(0, 2);
+                                    if (val === '00') val = '01';
                                     const parts = (formData.birth_date || '1995-01-01').split('-');
                                     setFormData({ ...formData, birth_date: `${parts[0]}-${val.padStart(2, '0')}-${parts[2]}` });
                                     if (val.length === 2) yearRef.current?.focus();

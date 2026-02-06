@@ -2,9 +2,13 @@
 AI Service for generating personalized insights using Google Gemini API
 """
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 
 from groq import Groq
+
+# Load environment variables
+load_dotenv()
 
 # Configure Groq API
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")

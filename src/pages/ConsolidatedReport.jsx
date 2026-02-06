@@ -355,12 +355,24 @@ const YearlyPredictionGraph = ({ data, userData }) => {
     const totalYears = endYear - startYear;
     const yearWidth = 60; // Pixels per year
 
+    // Seeded Random for consistency across renders for the same profile
+    const seed = userData ? (new Date(userData.date).getTime() + (userData.time || "").charCodeAt(0) || 0) : 123;
+    const getSeededValue = (offset) => {
+        const x = Math.sin(seed + offset) * 10000;
+        return x - Math.floor(x);
+    };
+
     // Calculate "NOW" position
     const currentYearVal = new Date().getFullYear();
     const nowOffsetYears = currentYearVal - startYear;
     // Clamp cursor between 0 and total width if needed, or hide if out of range
     const showNowCursor = nowOffsetYears >= 0 && nowOffsetYears <= totalYears;
     const nowCursorLeft = showNowCursor ? nowOffsetYears * yearWidth : 0;
+
+    // Current Year Data from API
+    const currentYearData = Array.isArray(data) ? data.find(d => d.year === currentYearVal) : null;
+    const liveScore = currentYearData ? currentYearData.score : 72;
+    const liveStatus = currentYearData ? currentYearData.status : "Positive";
 
 
     // Helper to generate random heatmap strips
@@ -451,8 +463,8 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                         </div>
                     </div>
                     <div className="text-right shrink-0 min-w-[100px]">
-                        <div className="text-sm font-black text-emerald-600 leading-none">78%</div>
-                        <div className="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest">Very Positive</div>
+                        <div className="text-sm font-black text-emerald-600 leading-none">{liveScore}%</div>
+                        <div className="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest">{liveStatus}</div>
                     </div>
                 </div>
             </div>
@@ -476,9 +488,22 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                             const points = [];
                             for (let i = 0; i <= totalYears * 5; i++) {
                                 const x = (i / 5) * yearWidth;
-                                const offset = i / 10;
-                                const yVal = Math.sin(offset) * 0.25 + Math.cos(offset * 2.5) * 0.15 + 0.5;
-                                const y = trendHeight - (Math.max(0.1, Math.min(0.9, yVal)) * trendHeight);
+                                const currentYearIter = startYear + (i / 5);
+
+                                // Try to find real data for this year
+                                const realYearData = Array.isArray(data) ? data.find(d => Math.floor(d.year) === Math.floor(currentYearIter)) : null;
+
+                                let yVal;
+                                if (realYearData) {
+                                    // Use API score (0-100) converted to 0.1-0.9 range
+                                    yVal = (realYearData.score / 100) * 0.8 + 0.1;
+                                } else {
+                                    // Fallback to seeded pseudo-random trend
+                                    const offset = i / 10;
+                                    yVal = (getSeededValue(offset) * 0.3) + (Math.sin(offset / 3) * 0.2) + 0.4;
+                                }
+
+                                const y = trendHeight - (Math.max(0.05, Math.min(0.95, yVal)) * trendHeight);
                                 points.push({ x, y });
                             }
                             const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
@@ -504,11 +529,16 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                         })()}
                     </div>
 
-                    {/* Timeline Ruler */}
+                    {/* Timeline Ruler with Dasha Hover */}
                     <div className="flex bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                         {Array.from({ length: totalYears }).map((_, i) => {
                             const year = startYear + i;
                             const isCurrent = year === currentYearVal;
+
+                            // Find API data for this year to show Dasha info
+                            const yearInfo = Array.isArray(data) ? data.find(d => d.year === year) : null;
+                            const dashaText = yearInfo ? `${yearInfo.planetary_influence} / ${yearInfo.sub_lord}` : null;
+
                             return (
                                 <div
                                     key={year}
@@ -516,6 +546,14 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                     style={{ width: `${yearWidth}px`, height: '32px' }}
                                 >
                                     {year}
+
+                                    {/* Dasha Tooltip */}
+                                    {dashaText && (
+                                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-[8px] py-1 px-2 rounded shadow-xl z-50 whitespace-nowrap pointer-events-none">
+                                            {dashaText}
+                                        </div>
+                                    )}
+
                                     {/* Small tick mark */}
                                     {!isCurrent && <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>}
                                 </div>
@@ -539,7 +577,8 @@ const YearlyPredictionGraph = ({ data, userData }) => {
 
 
 
-                        {/* HIDDEN AS PER USER REQUEST
+                        {/* HIDDEN AS PER USER REQUEST */}
+                        {/* 
                         {tracks.map((track) => (
                             <div key={track.id} className="relative">
                                 <div className="sticky left-6 flex items-center gap-2 mb-1 z-10 w-max bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
@@ -577,6 +616,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                             </div>
                         ))}
                         */}
+
                     </div>
                 </div>
             </div>
@@ -2253,7 +2293,7 @@ const ConsolidatedReport = () => {
                                                 </div>
                                                 <h4 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">Best Activities This Year</h4>
                                                 <p className="text-lg text-slate-300 font-medium leading-relaxed italic">
-                                                    "{report.numerology?.detailed_analysis?.timing?.best_activities || "Focus on consolidating your current assets and preparing for major shifts in the coming cycles."}"
+                                                    "{report.numerology?.detailed_analysis?.timing?.best_activities}"
                                                 </p>
                                             </div>
 
@@ -2285,7 +2325,7 @@ const ConsolidatedReport = () => {
                                                 <div>
                                                     <h4 className="text-xl font-black text-rose-300 uppercase tracking-tighter mb-2">Warning Periods</h4>
                                                     <p className="text-base text-rose-100/80 font-medium leading-relaxed">
-                                                        {report.numerology?.detailed_analysis?.timing?.warning || "Maintain high ethical standards and avoid shortcuts. High-stakes risks are not favored during this period."}
+                                                        {report.numerology?.detailed_analysis?.timing?.warning}
                                                     </p>
                                                 </div>
                                                 <div className="pt-4 flex items-center gap-3">
@@ -2410,64 +2450,7 @@ const ConsolidatedReport = () => {
                                 </div>
                             </section>
 
-                            <div className="space-y-8">
-                                {/* Loshu Grid Details */}
-                                {report.numerology?.loshu_grid && (
-                                    <div className="glass-panel p-8 rounded-[2.5rem] space-y-8 relative overflow-hidden bg-white border border-gray-100 shadow-xl h-full flex flex-col">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                                                <Sparkles className="w-6 h-6 text-amber-600" />
-                                            </div>
-                                            <h3 className="text-lg md:text-xl font-bold text-indigo-950 uppercase tracking-widest">Advanced Loshu Grid Analysis</h3>
-                                        </div>
 
-                                        <div className="flex-1 space-y-8">
-                                            <div className="flex flex-col md:flex-row gap-8 items-start">
-                                                <div className="shrink-0 scale-100 bg-white p-4 rounded-3xl border border-amber-100 shadow-sm w-full md:w-auto">
-                                                    <LoshuGridDisplay loshuData={report.numerology.loshu_grid} showAnalysis={false} />
-                                                    <div className="mt-4 p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-center">
-                                                        <div className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Kua Number</div>
-                                                        <div className="text-3xl font-black text-indigo-950">{report.numerology.loshu_grid.kua}</div>
-                                                        <div className="text-[10px] text-slate-500 font-bold mt-1">Universal Frequency</div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex-1 space-y-6 w-full">
-                                                    <div>
-                                                        <div className="text-xs font-black text-secondary uppercase tracking-widest border-b border-gray-100 pb-2 mb-4 flex items-center gap-2">
-                                                            <Activity className="w-4 h-4 text-emerald-500" /> Success Planes Analysis
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {report.numerology.loshu_grid.completed_planes?.length > 0 ? (
-                                                                report.numerology.loshu_grid.completed_planes.map((plane, idx) => (
-                                                                    <span key={idx} className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-xl border border-emerald-100 uppercase tracking-widest shadow-sm">
-                                                                        {plane}
-                                                                    </span>
-                                                                ))
-                                                            ) : (
-                                                                <span className="text-sm text-slate-400 italic bg-slate-50 p-4 rounded-xl border border-dashed border-slate-200 block w-full text-center">No full planes formed. Focus on missing energies below.</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <div className="text-xs font-black text-secondary uppercase tracking-widest border-b border-gray-100 pb-2 mb-4 flex items-center gap-2">
-                                                            <Leaf className="w-4 h-4 text-amber-600" /> Integrated Specific Remedies
-                                                        </div>
-                                                        <div className="grid grid-cols-1 gap-3">
-                                                            {Object.entries(report.numerology.loshu_grid.remedies || {}).map(([num, remedy], idx) => (
-                                                                <div key={idx} className="flex gap-4 items-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-amber-200 transition-all group">
-                                                                    <span className="w-8 h-8 rounded-xl bg-white border border-amber-200 text-sm font-black flex items-center justify-center shrink-0 text-amber-700 shadow-sm group-hover:scale-110 transition-transform">{num}</span>
-                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium group-hover:text-primary transition-colors">{remedy}</p>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
 
                             {/* AI Deep Dive Section */}
                             {report.numerology?.ai_insights && (

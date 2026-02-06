@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Users, ArrowRight, Loader, Sparkles, AlertTriangle, CheckCircle2, Info, Moon, Sun, Table } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 import SEO from '../components/SEO';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import MatchReportPDF from '../components/reports/MatchReportPDF';
 
 const KundaliMatch = () => {
     const { profiles, token } = useProfile();
@@ -19,11 +16,6 @@ const KundaliMatch = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
-    const [pdfLanguage, setPdfLanguage] = useState(i18n.language || 'en');
-    const [downloadingPdf, setDownloadingPdf] = useState(false);
-
-    // Ref for the hidden report component
-    const reportRef = useRef(null);
 
     const handleMatch = async () => {
         if (!bride || !groom) return;
@@ -39,7 +31,7 @@ const KundaliMatch = () => {
                 body: JSON.stringify({
                     bride_id: bride.id,
                     groom_id: groom.id,
-                    lang: i18n.language // Logic always runs in current UI language, but we can refetch for PDF if needed
+                    lang: i18n.language
                 })
             });
 
@@ -61,98 +53,6 @@ const KundaliMatch = () => {
             setError("A connection error occurred. Please try again.");
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleDownloadPDF = async (targetLanguage) => {
-        if (!result || !reportRef.current) return;
-        setDownloadingPdf(true);
-        const currentLang = i18n.language;
-
-        try {
-            // 1. Fetch translation if needed
-            if (targetLanguage !== 'en') {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/kundali-match`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ bride_id: bride.id, groom_id: groom.id, lang: targetLanguage })
-                    });
-                    if (response.ok) setResult(await response.json());
-                } catch (e) {
-                    console.error("Translation fetch failed, proceeding with current text", e);
-                }
-            }
-
-            // 2. Switch Language
-            await i18n.changeLanguage(targetLanguage);
-
-            // 3. Wait for DOM update
-            await new Promise(r => setTimeout(r, 800));
-
-            // 4. Capture with html2canvas
-            const element = reportRef.current;
-            console.log("Capturing PDF element:", element);
-
-            if (!html2canvas) throw new Error("html2canvas library not loaded");
-
-            const canvas = await html2canvas(element, {
-                scale: 2,           // Retina quality
-                useCORS: true,      // Allow cors images
-                logging: true,
-                backgroundColor: '#ffffff',
-                windowWidth: 1200,   // Simulate desktop width
-                x: 0,
-                y: 0
-            });
-
-            // 5. Generate PDF
-            const imgData = canvas.toDataURL('image/jpeg', 0.98);
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgWidth = 210; // A4 width
-            const pageHeight = 297; // A4 height
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            // First page
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            // Subsequent pages
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight; // This logic is usually tricky, let's simplify to standard addPage
-                pdf.addPage();
-                // We need to render the image shifted up
-                pdf.addImage(imgData, 'JPEG', 0, -pageHeight, imgWidth, imgHeight);
-                // Wait, logic for splitting image is complex. 
-                // Let's just output one long page if it fits, or let jsPDF manage it?
-                // Actually, standard approach creates "one long pdf" or scales it.
-                // For a report, "Scale to fit" one page is safest for now unless user requested otherwise.
-                // Let's do simple SINGLE PAGE SCALED if it fits reasonable, else split.
-                heightLeft -= pageHeight;
-            }
-            // Actually, the loop above is broken logic for splitting. 
-            // Better strategy: Just restart PDF with custom height if it's long?
-            // No, A4 is standard. 
-
-            // SIMPLIFIED STRATEGY: One page if possible, or just standard 2 pages if really long.
-            // But let's trust the 'addImage' works for the first page.
-
-            pdf.save(`Kundali_Report_${bride.name}_${groom.name}_${targetLanguage}.pdf`);
-
-        } catch (err) {
-            console.error("PDF Generation Error:", err);
-            setError(`Failed to generate PDF: ${err.message}`);
-        } finally {
-            await i18n.changeLanguage(currentLang);
-            setDownloadingPdf(false);
         }
     };
 
@@ -580,43 +480,46 @@ const KundaliMatch = () => {
                                 </div>
 
                                 <div className="lg:w-1/3 flex flex-col gap-4 items-center lg:items-end">
-                                    {/* Language Selection */}
-                                    <div className="w-full max-w-xs">
-                                        <label className="block text-xs font-black text-secondary uppercase tracking-[0.2em] mb-2 text-center lg:text-right">
-                                            PDF Language
-                                        </label>
-                                        <select
-                                            value={pdfLanguage}
-                                            onChange={(e) => setPdfLanguage(e.target.value)}
-                                            className="w-full p-3 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-amber-500 outline-none transition-all font-bold text-primary text-center"
-                                        >
-                                            <option value="en">English</option>
-                                            <option value="hi">हिंदी (Hindi)</option>
-                                        </select>
-                                    </div>
-
                                     <button
-                                        onClick={() => handleDownloadPDF(pdfLanguage)}
-                                        disabled={downloadingPdf}
-                                        className={`px-8 py-4 rounded-2xl font-black uppercase text-sm tracking-widest shadow-2xl transition-all flex items-center gap-3 group
-                                            ${downloadingPdf
-                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                : 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:scale-105 active:scale-95'
-                                            }`}
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch(`${API_BASE_URL}/api/kundali-match/pdf`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': `Bearer ${token}`
+                                                    },
+                                                    body: JSON.stringify({
+                                                        bride_id: bride.id,
+                                                        groom_id: groom.id,
+                                                        lang: i18n.language
+                                                    })
+                                                });
+
+                                                if (response.ok) {
+                                                    const blob = await response.blob();
+                                                    const url = window.URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `AstroPinch_Match_${bride.name}_&_${groom.name}.pdf`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    window.URL.revokeObjectURL(url);
+                                                    document.body.removeChild(a);
+                                                } else {
+                                                    alert('Failed to generate PDF report');
+                                                }
+                                            } catch (err) {
+                                                console.error('PDF Download Error:', err);
+                                                alert('Error downloading report');
+                                            }
+                                        }}
+                                        className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black uppercase text-sm tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group"
                                     >
-                                        {downloadingPdf ? (
-                                            <>
-                                                <Loader className="w-5 h-5 animate-spin" />
-                                                Generating...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                Download PDF Report
-                                            </>
-                                        )}
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Download PDF Report
                                     </button>
 
                                     <div className="flex items-center gap-2 px-4 py-2 bg-white/60 rounded-xl border border-amber-200">
@@ -654,30 +557,6 @@ const KundaliMatch = () => {
                     </button>
                 </div>
             )}
-            {/* 
-                PDF Report Template 
-                - Position fixed off-screen ensures it is rendered in the DOM with correct dimensions 
-                - z-index ensures it doesn't interfere with UI
-                - 'display: none' would cause empty PDF
-            */}
-            {/* 
-                PDF Report Template 
-                - Positioned off-screen to the right to ensure it is rendered but not visible
-                - Strict width enforced for consistent PDF layout
-            */}
-            <div style={{
-                position: 'fixed',
-                left: '200vw', // Move way off to the right
-                top: 0,
-                width: '1000px', // Fixed width for A4 consistency
-                height: 'auto',
-                zIndex: -50,
-                background: 'white' // Ensure background is white
-            }}>
-                <div id="pdf-report-container">
-                    <MatchReportPDF ref={reportRef} matchResult={result} bride={bride} groom={groom} />
-                </div>
-            </div>
         </div>
     );
 };

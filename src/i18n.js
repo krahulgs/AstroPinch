@@ -1,17 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { translations } from './i18n/translations';
-
-// Convert our standard translations object to i18next resource format
-const resources = Object.keys(translations).reduce((acc, lang) => {
-    acc[lang] = { translation: translations[lang] };
-    return acc;
-}, {});
+import en from './locales/en.json';
 
 i18n
     .use(initReactI18next)
     .init({
-        resources,
+        resources: {
+            en: { translation: en }
+        },
         lng: 'en',
         fallbackLng: 'en',
         interpolation: {

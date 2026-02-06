@@ -450,16 +450,21 @@ JSON only:"""
                     return json.loads(response.choices[0].message.content)
                 except Exception as e2:
                     print(f"Groq 8B fallback also failed for {name}: {e2}")
-                    if not model: raise e2
-
-                    if not model: raise e2
-
-        # Removed Gemini Fallback per User Request
-        # if model:
-        #    ...
-
-        # Fallback to Static Template if AI fails
-    # if model: ... (Gemini removed per user request)
+                    
+        # Fallback to Gemini if Groq fails
+        if model:
+            try:
+                print(f"Attempting Gemini Fallback for {name}...")
+                response = model.generate_content(prompt)
+                # Try to parse JSON from response text
+                text = response.text
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0].strip()
+                elif "{" in text:
+                    text = text[text.find("{"):text.rfind("}")+1]
+                return json.loads(text)
+            except Exception as eg:
+                print(f"Gemini fallback failed for {name}: {eg}")
 
         print("AI Service Failed or Unavailable. generating robust fallback...")
         return generate_vedic_summary_fallback(name, planets, panchang, doshas)
@@ -480,82 +485,100 @@ def generate_vedic_summary_fallback(name, planets, panchang, doshas):
     if panchang and 'ascendant' in panchang:
         asc_name = panchang['ascendant'].get('name', 'Unknown')
     
-    # Simple Ascendant Keywords
-    asc_map = {
-        'Aries': "dynamic, courageous, and action-oriented",
-        'Taurus': "stable, practical, and artistry-loving",
-        'Gemini': "intellectual, communicative, and versatile",
-        'Cancer': "intuitive, nurturing, and emotionally deep",
-        'Leo': "charismatic, generous, and born to lead",
-        'Virgo': "analytical, detailed, and service-oriented",
-        'Libra': "diplomatic, harmonious, and aesthetics-focused",
-        'Scorpio': "intense, transformative, and resilient",
-        'Sagittarius': "optimistic, philosophical, and adventurous",
-        'Capricorn': "disciplined, ambitious, and structured",
-        'Aquarius': "innovative, humanitarian, and independent",
-        'Pisces': "compassionate, imaginative, and spiritual"
+    # 2. Extract Key Planets
+    moon = next((p for p in planets if p.get('name') == 'Moon'), {})
+    venus = next((p for p in planets if p.get('name') == 'Venus'), {})
+    mars = next((p for p in planets if p.get('name') == 'Mars'), {})
+    jupiter = next((p for p in planets if p.get('name') == 'Jupiter'), {})
+    saturn = next((p for p in planets if p.get('name') == 'Saturn'), {})
+    
+    moon_sign = moon.get('sign', 'Unknown')
+    venus_sign = venus.get('sign', 'Unknown')
+    jupiter_sign = jupiter.get('sign', 'Unknown')
+    
+    # 3. Dynamic Personality
+    personality_traits = {
+        'Aries': "Independence and initiative drive your core. You are a natural pioneer.",
+        'Taurus': "Stability and sensory beauty are essential to you. You build for the long term.",
+        'Gemini': "Curiosity and communication are your tools. You thrive on intellectual variety.",
+        'Cancer': "Intuition and emotional security are your guiding lights. You are deeply protective.",
+        'Leo': "Creativity and self-expression are your natural states. You radiate warmth.",
+        'Virgo': "Detail and service define your approach. You seek perfection in everything.",
+        'Libra': "Harmony and partnership are vital. You seek balance in all interactions.",
+        'Scorpio': "Depth and transformation are your paths. You possess great inner power.",
+        'Sagittarius': "Growth and exploration are your drivers. You seek the truth above all.",
+        'Capricorn': "Discipline and ambition are your hallmarks. You respect structure.",
+        'Aquarius': "Innovation and freedom define you. You look toward the future.",
+        'Pisces': "Empathy and imagination are your gifts. You are spiritually sensitive."
     }
-    core_trait = asc_map.get(asc_name, "unique and multifaceted")
-
-    # 2. Personality Analysis Fallback
+    
+    trait = personality_traits.get(asc_name, "You possess a unique blend of cosmic energies.")
+    
+    # 4. Dynamic Relationship Insights
+    rel_traits = {
+        'Aries': "dynamic and passionate",
+        'Taurus': "stable and devoted",
+        'Gemini': "intellectual and communicative",
+        'Cancer': "nurturing and deeply emotional",
+        'Leo': "loyal and appreciative",
+        'Virgo': "practical and supportive",
+        'Libra': "romantic and balanced",
+        'Scorpio': "intense and transformative",
+        'Sagittarius': "honest and adventurous",
+        'Capricorn': "serious and committed",
+        'Aquarius': "unconventional and friendly",
+        'Pisces': "imaginative and compassionate"
+    }
+    
+    venus_trait = rel_traits.get(venus_sign, "balanced")
+    
+    # 5. Build Content
     personality_content = {
         "title": "Vedic Life Portrait",
         "content": {
-            "Personality": f"Your Rising Sign is {asc_name}, which indicates you are naturally {core_trait}. You approach the world with a distinct energy that sets you apart.",
-            "Emotional Nature": "Your emotional core is deep and receptive, guided by the Moon's influence in your chart.",
-            "Strengths": "Resilience, adaptability, and a strong sense of purpose are your key assets.",
-            "Challenges": "Balancing your inner needs with external demands can sometimes be a focus area.",
-            "Life Theme": f"Growth through {core_trait.split(',')[1] if ',' in core_trait else 'self-expression'}."
+            "Personality": f"With your Ascendant in {asc_name}, {trait} This gives you a natural advantage in leadership and self-starting initiatives.",
+            "Emotional Nature": f"Your Moon in {moon_sign} suggests an emotional core that values {personality_traits.get(moon_sign, 'stability').split(' ')[0].lower()}.",
+            "Strengths": f"Resilience, adaptability, and the energy of {jupiter_sign} Jupiter provide you with natural wisdom.",
+            "Challenges": f"Managing the intensity of Mars while maintaining the discipline of Saturn in your chart.",
+            "Life Theme": f"Mastering {asc_name} energy - finding your place through {trait.split(' ')[0].lower()}."
         }
     }
 
-    # 3. Career Path Fallback
-    # Check Saturn/Sun for career hints
-    saturn = next((p for p in planets if p.get('name') == 'Saturn'), None)
-    saturn_sign = saturn.get('sign', 'Unknown') if saturn else 'Unknown'
-    
     career_content = (
-        f"With your Ascendant in {asc_name} and Saturn in {saturn_sign}, your career path is marked by a need for both stability and expression. "
-        "You tend to thrive in roles that allow for autonomy. Success is indicated through persistence and building specialized skills. "
-        "Financially, a steady accumulation approach works best for you, avoiding impulsive risks."
+        f"Success is indicated through professions that align with your {asc_name} drive. "
+        f"Jupiter in {jupiter_sign} suggests growth through knowledge or leadership roles. "
+        f"Your Saturn placement indicates that patience and steady builder energy will yield the highest returns over time."
     )
 
-    # 4. Relationships Fallback
-    # Check Venus
-    venus = next((p for p in planets if p.get('name') == 'Venus'), None)
-    venus_sign = venus.get('sign', 'Unknown') if venus else 'Unknown'
-    
     relation_content = {
-        "Needs": "Emotional connection and mutual respect.",
-        "Partner": f"Someone who balances your {asc_name} energy - likely grounded yet inspiring.",
-        "Strengths": "Loyalty and commitment.",
-        "Challenges": "Communication clarity during stressful times.",
-        "Tip": "Focus on shared values to build a lasting bond."
+        "Needs": f"An environment that respects your {asc_name} individuality while offering {moon_sign} security.",
+        "Partner": f"A person who resonates with your Venus in {venus_sign} - likely someone who is {venus_trait} and supportive.",
+        "Strengths": "Loyalty, emotional depth, and a commitment to shared growth.",
+        "Challenges": "Balancing personal time with the needs of the relationship.",
+        "Tip": f"Use your {venus_trait} approach to foster open communication and mutual trust."
     }
 
-    # 5. Dosha Check Fallback
-    dosha_text = "Your chart shows a balanced distribution of energy. "
+    dosha_status = "balanced"
     if doshas and doshas.get('manglik', {}).get('present'):
-        dosha_text = "Manglik influence is present, indicating high energy and passion. This can be channeled into productive pursuits and dynamic relationships."
+        m = doshas['manglik']
+        dosha_status = f"Manglik influence (Intensity: {m.get('intensity')}) is noted. This suggests a powerful drive that can be channeled into great achievements."
     else:
-        dosha_text += "No major destabilizing Doshas are prominent, suggesting a smoother path with fewer karmic obstructs."
-
-    # 6. Remedies (Generic Safe)
-    remedies_content = [
-        {"type": "Mindset", "remedy": "Practice daily gratitude to align with positive Jupiter energy."},
-        {"type": "Lifestyle", "remedy": "Maintain a regular sleep schedule to balance the Moon's influence."},
-        {"type": "Service", "remedy": "Helping the less fortunate on Saturdays strengthens Saturn."}
-    ]
+        dosha_status = "No major destabilizing influences are prominent. Your energy flow is steady and conducive to long-term plans."
 
     return {
         "personality_analysis": personality_content,
-        "emotional_core": {"title": "Emotional Core", "content": f"Your emotional nature is colored by the stars at your birth. Focus on inner stability."},
+        "emotional_core": {"title": "Emotional Core", "content": f"Your emotional landscape is influenced by {moon_sign} energy, emphasizing {personality_traits.get(moon_sign, 'inner peace').split(' ')[0].lower()}."},
         "career_path": {"title": "Career & Financial Growth", "content": career_content},
         "relationships": {"title": "Marriage & Relationships", "content": relation_content},
-        "life_phase": {"title": "Current Life Phase", "content": "You are currently navigating a phase of learning and growth. Trust the timing of your life."},
-        "dosha_check": {"title": "Dosha Awareness", "content": dosha_text},
-        "remedies": {"title": "Soul Remedies", "content": remedies_content}
+        "life_phase": {"title": "Current Life Phase", "content": "You are currently in a cycle of evolution. Focus on internal alignment to attract external success."},
+        "dosha_check": {"title": "Dosha Awareness", "content": dosha_status},
+        "remedies": {"title": "Soul Remedies", "content": [
+            {"type": "Mindset", "remedy": f"Embrace the positive traits of {asc_name} while remaining open to feedback."},
+            {"type": "Lifestyle", "remedy": "Practice mindful breathing during sunset to ground your lunar energy."},
+            {"type": "Service", "remedy": f"Donating to causes related to {jupiter_sign} themes brings balance."}
+        ]}
     }
+
 
 def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None, context=None, lang="en"):
     """

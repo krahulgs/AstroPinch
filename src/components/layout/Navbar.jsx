@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X, Globe } from 'lucide-react';
+import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 import AstroLogo from '../../components/AstroLogo';
 
@@ -9,7 +9,7 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, login, logout, token } = useProfile();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const isActive = (path) => location.pathname === path;
@@ -75,8 +75,6 @@ const Navbar = () => {
                     {/* Right side actions */}
                     <div className="flex items-center gap-2 md:gap-4">
 
-
-
                         <div className="hidden sm:flex items-center gap-2 md:gap-4">
                             {token ? (
                                 <div className={`flex items-center gap-2 md:gap-3 pl-4 border-l ${isHomePage && !isMenuOpen ? 'border-white/20' : 'border-white/10'}`}>
@@ -126,8 +124,6 @@ const Navbar = () => {
                 {isMenuOpen && (
                     <div className="lg:hidden animate-in fade-in slide-in-from-top-4 duration-300 bg-[#0a0a0b] border-t border-white/10 pb-8 px-2 mt-2">
                         <div className="flex flex-col gap-1 pt-4">
-                            {/* Mobile Language Switcher */}
-
                             {navItems.map((item) => (
                                 <Link
                                     key={item.path}

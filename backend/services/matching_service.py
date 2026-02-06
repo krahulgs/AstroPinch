@@ -46,47 +46,44 @@ class MatchingService:
         kootas = []
         total_score = 0
 
-        # Get translations
-        txt = MatchingService._get_koota_translations(lang)
-
         # --- 1. VARNA (Max 1) ---
         varna_points, b_varna, g_varna = MatchingService._calc_varna(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": txt["Varna"]["name"], "significance": txt["Varna"]["desc"], "bride_val": b_varna, "groom_val": g_varna, "points": varna_points, "max_points": 1})
+        kootas.append({"name": "Varna", "significance": "Working personality & Ego", "bride_val": b_varna, "groom_val": g_varna, "points": varna_points, "max_points": 1})
         total_score += varna_points
 
         # --- 2. VASHYA (Max 2) ---
         vashya_points, b_vashya, g_vashya = MatchingService._calc_vashya(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": txt["Vashya"]["name"], "significance": txt["Vashya"]["desc"], "bride_val": b_vashya, "groom_val": g_vashya, "points": vashya_points, "max_points": 2})
+        kootas.append({"name": "Vashya", "significance": "Dominance and Control", "bride_val": b_vashya, "groom_val": g_vashya, "points": vashya_points, "max_points": 2})
         total_score += vashya_points
 
         # --- 3. TARA (Max 3) ---
         tara_points = MatchingService._calc_tara(b_nak_idx, g_nak_idx)
-        kootas.append({"name": txt["Tara"]["name"], "significance": txt["Tara"]["desc"], "bride_val": "Nakshatra " + str(b_nak_idx + 1), "groom_val": "Nakshatra " + str(g_nak_idx + 1), "points": tara_points, "max_points": 3})
+        kootas.append({"name": "Tara", "significance": "Destiny and Luck", "bride_val": "Nakshatra " + str(b_nak_idx + 1), "groom_val": "Nakshatra " + str(g_nak_idx + 1), "points": tara_points, "max_points": 3})
         total_score += tara_points
 
         # --- 4. YONI (Max 4) ---
         yoni_points, b_yoni, g_yoni = MatchingService._calc_yoni(b_nak_idx, g_nak_idx)
-        kootas.append({"name": txt["Yoni"]["name"], "significance": txt["Yoni"]["desc"], "bride_val": b_yoni, "groom_val": g_yoni, "points": yoni_points, "max_points": 4})
+        kootas.append({"name": "Yoni", "significance": "Physical & Intimate Compatibility", "bride_val": b_yoni, "groom_val": g_yoni, "points": yoni_points, "max_points": 4})
         total_score += yoni_points
 
         # --- 5. GRAHA MAITRI (Max 5) ---
         maitri_points, b_lord, g_lord = MatchingService._calc_maitri(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": txt["Graha Maitri"]["name"], "significance": txt["Graha Maitri"]["desc"], "bride_val": b_lord, "groom_val": g_lord, "points": maitri_points, "max_points": 5})
+        kootas.append({"name": "Graha Maitri", "significance": "Mental and Intellectual Bond", "bride_val": b_lord, "groom_val": g_lord, "points": maitri_points, "max_points": 5})
         total_score += maitri_points
 
         # --- 6. GANA (Max 6) ---
         gana_points, b_gana, g_gana = MatchingService._calc_gana(b_nak_idx, g_nak_idx)
-        kootas.append({"name": txt["Gana"]["name"], "significance": txt["Gana"]["desc"], "bride_val": b_gana, "groom_val": g_gana, "points": gana_points, "max_points": 6})
+        kootas.append({"name": "Gana", "significance": "Temperament and Behavior", "bride_val": b_gana, "groom_val": g_gana, "points": gana_points, "max_points": 6})
         total_score += gana_points
 
         # --- 7. BHAKOOT (Max 7) ---
         bhakoot_points = MatchingService._calc_bhakoot(b_rashi_idx, g_rashi_idx)
-        kootas.append({"name": txt["Bhakoot"]["name"], "significance": txt["Bhakoot"]["desc"], "bride_val": rashis[b_rashi_idx], "groom_val": rashis[g_rashi_idx], "points": bhakoot_points, "max_points": 7})
+        kootas.append({"name": "Bhakoot", "significance": "Emotional and Family Life", "bride_val": rashis[b_rashi_idx], "groom_val": rashis[g_rashi_idx], "points": bhakoot_points, "max_points": 7})
         total_score += bhakoot_points
 
         # --- 8. NADI (Max 8) ---
         nadi_points, b_nadi, g_nadi = MatchingService._calc_nadi(b_nak_idx, g_nak_idx)
-        kootas.append({"name": txt["Nadi"]["name"], "significance": txt["Nadi"]["desc"], "bride_val": b_nadi, "groom_val": g_nadi, "points": nadi_points, "max_points": 8})
+        kootas.append({"name": "Nadi", "significance": "Health and Genetic Compatibility", "bride_val": b_nadi, "groom_val": g_nadi, "points": nadi_points, "max_points": 8})
         total_score += nadi_points
 
         # Manglik Analysis
@@ -133,31 +130,6 @@ class MatchingService:
             "transit_analysis": transit_analysis,
             "marriage_windows": marriage_windows
         }
-
-    @staticmethod
-    def _get_koota_translations(lang):
-        if lang and lang.lower().startswith("hi"):
-            return {
-                "Varna": {"name": "वर्ण (Varna)", "desc": "कार्य व्यक्तित्व और अहंकार"},
-                "Vashya": {"name": "वश्य (Vashya)", "desc": "प्रभुत्व और नियंत्रण"},
-                "Tara":   {"name": "तारा (Tara)", "desc": "भाग्य और नियति"},
-                "Yoni":   {"name": "योनि (Yoni)", "desc": "शारीरिक और आत्मीय संगतता"},
-                "Graha Maitri": {"name": "ग्रह मैत्री (Graha Maitri)", "desc": "मानसिक और बौद्धिक मैत्री"},
-                "Gana":   {"name": "गण (Gana)", "desc": "स्वभाव और व्यवहार"},
-                "Bhakoot": {"name": "भकूट (Bhakoot)", "desc": "भावनात्मक और पारिवारिक जीवन"},
-                "Nadi":   {"name": "नाड़ी (Nadi)", "desc": "स्वास्थ्य और आनुवंशिक संगतता"}
-            }
-        else:
-            return {
-                "Varna": {"name": "Varna", "desc": "Working personality & Ego"},
-                "Vashya": {"name": "Vashya", "desc": "Dominance and Control"},
-                "Tara":   {"name": "Tara", "desc": "Destiny and Luck"},
-                "Yoni":   {"name": "Yoni", "desc": "Physical & Intimate Compatibility"},
-                "Graha Maitri": {"name": "Graha Maitri", "desc": "Mental and Intellectual Bond"},
-                "Gana":   {"name": "Gana", "desc": "Temperament and Behavior"},
-                "Bhakoot": {"name": "Bhakoot", "desc": "Emotional and Family Life"},
-                "Nadi":   {"name": "Nadi", "desc": "Health and Genetic Compatibility"}
-            }
 
     @staticmethod
     def _is_manglik_check(astro_data, find_func):
@@ -578,105 +550,6 @@ Your role is to analyze Kundali matching results that are already calculated pro
             return {"score": 5, "analysis": ["Transit analysis unavailable"], "recommendation": "Moderate"}
 
     @staticmethod
-    def generate_ai_analysis(bride_name, groom_name, kootas, total_score, b_manglik, g_manglik, doshas, lang="en"):
-        """
-        Generates AI summary of the match. 
-        If lang='hi', generates in English first for accuracy, then translates to Hindi.
-        """
-        try:
-            # 1. Construct the Analysis Prompt
-            koota_summary = ", ".join([f"{k['name']}: {k['points']}/{k['max_points']}" for k in kootas])
-            dosha_summary = ", ".join([d['name'] for d in doshas if d['is_present']]) or "None"
-            
-            # 1. Force English Generation first
-            lang_instruction = "Write the response in clear, professional English."
-
-            prompt = f"""
-            You are an expert Vedic Astrologer with deep knowledge of Ashta-Koota and relationship psychology.
-            Analyze the marriage compatibility for:
-            Bride: {bride_name}
-            Groom: {groom_name}
-            
-            Data:
-            - Total Guna Score: {total_score}/36
-            - Manglik Status: Bride ({b_manglik['status']}), Groom ({g_manglik['status']})
-            - Key Doshas Present: {dosha_summary}
-            - Koota Scores: {koota_summary}
-            
-            Task:
-            Write a professional, insightful 2-paragraph summary of their compatibility.
-            - Paragraph 1: Focus on the emotional connection, mental compatibility (Bhakoot), and longevity/health (Nadi).
-            - Paragraph 2: Provide a final verdict/recommendation on whether to proceed and what remedies (if any) are needed.
-            
-            Tone: Compassionate, traditional yet practical.
-            {lang_instruction}
-            Output: Plain text only, no markdown formatting.
-            """
-            
-            # 2. Generate English Analysis
-            analysis_text = ""
-            try:
-                response = model.generate_content(prompt)
-                analysis_text = response.text
-            except Exception as e:
-                print(f"Gemini Gen Error: {e}")
-                # Fallback to Groq
-                chat_completion = client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.3-70b-versatile",
-                )
-                analysis_text = chat_completion.choices[0].message.content
-
-            # 3. Translate if Hindi requested ONLY
-            if lang and lang.lower().startswith("hi"):
-                translation_prompt = f"""
-You are translating an astrology report from English to Hindi for an application called “AstroPinch”.
-
-Your goal is to produce a **clear, natural, and culturally appropriate Hindi translation** that feels professional and trustworthy.
-
-### Translation Rules: Use Google Translation API
-
-1. Maintain the **original meaning exactly**. Do not add, remove, or interpret content.
-2. Use **simple, neutral Hindi** that is easy for common users to understand.
-3. Preserve astrology terms accurately:
-   - Do NOT translate core Sanskrit terms.
-   - Keep words like: Kundali, Graha, Rashi, Nakshatra, Manglik, Guna, Dosha, Dasha as-is (English transliteration).
-4. Translate explanatory text into Hindi, not Sanskrit-heavy language.
-5. Avoid fear-inducing or dramatic wording.
-6. Maintain polite and respectful tone suitable for a formal astrology report.
-7. Keep formatting intact:
-   - Headings remain headings
-   - Bullet points remain bullet points
-   - Numbers, dates, scores must remain unchanged
-8. If a sentence sounds unnatural in literal Hindi, rephrase it naturally while preserving meaning.
-9. Do NOT include emojis, slang, or casual expressions.
-10. Output must be **ready for PDF download**.
-
-### Output Language:
-Hindi (Devanagari script)
-
-### Content Type:
-Astrology compatibility
-
-Input Text:
-{analysis_text}
-"""
-                try:
-                    # Use Gemini for translation
-                    trans_response = model.generate_content(translation_prompt)
-                    return trans_response.text
-                except Exception as ex:
-                    print(f"Translation Error: {ex}")
-                    return analysis_text + "\n(Hindi translation unavailable)"
-
-            return analysis_text
-
-        except Exception as e:
-            print(f"AI Generation Error: {e}")
-            msg = "AI Expert analysis is currently unavailable. Please rely on the score calculation."
-            return "AI विशेषज्ञ विश्लेषण वर्तमान में अनुपलब्ध है।" if lang == "hi" else msg
-
-    @staticmethod
     def _calculate_marriage_windows(bride_astro, groom_astro, bride_details, groom_details):
         """Calculate auspicious marriage timing windows"""
         from datetime import datetime, timedelta
@@ -699,175 +572,118 @@ Input Text:
             # Beneficial planets for marriage
             beneficial_planets = ['Venus', 'Jupiter', 'Mercury', 'Moon']
             
-            # Find upcoming favorable periods (next 2 years for more practical results)
+            # Find upcoming favorable periods (next 5 years)
             current_date = datetime.now()
-            end_date = current_date + timedelta(days=365*2)
+            max_future = current_date + timedelta(days=365*5)
             
             favorable_windows = []
             
-            # Get bride's current and upcoming Mahadashas
+            # Step 1: Identify favorable planets for marriage (Venus/Jupiter/Moon/Mercury/Lords of 7th)
+            # For simplicity, we use the standard benefics
+            beneficial_planets = ['Venus', 'Jupiter', 'Mercury', 'Moon']
+            
+            # Get full timelines including Antardashas if available
+            # Check if dasha has Antardashas (it should if calculated correctly)
             bride_timeline = bride_dasha.get('timeline', [])
             groom_timeline = groom_dasha.get('timeline', [])
+
+            # Combine Mahadasha and Antardasha for more precision
+            # If the engine returns Antardashas in a nested way, we should flatten or handle them
             
-            # Strategy: Find periods where either person is in a beneficial Mahadasha
-            # and create windows for the next 2 years
-            for b_period in bride_timeline:
-                if not b_period.get('start') or not b_period.get('end'):
-                    continue
-                
-                try:
-                    b_start = datetime.strptime(b_period['start'], '%Y-%m-%d')
-                    b_end = datetime.strptime(b_period['end'], '%Y-%m-%d')
-                except:
-                    continue
-                
-                # Skip if period is completely in the past or too far in future
-                if b_end < current_date or b_start > end_date:
-                    continue
-                
-                b_planet = b_period.get('planet', '')
-                
-                # Check if bride's Mahadasha is beneficial
-                if b_planet in beneficial_planets:
-                    # Find groom's Mahadasha during this period
-                    for g_period in groom_timeline:
-                        if not g_period.get('start') or not g_period.get('end'):
-                            continue
-                        
+            def get_favorable_sub_periods(dasha_data):
+                favorable = []
+                # Fallback if only Mahadashas are in timeline
+                for p in dasha_data.get('timeline', []):
+                    if p.get('planet') in beneficial_planets:
                         try:
-                            g_start = datetime.strptime(g_period['start'], '%Y-%m-%d')
-                            g_end = datetime.strptime(g_period['end'], '%Y-%m-%d')
-                        except:
-                            continue
-                        
-                        # Check for overlap
-                        overlap_start = max(b_start, g_start, current_date)
-                        overlap_end = min(b_end, g_end, end_date)
-                        
-                        if overlap_start < overlap_end:
-                            g_planet = g_period.get('planet', '')
-                            
+                            f = {
+                                "planet": p['planet'],
+                                "start": datetime.strptime(p['start'], '%Y-%m-%d'),
+                                "end": datetime.strptime(p['end'], '%Y-%m-%d'),
+                                "level": "Mahadasha"
+                            }
+                            if f['end'] > current_date and f['start'] < max_future:
+                                favorable.append(f)
+                        except: continue
+                return favorable
+
+            bride_favorable = get_favorable_sub_periods(bride_dasha)
+            groom_favorable = get_favorable_sub_periods(groom_dasha)
+
+            # Strategy: Find overlaps of favorable periods
+            for bf in bride_favorable:
+                for gf in groom_favorable:
+                    # Overlap logic
+                    start = max(bf['start'], gf['start'], current_date)
+                    end = min(bf['end'], gf['end'], max_future)
+                    
+                    if start < end:
+                        duration = (end - start).days
+                        if duration >= 30: # At least a month
                             # Calculate favorability
-                            if b_planet == g_planet and b_planet in beneficial_planets:
+                            if bf['planet'] == gf['planet']:
                                 favorability = "Excellent"
                                 score = 10
-                            elif g_planet in beneficial_planets:
+                            elif bf['planet'] in beneficial_planets and gf['planet'] in beneficial_planets:
                                 favorability = "Very Good"
-                                score = 8
+                                score = 9
                             else:
                                 favorability = "Good"
-                                score = 6
-                            
-                            # Only add if duration is at least 30 days
-                            duration = (overlap_end - overlap_start).days
-                            if duration >= 30:
-                                favorable_windows.append({
-                                    "start_date": overlap_start.strftime('%Y-%m-%d'),
-                                    "end_date": overlap_end.strftime('%Y-%m-%d'),
-                                    "bride_dasha": b_planet,
-                                    "groom_dasha": g_planet,
-                                    "favorability": favorability,
-                                    "score": score,
-                                    "duration_days": duration
-                                })
-            
-            # Also check when groom is in beneficial Dasha (to catch cases we might have missed)
-            for g_period in groom_timeline:
-                if not g_period.get('start') or not g_period.get('end'):
-                    continue
-                
-                try:
-                    g_start = datetime.strptime(g_period['start'], '%Y-%m-%d')
-                    g_end = datetime.strptime(g_period['end'], '%Y-%m-%d')
-                except:
-                    continue
-                
-                if g_end < current_date or g_start > end_date:
-                    continue
-                
-                g_planet = g_period.get('planet', '')
-                
-                if g_planet in beneficial_planets:
-                    for b_period in bride_timeline:
-                        if not b_period.get('start') or not b_period.get('end'):
-                            continue
-                        
-                        try:
-                            b_start = datetime.strptime(b_period['start'], '%Y-%m-%d')
-                            b_end = datetime.strptime(b_period['end'], '%Y-%m-%d')
-                        except:
-                            continue
-                        
-                        overlap_start = max(b_start, g_start, current_date)
-                        overlap_end = min(b_end, g_end, end_date)
-                        
-                        if overlap_start < overlap_end:
-                            b_planet = b_period.get('planet', '')
-                            
-                            # Check if we already have this window
-                            window_exists = any(
-                                w['start_date'] == overlap_start.strftime('%Y-%m-%d') and 
-                                w['end_date'] == overlap_end.strftime('%Y-%m-%d')
-                                for w in favorable_windows
-                            )
-                            
-                            if not window_exists:
-                                if b_planet == g_planet and b_planet in beneficial_planets:
-                                    favorability = "Excellent"
-                                    score = 10
-                                elif b_planet in beneficial_planets:
-                                    favorability = "Very Good"
-                                    score = 8
-                                else:
-                                    favorability = "Good"
-                                    score = 6
+                                score = 7
                                 
-                                duration = (overlap_end - overlap_start).days
-                                if duration >= 30:
-                                    favorable_windows.append({
-                                        "start_date": overlap_start.strftime('%Y-%m-%d'),
-                                        "end_date": overlap_end.strftime('%Y-%m-%d'),
-                                        "bride_dasha": b_planet,
-                                        "groom_dasha": g_planet,
-                                        "favorability": favorability,
-                                        "score": score,
-                                        "duration_days": duration
-                                    })
+                            favorable_windows.append({
+                                "start_date": start.strftime('%Y-%m-%d'),
+                                "end_date": end.strftime('%Y-%m-%d'),
+                                "bride_dasha": bf['planet'],
+                                "groom_dasha": gf['planet'],
+                                "favorability": favorability,
+                                "score": score,
+                                "duration_days": duration
+                            })
+
+            # If no Mahadasha overlaps, try to find single Mahadasha + beneficial Transits/Antardashas
+            # (In a real system, we'd calculate Antardashas here if not provided)
             
-            # Sort by score (best first) and then by start date
+            if not favorable_windows:
+                # Add current period as "Potential" if nothing found in 5 years
+                favorable_windows.append({
+                    "start_date": current_date.strftime('%Y-%m-%d'),
+                    "end_date": (current_date + timedelta(days=180)).strftime('%Y-%m-%d'),
+                    "bride_dasha": "Neutral",
+                    "groom_dasha": "Neutral",
+                    "favorability": "Moderate",
+                    "score": 5,
+                    "duration_days": 180
+                })
+
+            # Sort and filter
             favorable_windows.sort(key=lambda x: (-x['score'], x['start_date']))
-            
-            # Remove duplicates and limit to top 5
-            seen = set()
             unique_windows = []
+            seen = set()
             for w in favorable_windows:
-                key = (w['start_date'], w['end_date'])
-                if key not in seen:
-                    seen.add(key)
+                k = (w['start_date'], w['end_date'])
+                if k not in seen:
+                    seen.add(k)
                     unique_windows.append(w)
-                    if len(unique_windows) >= 5:
-                        break
+                    if len(unique_windows) >= 5: break
             
             favorable_windows = unique_windows
             
             analysis = []
-            if favorable_windows:
-                analysis.append(f"Found {len(favorable_windows)} auspicious marriage periods in next 2 years")
-                for i, window in enumerate(favorable_windows[:3], 1):
-                    duration_months = window['duration_days'] // 30
-                    analysis.append(f"{i}. {window['start_date']} to {window['end_date']} - {window['favorability']} ({duration_months} months)")
-                if len(favorable_windows) > 3:
-                    analysis.append(f"Plus {len(favorable_windows) - 3} more favorable periods available")
+            if any(w['score'] >= 7 for w in favorable_windows):
+                analysis.append(f"Discovered {len(favorable_windows)} alignment windows where planetary dashas synchronize for harmony.")
+                for w in favorable_windows[:3]:
+                    analysis.append(f"Window: {w['start_date']} to {w['end_date']} is rated as {w['favorability']}.")
             else:
-                # If no windows found, provide current period info
-                analysis.append("Based on current Dasha periods, marriage can be planned")
-                analysis.append("Consult astrologer for specific muhurat selection")
+                analysis.append("Current dasha periods suggest a moderate phase for planning.")
+                analysis.append("Consulting an expert for precise 'Mahuratha' (auspicious hour) is recommended for finalization.")
             
             return {
                 "windows": favorable_windows,
                 "analysis": analysis,
-                "recommendation": f"{len(favorable_windows)} favorable periods identified" if favorable_windows else "Current period suitable - consult for muhurat"
+                "recommendation": f"Found {len([w for w in favorable_windows if w['score']>=7])} highly favorable windows" if favorable_windows else "Personalized consultation recommended for precise dates"
             }
+
         except Exception as e:
             print(f"Marriage Windows Error: {e}")
             import traceback

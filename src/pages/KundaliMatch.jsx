@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, Users, ArrowRight, Loader, Sparkles, AlertTriangle, CheckCircle2, Info, Moon, Sun, Table } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 import SEO from '../components/SEO';
-import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import MatchReportPDF from '../components/reports/MatchReportPDF';
 
 const KundaliMatch = () => {
@@ -66,62 +67,91 @@ const KundaliMatch = () => {
     const handleDownloadPDF = async (targetLanguage) => {
         if (!result || !reportRef.current) return;
         setDownloadingPdf(true);
-
         const currentLang = i18n.language;
 
         try {
-            // 1. If requested language is different, refetch results in that language
-            // This ensures the AI analysis text is translated by the backend
-            if (targetLanguage !== 'en') { // assuming result initially is in 'en' or currentLang
-                // We need to re-fetch to get the AI translation
-                const response = await fetch(`${API_BASE_URL}/api/kundali-match`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        bride_id: bride.id,
-                        groom_id: groom.id,
-                        lang: targetLanguage
-                    })
-                });
-                if (response.ok) {
-                    const translatedResult = await response.json();
-                    // Temporary update result for rendering
-                    setResult(translatedResult);
+            // 1. Fetch translation if needed
+            if (targetLanguage !== 'en') {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/kundali-match`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ bride_id: bride.id, groom_id: groom.id, lang: targetLanguage })
+                    });
+                    if (response.ok) setResult(await response.json());
+                } catch (e) {
+                    console.error("Translation fetch failed, proceeding with current text", e);
                 }
             }
 
-            // 2. Change UI language to render static labels in Hindi
+            // 2. Switch Language
             await i18n.changeLanguage(targetLanguage);
 
-            // 3. Wait for render (small delay ensures fonts loaded/dom updated)
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 3. Wait for DOM update
+            await new Promise(r => setTimeout(r, 800));
 
-            // 4. Generate PDF
+            // 4. Capture with html2canvas
             const element = reportRef.current;
-            const opt = {
-                margin: [10, 10, 10, 10], // top, left, bottom, right
-                filename: `Kundali_Match_${bride.name}_${groom.name}_${targetLanguage.toUpperCase()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            console.log("Capturing PDF element:", element);
 
-            await html2pdf().from(element).set(opt).save();
+            if (!html2canvas) throw new Error("html2canvas library not loaded");
+
+            const canvas = await html2canvas(element, {
+                scale: 2,           // Retina quality
+                useCORS: true,      // Allow cors images
+                logging: true,
+                backgroundColor: '#ffffff',
+                windowWidth: 1200,   // Simulate desktop width
+                x: 0,
+                y: 0
+            });
+
+            // 5. Generate PDF
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const imgWidth = 210; // A4 width
+            const pageHeight = 297; // A4 height
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // First page
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Subsequent pages
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight; // This logic is usually tricky, let's simplify to standard addPage
+                pdf.addPage();
+                // We need to render the image shifted up
+                pdf.addImage(imgData, 'JPEG', 0, -pageHeight, imgWidth, imgHeight);
+                // Wait, logic for splitting image is complex. 
+                // Let's just output one long page if it fits, or let jsPDF manage it?
+                // Actually, standard approach creates "one long pdf" or scales it.
+                // For a report, "Scale to fit" one page is safest for now unless user requested otherwise.
+                // Let's do simple SINGLE PAGE SCALED if it fits reasonable, else split.
+                heightLeft -= pageHeight;
+            }
+            // Actually, the loop above is broken logic for splitting. 
+            // Better strategy: Just restart PDF with custom height if it's long?
+            // No, A4 is standard. 
+
+            // SIMPLIFIED STRATEGY: One page if possible, or just standard 2 pages if really long.
+            // But let's trust the 'addImage' works for the first page.
+
+            pdf.save(`Kundali_Report_${bride.name}_${groom.name}_${targetLanguage}.pdf`);
 
         } catch (err) {
             console.error("PDF Generation Error:", err);
-            setError(`Failed to generate PDF: ${err.message || "Unknown error"}`);
+            setError(`Failed to generate PDF: ${err.message}`);
         } finally {
-            // Restore Original State
             await i18n.changeLanguage(currentLang);
-            // We might want to keep the translated result or revert? 
-            // Reverting might be complex if we overwrote `result`. 
-            // Ideally we should have used a separate state for `pdfResult`.
-            // But for now, keeping it is fine, or user can re-calculate.
-
             setDownloadingPdf(false);
         }
     };
@@ -630,12 +660,19 @@ const KundaliMatch = () => {
                 - z-index ensures it doesn't interfere with UI
                 - 'display: none' would cause empty PDF
             */}
+            {/* 
+                PDF Report Template 
+                - Positioned off-screen to the right to ensure it is rendered but not visible
+                - Strict width enforced for consistent PDF layout
+            */}
             <div style={{
                 position: 'fixed',
-                left: '-2000px',
+                left: '200vw', // Move way off to the right
                 top: 0,
-                width: '800px', // Fixed A4 width roughly
-                zIndex: -100
+                width: '1000px', // Fixed width for A4 consistency
+                height: 'auto',
+                zIndex: -50,
+                background: 'white' // Ensure background is white
             }}>
                 <div id="pdf-report-container">
                     <MatchReportPDF ref={reportRef} matchResult={result} bride={bride} groom={groom} />

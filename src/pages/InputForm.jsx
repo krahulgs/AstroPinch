@@ -103,10 +103,11 @@ const InputForm = () => {
                                     type="text"
                                     name="name"
                                     required
+                                    autoFocus
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
-                                    placeholder="Rahul Kumar"
+                                    placeholder="Enter Your Full Name."
                                 />
                             </div>
                         </div>
@@ -114,17 +115,55 @@ const InputForm = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-secondary text-sm font-medium ml-1">Date of Birth</label>
-                                <div className="relative group">
-                                    <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
-                                    <input
-                                        type="date"
-                                        name="date"
-                                        required
-                                        max={new Date().toISOString().split("T")[0]}
-                                        value={formData.date}
-                                        onChange={handleChange}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
-                                    />
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1 group">
+                                        <input
+                                            type="number"
+                                            placeholder="DD"
+                                            min="1"
+                                            max="31"
+                                            required
+                                            value={formData.date ? formData.date.split('-')[2] : ''}
+                                            onChange={(e) => {
+                                                const day = e.target.value.padStart(2, '0').slice(-2);
+                                                const parts = (formData.date || '1995-01-01').split('-');
+                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${day}` });
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
+                                    <div className="relative flex-1 group">
+                                        <input
+                                            type="number"
+                                            placeholder="MM"
+                                            min="1"
+                                            max="12"
+                                            required
+                                            value={formData.date ? formData.date.split('-')[1] : ''}
+                                            onChange={(e) => {
+                                                const month = e.target.value.padStart(2, '0').slice(-2);
+                                                const parts = (formData.date || '1995-01-01').split('-');
+                                                setFormData({ ...formData, date: `${parts[0]}-${month}-${parts[2]}` });
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
+                                    <div className="relative flex-[1.5] group">
+                                        <input
+                                            type="number"
+                                            placeholder="YYYY"
+                                            min="1900"
+                                            max={new Date().getFullYear()}
+                                            required
+                                            value={formData.date ? formData.date.split('-')[0] : ''}
+                                            onChange={(e) => {
+                                                const year = e.target.value;
+                                                const parts = (formData.date || '1995-01-01').split('-');
+                                                setFormData({ ...formData, date: `${year}-${parts[1]}-${parts[2]}` });
+                                            }}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 

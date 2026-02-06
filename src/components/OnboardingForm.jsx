@@ -138,22 +138,55 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     setFormData({ ...formData, name: filteredValue });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
-                                placeholder="Enter Full Name"
+                                placeholder="Enter Your Full Name."
                             />
                         </div>
                     </div>
 
                     <div>
                         <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Date</label>
-                        <div className="relative">
-                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-secondary" />
+                        <div className="flex gap-2">
                             <input
-                                type="date"
+                                type="number"
+                                placeholder="DD"
+                                min="1"
+                                max="31"
                                 required
-                                max={new Date().toISOString().split("T")[0]}
-                                value={formData.birth_date}
-                                onChange={e => setFormData({ ...formData, birth_date: e.target.value })}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
+                                onChange={e => {
+                                    const day = e.target.value.padStart(2, '0').slice(-2);
+                                    const parts = (formData.birth_date || '1995-01-01').split('-');
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${day}` });
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <input
+                                type="number"
+                                placeholder="MM"
+                                min="1"
+                                max="12"
+                                required
+                                value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
+                                onChange={e => {
+                                    const month = e.target.value.padStart(2, '0').slice(-2);
+                                    const parts = (formData.birth_date || '1995-01-01').split('-');
+                                    setFormData({ ...formData, birth_date: `${parts[0]}-${month}-${parts[2]}` });
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <input
+                                type="number"
+                                placeholder="YYYY"
+                                min="1900"
+                                max={new Date().getFullYear()}
+                                required
+                                value={formData.birth_date ? formData.birth_date.split('-')[0] : ''}
+                                onChange={e => {
+                                    const year = e.target.value;
+                                    const parts = (formData.birth_date || '1995-01-01').split('-');
+                                    setFormData({ ...formData, birth_date: `${year}-${parts[1]}-${parts[2]}` });
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-[1.5]"
                             />
                         </div>
                     </div>

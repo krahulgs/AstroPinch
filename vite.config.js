@@ -4,9 +4,17 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      'react-is': 'react-is',
+    },
+  },
+  optimizeDeps: {
+    include: ['react-is'],
+  },
   server: {
     port: 3000,
     strictPort: true,
-    host: true, // Listen on all addresses, including LAN and public IPs
+    host: true,
   }
 })

@@ -310,7 +310,10 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 <input
                                     type="text"
                                     value={locationQuery}
-                                    onChange={e => setLocationQuery(e.target.value)}
+                                    onChange={e => {
+                                        const filteredVal = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                        setLocationQuery(filteredVal);
+                                    }}
                                     onKeyDown={e => e.key === 'Enter' && handleSearchLocation()}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
                                     placeholder="Search City..."

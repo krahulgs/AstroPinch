@@ -138,7 +138,8 @@ const CitySearch = ({ onSelect, defaultValue = '', inputRef }) => {
                 type="text"
                 value={query}
                 onChange={(e) => {
-                    setQuery(e.target.value);
+                    const filteredVal = e.target.value.replace(/[^a-zA-Z\s,]/g, ''); // Allow comma for "City, Country" selection but primary focus is letters
+                    setQuery(filteredVal);
                     setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}

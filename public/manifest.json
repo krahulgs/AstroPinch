@@ -1,0 +1,62 @@
+{
+    "name": "AstroPinch - Vedic Astrology & Kundali Matching",
+    "short_name": "AstroPinch",
+    "description": "Personalized Vedic astrology, birth charts, Kundali matching, and AI-powered cosmic insights",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#7c3aed",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "lifestyle",
+        "entertainment",
+        "personalization"
+    ],
+    "screenshots": [
+        {
+            "src": "/screenshot-1.png",
+            "sizes": "1280x720",
+            "type": "image/png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Daily Horoscope",
+            "short_name": "Horoscope",
+            "description": "View your daily horoscope",
+            "url": "/horoscope",
+            "icons": [
+                {
+                    "src": "/icon-horoscope.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Kundali Match",
+            "short_name": "Match",
+            "description": "Check compatibility",
+            "url": "/kundali-match",
+            "icons": [
+                {
+                    "src": "/icon-match.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

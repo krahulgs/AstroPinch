@@ -1,0 +1,75 @@
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AstroPinch",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+    },
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1250"
+    },
+    "description": "AstroPinch is a comprehensive Vedic astrology platform that combines ancient wisdom with modern AI technology. Features include personalized birth chart generation, Kundali matching (Gun Milan), daily horoscopes, Vimshottari Dasha predictions, Nakshatra analysis, planetary transit tracking, KP astrology, and detailed astrological reports.",
+    "features": [
+        "Accurate Vedic Birth Chart Generation (Lagna & Navamsa)",
+        "Kundali Matching with 36-point Ashta-Koota system",
+        "Daily, Weekly, and Monthly Horoscopes",
+        "Vimshottari Dasha Timeline and Predictions",
+        "Nakshatra Analysis and Compatibility",
+        "Planetary Transit Tracking",
+        "KP Astrology System",
+        "Manglik Dosha Analysis",
+        "Numerology Calculator",
+        "Panchang Calendar",
+        "AI-Powered Astrological Insights",
+        "Personalized Remedies and Guidance"
+    ],
+    "keywords": [
+        "vedic astrology",
+        "kundali matching",
+        "birth chart",
+        "horoscope",
+        "gun milan",
+        "nakshatra",
+        "dasha predictions",
+        "planetary positions",
+        "astrological compatibility",
+        "numerology",
+        "KP astrology",
+        "lagna chart",
+        "navamsa chart",
+        "manglik dosha",
+        "panchang",
+        "zodiac signs",
+        "rashi",
+        "AI astrology"
+    ],
+    "author": {
+        "@type": "Organization",
+        "name": "AstroPinch",
+        "url": "https://astropinch.com",
+        "logo": "https://astropinch.com/logo.png",
+        "sameAs": [
+            "https://twitter.com/astropinch",
+            "https://facebook.com/astropinch",
+            "https://instagram.com/astropinch"
+        ]
+    },
+    "provider": {
+        "@type": "Organization",
+        "name": "AstroPinch"
+    },
+    "softwareVersion": "2.0",
+    "datePublished": "2024-01-01",
+    "dateModified": "2026-02-07",
+    "inLanguage": "en",
+    "isAccessibleForFree": true,
+    "applicationSubCategory": "Astrology, Spirituality, Personal Growth",
+    "screenshot": "https://astropinch.com/screenshot.png",
+    "video": "https://astropinch.com/demo-video.mp4"
+}

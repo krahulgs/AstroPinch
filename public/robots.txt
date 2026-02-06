@@ -1,6 +1,58 @@
+# AstroPinch Robots.txt
+# Allow all search engines and AI crawlers
+
+# Global Rules
 User-agent: *
 Allow: /
 Disallow: /profiles
 Disallow: /daily-guidance
+Disallow: /api/
+Disallow: /*.json$
+Crawl-delay: 1
 
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+Crawl-delay: 0
+
+# OpenAI GPT Crawler
+User-agent: GPTBot
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+# Anthropic Claude Crawler
+User-agent: Claude-Web
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+# Google Extended (Bard/Gemini)
+User-agent: Google-Extended
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+# Common Crawl
+User-agent: CCBot
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Disallow: /profiles
+Disallow: /daily-guidance
+
+# Sitemap
 Sitemap: https://astropinch.com/sitemap.xml

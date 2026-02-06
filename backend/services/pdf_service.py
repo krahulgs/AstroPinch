@@ -13,38 +13,66 @@ from reportlab.graphics.shapes import Drawing, PolyLine, Rect, String
 
 # Register Hindi font support
 try:
-    # Try to use system fonts that support Devanagari
-    # Windows: Mangal, Nirmala UI
-    # Linux: Lohit Devanagari, Noto Sans Devanagari
-    hindi_font_paths = [
-        'C:\\Windows\\Fonts\\mangal.ttf',  # Windows Mangal
-        'C:\\Windows\\Fonts\\NirmalaS.ttf',  # Windows Nirmala UI Semilight
-        'C:\\Windows\\Fonts\\Nirmala.ttf',  # Windows Nirmala UI
-        '/usr/share/fonts/truetype/lohit-devanagari/Lohit-Devanagari.ttf',  # Linux
-        '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf',  # Linux Noto
-    ]
+    # Use local fonts for maximum reliability
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir) # Go up to backend/
+    font_dir = os.path.join(project_root, 'fonts')
+    
+    regular_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Regular.ttf')
+    bold_font_path = os.path.join(font_dir, 'NotoSansDevanagari-Bold.ttf')
     
     hindi_font_registered = False
-    for font_path in hindi_font_paths:
-        if os.path.exists(font_path):
-            try:
-                pdfmetrics.registerFont(TTFont('HindiFont', font_path))
-                hindi_font_registered = True
-                print(f"Hindi font registered successfully from: {font_path}")
-                break
-            except Exception as e:
-                print(f"Failed to register font from {font_path}: {e}")
-                continue
+
+    if os.path.exists(regular_font_path):
+        try:
+            pdfmetrics.registerFont(TTFont('HindiFont', regular_font_path))
+            print(f"Hindi Regular font registered from: {regular_font_path}")
+            hindi_font_registered = True
+        except Exception as e:
+            print(f"Failed to register Regular font: {e}")
+
+    if os.path.exists(bold_font_path):
+        try:
+            pdfmetrics.registerFont(TTFont('HindiFont-Bold', bold_font_path))
+            print(f"Hindi Bold font registered from: {bold_font_path}")
+        except Exception as e:
+            print(f"Failed to register Bold font: {e}")
+            # Fallback for bold if only regular exists
+            if hindi_font_registered:
+                 pdfmetrics.registerFont(TTFont('HindiFont-Bold', regular_font_path))
+
     
     if not hindi_font_registered:
-        print("Warning: No Hindi font found. Hindi text may not display correctly in PDFs.")
-        # Use default font as fallback
-        HINDI_FONT = 'Helvetica'
-    else:
+        print("Warning: Local Hindi fonts not found. Trying system fonts...")
+         # Fallback to system fonts (previous logic)
+        hindi_font_paths = [
+            'C:\\Windows\\Fonts\\mangal.ttf',
+            'C:\\Windows\\Fonts\\NirmalaS.ttf',
+            '/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf',
+        ]
+        for font_path in hindi_font_paths:
+            if os.path.exists(font_path):
+                try:
+                    pdfmetrics.registerFont(TTFont('HindiFont', font_path))
+                    # Use same for bold if we only have one
+                    pdfmetrics.registerFont(TTFont('HindiFont-Bold', font_path))
+                    hindi_font_registered = True
+                    break
+                except:
+                    continue
+
+    if hindi_font_registered:
         HINDI_FONT = 'HindiFont'
+        HINDI_FONT_BOLD = 'HindiFont-Bold'
+    else:
+        print("CRITICAL: No Hindi font could be registered.")
+        HINDI_FONT = 'Helvetica'
+        HINDI_FONT_BOLD = 'Helvetica-Bold'
+
 except Exception as e:
     print(f"Error setting up Hindi font: {e}")
     HINDI_FONT = 'Helvetica'
+    HINDI_FONT_BOLD = 'Helvetica-Bold'
 
 class PDFReportService:
     @staticmethod
@@ -656,7 +684,7 @@ class PDFReportService:
 
         # Select font based on language
         base_font = HINDI_FONT if lang == "hi" else 'Helvetica'
-        bold_font = HINDI_FONT if lang == "hi" else 'Helvetica-Bold'
+        bold_font = HINDI_FONT_BOLD if lang == "hi" else 'Helvetica-Bold'
         
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name='CenterTitle', parent=styles['Heading1'], alignment=1, spaceAfter=20, color=colors.purple, fontName=bold_font, fontSize=18))

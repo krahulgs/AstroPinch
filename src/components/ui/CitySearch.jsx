@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2 } from 'lucide-react';
 import { indianCities } from '../../data/indianCities';
 
-const CitySearch = ({ onSelect, defaultValue = '', inputRef }) => {
+const CitySearch = ({ onSelect, defaultValue = '' }) => {
     const [query, setQuery] = useState(defaultValue);
     const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -134,17 +134,15 @@ const CitySearch = ({ onSelect, defaultValue = '', inputRef }) => {
         <div className="relative group" ref={wrapperRef}>
             <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-purple-600 transition-colors pointer-events-none" />
             <input
-                ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => {
-                    const filteredVal = e.target.value.replace(/[^a-zA-Z\s,]/g, ''); // Allow comma for "City, Country" selection but primary focus is letters
-                    setQuery(filteredVal);
+                    setQuery(e.target.value);
                     setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
                 className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all text-primary placeholder:text-slate-400"
-                placeholder="Enter Place of Birth"
+                placeholder="Enter City, District or Taluka..."
                 required
             />
 

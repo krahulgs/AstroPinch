@@ -1133,26 +1133,6 @@ const ConsolidatedReport = () => {
                                         </div>
                                     </div>
 
-                                    {/* Loshu Grid Integration in Vedic Section */}
-                                    {report.numerology?.loshu_grid && (
-                                        <div className="mt-8 p-6 bg-amber-50/30 rounded-3xl border border-amber-100/50">
-                                            <div className="flex flex-col md:flex-row items-center gap-8">
-                                                <div className="shrink-0">
-                                                    <LoshuGridDisplay loshuData={report.numerology.loshu_grid} />
-                                                </div>
-                                                <div className="flex-1 space-y-4">
-                                                    <div>
-                                                        <h4 className="text-xs font-black text-amber-700 uppercase tracking-widest mb-1">Vedic Loshu Grid</h4>
-                                                        <p className="text-sm text-slate-600 leading-relaxed">
-                                                            A geometric representation of your birth vibrations.
-                                                            Mulank: <span className="font-bold text-pink-600">{report.numerology.loshu_grid.mulank}</span>,
-                                                            Bhagyank: <span className="font-bold text-purple-600">{report.numerology.loshu_grid.bhagyank}</span>.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             )}
 

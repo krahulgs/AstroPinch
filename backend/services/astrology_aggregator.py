@@ -910,84 +910,83 @@ Generate predictions now based on authentic KP principles:"""
     @staticmethod
     def get_vedic_full_report(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC", context=None):
         from services.vedic_astro_engine import VedicAstroEngine
+        from concurrent.futures import ThreadPoolExecutor
+        import datetime
         
-        # Get Sidereal Planets
+        # 1. Essential Base Data (Sync because others depend on it)
         sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
             year, month, day, hour, minute, lat, lng, timezone_str=timezone
         )
         
-        # Get Panchang
-        panchang = VedicAstroEngine.calculate_panchang(year, month, day, hour, minute, lat, lng)
-        
-        # Get Dasha
-        dasha = VedicAstroEngine.calculate_vimshottari_dasha(year, month, day, hour, minute, lat, lng)
-        
-        # Get Divisional Charts (D9)
-        divisional = VedicAstroEngine.calculate_divisional_charts(sidereal_data)
-        
-        # Get Remedies
-        remedies = VedicAstroEngine.calculate_remedies(sidereal_data, lang=lang)
-        
-        # New: Get KP System Data
-        kp = VedicAstroEngine.calculate_kp_system(sidereal_data)
-        
-        # New: Calculate KP Cusps (CSL) using Angles from Kerykeion/Skyfield
-        # We need the Tropical Angles to convert to Sidereal Cusps
-        angles_tropical = KerykeionService.calculate_chart(
-             name, year, month, day, hour, minute, "", lat, lng
-        ).get('angles', {})
-        
-        # Map Angles to Houses (Approximate KP Cusps for Angles)
-        # 1 = Ascendant, 4 = IC, 7 = Descendant, 10 = Midheaven
-        tropical_cusps_map = {
-            "1": angles_tropical.get('Ascendant', 0),
-            "4": angles_tropical.get('IC', 0),
-            "7": angles_tropical.get('Descendant', 0),
-            "10": angles_tropical.get('Midheaven', 0)
-        }
-        
-        kp_cusps = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, sidereal_data['ayanamsa'])
-        
-        # New: KP Interpretations (PDF Rules + AI)
-        from services.kp_analysis_service import KPAnalysisService
-        # Get Rule-based analysis
-        kp_rule_analysis = KPAnalysisService.generate_analysis(kp, kp_cusps, lang=lang)
-        
-        # Combine with AI interpretations if needed, or replace
-        # For now, we prepend the Rule-based analysis to the AI ones
-        # Merged analysis (Rule-based only as per user request)
-        kp_final_analysis = kp_rule_analysis
+        with ThreadPoolExecutor() as executor:
+            # Parallel Calculations
+            panchang_future = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng)
+            dasha_future = executor.submit(VedicAstroEngine.calculate_vimshottari_dasha, year, month, day, hour, minute, lat, lng)
+            divisional_future = executor.submit(VedicAstroEngine.calculate_divisional_charts, sidereal_data)
+            remedies_future = executor.submit(VedicAstroEngine.calculate_remedies, sidereal_data, lang=lang)
+            kp_future = executor.submit(VedicAstroEngine.calculate_kp_system, sidereal_data)
+            doshas_future = executor.submit(VedicAstroEngine.calculate_doshas, sidereal_data)
+            avakhada_future = executor.submit(VedicAstroEngine.calculate_avakhada, sidereal_data)
+            
+            # Dependent Calculations (Wait for some results)
+            panchang = panchang_future.result()
+            dasha = dasha_future.result()
+            divisional = divisional_future.result()
+            remedies = remedies_future.result()
+            kp = kp_future.result()
+            doshas = doshas_future.result()
+            avakhada = avakhada_future.result()
 
-        # New: Get Planet-in-House 'Graha Effects' (Simple English)
-        graha_effects = AstrologyAggregator.get_graha_effects(sidereal_data['planets'], lang=lang)
-
-        # New: Detect Doshas (Manglik, Kaal Sarp, Pitru)
-        doshas = VedicAstroEngine.calculate_doshas(sidereal_data)
-        
-        # New: Calculate Avakhada Chakra
-        avakhada = VedicAstroEngine.calculate_avakhada(sidereal_data)
-        
-        # New: Calculate Current Transits (using current time and birth location)
-        try:
-            now = datetime.now()
-            current_transits_data = VedicAstroEngine.calculate_sidereal_planets(
-                now.year, now.month, now.day, now.hour, now.minute, lat, lng, timezone_str=timezone
+            # Parallel Step 2: KP Cusps & Interpretations
+            # Map Angles to Houses (Approximate KP Cusps for Angles)
+            # Use a separate future for Kerykeion which can be slow
+            kerykeion_future = executor.submit(
+                KerykeionService.calculate_chart, name, year, month, day, hour, minute, "", lat, lng
             )
-            current_transits = current_transits_data.get('planets', [])
-        except Exception as te:
-            print(f"Transit Calculation Error: {te}")
-            current_transits = []
+            
+            # Parallel Step 3: Graha Effects & Transits
+            graha_effects_future = executor.submit(AstrologyAggregator.get_graha_effects, sidereal_data['planets'], lang=lang)
+            
+            def get_transits():
+                try:
+                    now = datetime.datetime.now()
+                    return VedicAstroEngine.calculate_sidereal_planets(
+                        now.year, now.month, now.day, now.hour, now.minute, lat, lng, timezone_str=timezone
+                    ).get('planets', [])
+                except Exception as te:
+                    print(f"Transit Calculation Error: {te}")
+                    return []
 
-        # New: Groq-Powered AI Summary (Simplifying the engine data)
-        try:
-            from services.ai_service import generate_vedic_ai_summary
-            ai_summary = generate_vedic_ai_summary(
-                name, sidereal_data['planets'], panchang, dasha, 
-                lang=lang, context=context, doshas=doshas, transits=current_transits
-            )
-        except Exception as e:
-            print(f"AI Summary Error: {e}")
-            ai_summary = None
+            transits_future = executor.submit(get_transits)
+
+            # Wait for Kerykeion to get KP Cusps
+            angles_tropical = kerykeion_future.result().get('angles', {})
+            tropical_cusps_map = {
+                "1": angles_tropical.get('Ascendant', 0),
+                "4": angles_tropical.get('IC', 0),
+                "7": angles_tropical.get('Descendant', 0),
+                "10": angles_tropical.get('Midheaven', 0)
+            }
+            kp_cusps = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, sidereal_data['ayanamsa'])
+            
+            # KP Analysis
+            from services.kp_analysis_service import KPAnalysisService
+            kp_final_analysis = KPAnalysisService.generate_analysis(kp, kp_cusps, lang=lang)
+            
+            # Collect results for Graha & Transits
+            graha_effects = graha_effects_future.result()
+            current_transits = transits_future.result()
+
+            # Parallel Step 4: AI Summary (Final high-latency task)
+            try:
+                from services.ai_service import generate_vedic_ai_summary
+                ai_summary = generate_vedic_ai_summary(
+                    name, sidereal_data['planets'], panchang, dasha, 
+                    lang=lang, context=context, doshas=doshas, transits=current_transits
+                )
+            except Exception as e:
+                print(f"AI Summary Error: {e}")
+                ai_summary = None
 
         return {
             "ayanamsa": sidereal_data["ayanamsa"],
@@ -997,12 +996,14 @@ Generate predictions now based on authentic KP principles:"""
             "divisional_charts": divisional,
             "remedies": remedies,
             "kp_system": kp,
-            "kp_cusps": kp_cusps, # Add this to output
+            "kp_cusps": kp_cusps,
             "kp_analysis": kp_final_analysis,
             "graha_effects": graha_effects,
-            "doshas": doshas, # Exposed doshas to frontend
-            "avakhada": avakhada, # New section
-            "ai_summary": ai_summary
+            "doshas": doshas,
+            "avakhada": avakhada,
+            "ai_summary": ai_summary,
+            "transits": current_transits,
+            "kundali_analysis": graha_effects # Matching key for backward compatibility if needed
         }
     
     @staticmethod

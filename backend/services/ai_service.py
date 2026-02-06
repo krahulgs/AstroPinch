@@ -413,8 +413,7 @@ Output strictly valid JSON with these keys:
 - "career_path": {{ "title": "Career & Financial Growth", "content": "..." }} (Fields, Job/Bus, Growth, Earning, Suggestion. No guarantees. Max 150 words.)
 - "relationships": {{ "title": "Marriage & Relationships", "content": {{ "Needs": "...", "Partner": "...", "Strengths": "...", "Challenges": "...", "Tip": "..." }} }} (Specific structured analysis. No fear. Max 150 words total.)
 - "life_phase": {{ "title": "Current Life Phase", "content": "..." }} (Analyze {current_m}/{current_a}. Max 150 words. Practical suggestion.)
-- "transit_analysis": {{ "title": "Monthly Transit Pulse", "content": {{ "Active Themes": "...", "Focus Areas": "...", "Patience Required": "...", "Positive Usage": "...", "Affirmation": "..." }} }} (Analyze current transits for host/coming weeks. No dates. End with 1 positive affirmation.)
-- "dosha_check": {{ "title": "Dosha Awareness", "content": "..." }} (Analyze calculated flags. If present: mean, intensity, reassurance, 1-2 remedies. If absent: state so. NO fear.)
+- "dosha_check": { "title": "Dosha Awareness", "content": "..." } (Analyze calculated flags. If present: mean, intensity, reassurance, 1-2 remedies. If absent: state so. NO fear.)
 - "remedies": {{ "title": "Soul Remedies & Alignment", "content": [ {{ "type": "Mantra", "remedy": "..." }}, {{ "type": "Lifestyle Correction", "remedy": "..." }}, {{ "type": "Charity/Donation", "remedy": "..." }} ] }} (Provide these 3 specific types. Rules: Easy and affordable, NO gemstones, focus on intention over ritual. Tone: Gentle and empowering.)
 
 Rules: No fear, no medical/legal claims, supportive tone.
@@ -550,7 +549,6 @@ def generate_vedic_summary_fallback(name, planets, panchang, doshas):
         "career_path": {"title": "Career & Financial Growth", "content": career_content},
         "relationships": {"title": "Marriage & Relationships", "content": relation_content},
         "life_phase": {"title": "Current Life Phase", "content": "You are currently navigating a phase of learning and growth. Trust the timing of your life."},
-        "transit_analysis": {"title": "Monthly Transit Pulse", "content": {"Active Themes": "Change & Adaptation", "Affirmation": "I am aligned with the cosmic flow."}},
         "dosha_check": {"title": "Dosha Awareness", "content": dosha_text},
         "remedies": {"title": "Soul Remedies", "content": remedies_content}
     }

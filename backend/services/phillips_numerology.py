@@ -196,6 +196,19 @@ def calculate_personal_year(year, month, day, current_year=None):
     
     return personal_year
 
+def calculate_personal_month(personal_year, current_month=None):
+    """
+    Calculate Personal Month Number
+    Personal Year + Current Calendar Month
+    """
+    if current_month is None:
+        current_month = datetime.now().month
+        
+    total = personal_year + current_month
+    personal_month, _ = reduce_to_single_digit(total, keep_master=False)
+    
+    return personal_month
+
 def get_complete_numerology_profile(name, year, month, day):
     """
     Calculate complete Phillips numerology profile
@@ -213,6 +226,7 @@ def get_complete_numerology_profile(name, year, month, day):
     challenges = calculate_challenges(year, month, day)
     pinnacles = calculate_pinnacles(year, month, day)
     personal_year = calculate_personal_year(year, month, day)
+    personal_month = calculate_personal_month(personal_year)
     
     # Compile karmic debt information
     karmic_debt_numbers = []
@@ -239,7 +253,8 @@ def get_complete_numerology_profile(name, year, month, day):
         "life_cycles": {
             "challenges": challenges,
             "pinnacles": pinnacles,
-            "personal_year": personal_year
+            "personal_year": personal_year,
+            "personal_month": personal_month
         },
         "metadata": {
             "name": name,

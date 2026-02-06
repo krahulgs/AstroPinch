@@ -239,10 +239,18 @@ def calculate_numerology_fallback(name, year, month, day):
         "phillips_profile": phillips_profile,  # Include full Phillips data
         "detailed_analysis": {
             "life_path": get_interpretation("life_path", core["life_path"]),
-            "expression": get_interpretation("life_path", core["expression"]),
-            "soul_urge": get_interpretation("life_path", core["soul_urge"]),
-            "personality": get_interpretation("life_path", core["personality"])
-        }
+            "expression": get_interpretation("expression", core["expression"]),
+            "soul_urge": get_interpretation("soul_urge", core["soul_urge"]),
+            "personality": get_interpretation("personality", core["personality"]),
+            "personal_year": get_interpretation("personal_year", phillips_profile["life_cycles"]["personal_year"]),
+            "personal_month": get_interpretation("personal_month", phillips_profile["life_cycles"]["personal_month"]),
+            "timing": get_interpretation("timing", phillips_profile["life_cycles"]["personal_year"]),
+            "name_insight": get_interpretation("name_insight", core["expression"]),
+            "lucky_elements": get_interpretation("lucky_elements", core["life_path"])
+        },
+        "lucky_elements": get_interpretation("lucky_elements", core["life_path"]),
+        "personal_year": phillips_profile["life_cycles"]["personal_year"],
+        "personal_month": phillips_profile["life_cycles"]["personal_month"]
     }
     
     return result
@@ -250,85 +258,105 @@ def calculate_numerology_fallback(name, year, month, day):
 def get_numerology_data(name, year, month, day, vedic_data=None, western_data=None, context=None, lang="en", gender="male"):
     """
     Get numerology data from external APIs with Phillips fallback
-    Priority: Roxy API > RapidAPI > Phillips Model
+    Parallelized version to handle external API latency.
     """
-    data = None
+    from concurrent.futures import ThreadPoolExecutor
     
-    # Try Roxy API first (most comprehensive)
-    roxy_data = calculate_numerology_roxy(name, year, month, day)
-    if roxy_data:
-        # Enrich with Phillips profile
-        phillips_profile = get_complete_numerology_profile(name, year, month, day)
-        roxy_data["phillips_profile"] = phillips_profile
-        data = format_roxy_response(roxy_data, name, year, month, day)
-    
-    # Try RapidAPI second
-    elif calculate_numerology_rapidapi(name, year, month, day):
-        rapidapi_data = calculate_numerology_rapidapi(name, year, month, day)
-        if rapidapi_data:
-            # Enrich with Phillips profile
-            phillips_profile = get_complete_numerology_profile(name, year, month, day)
-            rapidapi_data["phillips_profile"] = phillips_profile
-            data = format_rapidapi_response(rapidapi_data, name, year, month, day)
-    
-    # Fallback to Phillips model (most comprehensive local calculation)
-    else:
-        print("Using Phillips numerology model")
-        data = calculate_numerology_fallback(name, year, month, day)
+    with ThreadPoolExecutor() as executor:
+        # Parallel Tasks
+        roxy_future = executor.submit(calculate_numerology_roxy, name, year, month, day)
+        rapid_future = executor.submit(calculate_numerology_rapidapi, name, year, month, day)
+        phillips_future = executor.submit(get_complete_numerology_profile, name, year, month, day)
+        hilary_future = executor.submit(HilaryNumerologyService.get_science_of_success_report, name, day, month, year)
+        loshu_future = executor.submit(LoshuService.calculate_loshu_grid, day, month, year, gender)
 
-    # --- Integrations ---
-    
-    # 1. Add Hilary Gerard "Science of Success" Data
-    hilary_report = HilaryNumerologyService.get_science_of_success_report(name, day, month, year)
-    data["science_of_success"] = hilary_report
-    
-    # 2. Add Loshu Grid (AstroArunPandit Style)
-    loshu_data = LoshuService.calculate_loshu_grid(day, month, year, gender)
-    data["loshu_grid"] = loshu_data
-    
-    # 3. Add Gemini AI Insights (if key configured)
-    ai_insights = generate_ai_insights(name, f"{year}-{month:02d}-{day:02d}", hilary_report, loshu_data=loshu_data, vedic_data=vedic_data, western_data=western_data, context=context, lang=lang)
-    if ai_insights:
-        data["ai_insights"] = ai_insights
-        data["source"] = "groq-ai" # Mark as AI enhanced (Groq)
-        data["ai_model"] = "llama-3.3-70b-versatile"
+        # Get results
+        roxy_data = roxy_future.result()
+        phillips_profile = phillips_future.result()
+        hilary_report = hilary_future.result()
+        loshu_data = loshu_future.result()
+
+        data = None
+        if roxy_data:
+            roxy_data["phillips_profile"] = phillips_profile
+            data = format_roxy_response(roxy_data, name, year, month, day)
+        else:
+            rapidapi_data = rapid_future.result()
+            if rapidapi_data:
+                rapidapi_data["phillips_profile"] = phillips_profile
+                data = format_rapidapi_response(rapidapi_data, name, year, month, day)
+            else:
+                # Fallback to Phillips
+                data = calculate_numerology_fallback(name, year, month, day)
+
+        # Attach integrations
+        data["science_of_success"] = hilary_report
+        data["loshu_grid"] = loshu_data
+        
+        # Parallel Step 2: AI Insights (Dependent on previous results)
+        ai_insights = generate_ai_insights(
+            name, f"{year}-{month:02d}-{day:02d}", hilary_report, 
+            loshu_data=loshu_data, vedic_data=vedic_data, 
+            western_data=western_data, context=context, lang=lang
+        )
+        
+        if ai_insights:
+            data["ai_insights"] = ai_insights
+            data["source"] = "groq-ai"
+            data["ai_model"] = "llama-3.3-70b-versatile"
 
     return data
 
 def format_roxy_response(data, name, year, month, day):
     """Format Roxy API response to match our schema"""
     return {
-        "life_path": data.get("life_path_number", {}).get("number", 1),
-        "expression": data.get("destiny_number", {}).get("number", 1),
-        "soul_urge": data.get("soul_urge_number", {}).get("number", 1),
-        "personality": data.get("personality_number", {}).get("number", 1),
+        "life_path": (data.get("life_path_number") or {}).get("number", 1),
+        "expression": (data.get("destiny_number") or {}).get("number", 1),
+        "soul_urge": (data.get("soul_urge_number") or {}).get("number", 1),
+        "personality": (data.get("personality_number") or {}).get("number", 1),
         "birthday": day if day <= 9 else sum(int(d) for d in str(day)),
         "name": name,
         "birth_date": f"{year}-{month:02d}-{day:02d}",
         "source": "roxy",
         "detailed_analysis": {
-            "life_path": data.get("life_path_number", {}).get("interpretation", ""),
-            "expression": data.get("destiny_number", {}).get("interpretation", ""),
-            "soul_urge": data.get("soul_urge_number", {}).get("interpretation", ""),
-            "personality": data.get("personality_number", {}).get("interpretation", "")
-        }
+            "life_path": get_interpretation("life_path", (data.get("life_path_number") or {}).get("number", 1)),
+            "expression": get_interpretation("expression", (data.get("destiny_number") or {}).get("number", 1)),
+            "soul_urge": get_interpretation("soul_urge", (data.get("soul_urge_number") or {}).get("number", 1)),
+            "personality": get_interpretation("personality", (data.get("personality_number") or {}).get("number", 1)),
+            "personal_year": get_interpretation("personal_year", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_year", 1)),
+            "personal_month": get_interpretation("personal_month", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_month", 1)),
+            "timing": get_interpretation("timing", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_year", 1)),
+            "name_insight": get_interpretation("name_insight", (data.get("destiny_number") or {}).get("number", 1)),
+            "lucky_elements": get_interpretation("lucky_elements", (data.get("life_path_number") or {}).get("number", 1))
+        },
+        "lucky_elements": get_interpretation("lucky_elements", (data.get("life_path_number") or {}).get("number", 1)),
+        "personal_year": data["phillips_profile"]["life_cycles"]["personal_year"],
+        "personal_month": data["phillips_profile"]["life_cycles"]["personal_month"]
     }
 
 def format_rapidapi_response(data, name, year, month, day):
     """Format RapidAPI response to match our schema"""
     return {
-        "life_path": data.get("life_path", {}).get("number", 1),
-        "expression": data.get("expression", {}).get("number", 1),
-        "soul_urge": data.get("soul_urge", {}).get("number", 1),
-        "personality": data.get("personality", {}).get("number", 1),
+        "life_path": (data.get("life_path") or {}).get("number", 1),
+        "expression": (data.get("expression") or {}).get("number", 1),
+        "soul_urge": (data.get("soul_urge") or {}).get("number", 1),
+        "personality": (data.get("personality") or {}).get("number", 1),
         "birthday": day if day <= 9 else sum(int(d) for d in str(day)),
         "name": name,
         "birth_date": f"{year}-{month:02d}-{day:02d}",
         "source": "rapidapi",
         "detailed_analysis": {
-            "life_path": data.get("life_path", {}).get("description", ""),
-            "expression": data.get("expression", {}).get("description", ""),
-            "soul_urge": data.get("soul_urge", {}).get("description", ""),
-            "personality": data.get("personality", {}).get("description", "")
-        }
+            "life_path": get_interpretation("life_path", (data.get("life_path") or {}).get("number", 1)),
+            "expression": get_interpretation("expression", (data.get("expression") or {}).get("number", 1)),
+            "soul_urge": get_interpretation("soul_urge", (data.get("soul_urge") or {}).get("number", 1)),
+            "personality": get_interpretation("personality", (data.get("personality") or {}).get("number", 1)),
+            "personal_year": get_interpretation("personal_year", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_year", 1)),
+            "personal_month": get_interpretation("personal_month", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_month", 1)),
+            "timing": get_interpretation("timing", data.get("phillips_profile", {}).get("life_cycles", {}).get("personal_year", 1)),
+            "name_insight": get_interpretation("name_insight", (data.get("expression") or {}).get("number", 1)),
+            "lucky_elements": get_interpretation("lucky_elements", (data.get("life_path") or {}).get("number", 1))
+        },
+        "lucky_elements": get_interpretation("lucky_elements", (data.get("life_path") or {}).get("number", 1)),
+        "personal_year": data["phillips_profile"]["life_cycles"]["personal_year"],
+        "personal_month": data["phillips_profile"]["life_cycles"]["personal_month"]
     }

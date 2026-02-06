@@ -560,8 +560,8 @@ Your role is to analyze Kundali matching results that are already calculated pro
             koota_summary = ", ".join([f"{k['name']}: {k['points']}/{k['max_points']}" for k in kootas])
             dosha_summary = ", ".join([d['name'] for d in doshas if d['is_present']]) or "None"
             
-            # Direct Language Instruction
-            lang_instruction = "IMPORTANT: Write the ENTIRE response in pure HINDI (Devanagari Script)." if lang and lang.lower().startswith("hi") else "Write the response in English."
+            # Language Instruction (Hinglish for clarity)
+            lang_instruction = "IMPORTANT: Write in 'Hinglish' style: Use Hindi (Devanagari) for sentences, but keep key Astrological terms in English or provide English in brackets. Example: 'Mental Compatibility (मानसिक अनुकूलता) बहुत अच्छी है'. Tone: Conversational and clear." if lang and lang.lower().startswith("hi") else "Write the response in English."
 
             prompt = f"""
             You are an expert Vedic Astrologer with deep knowledge of Ashta-Koota and relationship psychology.

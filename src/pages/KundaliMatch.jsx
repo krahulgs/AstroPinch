@@ -19,7 +19,7 @@ const KundaliMatch = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
-    const [pdfLanguage, setPdfLanguage] = useState('en');
+    const [pdfLanguage, setPdfLanguage] = useState(i18n.language || 'en');
     const [downloadingPdf, setDownloadingPdf] = useState(false);
 
     // Ref for the hidden report component

@@ -11,7 +11,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
         gender: initialData?.gender || 'male',
-        birth_date: initialData?.birth_date || '',
+        day: initialData?.birth_date ? initialData.birth_date.split('-')[2] : '',
+        month: initialData?.birth_date ? initialData.birth_date.split('-')[1] : '',
+        year: initialData?.birth_date ? initialData.birth_date.split('-')[0] : '',
         birth_time: initialData?.birth_time || '',
         location_name: initialData?.location_name || '',
         latitude: initialData?.latitude || 0,
@@ -37,7 +39,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
             setFormData({
                 name: initialData.name || '',
                 gender: initialData.gender || 'male',
-                birth_date: initialData.birth_date || '',
+                day: initialData.birth_date ? initialData.birth_date.split('-')[2] : '',
+                month: initialData.birth_date ? initialData.birth_date.split('-')[1] : '',
+                year: initialData.birth_date ? initialData.birth_date.split('-')[0] : '',
                 birth_time: initialData.birth_time || '',
                 location_name: initialData.location_name || '',
                 latitude: initialData.latitude || 0,
@@ -50,7 +54,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         } else {
             // Reset if adding new
             setFormData({
-                name: '', gender: 'male', birth_date: '', birth_time: '',
+                name: '', gender: 'male', day: '', month: '', year: '', birth_time: '',
                 location_name: '', latitude: 0, longitude: 0,
                 relation: 'Self', profession: '', marital_status: 'Single'
             });
@@ -103,8 +107,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         e.preventDefault();
         setLoading(true);
         try {
+            const birth_date = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
             // Filter out am_pm as it's not in the backend schema
-            const { am_pm, ...payload } = formData;
+            const { am_pm, day, month, year, ...payload } = { ...formData, birth_date };
 
             if (initialData) {
                 await updateProfile(initialData.id, payload);
@@ -138,55 +143,31 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     setFormData({ ...formData, name: filteredValue });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
-                                placeholder="Enter Your Full Name."
+                                placeholder="Enter your full name"
                             />
                         </div>
                     </div>
 
                     <div>
                         <label className="block text-xs text-purple-600 uppercase font-bold mb-2">Birth Date</label>
-                        <div className="flex gap-2">
+                        <div className="relative">
+                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input
-                                type="number"
-                                placeholder="DD"
-                                min="1"
-                                max="31"
+                                type="date"
                                 required
-                                value={formData.birth_date ? formData.birth_date.split('-')[2] : ''}
+                                min="1900-01-01"
+                                max={new Date().toISOString().split('T')[0]}
+                                value={formData.year && formData.month && formData.day ? `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}` : ''}
                                 onChange={e => {
-                                    const day = e.target.value.padStart(2, '0').slice(-2);
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${parts[1]}-${day}` });
+                                    const val = e.target.value;
+                                    if (val) {
+                                        const [y, m, d] = val.split('-');
+                                        setFormData({ ...formData, year: y, month: m, day: d });
+                                    } else {
+                                        setFormData({ ...formData, year: '', month: '', day: '' });
+                                    }
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                            <input
-                                type="number"
-                                placeholder="MM"
-                                min="1"
-                                max="12"
-                                required
-                                value={formData.birth_date ? formData.birth_date.split('-')[1] : ''}
-                                onChange={e => {
-                                    const month = e.target.value.padStart(2, '0').slice(-2);
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${parts[0]}-${month}-${parts[2]}` });
-                                }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                            <input
-                                type="number"
-                                placeholder="YYYY"
-                                min="1900"
-                                max={new Date().getFullYear()}
-                                required
-                                value={formData.birth_date ? formData.birth_date.split('-')[0] : ''}
-                                onChange={e => {
-                                    const year = e.target.value;
-                                    const parts = (formData.birth_date || '1995-01-01').split('-');
-                                    setFormData({ ...formData, birth_date: `${year}-${parts[1]}-${parts[2]}` });
-                                }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center text-primary focus:border-purple-600 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-[1.5]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-primary focus:border-purple-600 focus:outline-none transition-colors"
                             />
                         </div>
                     </div>
@@ -271,7 +252,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
 
                     <button
                         onClick={() => setStep(2)}
-                        disabled={!formData.name || !formData.birth_date || !formData.birth_time}
+                        disabled={!formData.name || !formData.day || !formData.month || !formData.year || !formData.birth_time}
                         className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl font-bold text-white shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-4"
                     >
                         Next: Location
@@ -359,7 +340,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         <div className="flex justify-between border-b border-gray-200 pb-2">
                             <span className="text-secondary">Date/Time</span>
                             <span className="text-primary font-bold">
-                                {formData.birth_date} • {(() => {
+                                {`${formData.day}-${formData.month}-${formData.year}`} • {(() => {
                                     if (!formData.birth_time) return '';
                                     const [h, m] = formData.birth_time.split(':').map(Number);
                                     const h12 = h % 12 || 12;

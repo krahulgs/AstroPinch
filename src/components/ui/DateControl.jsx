@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 
 const DateControl = ({ date, onChange, label = "Date of Birth" }) => {
     // Helper: Parse the date string into a Date object. default to 1995-01-01 if empty/invalid
-    const parseDate = (d) => (d ? new Date(d) : new Date(1995, 0, 1));
+    const parseDate = (d) => (d ? new Date(d) : new Date());
 
     const getDay = (d) => parseDate(d).getDate().toString().padStart(2, '0');
     const getMonthName = (d) => parseDate(d).toLocaleString('default', { month: 'short' });

@@ -541,19 +541,195 @@ class PDFReportService:
             if 'best_prediction' in predictions:
                 story.append(Paragraph(str(predictions['best_prediction']), styles['NormalText']))
 
+        doc.build(story, onFirstPage=add_branding, onLaterPages=add_branding)
+        buffer.seek(0)
+        return buffer
+
+    @staticmethod
+    def generate_kundali_match_pdf(result, lang="en"):
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+        
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='CenterTitle', parent=styles['Heading1'], alignment=1, spaceAfter=20, color=colors.purple))
+        styles.add(ParagraphStyle(name='SectionHeader', parent=styles['Heading2'], spaceBefore=15, spaceAfter=10, color=colors.darkblue))
+        styles.add(ParagraphStyle(name='ScoreHighlight', parent=styles['Normal'], fontSize=16, leading=20, alignment=1, spaceBefore=10, spaceAfter=10, textColor=colors.darkgreen))
+        styles.add(ParagraphStyle(name='NormalText', parent=styles['Normal'], spaceAfter=10, leading=14))
+        
+        story = []
+        
+        # Title
+        story.append(Spacer(1, 0.5*inch))
+        story.append(Paragraph("Vedic Compatibility & Gun Milan Report", styles['CenterTitle']))
+        story.append(Spacer(1, 0.2*inch))
+
+        # Names
+        name_style = ParagraphStyle(name='NameStyle', parent=styles['Normal'], fontSize=12, alignment=1, spaceAfter=5)
+        story.append(Paragraph(f"<b>{result['bride']['name']}</b> (Bride) & <b>{result['groom']['name']}</b> (Groom)", name_style))
+        story.append(Spacer(1, 0.3*inch))
+
+        # Overall Score
+        score = result['total_score']
+        score_color = colors.darkgreen if score >= 25 else (colors.darkorange if score >= 18 else colors.darkred)
+        styles['ScoreHighlight'].textColor = score_color
+        story.append(Paragraph(f"Overall Guna Score: {score}/36", styles['ScoreHighlight']))
+        story.append(Paragraph(f"Result: {result['summary']}", styles['NormalText']))
+        story.append(Spacer(1, 0.3*inch))
+
+        # Ashta-Koota Breakdown
+        story.append(Paragraph("Ashta-Koota Breakdown", styles['SectionHeader']))
+        table_data = [["Koota", "Significance", "Bride Val", "Groom Val", "Points"]]
+        for k in result['koota_details']:
+            table_data.append([
+                k['name'],
+                Paragraph(k['significance'], styles['Normal']),
+                k['bride_val'],
+                k['groom_val'],
+                f"{k['points']}/{k['max_points']}"
+            ])
+        
+        t = Table(table_data, colWidths=[1*inch, 2*inch, 1*inch, 1*inch, 1*inch])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.purple),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+            ('FONTSIZE', (0,0), (-1,-1), 9),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]))
+        story.append(t)
+        story.append(Spacer(1, 0.4*inch))
+
+        # Manglik Analysis
+        story.append(Paragraph("Manglik Analysis", styles['SectionHeader']))
+        story.append(Paragraph(f"Bride Status: <b>{result['bride']['manglik_status']}</b>", styles['NormalText']))
+        story.append(Paragraph(f"Groom Status: <b>{result['groom']['manglik_status']}</b>", styles['NormalText']))
+        story.append(Paragraph(result['manglik_summary'], styles['NormalText']))
+        story.append(Spacer(1, 0.3*inch))
+
+        # Dosha Analysis
+        story.append(Paragraph("Dosha Analysis", styles['SectionHeader']))
+        for d in result['doshas']:
+            d_name = d['name'] + (" (Present)" if d['is_present'] else " (Not Present)")
+            story.append(Paragraph(f"<b>{d_name}</b>", styles['NormalText']))
+            story.append(Paragraph(d['description'], styles['NormalText']))
+        story.append(Spacer(1, 0.3*inch))
+
+        story.append(PageBreak())
+
+        # Advanced Compatibility Analysis
+        story.append(Paragraph("Advanced Compatibility Analysis", styles['CenterTitle']))
+        story.append(Spacer(1, 0.2*inch))
+
+        # Dasha Synchronization
+        if 'dasha_synchronization' in result:
+            dasha_sync = result['dasha_synchronization']
+            story.append(Paragraph("Dasha Synchronization Analysis", styles['SectionHeader']))
+            story.append(Paragraph(f"<b>Current Compatibility Score:</b> {dasha_sync.get('score', 0)}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Bride's Current Dasha:</b> {dasha_sync.get('bride_current_dasha', 'Unknown')}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Groom's Current Dasha:</b> {dasha_sync.get('groom_current_dasha', 'Unknown')}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Recommendation:</b> {dasha_sync.get('recommendation', 'N/A')}", styles['NormalText']))
+            
+            if dasha_sync.get('analysis'):
+                story.append(Paragraph("<b>Detailed Analysis:</b>", styles['NormalText']))
+                for point in dasha_sync['analysis']:
+                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+            story.append(Spacer(1, 0.3*inch))
+
+        # Navamsa Compatibility
+        if 'navamsa_compatibility' in result:
+            navamsa = result['navamsa_compatibility']
+            story.append(Paragraph("Navamsa (D9) Compatibility", styles['SectionHeader']))
+            story.append(Paragraph(f"<b>Marital Harmony Score:</b> {navamsa.get('score', 0)}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Recommendation:</b> {navamsa.get('recommendation', 'N/A')}", styles['NormalText']))
+            
+            if navamsa.get('analysis'):
+                story.append(Paragraph("<b>D9 Chart Analysis:</b>", styles['NormalText']))
+                for point in navamsa['analysis']:
+                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+            story.append(Spacer(1, 0.3*inch))
+
+        # Transit Analysis
+        if 'transit_analysis' in result:
+            transits = result['transit_analysis']
+            story.append(Paragraph("Current Planetary Transits", styles['SectionHeader']))
+            story.append(Paragraph(f"<b>Transit Favorability:</b> {transits.get('score', 0)}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Overall Assessment:</b> {transits.get('recommendation', 'N/A')}", styles['NormalText']))
+            
+            if transits.get('current_transits'):
+                ct = transits['current_transits']
+                transit_table = Table([
+                    ["Planet", "Current Sign"],
+                    ["Jupiter", ct.get('jupiter', 'Unknown')],
+                    ["Saturn", ct.get('saturn', 'Unknown')],
+                    ["Venus", ct.get('venus', 'Unknown')]
+                ], colWidths=[2*inch, 2*inch])
+                transit_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.darkblue),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+                ]))
+                story.append(transit_table)
+            
+            if transits.get('analysis'):
+                story.append(Spacer(1, 0.1*inch))
+                story.append(Paragraph("<b>Transit Insights:</b>", styles['NormalText']))
+                for point in transits['analysis']:
+                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+            story.append(Spacer(1, 0.3*inch))
+
+        # Marriage Windows
+        if 'marriage_windows' in result:
+            windows = result['marriage_windows']
+            story.append(Paragraph("Auspicious Marriage Timing Windows", styles['SectionHeader']))
+            story.append(Paragraph(f"<b>Recommendation:</b> {windows.get('recommendation', 'N/A')}", styles['NormalText']))
+            
+            if windows.get('windows'):
+                window_table_data = [["Period", "Start Date", "End Date", "Bride Dasha", "Groom Dasha", "Favorability"]]
+                for i, w in enumerate(windows['windows'][:5], 1):
+                    window_table_data.append([
+                        f"#{i}",
+                        w.get('start_date', 'N/A'),
+                        w.get('end_date', 'N/A'),
+                        w.get('bride_dasha', 'N/A'),
+                        w.get('groom_dasha', 'N/A'),
+                        w.get('favorability', 'N/A')
+                    ])
+                
+                window_table = Table(window_table_data, colWidths=[0.5*inch, 1.2*inch, 1.2*inch, 1*inch, 1*inch, 1*inch])
+                window_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.darkgreen),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+                    ('FONTSIZE', (0,0), (-1,-1), 8),
+                ]))
+                story.append(window_table)
+            
+            if windows.get('analysis'):
+                story.append(Spacer(1, 0.1*inch))
+                story.append(Paragraph("<b>Timing Analysis:</b>", styles['NormalText']))
+                for point in windows['analysis']:
+                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+            story.append(Spacer(1, 0.3*inch))
+
+        story.append(PageBreak())
+
+        # AI Insights
+        story.append(Paragraph("AI Cosmic Guidance & Expert Insights", styles['CenterTitle']))
+        ai_text = result['ai_analysis'].replace('\n', '<br/>')
+        story.append(Paragraph(ai_text, styles['NormalText']))
+
         def add_branding(canvas, doc):
             canvas.saveState()
             canvas.setFont('Helvetica-Bold', 10)
             canvas.setFillColor(colors.purple)
-            canvas.drawString(72, 800, "AstroPinch") # Top Left
+            canvas.drawString(72, 800, "AstroPinch")
             canvas.setFont('Helvetica', 8)
             canvas.setFillColor(colors.gray)
-            canvas.drawRightString(523, 800, "Cosmic Intelligence Report") # Top Right
-            
-            # Footer
-            canvas.setFont('Helvetica', 8)
-            canvas.setFillColor(colors.gray)
-            canvas.drawString(72, 30, "Generated by AstroPinch AI")
+            canvas.drawRightString(523, 800, "Premium Compatibility Report")
+            canvas.drawString(72, 30, "Generated by AstroPinch AI Expert")
             canvas.drawRightString(523, 30, f"Page {doc.page}")
             canvas.restoreState()
 

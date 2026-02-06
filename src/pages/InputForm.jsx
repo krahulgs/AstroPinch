@@ -12,7 +12,9 @@ const InputForm = () => {
     const [progress, setProgress] = useState(0);
     const [formData, setFormData] = useState({
         name: '',
-        date: '',
+        day: '',
+        month: '',
+        year: '',
         time: '',
         place: '',
         lat: '',
@@ -24,7 +26,8 @@ const InputForm = () => {
         e.preventDefault();
 
         // Final validation for future date
-        const selectedDate = new Date(formData.date);
+        const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
+        const selectedDate = new Date(dateStr);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -32,6 +35,11 @@ const InputForm = () => {
             alert('Date of Birth cannot be in the future');
             return;
         }
+
+        const dataToSave = {
+            ...formData,
+            date: dateStr
+        };
 
         // Simulate progress while fetching
         setProgress(0);
@@ -46,14 +54,14 @@ const InputForm = () => {
             });
         }, 300);
 
-        const report = await saveUserData(formData);
+        const report = await saveUserData(dataToSave);
 
         clearInterval(interval);
 
         if (report) {
             setProgress(100);
             setTimeout(() => {
-                navigate('/report/consolidated', { state: { userData: formData, preFetchedReport: report } });
+                navigate('/report/consolidated', { state: { userData: dataToSave, preFetchedReport: report } });
             }, 500);
         } else {
             setProgress(0);
@@ -123,12 +131,8 @@ const InputForm = () => {
                                             min="1"
                                             max="31"
                                             required
-                                            value={formData.date ? formData.date.split('-')[2] : ''}
-                                            onChange={(e) => {
-                                                const day = e.target.value.padStart(2, '0').slice(-2);
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${parts[1]}-${day}` });
-                                            }}
+                                            value={formData.day}
+                                            onChange={(e) => setFormData({ ...formData, day: e.target.value })}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
@@ -139,12 +143,8 @@ const InputForm = () => {
                                             min="1"
                                             max="12"
                                             required
-                                            value={formData.date ? formData.date.split('-')[1] : ''}
-                                            onChange={(e) => {
-                                                const month = e.target.value.padStart(2, '0').slice(-2);
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${parts[0]}-${month}-${parts[2]}` });
-                                            }}
+                                            value={formData.month}
+                                            onChange={(e) => setFormData({ ...formData, month: e.target.value })}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
@@ -155,12 +155,8 @@ const InputForm = () => {
                                             min="1900"
                                             max={new Date().getFullYear()}
                                             required
-                                            value={formData.date ? formData.date.split('-')[0] : ''}
-                                            onChange={(e) => {
-                                                const year = e.target.value;
-                                                const parts = (formData.date || '1995-01-01').split('-');
-                                                setFormData({ ...formData, date: `${year}-${parts[1]}-${parts[2]}` });
-                                            }}
+                                            value={formData.year}
+                                            onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                                             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>

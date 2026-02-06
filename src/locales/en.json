@@ -13,6 +13,8 @@
         "numerology": "Numerology",
         "calendar": "Calendar",
         "profiles": "Profiles",
+        "kundali_match": "Kundali Match",
+        "kundali_match_desc": "Analyze the cosmic compatibility between two souls using the traditional 36-Guna Ashta-Koota system.",
         "login": "Login",
         "logout": "Logout"
     },

@@ -30,19 +30,8 @@ async def create_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Check Profile Limit
-    result = await db.execute(select(Profile).filter(Profile.owner_id == current_user.id))
-    current_count = len(result.scalars().all())
-    
-    # Base Limit = 2
-    # Total Limit = 2 + (current_user.purchased_slots or 0)
-    limit = 2 + (current_user.purchased_slots or 0)
-    
-    if current_count >= limit:
-        raise HTTPException(
-            status_code=403,
-            detail=f"Profile limit reached ({limit}). Upgrade to create more."
-        )
+    # Limit removed by request
+    pass
 
     try:
         # 1. Calculate/Verify Timezone using Service

@@ -16,20 +16,12 @@ const ProfileManagement = () => {
     const [editingProfile, setEditingProfile] = useState(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-    // Profile Limit Logic
-    const freeLimit = 2;
-    const purchased = user?.purchased_slots || 0;
-    const totalLimit = freeLimit + purchased;
+    // Profile limit removed
     const used = profiles.length;
-    const isLimitReached = used >= totalLimit;
 
     const handleAddNew = () => {
-        if (isLimitReached) {
-            setShowPaymentModal(true);
-        } else {
-            setEditingProfile(null);
-            setShowForm(!showForm);
-        }
+        setEditingProfile(null);
+        setShowForm(!showForm);
     };
 
     const handleRefresh = async () => {
@@ -71,11 +63,10 @@ const ProfileManagement = () => {
                     <div>
                         <h1 className="text-4xl font-bold text-primary mb-2">Profiles</h1>
                         <p className="text-secondary">Manage charts for yourself, family, and friends.</p>
-                        <div className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
-                            <span className={isLimitReached ? "text-amber-600" : "text-green-600"}>
-                                {used} / {totalLimit} Slots Used
+                        <div className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
+                            <span>
+                                {used} Profile{used !== 1 ? 's' : ''} Created
                             </span>
-                            {purchased > 0 && <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">+{purchased} MAX</span>}
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -90,10 +81,10 @@ const ProfileManagement = () => {
                         <button
                             onClick={handleAddNew}
                             className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-2
-                                ${showForm ? 'bg-gray-100 text-primary hover:bg-gray-200' : (isLimitReached ? 'bg-amber-600 hover:bg-amber-500' : 'bg-purple-600 hover:bg-purple-500')} text-white
+                                ${showForm ? 'bg-gray-100 text-primary hover:bg-gray-200' : 'bg-purple-600 hover:bg-purple-500'} text-white
                             `}
                         >
-                            {showForm ? 'Cancel' : (isLimitReached ? <><Lock className="w-4 h-4" /> Unlock More</> : <><Plus className="w-4 h-4" /> Add New</>)}
+                            {showForm ? 'Cancel' : <><Plus className="w-4 h-4" /> Add New</>}
                         </button>
                     </div>
                 </div>

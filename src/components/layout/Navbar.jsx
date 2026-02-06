@@ -19,6 +19,7 @@ const Navbar = () => {
 
     const navItems = [
         { name: 'nav.horoscopes', path: '/horoscope', icon: Star },
+        { name: 'nav.kundali_match', path: '/kundali-match', icon: Moon },
         { name: 'nav.calendar', path: '/calendar', icon: Calendar },
         { name: 'nav.profiles', path: '/profiles', icon: User },
     ];

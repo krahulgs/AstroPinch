@@ -597,23 +597,46 @@ Your role is to analyze Kundali matching results that are already calculated pro
 
             # 3. Translate if Hindi requested
             if lang == "hi":
+                # Debug: Print English length
+                print(f"Translating English text of length: {len(analysis_text)}")
+                
                 translation_prompt = f"""
-                Translate the following Vedic Astrology compatibility analysis into professional, high-quality Hindi (Devanagari script).
-                Maintain the astrological context and respectful tone. Use proper terms like 'वर' (Groom), 'वधू' (Bride), 'दोष' (Dosha).
+                You are a professional English-to-Hindi translator specializing in Vedic Astrology.
                 
-                Text to translate:
+                TASK:
+                Translate the text below into strictly formal, high-quality Hindi (Devanagari).
+                
+                CRITICAL INSTRUCTIONS:
+                1. Translate EVERY single sentence. DO NOT summarize. DO NOT omit any details.
+                2. The output MUST contain all the information from the original text.
+                3. Use appropriate astrological terminology:
+                   - 'Groom' -> 'वर' (Var)
+                   - 'Bride' -> 'वधू' (Vadhu)
+                   - 'Dosha' -> 'दोष' (Dosha)
+                   - 'Compatible' -> 'अनुकूल' (Anukul)
+                4. Maintain the professional and compassionate tone.
+                
+                TEXT TO TRANSLATE:
+                ----------------
                 {analysis_text}
+                ----------------
                 
-                Output: Hindi translation only.
+                OUTPUT (Hindi Translation Only):
                 """
                 
                 try:
-                    # Use Gemini for translation (usually better at Indian languages)
+                    # Use Gemini for translation
                     trans_response = model.generate_content(translation_prompt)
-                    return trans_response.text
+                    hindi_text = trans_response.text
+                    print(f"Translated Hindi text length: {len(hindi_text)}")
+                    
+                    if len(hindi_text) < len(analysis_text) * 0.5:
+                        print("Warning: Translation seems too short. Falling back to English + Warning.")
+                        return hindi_text + "\n\n(नोट: अनुवाद में कुछ जानकारी संक्षेप की गई हो सकती है।)"
+                        
+                    return hindi_text
                 except Exception as e:
                     print(f"Translation Error: {e}")
-                    # Fallback translation if needed (though unlikely to be better)
                     return analysis_text + " (Hindi translation unavailable)"
             
             return analysis_text

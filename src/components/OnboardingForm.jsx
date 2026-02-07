@@ -143,7 +143,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     setFormData({ ...formData, name: filteredValue });
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
-                                placeholder="Enter your full name"
+                                placeholder="Enter Your Full Name"
                             />
                         </div>
                     </div>

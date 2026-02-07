@@ -115,7 +115,7 @@ const InputForm = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
-                                    placeholder="Enter Your Full Name."
+                                    placeholder="Enter Your Full Name"
                                 />
                             </div>
                         </div>

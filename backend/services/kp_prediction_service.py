@@ -11,6 +11,7 @@ class KPPredictionService:
     
     # House signification rules for different events
     HOUSE_SIGNIFICATIONS = {
+        # Adult events
         "Marriage": {
             "positive": [2, 7, 11],
             "negative": [1, 6, 10]
@@ -46,19 +47,66 @@ class KPPredictionService:
         "Health Recovery": {
             "positive": [6, 11],
             "negative": [1, 8, 12]
+        },
+        # Age-appropriate events
+        "Education Success": {
+            "positive": [4, 5, 9, 11],
+            "negative": [3, 8]
+        },
+        "Higher Studies": {
+            "positive": [4, 9, 11],
+            "negative": [3, 8]
+        },
+        "Career Guidance": {
+            "positive": [10, 11],
+            "negative": [8]
+        },
+        "Health & Wellness": {
+            "positive": [1, 11],
+            "negative": [6, 8, 12]
+        },
+        "Talent Development": {
+            "positive": [3, 5, 11],
+            "negative": [8]
+        }
+    }
+    
+    # Age-appropriate events mapping
+    AGE_APPROPRIATE_EVENTS = {
+        "child": {  # 0-12 years
+            "events": ["Education Success", "Health & Wellness", "Talent Development"],
+            "min_age": 0,
+            "max_age": 12
+        },
+        "teenager": {  # 13-17 years
+            "events": ["Education Success", "Higher Studies", "Career Guidance", "Health & Wellness"],
+            "min_age": 13,
+            "max_age": 17
+        },
+        "young_adult": {  # 18-25 years
+            "events": ["Higher Studies", "New Job", "Career Guidance", "Property"],
+            "min_age": 18,
+            "max_age": 25
+        },
+        "adult": {  # 26+ years
+            "events": ["Marriage", "Job Change", "Business", "Childbirth", "Property"],
+            "min_age": 26,
+            "max_age": 150
         }
     }
     
     @staticmethod
-    def generate_event_predictions(kp_cusps, kp_system_data, dasha_data=None, lang="en"):
+    def generate_event_predictions(kp_cusps, kp_system_data, dasha_data=None, lang="en", age=None):
         """
         Generate event-based KP predictions with Yes/No/Delayed/Unlikely outcomes.
+        Age-aware: Only shows appropriate life events based on person's age.
         
         Args:
             kp_cusps: Dictionary of house cusps with sub-lords
             kp_system_data: KP system calculation data
             dasha_data: Current dasha periods for timing
             lang: Language code
+            age: Person's age in years (optional but recommended)
             
         Returns:
             Dictionary with predictions array
@@ -68,12 +116,12 @@ class KPPredictionService:
         
         predictions = []
         
-        # Generate predictions for key life events
-        events_to_analyze = ["Marriage", "Job Change", "Business", "Childbirth", "Property"]
+        # Determine age-appropriate events
+        events_to_analyze = KPPredictionService._get_age_appropriate_events(age)
         
         for event in events_to_analyze:
             prediction = KPPredictionService._analyze_event(
-                event, kp_cusps, kp_system_data, dasha_data, lang
+                event, kp_cusps, kp_system_data, dasha_data, lang, age
             )
             if prediction:
                 predictions.append(prediction)
@@ -81,7 +129,24 @@ class KPPredictionService:
         return {"predictions": predictions}
     
     @staticmethod
-    def _analyze_event(event_name, kp_cusps, kp_system_data, dasha_data, lang):
+    def _get_age_appropriate_events(age):
+        """
+        Get list of appropriate events based on person's age.
+        """
+        if age is None:
+            # Default to adult events if age not provided
+            return ["Marriage", "Job Change", "Business", "Property"]
+        
+        # Determine age category
+        for category, config in KPPredictionService.AGE_APPROPRIATE_EVENTS.items():
+            if config["min_age"] <= age <= config["max_age"]:
+                return config["events"]
+        
+        # Default to adult events if age is very high
+        return ["Marriage", "Job Change", "Business", "Childbirth", "Property"]
+    
+    @staticmethod
+    def _analyze_event(event_name, kp_cusps, kp_system_data, dasha_data, lang, age):
         """
         Analyze a specific event using KP logic.
         """
@@ -214,6 +279,32 @@ class KPPredictionService:
                 "Yes": "Good time for property investments. Research thoroughly and ensure legal documentation is clear.",
                 "Delayed": "Property acquisition may take longer than expected. Be patient and don't rush into decisions.",
                 "No": "Property purchase is not strongly indicated now. Continue saving and wait for better opportunities."
+            },
+            # Age-appropriate event guidance
+            "Education Success": {
+                "Yes": "Excellent period for academic achievements. Focus on studies with dedication and seek help when needed.",
+                "Delayed": "Success will come with consistent effort. Develop good study habits and stay curious about learning.",
+                "No": "Academic progress requires extra attention. Consider tutoring or different learning approaches."
+            },
+            "Higher Studies": {
+                "Yes": "Favorable time for pursuing higher education. Research programs thoroughly and prepare applications carefully.",
+                "Delayed": "Consider gaining work experience first. Use this time to clarify your academic and career goals.",
+                "No": "Timing suggests focusing on current education or work. Revisit higher studies plans in future."
+            },
+            "Career Guidance": {
+                "Yes": "Good period to explore career options. Seek mentorship, internships, and skill development opportunities.",
+                "Delayed": "Take time to discover your interests. Try different activities and build diverse skills.",
+                "No": "Focus on current education and personal growth. Career clarity will develop naturally over time."
+            },
+            "Health & Wellness": {
+                "Yes": "Excellent vitality indicated. Maintain healthy habits through balanced diet, exercise, and adequate rest.",
+                "Delayed": "Pay attention to health routines. Establish good habits now for long-term wellness.",
+                "No": "Extra care needed for health. Consult healthcare professionals and prioritize self-care."
+            },
+            "Talent Development": {
+                "Yes": "Perfect time to develop creative talents. Dedicate regular practice time and seek quality instruction.",
+                "Delayed": "Talents will flourish with patience. Explore different interests and enjoy the learning process.",
+                "No": "Focus on foundational skills first. Every talent develops at its own pace."
             }
         }
         

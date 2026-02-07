@@ -1942,130 +1942,7 @@ const ConsolidatedReport = () => {
                                 </div>
                             </div>
 
-                            {report.vedic_astrology?.kp_system && (
-                                <div className="mt-12 glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
-                                    <div className="absolute top-0 right-0 p-6 opacity-5">
-                                        <Star className="w-32 h-32 text-primary" />
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Star className="w-6 h-6 text-emerald-600" />
-                                        <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
-                                            <p className="text-sm text-emerald-600">Krishnamurti Paddhati</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        {/* Left Column: Planetary Table */}
-                                        <div className="space-y-4">
-                                            {/* Mobile View Cards */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
-                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                    <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-primary">{p.planet}</span>
-                                                            <span className="text-sm text-secondary uppercase">{p.sign.substring(0, 3)}</span>
-                                                        </div>
-                                                        <div className="flex gap-4 text-right">
-                                                            <div>
-                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Star</div>
-                                                                <div className="text-xs font-bold text-emerald-700">{p.star_lord}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Sub</div>
-                                                                <div className="text-xs font-bold text-amber-700">{p.sub_lord}</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Desktop View Table */}
-                                            <div className="hidden lg:block space-y-2">
-                                                <div className="grid grid-cols-4 text-sm font-bold text-secondary uppercase pb-2 border-b border-gray-100">
-                                                    <span>Planet</span>
-                                                    <span>Sign</span>
-                                                    <span>Star</span>
-                                                    <span>Sub</span>
-                                                </div>
-                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                    <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
-                                                        <span className="text-primary font-bold">{p.planet}</span>
-                                                        <span className="text-secondary text-sm">{p.sign.substring(0, 3)}</span>
-                                                        <span className="text-emerald-700 font-medium text-sm">{p.star_lord}</span>
-                                                        <span className="text-amber-700 font-medium text-sm">{p.sub_lord}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Right Column: Easy English Analysis (Enhanced) */}
-                                        <div className="space-y-6 relative">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                                        <Scroll className="w-5 h-5 text-emerald-600" />
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
-                                                        <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Detailed Personal Insights</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {report.vedic_astrology.kp_analysis ? (
-                                                <div className="grid grid-cols-1 gap-4 relative z-10">
-                                                    {report.vedic_astrology.kp_analysis.map((item, idx) => {
-                                                        // Helper to match icons and colors
-                                                        const getStyle = (type) => {
-                                                            const t = (type || '').toLowerCase();
-                                                            if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
-                                                            if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
-                                                            if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
-                                                            if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
-                                                            if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
-                                                            if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
-                                                            if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
-                                                            return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
-                                                        };
-                                                        const style = getStyle(item.type);
-                                                        const ItemIcon = style.icon;
-
-                                                        return (
-                                                            <div key={idx} className={`p-5 rounded-[1.5rem] border transition-all hover:bg-white hover:shadow-lg ${style.bg} ${style.border} group`}>
-                                                                <div className="flex gap-4">
-                                                                    <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${style.accent}`}>
-                                                                        <ItemIcon className={`w-5 h-5 ${style.color}`} />
-                                                                    </div>
-                                                                    <div className="space-y-1">
-                                                                        <span className={`text-xs font-black uppercase tracking-[0.2em] ${style.color}`}>
-                                                                            {item.type}
-                                                                        </span>
-                                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium"
-                                                                            dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>') }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                    <Brain className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="text-sm italic">Personalized interpretation is being ready...</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
-                                        <p className="text-sm text-emerald-700 uppercase tracking-widest font-bold">
-                                            {t('report.vedic.source_kp')}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
                     </div>
@@ -2607,6 +2484,132 @@ const ConsolidatedReport = () => {
                         </div>
 
                         {/* KP Predictions Grid */}
+                        {report.vedic_astrology?.kp_system && (
+                            <div className="glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
+                                <div className="absolute top-0 right-0 p-6 opacity-5">
+                                    <Star className="w-32 h-32 text-primary" />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Star className="w-6 h-6 text-emerald-600" />
+                                    <div>
+                                        <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
+                                        <p className="text-sm text-emerald-600">Krishnamurti Paddhati</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    {/* Left Column: Planetary Table */}
+                                    <div className="space-y-4">
+                                        {/* Mobile View Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
+                                            {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold text-primary">{p.planet}</span>
+                                                        <span className="text-sm text-secondary uppercase">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
+                                                    </div>
+                                                    <div className="flex gap-4 text-right">
+                                                        <div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest">Star</div>
+                                                            <div className="text-xs font-bold text-emerald-700">{p.star_lord}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest">Sub</div>
+                                                            <div className="text-xs font-bold text-amber-700">{p.sub_lord}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Desktop View Table */}
+                                        <div className="hidden lg:block space-y-2">
+                                            <div className="grid grid-cols-4 text-sm font-bold text-secondary uppercase pb-2 border-b border-gray-100">
+                                                <span>Planet</span>
+                                                <span>Sign</span>
+                                                <span>Star</span>
+                                                <span>Sub</span>
+                                            </div>
+                                            {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
+                                                    <span className="text-primary font-bold">{p.planet}</span>
+                                                    <span className="text-secondary text-sm">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
+                                                    <span className="text-emerald-700 font-medium text-sm">{p.star_lord}</span>
+                                                    <span className="text-amber-700 font-medium text-sm">{p.sub_lord}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column: Easy English Analysis (Enhanced) */}
+                                    <div className="space-y-6 relative">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                                    <Scroll className="w-5 h-5 text-emerald-600" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
+                                                    <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Detailed Personal Insights</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {report.vedic_astrology.kp_analysis ? (
+                                            <div className="grid grid-cols-1 gap-4 relative z-10">
+                                                {report.vedic_astrology.kp_analysis.map((item, idx) => {
+                                                    // Helper to match icons and colors
+                                                    const getStyle = (type) => {
+                                                        const t = (type || '').toLowerCase();
+                                                        if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
+                                                        if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
+                                                        if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
+                                                        if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
+                                                        if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
+                                                        if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
+                                                        if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                        return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
+                                                    };
+                                                    const style = getStyle(item.type);
+                                                    const ItemIcon = style.icon;
+
+                                                    return (
+                                                        <div key={idx} className={`p-5 rounded-[1.5rem] border transition-all hover:bg-white hover:shadow-lg ${style.bg} ${style.border} group`}>
+                                                            <div className="flex gap-4">
+                                                                <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${style.accent}`}>
+                                                                    <ItemIcon className={`w-5 h-5 ${style.color}`} />
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <span className={`text-xs font-black uppercase tracking-[0.2em] ${style.color}`}>
+                                                                        {item.type}
+                                                                    </span>
+                                                                    <p className="text-sm text-slate-700 leading-relaxed font-medium"
+                                                                        dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>') }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                <Brain className="w-8 h-8 mb-2 opacity-50" />
+                                                <p className="text-sm italic">Personalized interpretation is being ready...</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+                                    <p className="text-sm text-emerald-700 uppercase tracking-widest font-bold">
+                                        {t('report.vedic.source_kp')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* KP Predictions Grid */}
                         {report.kp_analysis && report.kp_analysis.predictions && report.kp_analysis.predictions.length > 0 ? (
                             <div className="grid md:grid-cols-2 gap-6">
                                 {report.kp_analysis.predictions.map((prediction, idx) => (
@@ -2619,15 +2622,15 @@ const ConsolidatedReport = () => {
                                                 </h3>
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${prediction.outcome === 'Yes' ? 'bg-green-100 text-green-700' :
-                                                            prediction.outcome === 'No' ? 'bg-red-100 text-red-700' :
-                                                                prediction.outcome === 'Delayed' ? 'bg-amber-100 text-amber-700' :
-                                                                    'bg-gray-100 text-gray-700'
+                                                        prediction.outcome === 'No' ? 'bg-red-100 text-red-700' :
+                                                            prediction.outcome === 'Delayed' ? 'bg-amber-100 text-amber-700' :
+                                                                'bg-gray-100 text-gray-700'
                                                         }`}>
                                                         {prediction.outcome}
                                                     </span>
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${prediction.confidence === 'High' ? 'bg-blue-100 text-blue-700' :
-                                                            prediction.confidence === 'Medium' ? 'bg-purple-100 text-purple-700' :
-                                                                'bg-slate-100 text-slate-700'
+                                                        prediction.confidence === 'Medium' ? 'bg-purple-100 text-purple-700' :
+                                                            'bg-slate-100 text-slate-700'
                                                         }`}>
                                                         {prediction.confidence} Confidence
                                                     </span>

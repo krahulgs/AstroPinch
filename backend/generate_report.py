@@ -14,9 +14,18 @@ class ReportGenerator:
         # 1. Western Chart (Kerykeion) - DISABLED by User Request
         western_chart = None
 
+        # Rough age calculation early
+        birth_date = datetime(year, month, day)
+        today = datetime.now()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+
+        # Update context with age
+        if context is None: context = {}
+        context['age'] = age
+
         with ThreadPoolExecutor() as executor:
             # Parallel Task 1: Vedic Analysis
-            print("- Starting Vedic Analysis & Transits (Parallel)...")
+            print(f"- Starting Vedic Analysis & Transits (Age: {age})...")
             vedic_future = executor.submit(
                 AstrologyAggregator.get_vedic_full_report,
                 name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone, context=context
@@ -51,11 +60,6 @@ class ReportGenerator:
         with ThreadPoolExecutor() as executor:
             from services.ai_service import generate_vedic_chart_analysis, generate_relationship_analysis
             
-            # Rough age calculation
-            birth_date = datetime(year, month, day)
-            today = datetime.now()
-            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-
             # Personality Analysis Future
             personality_future = executor.submit(
                 generate_vedic_chart_analysis,
@@ -67,7 +71,7 @@ class ReportGenerator:
             # Relationship Analysis Future
             relationship_future = executor.submit(
                 generate_relationship_analysis,
-                name, vedic_full['planets'], vedic_full['panchang'], lang=lang
+                name, vedic_full['planets'], vedic_full['panchang'], lang=lang, age=age
             )
 
             # Best Prediction / Executive Summary Future

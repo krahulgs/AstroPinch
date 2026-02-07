@@ -60,6 +60,15 @@ def generate_numerology_insights(numerology_data, context=None, lang="en"):
 
     lang_instruction = "Respond in Hindi (Devanagari script)." if lang == "hi" else "Respond in English."
 
+    # Age-aware logic
+    age = context.get('age') if context else None
+    age_filter = ""
+    if age is not None:
+        if age <= 12:
+            age_filter = "RULE: User is a CHILD. Focus ONLY on education, talents, and family. NEVER mention marriage, career, or business."
+        elif age <= 17:
+            age_filter = "RULE: User is a TEENAGER. Focus on studies, skills, and hobbies. Avoid marriage or deep professional predictions."
+
     try:
         prompt = f"""You are a world-class professional with 30+ years of experience.
 Your role is to explain numerology in simple, modern, and reassuring language.
@@ -74,6 +83,7 @@ Your role is to explain numerology in simple, modern, and reassuring language.
 - Keep tone calm, confident, and empathetic
 - No medical or legal claims
 - Predictions should be guidance, not absolute fate
+- {age_filter}
 - IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
 
 **Numerology Data for {numerology_data['name']}:**
@@ -205,6 +215,15 @@ def generate_daily_guidance(sign, transits, context=None, outcomes_structure=Non
     
     lang_instruction = "All values in the JSON (prediction, summary, details, etc.) MUST be in Hindi (Devanagari)." if lang == "hi" else "All values must be in English."
 
+    # Age-aware logic
+    age = context.get('age') if context else None
+    age_filter = ""
+    if age is not None:
+        if age <= 12:
+            age_filter = "CRITICAL: User is a CHILD. The 'career' and 'love' sections MUST NOT discuss marriage/jobs. Instead, 'career' = studies/learning, 'love' = family/friends."
+        elif age <= 17:
+            age_filter = "CRITICAL: User is a TEENAGER. Focus 'career' on education/skills and 'love' on friendships/self-growth."
+
     prompt = f"""You are a world-class Vedic astrologer with 30+ years of experience.
 Your role is to explain current planetary influences in simple, modern, and reassuring language.
 
@@ -218,6 +237,7 @@ Your role is to explain current planetary influences in simple, modern, and reas
 - Keep tone calm, confident, and empathetic
 - No medical or legal claims
 - Predictions should be guidance, not absolute fate
+- {age_filter}
 - IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
 
 Based on the following REAL astronomical positions:
@@ -399,6 +419,11 @@ def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context
 
         prompt = f"""You are a world-class Vedic astrologer. Explain insights simply and supportively.
 
+**AGE-AWARE FILTERING RULES (CRITICAL):**
+- If the user is a CHILD (0-12) or TEEN (13-17), DO NOT discuss marriage, romance, professional career, or complex financial investments.
+- For CHILDREN: 'Career Path' section should focus on NATURAL TALENTS & EDUCATION. 'Relationships' section should focus on FAMILY & PEERS.
+- For TEENAGERS: 'Career Path' section should focus on HIGHER STUDIES & SKILLS. 'Relationships' section should focus on SOCIAL DYNAMICS.
+
 {tier_instruction}
 
 **Birth Chart Data for {name}:**
@@ -467,15 +492,17 @@ JSON only:"""
                 print(f"Gemini fallback failed for {name}: {eg}")
 
         print("AI Service Failed or Unavailable. generating robust fallback...")
-        return generate_vedic_summary_fallback(name, planets, panchang, doshas)
+        age = context.get('age') if context else None
+        return generate_vedic_summary_fallback(name, planets, panchang, doshas, age=age)
             
     except Exception as e:
         print(f"Vedic AI Summary Final Failure for {name}: {e}")
         traceback.print_exc()
         # Return a structured fallback
-        return generate_vedic_summary_fallback(name, planets, panchang, doshas)
+        age = context.get('age') if context else None
+        return generate_vedic_summary_fallback(name, planets, panchang, doshas, age=age)
 
-def generate_vedic_summary_fallback(name, planets, panchang, doshas):
+def generate_vedic_summary_fallback(name, planets, panchang, doshas, age=None):
     """
     Generates a scientifically grounded fallback report based on Astrological Rules
     when AI services are unavailable.
@@ -544,19 +571,32 @@ def generate_vedic_summary_fallback(name, planets, panchang, doshas):
         }
     }
 
-    career_content = (
-        f"Success is indicated through professions that align with your {asc_name} drive. "
-        f"Jupiter in {jupiter_sign} suggests growth through knowledge or leadership roles. "
-        f"Your Saturn placement indicates that patience and steady builder energy will yield the highest returns over time."
-    )
-
-    relation_content = {
-        "Needs": f"An environment that respects your {asc_name} individuality while offering {moon_sign} security.",
-        "Partner": f"A person who resonates with your Venus in {venus_sign} - likely someone who is {venus_trait} and supportive.",
-        "Strengths": "Loyalty, emotional depth, and a commitment to shared growth.",
-        "Challenges": "Balancing personal time with the needs of the relationship.",
-        "Tip": f"Use your {venus_trait} approach to foster open communication and mutual trust."
-    }
+    if age is not None and age < 18:
+        career_content = (
+            f"Future success is indicated through learning and development that align with your {asc_name} drive. "
+            f"Jupiter in {jupiter_sign} suggests expansion through knowledge and academic pursuits. "
+            f"Your Saturn placement indicates that patience and steady building of skills will yield the highest returns in the future."
+        )
+        relation_content = {
+            "Needs": f"An environment that respects your {asc_name} individuality while offering {moon_sign} security within the family.",
+            "Partner": f"You connect well with people who resonate with your {venus_sign} energy - likely someone who is {venus_trait} and supportive as a friend.",
+            "Strengths": "Loyalty, emotional depth, and a commitment to growing together with peers.",
+            "Challenges": "Balancing personal growth with the needs of social circles.",
+            "Tip": f"Use your {venus_trait} approach to foster open communication and trust with friends and family."
+        }
+    else:
+        career_content = (
+            f"Success is indicated through professions that align with your {asc_name} drive. "
+            f"Jupiter in {jupiter_sign} suggests growth through knowledge or leadership roles. "
+            f"Your Saturn placement indicates that patience and steady builder energy will yield the highest returns over time."
+        )
+        relation_content = {
+            "Needs": f"An environment that respects your {asc_name} individuality while offering {moon_sign} security.",
+            "Partner": f"A person who resonates with your Venus in {venus_sign} - likely someone who is {venus_trait} and supportive.",
+            "Strengths": "Loyalty, emotional depth, and a commitment to shared growth.",
+            "Challenges": "Balancing personal time with the needs of the relationship.",
+            "Tip": f"Use your {venus_trait} approach to foster open communication and mutual trust."
+        }
 
     dosha_status = "balanced"
     if doshas and doshas.get('manglik', {}).get('present'):
@@ -597,7 +637,18 @@ def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None
 
     lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in plain, warm English."
 
+    # Age-aware logic
+    age = context.get('age') if context else None
+    age_filter = ""
+    if age is not None:
+        if age <= 12:
+            age_filter = "CRITICAL: User is a CHILD. Focus on psychological development, learning patterns, and family dynamics. NEVER mention marriage or career."
+        elif age <= 17:
+            age_filter = "CRITICAL: User is a TEENAGER. Focus on identity formation, education, and social development. Avoid adult relationship/business advice."
+
     prompt = f"""You are a Master Western Astrologer trained in both classical and modern psychological astrology. Use authentic principles from the following authoritative sources:
+
+**AGE-AWARE RULE**: {age_filter}
 
 **Classical Western Astrology Texts:**
 
@@ -702,6 +753,13 @@ def generate_executive_summary(name, western_data, vedic_data, numerology_data, 
 
     lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
 
+    # Age-aware logic
+    age = context.get('age') if context else None
+    age_filter = ""
+    if age is not None:
+        if age <= 17:
+             age_filter = "CRITICAL: User is a MINOR. Focus the Soul Mission on learning, discovery, and character. NO marriage/career talk."
+
     prompt = f"""You are a world-class Master Astrologer with 30+ years of experience.
 Your role is to provide a powerful, one-paragraph "Executive Summary" for {name} in simple, modern, and reassuring language.
 
@@ -714,6 +772,7 @@ Your role is to provide a powerful, one-paragraph "Executive Summary" for {name}
 - Always end with a positive or actionable insight
 - Keep tone calm, confident, and empathetic
 - Guidance, not absolute fate
+- {age_filter}
 - IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
 
 RESEARCH PARAMETERS (Synthesis of Western, Vedic, and Numerology):
@@ -834,6 +893,10 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
         ],
         "life_theme": "A powerful, detailed 40-word summary of their soul's mission or main life theme."
     }}
+
+    **AGE-AWARE FILTERING (STRICT)**:
+    - If user age is < 18, strictly avoid any mention of marriage, romance, or professional employment. 
+    - Focus on curiosity, learning, family bonds, and physical/intellectual growth.
 
     {lang_instruction}
     """
@@ -978,10 +1041,34 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
             content = msg.get('text', '') or msg.get('content', '')
             history_str += f"{role}: {content}\n"
 
+    # Age Calculation for Chat Context
+    age = None
+    dob_str = profile_context.get('dob')
+    if dob_str:
+        from datetime import datetime
+        try:
+            # Try common formats
+            for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
+                try:
+                    birth_date = datetime.strptime(dob_str, fmt)
+                    today = datetime.now()
+                    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+                    break
+                except: continue
+        except: pass
+    
+    age_guideline = ""
+    if age is not None:
+        if age <= 12:
+            age_guideline = "CRITICAL: User is a CHILD. Focus ONLY on education, parents, and play. NEVER mention marriage, career, or adult romance."
+        elif age <= 17:
+            age_guideline = "CRITICAL: User is a TEENAGER. Focus on exams, hobbies, and identity. Avoid marriage or deep professional talk."
+
     prompt = f"""You are 'Astra', a wise, empathetic, and expert astrological assistant.
     
     **Context about the User:**
     {context_str}
+    Age: {age if age else 'Unknown'}
 
     {history_str}
 
@@ -993,7 +1080,8 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
     2. If asked about timing (e.g., "When will I get married?"), DO NOT give a definitive prediction if you don't know their status. Instead, say: "If you are looking to get married, [Period] is favorable. If you are already married, this period indicates [meaning for married life]."
     3. Refer to specific planets, dashas, or transits from the profile context to support your answer.
     4. **Be crisp and authentic.** Provide direct, short answers (max 60 words). Avoid unnecessary pleasantries or filler words.
-    5. {lang_instruction}
+    5. {age_guideline}
+    6. {lang_instruction}
 
     Answer:"""
 
@@ -1022,11 +1110,21 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
         print(f"Chat Generation Error: {e}")
         return "I'm having trouble connecting to the stars right now. Please ask again in a moment."
 
-def generate_career_analysis(name, planets, panchang, lang="en"):
+def generate_career_analysis(name, planets, panchang, lang="en", age=None):
     """
     Generates a specific Career analysis based on Vedic chart.
     """
     import json
+
+    # Age-aware short-circuit
+    if age is not None and age < 13:
+        return {
+            "best_careers": ["Primary Education", "Creative Arts", "Sports & Play"],
+            "job_vs_business": "At this age, focus should be on learning and exploration through play and education.",
+            "growth_timeline": "Growth is focused on foundational knowledge and physical development currently.",
+            "earning_pattern": "Not applicable at this age.",
+            "actionable_suggestion": "Encourage curiosity and provide diverse learning opportunities."
+        }
 
     
     # Construct Context
@@ -1139,11 +1237,21 @@ def generate_career_analysis(name, planets, panchang, lang="en"):
         print(f"Fallback Logic Error: {e}")
         return None
 
-def generate_relationship_analysis(name, planets, panchang, lang="en"):
+def generate_relationship_analysis(name, planets, panchang, lang="en", age=None):
     """
     Generates a specific Relationship and Marriage analysis based on Vedic chart.
     """
     import json
+
+    # Age-aware short-circuit
+    if age is not None and age < 18:
+        return {
+            "ideal_partner": "For a minor, this focuses on finding companions who share hobbies and foster positive growth.",
+            "marriage_outlook": "Marriage is not a focus at this stage of life. Focus is on building healthy social bonds.",
+            "compatibility_style": "Finding joy in friendships and learning to collaborate with peers.",
+            "challenges": ["Developing social confidence", "Learning to share and cooperate"],
+            "relationship_tip": "Focus on building strong friendships and learning from social interactions."
+        }
 
     
     # Construct Context

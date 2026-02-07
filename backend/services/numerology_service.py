@@ -75,6 +75,22 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
             elif isinstance(d_data, list) and d_data:
                 dasha_lord = d_data[0].get('planet', 'Unknown')
 
+        # Age-aware logic
+        from datetime import datetime
+        try:
+            birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d")
+            today = datetime.now()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        except:
+            age = None
+
+        age_filter = ""
+        if age is not None:
+            if age <= 12:
+                age_filter = "RULE: User is a CHILD. Focus ONLY on character, talents, and learning. NEVER mention marriage, career, or business."
+            elif age <= 17:
+                age_filter = "RULE: User is a TEENAGER. Focus on personality, studies, and social skills. Avoid marriage or professional predictions."
+
         prompt = f"""
         Act as an expert Numerologist specializing in Pythagorean and Vedic systems.
         
@@ -109,6 +125,7 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
         
         Tone: Mystical but practical, encouraging, and authoritative.
         Keep it under 300 words.
+        {age_filter}
         
         IMPORTANT: Provide the response in {lang} language.
         """

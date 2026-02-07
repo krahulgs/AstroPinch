@@ -55,7 +55,6 @@ const Footer = () => {
                                 <li><Link to="/kp-astrology" className="text-slate-600 hover:text-blue-600 transition-colors">KP Astrology</Link></li>
                                 <li><Link to="/numerology" className="text-slate-600 hover:text-blue-600 transition-colors">Numerology</Link></li>
                                 <li><Link to="/calendar" className="text-slate-600 hover:text-blue-600 transition-colors">Panchang & Muhurat</Link></li>
-                                <li><Link to="/report/consolidated" className="text-slate-600 hover:text-blue-600 transition-colors">Western Astrology</Link></li>
                             </ul>
                         </div>
 

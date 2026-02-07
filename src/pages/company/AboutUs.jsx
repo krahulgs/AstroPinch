@@ -32,10 +32,12 @@ const AboutUs = () => {
                             We believe that astrology shouldn't be shrouded in confusing jargon. It should be a clear, empowering tool for self-discovery and navigating life's challenges. By using AI to process complex planetary calculations and Vedic logic, we deliver insights that are both accurate and deeply personal.
                         </p>
                     </div>
-                    <div className="relative h-64 bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center">
-                        {/* Abstract visual for Mission */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50"></div>
-                        <Sparkles className="w-24 h-24 text-primary/20 animate-pulse" />
+                    <div className="relative h-64 bg-slate-50 rounded-xl overflow-hidden">
+                        <img
+                            src="/about-mission.png"
+                            alt="Ancient Vedic Wisdom meets Modern AI Technology"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 </div>
             </div>

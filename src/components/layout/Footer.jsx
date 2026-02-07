@@ -51,7 +51,7 @@ const Footer = () => {
                         <div className="mb-8">
                             <h3 className="font-semibold text-slate-900 mb-4 uppercase tracking-wider text-xs">Astrology Systems</h3>
                             <ul className="space-y-2">
-                                <li><Link to="/birth-chart" className="text-slate-600 hover:text-blue-600 transition-colors">Vedic Astrology</Link></li>
+                                <li><Link to="/vedic-astrology" className="text-slate-600 hover:text-blue-600 transition-colors">Vedic Astrology</Link></li>
                                 <li><Link to="/birth-chart" className="text-slate-600 hover:text-blue-600 transition-colors">KP Astrology</Link></li>
                                 <li><Link to="/numerology" className="text-slate-600 hover:text-blue-600 transition-colors">Numerology</Link></li>
                                 <li><Link to="/calendar" className="text-slate-600 hover:text-blue-600 transition-colors">Panchang & Muhurat</Link></li>

@@ -18,6 +18,7 @@ import DailyInsights from './pages/DailyInsights';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import KundaliMatch from './pages/KundaliMatch';
+import PremiumReports from './pages/PremiumReports';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -74,6 +75,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/kundali-match" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><KundaliMatch /></div>} />
+              <Route path="/premium-reports" element={<PremiumReports />} />
 
               {/* Company Pages */}
               <Route path="/about" element={<AboutUs />} />

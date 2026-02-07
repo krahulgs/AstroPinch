@@ -42,7 +42,7 @@ const Footer = () => {
                             <li><Link to="/predictions" className="text-slate-600 hover:text-blue-600 transition-colors">Manglik Dosha Analysis</Link></li>
                             <li><Link to="/numerology" className="text-slate-600 hover:text-blue-600 transition-colors">Numerology Analysis</Link></li>
                             <li><Link to="/calendar" className="text-slate-600 hover:text-blue-600 transition-colors">Muhurat & Panchang</Link></li>
-                            <li><Link to="/report/consolidated" className="text-slate-600 hover:text-blue-600 transition-colors">Premium Reports</Link></li>
+                            <li><Link to="/premium-reports" className="text-slate-600 hover:text-blue-600 transition-colors">Premium Reports</Link></li>
                         </ul>
                     </div>
 

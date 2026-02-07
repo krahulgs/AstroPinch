@@ -113,6 +113,20 @@ class ReportGenerator:
         loshu_data = numerology.pop('loshu_grid', None)
         transits = vedic_full.get('transits', []) # Already calculated in get_vedic_full_report
 
+        # Generate KP Event Predictions
+        print("- Generating KP Event Predictions...")
+        from services.kp_prediction_service import KPPredictionService
+        try:
+            kp_predictions = KPPredictionService.generate_event_predictions(
+                kp_cusps=vedic_full.get('kp_cusps'),
+                kp_system_data=vedic_full.get('kp_system'),
+                dasha_data=vedic_full.get('dasha'),
+                lang=lang
+            )
+        except Exception as e:
+            print(f"KP Predictions Error: {e}")
+            kp_predictions = {"predictions": []}
+
         # Consolidate
         report = {
             "profile": {
@@ -149,7 +163,8 @@ class ReportGenerator:
                 "avakhada": vedic_full.get('avakhada')
             },
             "astrocartography": acg_locations,
-            "predictions_summary": predictions
+            "predictions_summary": predictions,
+            "kp_analysis": kp_predictions  # Add KP predictions at root level for frontend
         }
         
         return report

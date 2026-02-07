@@ -20,6 +20,7 @@ import Register from './pages/Register';
 import KundaliMatch from './pages/KundaliMatch';
 import PremiumReports from './pages/PremiumReports';
 import VedicAstrology from './pages/VedicAstrology';
+import KPAstrology from './pages/KPAstrology';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -78,6 +79,7 @@ function App() {
               <Route path="/kundali-match" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><KundaliMatch /></div>} />
               <Route path="/premium-reports" element={<PremiumReports />} />
               <Route path="/vedic-astrology" element={<VedicAstrology />} />
+              <Route path="/kp-astrology" element={<KPAstrology />} />
 
               {/* Company Pages */}
               <Route path="/about" element={<AboutUs />} />

@@ -536,14 +536,16 @@ Answer:"""
             bride_dasha = VedicAstroEngine.calculate_vimshottari_dasha(
                 bride_details['year'], bride_details['month'], bride_details['day'],
                 bride_details['hour'], bride_details['minute'],
-                bride_details['lat'], bride_details['lng']
+                bride_details['lat'], bride_details['lng'],
+                timezone_str=bride_details.get('timezone', 'Asia/Kolkata')
             )
             
             print(f"Calculating Dasha for Groom: {groom_details.get('name', 'Unknown')}")
             groom_dasha = VedicAstroEngine.calculate_vimshottari_dasha(
                 groom_details['year'], groom_details['month'], groom_details['day'],
                 groom_details['hour'], groom_details['minute'],
-                groom_details['lat'], groom_details['lng']
+                groom_details['lat'], groom_details['lng'],
+                timezone_str=groom_details.get('timezone', 'Asia/Kolkata')
             )
             
             print(f"Bride Dasha timeline count: {len(bride_dasha.get('timeline', []))}")
@@ -769,13 +771,15 @@ Answer:"""
             bride_dasha = VedicAstroEngine.calculate_vimshottari_dasha(
                 bride_details['year'], bride_details['month'], bride_details['day'],
                 bride_details['hour'], bride_details['minute'],
-                bride_details['lat'], bride_details['lng']
+                bride_details['lat'], bride_details['lng'],
+                timezone_str=bride_details.get('timezone', 'Asia/Kolkata')
             )
             
             groom_dasha = VedicAstroEngine.calculate_vimshottari_dasha(
                 groom_details['year'], groom_details['month'], groom_details['day'],
                 groom_details['hour'], groom_details['minute'],
-                groom_details['lat'], groom_details['lng']
+                groom_details['lat'], groom_details['lng'],
+                timezone_str=groom_details.get('timezone', 'Asia/Kolkata')
             )
             
             # Beneficial planets for marriage

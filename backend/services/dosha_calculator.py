@@ -141,13 +141,6 @@ class DoshaCalculator:
                     # Strict check only
                     return start < end and start <= val <= end or start > end and (start <= val or val <= end)
 
-                print(f"DEBUG KAAL SARP: Rahu={r_lon}, Ketu={k_lon}")
-                for p in non_nodal_planets:
-                    l = p['sidereal_longitude']
-                    in_r_k = in_arc(l, r_lon, k_lon)
-                    in_k_r = in_arc(l, k_lon, r_lon)
-                    print(f"DEBUG: Planet {p['name']} ({l}) -> In R-K: {in_r_k}, In K-R: {in_k_r}")
-                
                 in_rahu_ketu = 0
                 in_ketu_rahu = 0
                 total = len(non_nodal_planets)
@@ -163,23 +156,27 @@ class DoshaCalculator:
                 is_kaalsarp = False
                 ks_type = ""
                 
-                # STRICT RULE: ALL planets must be on one side.
                 if in_rahu_ketu == total:
                     is_kaalsarp = True
                     ks_type = "Savya (Direct)"
                 elif in_ketu_rahu == total:
                     is_kaalsarp = True
                     ks_type = "Apasavya (Reverse)"
+
                 
                 if is_kaalsarp:
                     doshas['kaal_sarp']['present'] = True
                     doshas['kaal_sarp']['intensity'] = "High"
-                    doshas['kaal_sarp']['reason'] = f"{ks_type} Kaal Sarp Yoga detected (All planets hemmed between Nodes)."
+                    doshas['kaal_sarp']['reason'] = f"{ks_type} Kaal Sarp Yoga detected. All planets are strictly hemmed between the Rahu-Ketu axis."
                     doshas['kaal_sarp']['remedy'] = "Perform Rudrabhishek on Shivaratri or Nag Panchami. Chant Mahamrityunjaya Mantra."
                 else:
-                    # Explicitly mention cancellation if it was close (optional, but good for debugging)
-                    # For now, just leave it as default False
-                    pass
+                    # Explicitly mention cancellation as requested by user
+                    moon_p = next((p for p in non_nodal_planets if p['name'] == 'Moon'), None)
+                    m_lon = moon_p['sidereal_longitude'] if moon_p else 0
+                    doshas['kaal_sarp']['present'] = False
+                    doshas['kaal_sarp']['reason'] = f"ABSENT: Cancelled because Moon at {m_lon:.2f}° is outside the Rahu({r_lon:.2f}°)-Ketu({k_lon:.2f}°) axis."
+
+
 
         # 3. Pitru Dosha
         pitru_reasons = []

@@ -1,0 +1,44 @@
+[
+    {
+        "date": "12/11/1976",
+        "planets": [
+            "Sun: Libra 26.66 (House 6)",
+            "Moon: Gemini 28.12 (House 2)",
+            "Mercury: Libra 29.69 (House 6)",
+            "Venus: Sagittarius 4.08 (House 8)",
+            "Mars: Scorpio 0.38 (House 7)",
+            "Jupiter: Taurus 3.3 (House 1)",
+            "Saturn: Cancer 23.05 (House 3)",
+            "Uranus: Libra 14.67 (House 6)",
+            "Neptune: Scorpio 19.22 (House 7)",
+            "Pluto: Virgo 19.42 (House 5)",
+            "Rahu: Libra 8.89 (House 6)",
+            "Ketu: Aries 8.89 (House 12)"
+        ],
+        "doshas": [
+            "manglik: High - Mars in House 7 from Ascendant",
+            "daridra_dosha: None - Lord of 2nd (Mercury) in House 6"
+        ]
+    },
+    {
+        "date": "11/12/1976",
+        "planets": [
+            "Sun: Scorpio 26.01 (House 6)",
+            "Moon: Cancer 20.58 (House 2)",
+            "Mercury: Sagittarius 13.88 (House 7)",
+            "Venus: Capricorn 8.74 (House 8)",
+            "Mars: Scorpio 21.23 (House 6)",
+            "Jupiter: Aries 29.57 (House 11)",
+            "Saturn: Cancer 23.09 (House 2)",
+            "Uranus: Libra 16.34 (House 5)",
+            "Neptune: Scorpio 20.29 (House 6)",
+            "Pluto: Virgo 20.21 (House 4)",
+            "Rahu: Libra 7.35 (House 5)",
+            "Ketu: Aries 7.35 (House 11)"
+        ],
+        "doshas": [
+            "chandra_dosha: None - Moon conjoined with Saturn",
+            "daridra_dosha: None - Lord of 11th (Mars) in House 6"
+        ]
+    }
+]

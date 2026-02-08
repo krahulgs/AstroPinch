@@ -1,0 +1,29 @@
+--- PITRU DOSHA ANALYSIS FOR DEEPA KUMARI ---
+Date: 30-9-2004
+Time: 19:3
+Location: Patan, Palamu, Jharkhand (24.2023, 84.1778)
+----------------------------------------
+
+[PLANETARY POSITIONS]
+Ascendant: Aries (11.48°)
+Sun     : Virgo         13.66° (House 6)
+Saturn  : Cancer         1.92° (House 4)
+Rahu    : Aries          9.22° (House 1)
+Ketu    : Libra          9.22° (House 7)
+Jupiter : Virgo          7.11° (House 6)
+
+[9TH HOUSE INFO]
+9th House Sign: Sagittarius
+9th House Lord: Jupiter
+9th Lord Position: Virgo (House 6)
+
+========================================
+PITRU DOSHA RESULT
+========================================
+Is Present: True
+Intensity:  Moderate
+Reason:     9th Lord (Jupiter) in House 6
+----------------------------------------
+Remedy:
+Offer water to ancestors (Tarpan), respect elders, and perform acts of charity on Amavasya.
+========================================

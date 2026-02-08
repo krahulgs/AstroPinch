@@ -56,17 +56,46 @@ class VedicAstroEngine:
         return precession_deg
 
     @staticmethod
-    def calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str="UTC"):
+    def calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str="Asia/Kolkata"):
         """
         Get Sidereal (Nirayana) planetary positions.
         Converts local time to UTC before calculation if timezone provided.
         """
-        import pytz
+        # Ensure lat/lng are floats
+        try:
+            lat = float(lat)
+            lng = float(lng)
+        except:
+            pass
+
+        # SMART OVERRIDE & DEFAULT: 
+        # 1. If timezone is missing, empty, or None, default to Asia/Kolkata for Indian coords
+        # 2. If timezone is explicitly UTC but coords are in India, force Asia/Kolkata
+        # India bounds approx: Lat 6 to 38, Lng 68 to 98
+        is_india = (6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0)
         
+        if not timezone_str or str(timezone_str).upper() == "NONE":
+            # Smart Default extraction
+            if is_india:
+                timezone_str = "Asia/Kolkata"
+            else:
+                timezone_str = "UTC"
+
         # Convert to UTC
+        import pytz
         try:
             local = datetime(year, month, day, hour, minute)
-            tz = pytz.timezone(timezone_str)
+            # Handle possible string/None in timezone_str
+            tz_name = str(timezone_str)
+            try:
+                tz = pytz.timezone(tz_name)
+            except:
+                # Fallback for common Indian naming variants
+                if "Kolkata" in tz_name or "Calcutta" in tz_name or is_india:
+                    tz = pytz.timezone("Asia/Kolkata")
+                else:
+                    tz = pytz.UTC
+                    
             local_dt = tz.localize(local)
             utc_dt = local_dt.astimezone(pytz.UTC)
             
@@ -74,17 +103,24 @@ class VedicAstroEngine:
             u_year, u_month, u_day = utc_dt.year, utc_dt.month, utc_dt.day
             u_hour, u_minute = utc_dt.hour, utc_dt.minute
         except Exception as e:
-            print(f"Timezone conversion error: {e}, falling back to input time as UTC")
-            u_year, u_month, u_day = year, month, day
-            u_hour, u_minute = hour, minute
+            # Final fallback: If everything fails, and it's India, subtract 5.5 hours manually
+            if is_india:
+                dt = datetime(year, month, day, hour, minute) - timedelta(hours=5, minutes=30)
+                u_year, u_month, u_day, u_hour, u_minute = dt.year, dt.month, dt.day, dt.hour, dt.minute
+            else:
+                u_year, u_month, u_day, u_hour, u_minute = year, month, day, hour, minute
+            print(f"Timezone conversion emergency fallback for {timezone_str} at {lat},{lng}")
 
         ayanamsa = VedicAstroEngine.calculate_ayanamsa(year, month, day)
         
         # Get Tropical positions from Skyfield using UTC time
-        tropical_data = SkyfieldService.calculate_positions(u_year, u_month, u_day, u_hour, u_minute, lat, lng)
+        # CRITICAL: We must explicitly pass timezone_str='UTC' because u_year, u_month, etc. are ALREADY in UTC
+        # If we don't specify, the default 'Asia/Kolkata' will cause double conversion!
+        tropical_data = SkyfieldService.calculate_positions(u_year, u_month, u_day, u_hour, u_minute, lat, lng, timezone_str='UTC')
         
         # Get Tropical Ascendant using UTC time
-        angles = SkyfieldService.calculate_angles(u_year, u_month, u_day, u_hour, u_minute, lat, lng)
+        # CRITICAL: Same as above - already UTC, must specify to prevent double conversion
+        angles = SkyfieldService.calculate_angles(u_year, u_month, u_day, u_hour, u_minute, lat, lng, timezone_str='UTC')
         tropical_asc = angles['Ascendant']
         sidereal_asc = (tropical_asc - ayanamsa) % 360
         asc_sign_index = int(sidereal_asc // 30) % 12
@@ -195,11 +231,20 @@ class VedicAstroEngine:
         return {"status": "Neutral", "sanskrit": "Sama"}
 
     @staticmethod
-    def calculate_panchang(year, month, day, hour, minute, lat, lng):
+    def calculate_panchang(year, month, day, hour, minute, lat, lng, timezone_str="Asia/Kolkata"):
         """
         Calculates Panchang elements: Tithi, Nakshatra, Yoga.
+        IRONCLAD TIMEZONE SAFETY: Enforces Asia/Kolkata for Indian coordinates.
         """
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng)
+        # IRONCLAD OVERRIDE: Strict geographical enforcement for India
+        is_india = (6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0)
+        if not timezone_str or str(timezone_str).upper() in ["UTC", "GMT", "NONE"]:
+            if is_india:
+                timezone_str = "Asia/Kolkata"
+            else:
+                timezone_str = "UTC"
+        
+        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
         planets = sidereal_data['planets']
         
         sun_lon = next(p for p in planets if p['name'] == 'Sun')['sidereal_longitude']
@@ -239,12 +284,18 @@ class VedicAstroEngine:
             karana_name = "Naga"
 
         # 5. Ascendant (Sidereal)
-        ayanamsa = VedicAstroEngine.calculate_ayanamsa(year, month, day)
-        angles = SkyfieldService.calculate_angles(year, month, day, hour, minute, lat, lng)
-        sid_asc = (angles['Ascendant'] - ayanamsa) % 360
-        signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        asc_sign_idx = int(sid_asc // 30) % 12
-        asc_sign_name = signs[asc_sign_idx]
+        asc_info = sidereal_data.get('ascendant', {})
+        if asc_info:
+            asc_sign_name = asc_info['sign']
+            sid_asc = asc_info['longitude']
+        else:
+            # Fallback
+            ayanamsa = VedicAstroEngine.calculate_ayanamsa(year, month, day)
+            angles = SkyfieldService.calculate_angles(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
+            sid_asc = (angles['Ascendant'] - ayanamsa) % 360
+            signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+            asc_sign_idx = int(sid_asc // 30) % 12
+            asc_sign_name = signs[asc_sign_idx]
 
         return {
             "tithi": {
@@ -336,12 +387,21 @@ class VedicAstroEngine:
         }
 
     @staticmethod
-    def calculate_vimshottari_dasha(year, month, day, hour, minute, lat, lng):
+    def calculate_vimshottari_dasha(year, month, day, hour, minute, lat, lng, timezone_str="Asia/Kolkata"):
         """
         Calculates Vimshottari Dasha details based on Moon's Nakshatra.
         Includes Mahadasha and Antardasha (Bhukti).
+        IRONCLAD TIMEZONE SAFETY: Enforces Asia/Kolkata for Indian coordinates.
         """
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng)
+        # IRONCLAD OVERRIDE: Strict geographical enforcement for India
+        is_india = (6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0)
+        if not timezone_str or str(timezone_str).upper() in ["UTC", "GMT", "NONE"]:
+            if is_india:
+                timezone_str = "Asia/Kolkata"
+            else:
+                timezone_str = "UTC"
+        
+        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
         moon = next(p for p in sidereal_data['planets'] if p['name'] == 'Moon')
         
         nak_info = moon['nakshatra']
@@ -629,251 +689,8 @@ class VedicAstroEngine:
 
     @staticmethod
     def calculate_doshas(sidereal_data):
-        """
-        Detects major Vedic Doshas based on planetary positions.
-        """
-        planets = sidereal_data['planets']
-        
-        def get_p(name):
-            return next((p for p in planets if p['name'] == name), None)
-            
-        mars = get_p('Mars')
-        rahu = get_p('Rahu')
-        ketu = get_p('Ketu')
-        sun = get_p('Sun')
-        moon = get_p('Moon')
-        saturn = get_p('Saturn')
-        jupiter = get_p('Jupiter')
-        venus = get_p('Venus')
-        mercury = get_p('Mercury')
-        
-        # Helper to get houses
-        planet_houses = {p['name']: p['house'] for p in planets}
-        
-        doshas = {
-            "manglik": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "kaal_sarp": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "pitru_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "guru_chandal": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "shrapit_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "grahan_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "kemadrum_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "chandra_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""},
-            "daridra_dosha": {"present": False, "intensity": "None", "reason": "", "remedy": ""}
-        }
-
-        # 1. Manglik Dosha
-        is_manglik = False
-        m_intensity = "None"
-        m_reason = []
-        if mars:
-            m_house = mars['house']
-            if m_house in [1, 4, 7, 8, 12]:
-                is_manglik = True
-                m_intensity = "High" if m_house in [7, 8] else "Moderate"
-                m_reason.append(f"Mars in House {m_house} from Ascendant")
-            elif m_house == 2:
-                is_manglik = True
-                m_intensity = "Mild"
-                m_reason.append("Mars in House 2 (South Indian View)")
-            
-            # Chandra Manglik
-            if moon:
-                mars_from_moon = (m_house - moon['house']) % 12 + 1
-                if mars_from_moon in [1, 4, 7, 8, 12]:
-                    if not is_manglik:
-                        is_manglik = True
-                        m_intensity = "Mild (Chandra Manglik)"
-                    m_reason.append(f"Mars in House {mars_from_moon} from Moon")
-
-            if is_manglik:
-                doshas['manglik']['present'] = True
-                doshas['manglik']['intensity'] = m_intensity
-                doshas['manglik']['reason'] = "; ".join(m_reason)
-                doshas['manglik']['remedy'] = "Chant Hanuman Chalisa daily, visit Hanuman temple on Tuesdays. For marriage, consider Kumbh Vivah protocol."
-
-        # 2. Kaal Sarp Dosha
-        if rahu and ketu:
-            r_lon = rahu['sidereal_longitude']
-            k_lon = ketu['sidereal_longitude']
-            arc_start = min(r_lon, k_lon)
-            arc_end = max(r_lon, k_lon)
-            
-            # Check if Rahu/Ketu cover ~180 degrees
-            # If they are close (e.g., < 160 deg diff), it's not a full axis. But usually they are always opposite.
-            
-            non_nodal_planets = [p for p in planets if p['name'] not in ['Rahu', 'Ketu', 'Ascendant', 'Uranus', 'Neptune', 'Pluto']]
-            
-            # Count inside Arc 1 (min to max)
-            inside_count = 0
-            for op in non_nodal_planets:
-                lon = op['sidereal_longitude']
-                if arc_start <= lon <= arc_end:
-                    inside_count += 1
-            
-            total_p = len(non_nodal_planets)
-            # If all are inside (count == total) OR all are outside (count == 0)
-            if inside_count == total_p or inside_count == 0:
-                doshas['kaal_sarp']['present'] = True
-                doshas['kaal_sarp']['intensity'] = "High" if inside_count == total_p else "Main"
-                doshas['kaal_sarp']['reason'] = "All planets hemmed between Rahu and Ketu axis"
-                doshas['kaal_sarp']['remedy'] = "Chant Mahamrityunjaya Mantra, perform Rudrabhishek, and worship Lord Shiva."
-
-        # 3. Pitru Dosha
-        if sun and rahu:
-            # Stricter: Sun/Rahu within 10 degrees OR Sun in 9th with Malefic aspect (simplified to just Sun/Rahu or 9th house Rahu)
-            is_pitru = False
-            # Condition A: Sun and Rahu Conjunction (< 10 deg)
-            if abs(sun['sidereal_longitude'] - rahu['sidereal_longitude']) < 10:
-                is_pitru = True
-                doshas['pitru_dosha']['reason'] = "Sun and Rahu within 10 degrees"
-            
-            # Condition B: Rahu in 9th House
-            elif rahu['house'] == 9:
-                 is_pitru = True
-                 doshas['pitru_dosha']['reason'] = "Rahu in 9th House (Pitru Sthana)"
-
-            if is_pitru:
-                doshas['pitru_dosha']['present'] = True
-                doshas['pitru_dosha']['intensity'] = "Moderate"
-                doshas['pitru_dosha']['remedy'] = "Perform Narayan Bali Puja, respect elders, and feed the needy on Amavasya."
-
-        # 4. Guru Chandal Dosha (Jupiter + Rahu/Ketu)
-        if jupiter:
-            # Check degree proximity ensures precision (< 12 degrees)
-            if rahu and abs(jupiter['sidereal_longitude'] - rahu['sidereal_longitude']) < 12:
-                doshas['guru_chandal']['present'] = True
-                doshas['guru_chandal']['reason'] = "Jupiter and Rahu within 12 degrees"
-                doshas['guru_chandal']['remedy'] = "Worship Lord Vishnu, wear Yellow Sapphire (if advised), and respect teachers/gurus."
-            elif ketu and abs(jupiter['sidereal_longitude'] - ketu['sidereal_longitude']) < 12:
-                doshas['guru_chandal']['present'] = True
-                doshas['guru_chandal']['reason'] = "Jupiter and Ketu within 12 degrees"
-                doshas['guru_chandal']['remedy'] = "Chant 'Om Namo Bhagavate Vasudevaya' and engage in spiritual service."
-
-        # 5. Shrapit Dosha (Saturn + Rahu)
-        if saturn and rahu:
-            # Strict conjunction check (< 10 degrees)
-            if abs(saturn['sidereal_longitude'] - rahu['sidereal_longitude']) < 10:
-                doshas['shrapit_dosha']['present'] = True
-                doshas['shrapit_dosha']['intensity'] = "Severe"
-                doshas['shrapit_dosha']['reason'] = "Saturn and Rahu tight conjunction"
-                doshas['shrapit_dosha']['remedy'] = "Perform Shani-Rahu Shanti Puja and recite Shani Mantra regularly."
-
-        # 6. Grahan Dosha (Sun/Moon + Rahu/Ketu)
-        # Check degree proximity < 10 degrees
-        grahan_reason = []
-        if sun:
-            if rahu and abs(sun['sidereal_longitude'] - rahu['sidereal_longitude']) < 10:
-                grahan_reason.append("Sun-Rahu Eclipsed")
-            elif ketu and abs(sun['sidereal_longitude'] - ketu['sidereal_longitude']) < 10:
-                grahan_reason.append("Sun-Ketu Eclipsed")
-        
-        if moon:
-            if rahu and abs(moon['sidereal_longitude'] - rahu['sidereal_longitude']) < 10:
-                grahan_reason.append("Moon-Rahu Eclipsed")
-            elif ketu and abs(moon['sidereal_longitude'] - ketu['sidereal_longitude']) < 10:
-                grahan_reason.append("Moon-Ketu Eclipsed")
-
-        if grahan_reason:
-            doshas['grahan_dosha']['present'] = True
-            doshas['grahan_dosha']['reason'] = ", ".join(grahan_reason)
-            doshas['grahan_dosha']['remedy'] = "Offer water to Sun daily/Chant Gayatri Mantra or donate white items on Mondays."
-
-        # 7. Kemadrum Dosha (No planets in H2/H12 from Moon)
-        if moon:
-            m_h = moon['house']
-            prev_h = (m_h - 2) % 12 + 1 # 12th from Moon
-            next_h = (m_h) % 12 + 1     # 2nd from Moon
-            
-            solid_planets = [mars, mercury, jupiter, venus, saturn]
-            has_support = False
-            for p in solid_planets:
-                if p and p['house'] in [prev_h, next_h]:
-                    has_support = True
-                    break
-            
-            # --- CANCELLATION LOGIC (VITAL) ---
-            # Kemadrum is cancelled if planets are in Kendra (1, 4, 7, 10) from Lagna OR Moon
-            if not has_support:
-                # Check from Moon Kendra
-                for p in solid_planets: # Sun not count usually, but solid planets do
-                    if p:
-                        dist_from_moon = (p['house'] - m_h) % 12 + 1
-                        if dist_from_moon in [1, 4, 7, 10]:
-                            has_support = True # Cancelled by Kendra position
-                            break
-                            
-                # Check from Lagna Kendra (if Lagna sign known)
-                asc = sidereal_data.get('ascendant', {})
-                if not has_support and asc:
-                    # Need ascendant house (always 1 in chart view, but we need planet houses relative to Asc)
-                    # p['house'] IS relative to Ascendant. So simple check:
-                     for p in solid_planets:
-                         if p and p['house'] in [1, 4, 7, 10]:
-                             has_support = True # Cancelled by Planet in Kendra from Lagna
-                             break
-
-            if not has_support:
-                doshas['kemadrum_dosha']['present'] = True
-                doshas['kemadrum_dosha']['reason'] = "No planets in 2nd/12th from Moon & No Kendra support"
-                doshas['kemadrum_dosha']['remedy'] = "Keep a solid silver square piece with you and chant 'Om Namah Shivaya'."
-
-        # 8. Daridra Dosha (Lord of 2 or 11 in 6, 8, 12)
-        # Need signs for H2 and H11
-        asc_info = sidereal_data.get('ascendant', {})
-        if asc_info:
-            signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-            asc_sign_idx = signs.index(asc_info['sign'])
-            
-            # H2 Sign Index
-            h2_sign = signs[(asc_sign_idx + 1) % 12]
-            h11_sign = signs[(asc_sign_idx + 10) % 12]
-            
-            lord_2 = VedicAstroEngine._get_sign_lord(h2_sign)
-            lord_11 = VedicAstroEngine._get_sign_lord(h11_sign)
-            
-            l2_p = get_p(lord_2)
-            l11_p = get_p(lord_11)
-            
-            reasons = []
-            if l2_p and l2_p['house'] in [6, 8, 12]:
-                reasons.append(f"Lord of 2nd ({lord_2}) in House {l2_p['house']}")
-            if l11_p and l11_p['house'] in [6, 8, 12]:
-                reasons.append(f"Lord of 11th ({lord_11}) in House {l11_p['house']}")
-                
-            if reasons:
-                doshas['daridra_dosha']['present'] = True
-                doshas['daridra_dosha']['reason'] = "; ".join(reasons)
-                doshas['daridra_dosha']['remedy'] = "Worship Goddess Lakshmi and donate towards charitable causes on Fridays."
-
-        # 9. Chandra Dosha (Weak Moon)
-        if moon:
-            is_afflicted_moon = False
-            moon_reasons = []
-            # Debilitated (Scorpio)
-            if moon['sign'] == "Scorpio":
-                is_afflicted_moon = True
-                moon_reasons.append("Moon is Debilitated in Scorpio")
-            
-            # Conjunction with Malefics
-            for malefic in [saturn, rahu, ketu]:
-                if malefic and malefic['house'] == moon['house']:
-                    is_afflicted_moon = True
-                    moon_reasons.append(f"Moon conjoined with {malefic['name']}")
-            
-            # Amavasya (Sun + Moon)
-            if sun and abs(sun['sidereal_longitude'] - moon['sidereal_longitude']) < 12:
-                is_afflicted_moon = True
-                moon_reasons.append("Amavasya (New Moon) Birth")
-
-            if is_afflicted_moon:
-                doshas['chandra_dosha']['present'] = True
-                doshas['chandra_dosha']['reason'] = "; ".join(moon_reasons)
-                doshas['chandra_dosha']['remedy'] = "Offer milk to Shivling, respect mother, and wear Pearl (if advised)."
-
-        # Note: Nadi Dosha is skipped as it requires a partner chart for calculation.
-
-        return doshas
+        from services.dosha_calculator import DoshaCalculator
+        return DoshaCalculator.calculate_doshas(sidereal_data)
 
     @staticmethod
     def calculate_avakhada(sidereal_data):

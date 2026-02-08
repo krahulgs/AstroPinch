@@ -64,6 +64,7 @@
             "formulating_path": "Formulating Life Path...",
             "powered_by": "Powered by",
             "generating": "Generating Your Cosmic Blueprint...",
+            "generating_for": "Generating {{name}}'s Cosmic Blueprint...",
             "synthesizing": "Synthesizing Planetary Data...",
             "failed": "Generation Failed",
             "try_again": "Try Again",
@@ -221,10 +222,9 @@
             "model": "Model"
         },
         "cta": {
-            "title": "Explore More",
-            "desc": "Discover how your numerology numbers align with your astrological chart for deeper insights.",
-            "birth_chart": "View Birth Chart",
-            "kundali": "View Kundali"
+            "title": "Cosmic Deep Dive",
+            "desc": "Unlock your full destiny by combining your numeric vibration with your complete Vedic and Western astrological blueprint.",
+            "detail_analysis": "View Detail Analysis"
         },
         "descriptions": {
             "life_path": "Your life purpose and the path you are meant to walk",

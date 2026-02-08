@@ -79,6 +79,15 @@ class TimezoneService:
         except Exception as e:
             print(f"Timezone lookup failed: {e}")
             
+        # Fallback Algorithm: If coordinates are roughly in India, use Asia/Kolkata
+        # India bounds approx: Lat 6 to 38, Lng 68 to 98
+        if 6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0:
+            return {
+                "timezone_id": "Asia/Kolkata",
+                "utc_offset": 19800,
+                "source": "Geo-Fallback (India)"
+            }
+            
         # Fallback defaults
         return {
             "timezone_id": "UTC",
@@ -96,7 +105,11 @@ class TimezoneService:
             offset = tz.utcoffset(dt)
             return int(offset.total_seconds())
         except ImportError:
-            # Fallback for older python
+            # Fallback for systems without zoneinfo
+            if timezone_id == "Asia/Kolkata":
+                return 19800
             return 0
         except Exception:
+            if timezone_id == "Asia/Kolkata":
+                return 19800
             return 0

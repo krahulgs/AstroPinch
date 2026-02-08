@@ -36,7 +36,8 @@ def get_daily_insights(profile: dict):
                     profile.get('name', 'User'), y, m, d, h, min_, 
                     profile.get('location_name', 'City'), 
                     profile.get('latitude', 0), 
-                    profile.get('longitude', 0)
+                    profile.get('longitude', 0),
+                    timezone_str=profile.get('timezone', 'Asia/Kolkata')
                 )
                 sign = chart['sun_sign']
             except:

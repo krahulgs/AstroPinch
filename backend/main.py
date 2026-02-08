@@ -45,6 +45,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from typing import Optional, List
+
 class BirthDetails(BaseModel):
     name: str
     year: int
@@ -55,11 +57,11 @@ class BirthDetails(BaseModel):
     city: str
     lat: float
     lng: float
-    timezone: str = "UTC"
+    timezone: Optional[str] = None
     lang: str = "en"
     gender: str = "male"
-    profession: str = None
-    marital_status: str = None
+    profession: Optional[str] = None
+    marital_status: Optional[str] = None
     subscription_tier: str = "free"
 
 @app.get("/")
@@ -119,7 +121,8 @@ def get_chart_analysis(details: BirthDetails):
     analysis = AstrologyAggregator.get_kundali_analysis(
         details.year, details.month, details.day,
         details.hour, details.minute, details.lat, details.lng,
-        lang=details.lang
+        lang=details.lang,
+        timezone=details.timezone
     )
     return analysis
 
@@ -316,6 +319,8 @@ def get_consolidated_report(details: BirthDetails):
         )
         return report
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Report generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
 

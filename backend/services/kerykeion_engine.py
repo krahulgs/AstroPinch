@@ -14,13 +14,22 @@ from services.svg_painter import SVGPainter
 
 class KerykeionService:
     @staticmethod
-    def calculate_chart(name: str, year: int, month: int, day: int, hour: int, minute: int, city: str, lat: float, lng: float, timezone_str: str = "UTC", lang: str = "en"):
+    def calculate_chart(name: str, year: int, month: int, day: int, hour: int, minute: int, city: str, lat: float, lng: float, timezone_str: str = "Asia/Kolkata", lang: str = "en"):
         """
         Calculates the natal chart using Kerykeion.
+        IRONCLAD TIMEZONE SAFETY: Enforces Asia/Kolkata for Indian coordinates.
         """
+        # IRONCLAD OVERRIDE: Strict geographical enforcement for India
+        is_india = (6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0)
+        if not timezone_str or str(timezone_str).upper() in ["UTC", "GMT", "NONE"]:
+            if is_india:
+                timezone_str = "Asia/Kolkata"
+            else:
+                timezone_str = "UTC"
+        
         try:
             if MOCK_MODE:
-                planets = SkyfieldService.calculate_positions(year, month, day, hour, minute, lat, lng)
+                planets = SkyfieldService.calculate_positions(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
                 
                 # Extract signs for summary
                 sun_sign = next(p['sign'] for p in planets if p['name'] == 'Sun')
@@ -29,7 +38,8 @@ class KerykeionService:
                 ascendant = "Aries" # Simplified for now, or match house 1
                 
                 # Calculate precise angles for Astrocartography
-                angles = SkyfieldService.calculate_angles(year, month, day, hour, minute, lat, lng)
+                # CRITICAL: Must pass timezone_str to prevent incorrect default conversion
+                angles = SkyfieldService.calculate_angles(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
 
                 return {
                     "sun_sign": sun_sign,
@@ -92,7 +102,8 @@ class KerykeionService:
     def generate_svg(name: str, year: int, month: int, day: int, hour: int, minute: int, city: str, lat: float, lng: float, timezone_str: str = "UTC", chart_type: str = "Natal", lang: str = "en"):
         try:
             if MOCK_MODE:
-                planets = SkyfieldService.calculate_positions(year, month, day, hour, minute, lat, lng)
+                # CRITICAL: Must pass timezone_str for correct conversion
+                planets = SkyfieldService.calculate_positions(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
                 label = f"{chart_type} Chart for {name}"
                 return SVGPainter.draw_chart(planets, label)
 

@@ -83,17 +83,17 @@ class AstrologyAggregator:
         }
 
     @staticmethod
-    def get_kundali_svg(name, year, month, day, hour, minute, lat, lng, lang="en"):
+    def get_kundali_svg(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC"):
         from services.vedic_astro_engine import VedicAstroEngine
-        sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng)
+        sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
         asc_sign = sidereal.get("ascendant", {}).get("sign_id", 1)
         return KundaliPainter.draw_north_indian_chart(sidereal['planets'], f"Vedic Kundli for {name}", lang=lang, ascendant_sign=asc_sign)
 
     @staticmethod
-    def get_kundali_analysis(year, month, day, hour, minute, lat, lng, lang="en"):
+    def get_kundali_analysis(year, month, day, hour, minute, lat, lng, lang="en", timezone="Asia/Kolkata"):
         # Use VedicAstroEngine for Sidereal coordinates instead of Kerykeion
         from services.vedic_astro_engine import VedicAstroEngine
-        sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng)
+        sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
         planets = sidereal['planets']
         
         # Translation Map for Vedic Houses
@@ -908,7 +908,7 @@ Generate predictions now based on authentic KP principles:"""
         return interpretations
 
     @staticmethod
-    def get_vedic_full_report(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC", context=None):
+    def get_vedic_full_report(name, year, month, day, hour, minute, lat, lng, lang="en", timezone=None, context=None):
         from services.vedic_astro_engine import VedicAstroEngine
         from concurrent.futures import ThreadPoolExecutor
         import datetime
@@ -920,8 +920,8 @@ Generate predictions now based on authentic KP principles:"""
         
         with ThreadPoolExecutor() as executor:
             # Parallel Calculations
-            panchang_future = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng)
-            dasha_future = executor.submit(VedicAstroEngine.calculate_vimshottari_dasha, year, month, day, hour, minute, lat, lng)
+            panchang_future = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
+            dasha_future = executor.submit(VedicAstroEngine.calculate_vimshottari_dasha, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
             divisional_future = executor.submit(VedicAstroEngine.calculate_divisional_charts, sidereal_data)
             remedies_future = executor.submit(VedicAstroEngine.calculate_remedies, sidereal_data, lang=lang)
             kp_future = executor.submit(VedicAstroEngine.calculate_kp_system, sidereal_data)
@@ -941,7 +941,7 @@ Generate predictions now based on authentic KP principles:"""
             # Map Angles to Houses (Approximate KP Cusps for Angles)
             # Use a separate future for Kerykeion which can be slow
             kerykeion_future = executor.submit(
-                KerykeionService.calculate_chart, name, year, month, day, hour, minute, "", lat, lng
+                KerykeionService.calculate_chart, name, year, month, day, hour, minute, "", lat, lng, timezone_str=timezone
             )
             
             # Parallel Step 3: Graha Effects & Transits
@@ -1007,14 +1007,14 @@ Generate predictions now based on authentic KP principles:"""
         }
     
     @staticmethod
-    def get_current_transits(lat, lng):
+    def get_current_transits(lat, lng, timezone="Asia/Kolkata"):
         import datetime
         now = datetime.datetime.now()
         # Calculate current sidereal positions
         from services.vedic_astro_engine import VedicAstroEngine
         
         transit_data = VedicAstroEngine.calculate_sidereal_planets(
-            now.year, now.month, now.day, now.hour, now.minute, lat, lng
+            now.year, now.month, now.day, now.hour, now.minute, lat, lng, timezone_str=timezone
         )
         return transit_data['planets']
 

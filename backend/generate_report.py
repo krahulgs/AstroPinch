@@ -5,7 +5,7 @@ from services.astrology_aggregator import AstrologyAggregator
 
 class ReportGenerator:
     @staticmethod
-    def generate_consolidated_report(name, year, month, day, hour, minute, city, lat, lng, timezone="UTC", context=None, lang="en", gender="male"):
+    def generate_consolidated_report(name, year, month, day, hour, minute, city, lat, lng, timezone=None, context=None, lang="en", gender="male"):
         from concurrent.futures import ThreadPoolExecutor
         from datetime import datetime
 
@@ -85,7 +85,7 @@ class ReportGenerator:
             # Parallel Task for SVG and Analysis (Non-AI but separate)
             svg_future = executor.submit(
                 AstrologyAggregator.get_kundali_svg,
-                name, year, month, day, hour, minute, lat, lng, lang=lang
+                name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone
             )
 
             # Collect AI Results

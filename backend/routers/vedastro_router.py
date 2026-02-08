@@ -137,10 +137,11 @@ async def get_vedastro_prediction_graph(details: BirthDetails):
         import random
         from datetime import datetime, timedelta
 
-        # 1. Fetch Birth Chart (Sidereal) for Dignities
+        # 1. Fetch Birth Chart (Sidereal) for Dignities - WITH CORRECT TIMEZONE
         sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
             details.year, details.month, details.day, 
-            details.hour, details.minute, details.lat, details.lng
+            details.hour, details.minute, details.lat, details.lng,
+            timezone_str=details.timezone  # USE USER'S TIMEZONE FOR ACCURATE CALCULATIONS
         )
         
         # Build Dignity Map for weighting

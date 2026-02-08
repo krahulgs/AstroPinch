@@ -8,7 +8,7 @@ import SEO from '../components/SEO';
 
 const Numerology = () => {
     const { t, i18n } = useTranslation();
-    const { userData, numerologyData: contextNumerologyData } = useChart();
+    const { userData, numerologyData: contextNumerologyData, consolidatedReport } = useChart();
     const [numerologyData, setNumerologyData] = React.useState(contextNumerologyData);
     const [loading, setLoading] = React.useState(false);
 
@@ -427,26 +427,46 @@ const Numerology = () => {
                 </div>
             )}
 
-            {/* Call to Action */}
-            <div className="max-w-4xl mx-auto px-4">
-                <div className="glass-panel p-8 rounded-[2.5rem] text-center space-y-4 bg-white border border-gray-100 shadow-lg">
-                    <h3 className="text-2xl font-black text-primary uppercase tracking-tight">{t('numerology_page.cta.title')}</h3>
-                    <p className="text-secondary max-w-xl mx-auto">
-                        {t('numerology_page.cta.desc')}
-                    </p>
-                    <div className="flex flex-wrap gap-4 justify-center pt-4">
-                        <Link
-                            to="/birth-chart"
-                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform shadow-lg shadow-purple-500/20"
-                        >
-                            {t('numerology_page.cta.birth_chart')}
-                        </Link>
-                        <Link
-                            to="/kundali"
-                            className="px-6 py-3 bg-white border border-gray-200 text-primary rounded-full font-black uppercase text-xs tracking-widest hover:bg-gray-50 transition-colors"
-                        >
-                            {t('numerology_page.cta.kundali')}
-                        </Link>
+            {/* Premium CTA Section */}
+            <div className="max-w-5xl mx-auto px-4">
+                <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div className="relative glass-panel p-10 md:p-16 rounded-[3rem] text-center space-y-8 bg-white/80 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden">
+                        {/* Background Decoration */}
+                        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-purple-500/5 blur-3xl rounded-full"></div>
+                        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full"></div>
+
+                        <div className="relative z-10 space-y-4">
+                            <h3 className="text-3xl md:text-4xl font-black text-primary uppercase tracking-tight italic">
+                                {t('numerology_page.cta.title')}
+                            </h3>
+                            <p className="text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
+                                {t('numerology_page.cta.desc')}
+                            </p>
+                        </div>
+
+                        <div className="flex justify-center pt-4 relative z-10">
+                            <Link
+                                to="/report/consolidated"
+                                state={{
+                                    userData: userData,
+                                    preFetchedReport: contextNumerologyData ? consolidatedReport : null
+                                }}
+                                className="group/btn relative px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-black uppercase text-sm tracking-[0.2em] transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_40px_-15px_rgba(124,58,237,0.4)] flex items-center gap-3 overflow-hidden shadow-xl"
+                            >
+                                <span className="relative z-10">{t('numerology_page.cta.detail_analysis')}</span>
+                                <Sparkles className="w-5 h-5 relative z-10 group-hover/btn:rotate-12 transition-transform" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+                            </Link>
+                        </div>
+
+                        {/* Floating elements for modern look */}
+                        <div className="hidden md:block absolute -left-4 top-1/2 -translate-y-1/2">
+                            <Hash className="w-20 h-20 text-purple-900/5 rotate-12" />
+                        </div>
+                        <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2">
+                            <Target className="w-20 h-20 text-indigo-900/5 -rotate-12" />
+                        </div>
                     </div>
                 </div>
             </div>

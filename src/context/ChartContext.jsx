@@ -43,7 +43,7 @@ export const ChartProvider = ({ children }) => {
                 city: data.place,
                 lat: data.lat,
                 lng: data.lng,
-                timezone: data.timezone || "UTC",
+                timezone: data.timezone || (data.lat >= 6 && data.lat <= 38 && data.lng >= 68 && data.lng <= 98 ? "Asia/Kolkata" : "UTC"),
                 profession: data.profession,
                 marital_status: data.marital_status
             };

@@ -577,8 +577,6 @@ const YearlyPredictionGraph = ({ data, userData }) => {
 
 
 
-                        {/* HIDDEN AS PER USER REQUEST */}
-                        {/* 
                         {tracks.map((track) => (
                             <div key={track.id} className="relative">
                                 <div className="sticky left-6 flex items-center gap-2 mb-1 z-10 w-max bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
@@ -598,7 +596,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                             key={i}
                                             className="h-full hover:brightness-110 transition-all"
                                             style={{
-                                                width: `${(strip.duration / totalYears) * 100}%`,
+                                                width: `${(strip.duration / totalYears) * (totalYears * yearWidth)}px`,
                                                 backgroundColor: strip.color,
                                             }}
                                             title={`${strip.start.toFixed(1)} - ${strip.end.toFixed(1)}`}
@@ -609,13 +607,12 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                         <div
                                             key={i}
                                             className="absolute top-0 bottom-0 border-l border-slate-300/20 pointer-events-none"
-                                            style={{ left: `${(i / totalYears) * 100}%` }}
+                                            style={{ left: `${i * yearWidth}px` }}
                                         ></div>
                                     ))}
                                 </div>
                             </div>
                         ))}
-                        */}
 
                     </div>
                 </div>
@@ -737,6 +734,16 @@ const ConsolidatedReport = () => {
                 if (!payload.city && payload.place) payload.city = payload.place;
                 if (!payload.city && payload.location_name) payload.city = payload.location_name;
 
+                // CRITICAL: Ensure timezone is set for accurate forecast calculations
+                if (!payload.timezone || payload.timezone === 'UTC') {
+                    // Default to Asia/Kolkata for Indian coordinates
+                    const lat = payload.latitude || payload.lat || 0;
+                    const lng = payload.longitude || payload.lng || 0;
+                    if (lat >= 6 && lat <= 38 && lng >= 68 && lng <= 98) {
+                        payload.timezone = 'Asia/Kolkata';
+                    }
+                }
+
                 const res = await fetch(`${API_BASE_URL}/api/vedastro/prediction-graph`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -762,6 +769,8 @@ const ConsolidatedReport = () => {
             setError(null);
 
             // Optimization: If report was already fetched during navigation, use it!
+            // FORCE REFRESH: Commenting out pre-fetched data usage to ensure latest backend logic is always applied
+            /* 
             if (location.state?.preFetchedReport) {
                 const preData = location.state.preFetchedReport;
                 setReport(preData);
@@ -771,6 +780,7 @@ const ConsolidatedReport = () => {
                 setLoading(false);
                 return;
             }
+            */
 
             // Decompose date/time if strict strings are passed
             let payload = { ...userData };
@@ -800,21 +810,33 @@ const ConsolidatedReport = () => {
             payload.lang = i18n.language;
 
             // Fetch Report and Charts in Parallel
+            // Fetch Report and Charts in Parallel with Cache Busting
+            const timestamp = new Date().getTime();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            };
+
             const [reportRes, westRes, vedicRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/api/report/consolidated`, {
+                fetch(`${API_BASE_URL}/api/report/consolidated?t=${timestamp}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: headers,
+                    body: JSON.stringify(payload),
+                    cache: 'no-store'
                 }),
-                fetch(`${API_BASE_URL}/api/chart/svg`, {
+                fetch(`${API_BASE_URL}/api/chart/svg?t=${timestamp}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: headers,
+                    body: JSON.stringify(payload),
+                    cache: 'no-store'
                 }),
-                fetch(`${API_BASE_URL}/api/chart/svg/kundali`, {
+                fetch(`${API_BASE_URL}/api/chart/svg/kundali?t=${timestamp}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: headers,
+                    body: JSON.stringify(payload),
+                    cache: 'no-store'
                 })
             ]);
 
@@ -848,48 +870,95 @@ const ConsolidatedReport = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50/50 relative overflow-hidden">
-                {/* Background Decor */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-white relative overflow-hidden font-sans">
+                {/* Clean Geometric Background */}
+                <div className="absolute inset-0 pointer-events-none opacity-40">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"></div>
+                    <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-purple-50 rounded-full blur-[100px]"></div>
+                    <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[100px]"></div>
                 </div>
 
-                <div className="relative z-10 text-center space-y-8 max-w-lg px-6 animate-in fade-in zoom-in duration-700">
-                    {/* Premium Spinner */}
-                    <div className="relative w-24 h-24 mx-auto">
-                        <div className="absolute inset-0 border-4 border-purple-200/30 rounded-full"></div>
-                        <div className="absolute inset-0 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-
-                        <div className="absolute inset-4 border-4 border-amber-200/30 rounded-full opacity-50"></div>
-                        <div className="absolute inset-4 border-4 border-amber-500 border-b-transparent rounded-full animate-spin duration-[3s]"></div>
-
+                <div className="relative z-10 flex flex-col items-center space-y-6 max-w-2xl px-6 text-center">
+                    {/* Sophisticated Minimalist Spinner */}
+                    <div className="relative w-16 h-16">
+                        <div className="absolute inset-0 border-2 border-slate-100 rounded-full"></div>
+                        <div className="absolute inset-0 border-t-2 border-purple-600 rounded-full animate-spin"></div>
+                        <div className="absolute inset-2.5 border border-slate-50 rounded-full"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Sparkles className="w-8 h-8 text-purple-600 animate-pulse" />
+                            <Sparkles className="w-5 h-5 text-purple-600/40" />
                         </div>
                     </div>
 
-                    {/* Text Content */}
+                    {/* Editorial Style Text Content */}
                     <div className="space-y-4">
-                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-700">
-                            {t('report.status.generating', 'Generating Your Cosmic Blueprint...')}
-                        </h2>
-                        <p className="text-lg text-slate-500 font-medium animate-pulse">
-                            {t('report.status.synthesizing', 'Synthesizing Planetary Data...')}
-                        </p>
+                        <div className="space-y-2">
+                            <p className="text-[9px] font-black text-purple-600 uppercase tracking-[0.4em] mb-1">Initialising Cosmic Engine</p>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
+                                {userData?.name ? (
+                                    <>
+                                        Curating <span className="text-purple-600">{userData.name}&apos;s</span>
+                                        <br />
+                                        Personal Revelation
+                                    </>
+                                ) : (
+                                    "Curating Your Cosmic Revelation"
+                                )}
+                            </h1>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-3">
+                            <p className="text-sm md:text-base text-slate-400 font-medium">
+                                {t('report.status.synthesizing', 'Analyzing planetary harmonics and temporal cycles...')}
+                            </p>
+
+                            {/* Refined Minimalist Progress */}
+                            <div className="flex items-center gap-1.5">
+                                {[0, 1, 2].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="w-1 h-1 bg-slate-200 rounded-full animate-bounce"
+                                        style={{ animationDelay: `${i * 0.15}s` }}
+                                    ></div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Powered By Footer - Floating Mode */}
-                    <div className="pt-8 border-t border-purple-100 flex flex-col items-center gap-4">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                            <Activity className="w-3 h-3" /> Powered By
-                        </div>
-                        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 bg-transparent">
-                            <span className="text-xs font-bold text-blue-500/80 uppercase tracking-wider">NASA JPL Data</span>
-                            <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider">Vedic Engine</span>
-                            <span className="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Kerykeion</span>
+                    {/* Classic Modern Partners Section - Compact Version */}
+                    <div className="pt-6 w-full max-w-md">
+                        <div className="flex flex-col items-center gap-4 py-6 px-6 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            {/* Subtle background glow */}
+                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-200 to-transparent"></div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="h-[1px] w-6 bg-slate-200"></div>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Institutional Data Origins</span>
+                                <div className="h-[1px] w-6 bg-slate-200"></div>
+                            </div>
+
+                            <div className="flex items-center justify-center gap-6 md:gap-12">
+                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
+                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all group-hover/item:scale-105">NASA JPL</span>
+                                    <div className="h-0.5 w-full bg-blue-500 rounded-full opacity-40 group-hover/item:opacity-100 transition-opacity"></div>
+                                </div>
+                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
+                                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest transition-all group-hover/item:scale-105">Vedic Systems</span>
+                                    <div className="h-0.5 w-full bg-purple-500 rounded-full opacity-40 group-hover/item:opacity-100 transition-opacity"></div>
+                                </div>
+                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
+                                    <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest transition-all group-hover/item:scale-105">Kerykeion</span>
+                                    <div className="h-0.5 w-full bg-rose-500 rounded-full opacity-40 group-hover/item:opacity-100 transition-opacity"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Secondary Bottom Info */}
+                <div className="absolute bottom-6 left-0 w-full text-center">
+                    <p className="text-[8px] font-medium text-slate-300 uppercase tracking-[0.2em] px-4">
+                        AstroPinch &copy; {new Date().getFullYear()} &mdash; Precision Astral Analytics
+                    </p>
                 </div>
             </div>
         );
@@ -1919,7 +1988,10 @@ const ConsolidatedReport = () => {
                                                                     {isPresent && (
                                                                         <div className="w-16 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
                                                                             <div
-                                                                                className={`h-full rounded-full ${data.intensity === 'High' ? 'bg-rose-600 w-full' : data.intensity === 'Medium' ? 'bg-orange-500 w-2/3' : 'bg-amber-400 w-1/3'}`}
+                                                                                className={`h-full rounded-full ${data.intensity?.includes('High') ? 'bg-rose-600 w-full' :
+                                                                                    data.intensity?.includes('Moderate') ? 'bg-orange-500 w-2/3' :
+                                                                                        'bg-amber-400 w-1/3'
+                                                                                    }`}
                                                                             ></div>
                                                                         </div>
                                                                     )}

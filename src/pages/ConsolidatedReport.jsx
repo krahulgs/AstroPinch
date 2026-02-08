@@ -1192,12 +1192,25 @@ const ConsolidatedReport = () => {
                                                             </ul>
 
                                                             {report.vedic_astrology.vedic_personality_analysis.manglik_status && (
-                                                                <div className="mt-4 p-3 rounded-lg bg-purple-50 border border-purple-100/50">
-                                                                    <div className="text-xs font-black text-purple-700 uppercase tracking-widest mb-1">
+                                                                <div className="mt-4 p-3 rounded-lg bg-rose-50 border border-rose-100/50">
+                                                                    <div className="text-xs font-black text-rose-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
                                                                         Manglik Analysis
                                                                     </div>
                                                                     <p className="text-sm text-slate-600 leading-relaxed font-medium">
                                                                         {report.vedic_astrology.vedic_personality_analysis.manglik_status}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+
+                                                            {report.vedic_astrology.vedic_personality_analysis.pitru_dosha_status && (
+                                                                <div className="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-100/50">
+                                                                    <div className="text-xs font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                                                        Pitru Dosha Analysis
+                                                                    </div>
+                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                                                                        {report.vedic_astrology.vedic_personality_analysis.pitru_dosha_status}
                                                                     </p>
                                                                 </div>
                                                             )}
@@ -1897,29 +1910,35 @@ const ConsolidatedReport = () => {
                                         {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
                                             const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                                             const isPresent = data.present;
+                                            const isModerate = data.intensity?.includes('Moderate');
+
+                                            const bgClass = !isPresent ? 'bg-emerald-50 border-emerald-100 opacity-80' : (isModerate ? 'bg-orange-50 border-orange-100 shadow-md' : 'bg-rose-50 border-rose-100 shadow-md');
+                                            const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
+                                            const badgeClass = !isPresent ? 'bg-emerald-600' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
+
                                             return (
-                                                <div key={key} className={`p-5 rounded-3xl border transition-all ${isPresent ? 'bg-rose-50 border-rose-100 shadow-md' : 'bg-emerald-50 border-emerald-100 opacity-80'}`}>
+                                                <div key={key} className={`p-5 rounded-3xl border transition-all ${bgClass}`}>
                                                     <div className="flex items-center gap-3 mb-4">
-                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isPresent ? 'bg-rose-100 border-rose-200 text-rose-600' : 'bg-emerald-100 border-emerald-200 text-emerald-600'}`}>
-                                                            {isPresent ? <ShieldAlert className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
+                                                            {isPresent ? (isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />) : <Zap className="w-5 h-5" />}
                                                         </div>
                                                         <div className="flex-1">
                                                             <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest mt-1 ${isPresent ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'}`}>
+                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest mt-1 text-white shadow-lg ${badgeClass}`}>
                                                                 {isPresent ? 'Present' : 'Absent'}
                                                             </div>
                                                         </div>
                                                         {isPresent && (
                                                             <div className="text-right">
-                                                                <div className="text-xs text-rose-600 uppercase font-black tracking-widest mb-1">Intensity</div>
-                                                                <div className="text-xs font-black text-rose-700">{data.intensity}</div>
+                                                                <div className={`text-xs uppercase font-black tracking-widest mb-1 ${isModerate ? 'text-orange-600' : 'text-rose-600'}`}>Intensity</div>
+                                                                <div className={`text-xs font-black ${isModerate ? 'text-orange-700' : 'text-rose-700'}`}>{data.intensity}</div>
                                                             </div>
                                                         )}
                                                     </div>
 
                                                     {isPresent && (
-                                                        <div className="bg-white/60 p-3 rounded-xl border border-rose-200/50 mb-3">
-                                                            <p className="text-sm text-rose-800 font-bold leading-tight italic">
+                                                        <div className={`bg-white/60 p-3 rounded-xl border ${isModerate ? 'border-orange-200/50' : 'border-rose-200/50'} mb-3`}>
+                                                            <p className={`text-sm font-bold leading-tight italic ${isModerate ? 'text-orange-800' : 'text-rose-800'}`}>
                                                                 {data.reason}
                                                             </p>
                                                         </div>
@@ -1950,26 +1969,32 @@ const ConsolidatedReport = () => {
                                                 {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
                                                     const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                                                     const isPresent = data.present;
+                                                    const isModerate = data.intensity?.includes('Moderate');
+
+                                                    const rowBg = !isPresent ? 'bg-emerald-50/20' : (isModerate ? 'bg-orange-50/30' : 'bg-rose-50/30');
+                                                    const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
+                                                    const badgeBg = !isPresent ? 'bg-emerald-600 shadow-emerald-100' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
+
                                                     return (
-                                                        <tr key={key} className={`group transition-all duration-300 ${isPresent ? 'bg-rose-50/30' : 'bg-emerald-50/20'} rounded-2xl`}>
+                                                        <tr key={key} className={`group transition-all duration-300 ${rowBg} rounded-2xl`}>
                                                             <td className="px-6 py-5 rounded-l-2xl border-l border-y border-transparent">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isPresent ? 'bg-rose-100 border-rose-200 text-rose-600' : 'bg-emerald-100 border-emerald-200 text-emerald-600'}`}>
+                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
                                                                         {isPresent ? (
-                                                                            <ShieldAlert className="w-5 h-5" />
+                                                                            isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />
                                                                         ) : (
                                                                             <Zap className="w-5 h-5" />
                                                                         )}
                                                                     </div>
                                                                     <div>
                                                                         <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                                        {isPresent && <div className="text-xs text-rose-600/70 font-bold leading-tight max-w-[200px] mt-1 italic">{data.reason}</div>}
+                                                                        {isPresent && <div className={`text-xs font-bold leading-tight max-w-[200px] mt-1 italic ${isModerate ? 'text-orange-600/70' : 'text-rose-600/70'}`}>{data.reason}</div>}
                                                                         {!isPresent && <div className="text-xs text-emerald-600/70 font-bold mt-1">Favorable Alignment</div>}
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-5 border-y border-transparent">
-                                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${isPresent ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'}`}>
+                                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-lg ${badgeBg}`}>
                                                                     {isPresent ? (
                                                                         <>
                                                                             <AlertTriangle className="w-3 h-3" />
@@ -1982,7 +2007,7 @@ const ConsolidatedReport = () => {
                                                             </td>
                                                             <td className="px-6 py-5 border-y border-transparent">
                                                                 <div className="flex flex-col">
-                                                                    <span className={`text-xs font-black ${isPresent ? 'text-rose-700' : 'text-slate-400'}`}>
+                                                                    <span className={`text-xs font-black ${isPresent ? (isModerate ? 'text-orange-700' : 'text-rose-700') : 'text-slate-400'}`}>
                                                                         {isPresent ? data.intensity : 'N/A'}
                                                                     </span>
                                                                     {isPresent && (

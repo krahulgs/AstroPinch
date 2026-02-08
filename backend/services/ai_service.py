@@ -442,8 +442,9 @@ Output strictly valid JSON with these keys:
 - "career_path": {{ "title": "Career & Financial Growth", "content": "..." }} (Fields, Job/Bus, Growth, Earning, Suggestion. No guarantees. Max 150 words.)
 - "relationships": {{ "title": "Marriage & Relationships", "content": {{ "Needs": "...", "Partner": "...", "Strengths": "...", "Challenges": "...", "Tip": "..." }} }} (Specific structured analysis. No fear. Max 150 words total.)
 - "life_phase": {{ "title": "Current Life Phase", "content": "..." }} (Analyze {current_m}/{current_a}. Max 150 words. Practical suggestion.)
-- "dosha_check": { "title": "Dosha Awareness", "content": "..." } (Analyze calculated flags. If present: mean, intensity, reassurance, 1-2 remedies. If absent: state so. NO fear.)
+- "dosha_check": {{ "title": "Dosha Awareness", "content": "..." }} (Analyze calculated flags. If present: mean, intensity, reassurance, 1-2 remedies. If absent: state so. NO fear.)
 - "remedies": {{ "title": "Soul Remedies & Alignment", "content": [ {{ "type": "Mantra", "remedy": "..." }}, {{ "type": "Lifestyle Correction", "remedy": "..." }}, {{ "type": "Charity/Donation", "remedy": "..." }} ] }} (Provide these 3 specific types. Rules: Easy and affordable, NO gemstones, focus on intention over ritual. Tone: Gentle and empowering.)
+
 
 Rules: No fear, no medical/legal claims, supportive tone.
 {lang_instruction}
@@ -845,10 +846,13 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     if place: birth_context += f", Place: {place}"
 
     # Dosha Info
-    dosha_str = "None"
-    if doshas and doshas.get('manglik', {}).get('present'):
-        m_data = doshas.get('manglik', {})
-        dosha_str = f"Manglik (Intensity: {m_data.get('intensity')}, Reason: {m_data.get('reason')})"
+    dosha_list = []
+    if doshas:
+        for d_name, d_val in doshas.items():
+            if d_val.get('present'):
+                dosha_list.append(f"{d_name.replace('_', ' ').capitalize()} (Intensity: {d_val.get('intensity')}, Reason: {d_val.get('reason')})")
+    
+    dosha_str = "; ".join(dosha_list) if dosha_list else "None"
 
     lang_instruction = "Respond in Hindi language (Devanagari script) using simple English loanwords where appropriate." if lang == "hi" else "Respond in plain, simple, and detailed English."
 
@@ -864,7 +868,7 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     - Emotional Core (Nakshatra): {pan_nak}
     - Planetary Alignments:
     {planet_data}
-    - Key Findings: {dosha_str}
+    - Key Findings (Doshas): {dosha_str}
 
     **Strict Rules for Output**:
     1. **NO ASTROLOGICAL JARGON**: Do not mention "Houses," "Lords," "Signs," "Conjunctions," "Aspects," "Dasha," or "Sub Lord."
@@ -881,6 +885,7 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
             "A detailed 50-word paragraph about their inner drive, willpower, and life energy."
         ],
         "manglik_status": "A simple, jargon-free statement about the presence or absence of Manglik Dosha and what it means for them in plain English.",
+        "pitru_dosha_status": "A simple, jargon-free statement about the presence or absence of Pitru Dosha and what it means for them in plain English. If present, emphasize it as an opportunity for ancestral healing.",
         "emotional_nature": "A detailed 60-80 word analysis of their inner feelings, needs, and emotional triggers based on {pan_nak}.",
         "strengths": [
             "Specific strength 1 described in 20-30 words",
@@ -959,6 +964,12 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     
     traits = asc_traits.get(pan_asc, ["Balanced", "Thoughtful", "Resilient"])
     
+    pitru_note = "Your chart shows ancestral strength."
+    if "Pitru" in dosha_str:
+        pitru_note = "You carry a karmic tie with your ancestors that invites you to heal old patterns."
+    else:
+        pitru_note = "Your lineage brings a source of strength and wisdom to your path."
+
     return {
         "overall_personality": [
             f"As a {pan_asc} Ascendant, you are naturally {traits[0].lower()}.",
@@ -966,6 +977,8 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
             f"People appreciate your {traits[2].lower()} nature.",
             manglik_note
         ],
+        "manglik_status": manglik_note,
+        "pitru_dosha_status": pitru_note,
         "emotional_nature": f"You have a {traits[1].lower()} emotional core that values stability.",
         "strengths": [traits[0], traits[2]],
         "challenges": ["Overthinking at times", "Balancing work and rest"],

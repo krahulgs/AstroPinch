@@ -19,3 +19,4 @@ asyncpg
 gunicorn
 psycopg2-binary
 pyswisseph
+python-dotenv

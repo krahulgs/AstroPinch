@@ -359,19 +359,29 @@ def get_pdf_report(details: BirthDetails):
         # 2. Generate PDF
         pdf_buffer = PDFReportService.generate_pdf_report(report_data, lang=details.lang)
         
-        # 3. Return Stream
-        filename = f"AstroPinch_Report_{details.name.replace(' ', '_')}.pdf"
-        return StreamingResponse(
-            pdf_buffer, 
+        # 3. Return Response
+        from fastapi import Response
+        import re
+        safe_name = re.sub(r'[^\w\-\.]', '_', details.name)
+        filename = f"AstroPinch_Report_{safe_name}.pdf"
+        return Response(
+            content=pdf_buffer.getvalue(), 
             media_type="application/pdf", 
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
         
     except Exception as e:
         import traceback
-        error_msg = f"PDF Generation Error: {str(e)}\n{traceback.format_exc()}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=f"PDF Generation Failed: {str(e)}")
+        full_traceback = traceback.format_exc()
+        print(f"PDF Generation Error Detail:\n{full_traceback}")
+        raise HTTPException(
+            status_code=500, 
+            detail={
+                "error": "PDF Generation Failed",
+                "message": str(e),
+                "traceback": full_traceback
+            }
+        )
 
 if __name__ == "__main__":
     import uvicorn

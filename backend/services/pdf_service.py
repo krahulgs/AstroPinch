@@ -8,6 +8,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 import io
 import os
 import math
+import html
 from services.chart_generator import ChartGenerator
 from reportlab.graphics.shapes import Drawing, PolyLine, Rect, String
 
@@ -315,12 +316,12 @@ class PDFReportService:
                         story.append(Paragraph(f"<b>{title}</b>", styles['NormalText']))
                         # If list, format as bullets
                         if isinstance(text, list):
-                            text_content = "<br/>".join([f"• {item}" for item in text])
+                            text_content = "<br/>".join([f"• {html.escape(str(item))}" for item in text])
                         else:
-                            text_content = str(text)
+                            text_content = html.escape(str(text))
                         story.append(Paragraph(text_content, styles['NormalText']))
             else:
-                story.append(Paragraph(str(personality), styles['NormalText']))
+                story.append(Paragraph(html.escape(str(personality)), styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
         else:
             # Fallback to general AI summary
@@ -342,12 +343,12 @@ class PDFReportService:
                         story.append(Paragraph(f"<b>{title}</b>", styles['NormalText']))
                         # If list, format as bullets
                         if isinstance(text, list):
-                            text_content = "<br/>".join([f"• {item}" for item in text])
+                            text_content = "<br/>".join([f"• {html.escape(str(item))}" for item in text])
                         else:
-                            text_content = str(text)
+                            text_content = html.escape(str(text))
                         story.append(Paragraph(text_content, styles['NormalText']))
             else:
-                story.append(Paragraph(str(relationship), styles['NormalText']))
+                story.append(Paragraph(html.escape(str(relationship)), styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
         
         # --- Graha Effects (Planet-in-House) ---
@@ -356,7 +357,7 @@ class PDFReportService:
         if graha_effects:
             story.append(Paragraph("Graha Effects (Planetary Influences)", styles['SectionHeader']))
             for effect in graha_effects[:8]:  # Show more
-                story.append(Paragraph(f"<b>{effect.get('planet', '')} in House {effect.get('house', '')}</b>: {effect.get('effect', '')}", styles['NormalText']))
+                story.append(Paragraph(f"<b>{html.escape(effect.get('planet', ''))} in House {html.escape(str(effect.get('house', '')))}</b>: {html.escape(effect.get('effect', ''))}", styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
 
         # --- Doshas ---
@@ -368,9 +369,9 @@ class PDFReportService:
                 for d_key, info in doshas.items():
                     if isinstance(info, dict) and info.get('present'):
                         d_name = d_key.replace('_', ' ').title()
-                        story.append(Paragraph(f"<b>{d_name}</b>: {info.get('reason', '')}", styles['NormalText']))
+                        story.append(Paragraph(f"<b>{html.escape(d_name)}</b>: {html.escape(info.get('reason', ''))}", styles['NormalText']))
                         if info.get('remedy'):
-                            story.append(Paragraph(f"<i>Remedy: {info.get('remedy')}</i>", styles['NormalText']))
+                            story.append(Paragraph(f"<i>Remedy: {html.escape(info.get('remedy'))}</i>", styles['NormalText']))
                 story.append(Spacer(1, 0.3*inch))
         
         story.append(PageBreak())
@@ -730,7 +731,7 @@ class PDFReportService:
 
         # AI Insights
         story.append(Paragraph("AI Cosmic Guidance & Expert Insights", styles['CenterTitle']))
-        ai_text = result['ai_analysis'].replace('\n', '<br/>')
+        ai_text = html.escape(result['ai_analysis']).replace('\n', '<br/>')
         story.append(Paragraph(ai_text, styles['NormalText']))
 
         def add_branding(canvas, doc):

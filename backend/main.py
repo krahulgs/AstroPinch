@@ -363,7 +363,9 @@ def get_pdf_report(details: BirthDetails):
         )
         
     except Exception as e:
-        print(f"PDF Generation Error: {e}")
+        import traceback
+        error_msg = f"PDF Generation Error: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
         raise HTTPException(status_code=500, detail=f"PDF Generation Failed: {str(e)}")
 
 if __name__ == "__main__":

@@ -207,10 +207,10 @@ class PDFReportService:
                 nak = p.get('nakshatra', {})
                 nak_str = f"{nak.get('name', '')} ({nak.get('pada', '')})" if isinstance(nak, dict) else str(nak)
                 ptable_data.append([
-                    p.get('name', ''), 
-                    p.get('sign', ''), 
-                    nak_str,
-                    f"{p.get('position', 0)}°"
+                    html.escape(p.get('name', '')), 
+                    html.escape(p.get('sign', '')), 
+                    html.escape(nak_str),
+                    f"{p.get('position', 0)} deg"
                 ])
              
         pt = Table(ptable_data, colWidths=[1.5*inch, 1.5*inch, 1.8*inch, 1.2*inch])
@@ -328,7 +328,7 @@ class PDFReportService:
             vedic_ai = report_data.get('vedic_astrology', {}).get('ai_summary')
             if vedic_ai:
                 story.append(Paragraph("Astrological Summary", styles['SectionHeader']))
-                story.append(Paragraph(str(vedic_ai), styles['NormalText']))
+                story.append(Paragraph(html.escape(str(vedic_ai)), styles['NormalText']))
                 story.append(Spacer(1, 0.3*inch))
         
         
@@ -398,13 +398,13 @@ class PDFReportService:
         
         if 'ai_insights' in num_data:
              story.append(Paragraph("AI Insights", styles['SectionHeader']))
-             story.append(Paragraph(str(num_data['ai_insights']), styles['NormalText']))
+             story.append(Paragraph(html.escape(str(num_data['ai_insights'])), styles['NormalText']))
 
         # Loshu Grid
         loshu = report_data.get('vedic_astrology', {}).get('loshu_grid')
         if loshu:
             story.append(Paragraph("Loshu Grid (Vedic Numerology)", styles['SectionHeader']))
-            story.append(Paragraph(f"Mulank: {loshu.get('mulank')} | Bhagyank: {loshu.get('bhagyank')}", styles['NormalText']))
+            story.append(Paragraph(f"Mulank: {html.escape(str(loshu.get('mulank')))} | Bhagyank: {html.escape(str(loshu.get('bhagyank')))}", styles['NormalText']))
             # Simple list distribution representation
             grid_str = ""
             for num, count in loshu.get('grid', {}).items():
@@ -467,7 +467,7 @@ class PDFReportService:
             story.append(Spacer(1, 0.2*inch))
             story.append(Paragraph("Top Location Analysis", styles['SectionHeader']))
             for loc in acg_data[:3]:
-                 story.append(Paragraph(f"<b>{loc['city']}</b>: {loc['description']}", styles['NormalText']))
+                 story.append(Paragraph(f"<b>{html.escape(loc['city'])}</b>: {html.escape(loc['description'])}", styles['NormalText']))
 
         # --- KP System Section ---
         kp_data = report_data.get('vedic_astrology', {}).get('kp_system')
@@ -499,7 +499,7 @@ class PDFReportService:
             if kp_analysis:
                 story.append(Paragraph("KP Predictions (Easy English)", styles['SectionHeader']))
                 for idx, analysis in enumerate(kp_analysis[:9], 1):
-                    story.append(Paragraph(f"{idx}. {analysis.get('meaning', '')}", styles['NormalText']))
+                    story.append(Paragraph(f"{idx}. {html.escape(analysis.get('meaning', ''))}", styles['NormalText']))
                 story.append(Spacer(1, 0.2*inch))
 
         # --- Remedial Measures ---
@@ -530,9 +530,9 @@ class PDFReportService:
             mantra = remedies.get('mantra')
             if mantra:
                 story.append(Paragraph("Sacred Mantra", styles['SectionHeader']))
-                story.append(Paragraph(f"<b>Deity:</b> {mantra.get('deity')}", styles['NormalText']))
-                story.append(Paragraph(f"<b>Mantra:</b> {mantra.get('sanskrit')}", styles['NormalText']))
-                story.append(Paragraph(f"<i>Instructions: {mantra.get('instructions')}</i>", styles['NormalText']))
+                story.append(Paragraph(f"<b>Deity:</b> {html.escape(mantra.get('deity'))}", styles['NormalText']))
+                story.append(Paragraph(f"<b>Mantra:</b> {html.escape(mantra.get('sanskrit'))}", styles['NormalText']))
+                story.append(Paragraph(f"<i>Instructions: {html.escape(mantra.get('instructions'))}</i>", styles['NormalText']))
 
         # --- Final Predictions ---
         predictions = report_data.get('predictions_summary')
@@ -540,7 +540,7 @@ class PDFReportService:
             story.append(PageBreak())
             story.append(Paragraph("Expert Synthesis", styles['CenterTitle']))
             if 'best_prediction' in predictions:
-                story.append(Paragraph(str(predictions['best_prediction']), styles['NormalText']))
+                story.append(Paragraph(html.escape(str(predictions['best_prediction'])), styles['NormalText']))
 
         def add_branding(canvas, doc):
             canvas.saveState()

@@ -335,7 +335,11 @@ def get_pdf_report(details: BirthDetails):
         import io
         
         # 1. Generate Data Report
-        context = {"profession": details.profession, "marital_status": details.marital_status}
+        context = {
+            "profession": details.profession, 
+            "marital_status": details.marital_status,
+            "subscription_tier": details.subscription_tier
+        }
         report_data = ReportGenerator.generate_consolidated_report(
             details.name,
             details.year,
@@ -348,7 +352,8 @@ def get_pdf_report(details: BirthDetails):
             details.lng,
             details.timezone,
             context=context,
-            lang=details.lang
+            lang=details.lang,
+            gender=details.gender
         )
         
         # 2. Generate PDF
@@ -357,7 +362,7 @@ def get_pdf_report(details: BirthDetails):
         # 3. Return Stream
         filename = f"AstroPinch_Report_{details.name.replace(' ', '_')}.pdf"
         return StreamingResponse(
-            io.BytesIO(pdf_buffer.getvalue()), 
+            pdf_buffer, 
             media_type="application/pdf", 
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )

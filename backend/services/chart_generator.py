@@ -101,18 +101,19 @@ class ChartGenerator:
         
         for p in planets:
             # Shorten planet names
-            p_name = p['planet'][:2]
-            if p['planet'] == 'Jupiter': p_name = 'Ju'
-            elif p['planet'] == 'Saturn': p_name = 'Sa'
-            elif p['planet'] == 'Mars': p_name = 'Ma'
-            elif p['planet'] == 'Mercury': p_name = 'Me'
-            elif p['planet'] == 'Venus': p_name = 'Ve'
-            elif p['planet'] == 'Rahu': p_name = 'Ra'
-            elif p['planet'] == 'Ketu': p_name = 'Ke'
-            elif p['planet'] in ['Ascendant', 'Lagna']: p_name = 'Asc'
-            elif p['planet'] == 'Uranus': p_name = 'Ur'
-            elif p['planet'] == 'Neptune': p_name = 'Ne'
-            elif p['planet'] == 'Pluto': p_name = 'Pl'
+            p_full_name = p.get('planet') or p.get('name') or "Unknown"
+            p_name = str(p_full_name)[:2]
+            if p_full_name == 'Jupiter': p_name = 'Ju'
+            elif p_full_name == 'Saturn': p_name = 'Sa'
+            elif p_full_name == 'Mars': p_name = 'Ma'
+            elif p_full_name == 'Mercury': p_name = 'Me'
+            elif p_full_name == 'Venus': p_name = 'Ve'
+            elif p_full_name == 'Rahu': p_name = 'Ra'
+            elif p_full_name == 'Ketu': p_name = 'Ke'
+            elif p_full_name in ['Ascendant', 'Lagna']: p_name = 'Asc'
+            elif p_full_name == 'Uranus': p_name = 'Ur'
+            elif p_full_name == 'Neptune': p_name = 'Ne'
+            elif p_full_name == 'Pluto': p_name = 'Pl'
             
             # Add degree if available
             p_degree = p.get('degree', '')
@@ -387,8 +388,11 @@ class ChartGenerator:
         planets = []
         for p in planets_data.get('planets', []):
             # Get planet degree (position in sign)
-            degree = p.get('position', 0)
-            degree_str = f"{int(degree):02d}" if degree else ""
+            degree = p.get('position')
+            try:
+                degree_str = f"{int(float(degree)):02d}" if degree is not None else ""
+            except (ValueError, TypeError):
+                degree_str = ""
             
             planets.append({
                 'planet': p.get('name', p.get('planet', '')),
@@ -398,8 +402,12 @@ class ChartGenerator:
         
         # Add ascendant marker with degree
         asc_house = 1  # Ascendant is always in house 1
-        asc_degree = planets_data.get('ascendant', {}).get('longitude', 0) % 30
-        asc_degree_str = f"{int(asc_degree):02d}"
+        asc_long = planets_data.get('ascendant', {}).get('longitude')
+        try:
+            asc_degree = float(asc_long or 0) % 30
+            asc_degree_str = f"{int(asc_degree):02d}"
+        except (ValueError, TypeError):
+            asc_degree_str = "00"
         planets.append({'planet': 'Asc', 'house': asc_house, 'degree': asc_degree_str})
         
         return ChartGenerator.generate_north_indian_chart(planets, asc_house)
@@ -439,8 +447,11 @@ class ChartGenerator:
             sign_id = sign_map.get(sign, 1)
             
             # Get planet degree
-            degree = p.get('position', 0)
-            degree_str = f"{int(degree):02d}" if degree else ""
+            degree = p.get('position')
+            try:
+                degree_str = f"{int(float(degree)):02d}" if degree is not None else ""
+            except (ValueError, TypeError):
+                degree_str = ""
             
             planets.append({
                 'planet': p.get('name', p.get('planet', '')),

@@ -154,7 +154,11 @@ class PDFReportService:
                 for p in raw_planets:
                     sign_name = p.get('sign', 'Aries')
                     sign_id = sign_map.get(sign_name, 1)
-                    degree = int(p.get('position', 0))
+                    try:
+                        pos = p.get('position')
+                        degree = int(float(pos)) if pos is not None else 0
+                    except (ValueError, TypeError):
+                        degree = 0
                     si_planets.append({
                         "planet": p.get('name'),
                         "sign_id": sign_id,
@@ -163,10 +167,15 @@ class PDFReportService:
                 
                 # Add Ascendant to South Indian too
                 asc_info = vedic_data.get('ascendant', {})
+                asc_long = asc_info.get('longitude')
+                try:
+                    asc_deg = int(float(asc_long or 0) % 30)
+                except (ValueError, TypeError):
+                    asc_deg = 0
                 si_planets.append({
                     "planet": "Asc",
                     "sign_id": sign_map.get(asc_info.get('sign'), 1),
-                    "degree": f"{int(asc_info.get('longitude', 0) % 30):02d}"
+                    "degree": f"{asc_deg:02d}"
                 })
                 
                 chart_si_buf = ChartGenerator.generate_south_indian_chart_image(si_planets)
@@ -229,11 +238,11 @@ class PDFReportService:
         if panchang:
             story.append(Paragraph("Panchang (5 Limbs of Time)", styles['SectionHeader']))
             panchang_data = [
-                ["Tithi", panchang.get('tithi', {}).get('name', 'N/A')],
-                ["Nakshatra", f"{panchang.get('nakshatra', {}).get('name', 'N/A')} (Lord: {panchang.get('nakshatra', {}).get('lord', 'N/A')})"],
-                ["Yoga", panchang.get('yoga', {}).get('name', 'N/A')],
-                ["Karana", panchang.get('karana', {}).get('name', 'N/A')],
-                ["Ascendant", panchang.get('ascendant', {}).get('name', 'N/A')]
+                ["Tithi", html.escape(str(panchang.get('tithi', {}).get('name', 'N/A')))],
+                ["Nakshatra", html.escape(f"{panchang.get('nakshatra', {}).get('name', 'N/A')} (Lord: {panchang.get('nakshatra', {}).get('lord', 'N/A')})")],
+                ["Yoga", html.escape(str(panchang.get('yoga', {}).get('name', 'N/A')))],
+                ["Karana", html.escape(str(panchang.get('karana', {}).get('name', 'N/A')))],
+                ["Ascendant", html.escape(str(panchang.get('ascendant', {}).get('name', 'N/A')))]
             ]
             panchang_t = Table(panchang_data, colWidths=[2*inch, 4*inch])
             panchang_t.setStyle(TableStyle([
@@ -450,9 +459,9 @@ class PDFReportService:
             acg_table_data = [["City", "Planet Line", "Effect"]]
             for loc in acg_data:
                 acg_table_data.append([
-                    loc.get('city'),
-                    loc.get('line_title'),
-                    loc.get('effect_title')
+                    html.escape(str(loc.get('city'))),
+                    html.escape(str(loc.get('line_title'))),
+                    html.escape(str(loc.get('effect_title')))
                 ])
             
             acg_t = Table(acg_table_data, colWidths=[2*inch, 2*inch, 2*inch])
@@ -478,10 +487,10 @@ class PDFReportService:
             kp_table_data = [["Planet", "Sign", "Star Lord", "Sub Lord"]]
             for p in kp_data[:9]: # Planets + nodes
                 kp_table_data.append([
-                    p.get('planet'),
-                    p.get('sign'),
-                    p.get('star_lord'),
-                    p.get('sub_lord')
+                    html.escape(str(p.get('planet', ''))),
+                    html.escape(str(p.get('sign', ''))),
+                    html.escape(str(p.get('star_lord', ''))),
+                    html.escape(str(p.get('sub_lord', '')))
                 ])
                 
             kpt = Table(kp_table_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
@@ -512,18 +521,18 @@ class PDFReportService:
             gem = remedies.get('gemstone')
             if gem:
                 story.append(Paragraph("Gemstone Recommendation", styles['SectionHeader']))
-                story.append(Paragraph(f"<b>Stone:</b> {gem.get('stone')}", styles['NormalText']))
-                story.append(Paragraph(f"<b>Wear On:</b> {gem.get('wear_finger')}", styles['NormalText']))
-                story.append(Paragraph(f"<b>Metal:</b> {gem.get('metal')}", styles['NormalText']))
-                story.append(Paragraph(f"<i>Effect: {gem.get('life_area')}</i>", styles['NormalText']))
+                story.append(Paragraph(f"<b>Stone:</b> {html.escape(str(gem.get('stone')))}", styles['NormalText']))
+                story.append(Paragraph(f"<b>Wear On:</b> {html.escape(str(gem.get('wear_finger')))}", styles['NormalText']))
+                story.append(Paragraph(f"<b>Metal:</b> {html.escape(str(gem.get('metal')))}", styles['NormalText']))
+                story.append(Paragraph(f"<i>Effect: {html.escape(str(gem.get('life_area')))}</i>", styles['NormalText']))
                 story.append(Spacer(1, 0.1*inch))
 
             # Rudraksha
             rud = remedies.get('rudraksha')
             if rud:
                 story.append(Paragraph("Rudraksha", styles['SectionHeader']))
-                story.append(Paragraph(f"<b>Type:</b> {rud.get('type')}", styles['NormalText']))
-                story.append(Paragraph(f"<b>Benefits:</b> {rud.get('benefits')}", styles['NormalText']))
+                story.append(Paragraph(f"<b>Type:</b> {html.escape(str(rud.get('type')))}", styles['NormalText']))
+                story.append(Paragraph(f"<b>Benefits:</b> {html.escape(str(rud.get('benefits')))}", styles['NormalText']))
                 story.append(Spacer(1, 0.1*inch))
 
             # Mantra
@@ -594,11 +603,11 @@ class PDFReportService:
         table_data = [["Koota", "Significance", "Bride Val", "Groom Val", "Points"]]
         for k in result['koota_details']:
             table_data.append([
-                k['name'],
-                Paragraph(k['significance'], styles['Normal']),
-                k['bride_val'],
-                k['groom_val'],
-                f"{k['points']}/{k['max_points']}"
+                html.escape(str(k.get('name', ''))),
+                Paragraph(html.escape(str(k.get('significance', ''))), styles['Normal']),
+                html.escape(str(k.get('bride_val', ''))),
+                html.escape(str(k.get('groom_val', ''))),
+                f"{html.escape(str(k.get('points', '0')))}/{html.escape(str(k.get('max_points', '0')))}"
             ])
         
         t = Table(table_data, colWidths=[1*inch, 2*inch, 1*inch, 1*inch, 1*inch])
@@ -615,17 +624,17 @@ class PDFReportService:
 
         # Manglik Analysis
         story.append(Paragraph("Manglik Analysis", styles['SectionHeader']))
-        story.append(Paragraph(f"Bride Status: <b>{result['bride']['manglik_status']}</b>", styles['NormalText']))
-        story.append(Paragraph(f"Groom Status: <b>{result['groom']['manglik_status']}</b>", styles['NormalText']))
-        story.append(Paragraph(result['manglik_summary'], styles['NormalText']))
+        story.append(Paragraph(f"Bride Status: <b>{html.escape(str(result['bride'].get('manglik_status', 'N/A')))}</b>", styles['NormalText']))
+        story.append(Paragraph(f"Groom Status: <b>{html.escape(str(result['groom'].get('manglik_status', 'N/A')))}</b>", styles['NormalText']))
+        story.append(Paragraph(html.escape(str(result.get('manglik_summary', ''))), styles['NormalText']))
         story.append(Spacer(1, 0.3*inch))
 
         # Dosha Analysis
         story.append(Paragraph("Dosha Analysis", styles['SectionHeader']))
-        for d in result['doshas']:
-            d_name = d['name'] + (" (Present)" if d['is_present'] else " (Not Present)")
+        for d in result.get('doshas', []):
+            d_name = html.escape(str(d.get('name', ''))) + (" (Present)" if d.get('is_present') else " (Not Present)")
             story.append(Paragraph(f"<b>{d_name}</b>", styles['NormalText']))
-            story.append(Paragraph(d['description'], styles['NormalText']))
+            story.append(Paragraph(html.escape(str(d.get('description', ''))), styles['NormalText']))
         story.append(Spacer(1, 0.3*inch))
 
         story.append(PageBreak())
@@ -638,10 +647,10 @@ class PDFReportService:
         if 'dasha_synchronization' in result:
             dasha_sync = result['dasha_synchronization']
             story.append(Paragraph("Dasha Synchronization Analysis", styles['SectionHeader']))
-            story.append(Paragraph(f"<b>Current Compatibility Score:</b> {dasha_sync.get('score', 0)}/10", styles['NormalText']))
-            story.append(Paragraph(f"<b>Bride's Current Dasha:</b> {dasha_sync.get('bride_current_dasha', 'Unknown')}", styles['NormalText']))
-            story.append(Paragraph(f"<b>Groom's Current Dasha:</b> {dasha_sync.get('groom_current_dasha', 'Unknown')}", styles['NormalText']))
-            story.append(Paragraph(f"<b>Recommendation:</b> {dasha_sync.get('recommendation', 'N/A')}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Current Compatibility Score:</b> {html.escape(str(dasha_sync.get('score', 0)))}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Bride's Current Dasha:</b> {html.escape(str(dasha_sync.get('bride_current_dasha', 'Unknown')))}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Groom's Current Dasha:</b> {html.escape(str(dasha_sync.get('groom_current_dasha', 'Unknown')))}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Recommendation:</b> {html.escape(str(dasha_sync.get('recommendation', 'N/A')))}", styles['NormalText']))
             
             if dasha_sync.get('analysis'):
                 story.append(Paragraph("<b>Detailed Analysis:</b>", styles['NormalText']))
@@ -653,30 +662,31 @@ class PDFReportService:
         if 'navamsa_compatibility' in result:
             navamsa = result['navamsa_compatibility']
             story.append(Paragraph("Navamsa (D9) Compatibility", styles['SectionHeader']))
-            story.append(Paragraph(f"<b>Marital Harmony Score:</b> {navamsa.get('score', 0)}/10", styles['NormalText']))
-            story.append(Paragraph(f"<b>Recommendation:</b> {navamsa.get('recommendation', 'N/A')}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Marital Harmony Score:</b> {html.escape(str(navamsa.get('score', 0)))}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Recommendation:</b> {html.escape(str(navamsa.get('recommendation', 'N/A')))}", styles['NormalText']))
             
             if navamsa.get('analysis'):
                 story.append(Paragraph("<b>D9 Chart Analysis:</b>", styles['NormalText']))
                 for point in navamsa['analysis']:
-                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+                    story.append(Paragraph(f"• {html.escape(str(point))}", styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
 
         # Transit Analysis
         if 'transit_analysis' in result:
             transits = result['transit_analysis']
             story.append(Paragraph("Current Planetary Transits", styles['SectionHeader']))
-            story.append(Paragraph(f"<b>Transit Favorability:</b> {transits.get('score', 0)}/10", styles['NormalText']))
-            story.append(Paragraph(f"<b>Overall Assessment:</b> {transits.get('recommendation', 'N/A')}", styles['NormalText']))
+            story.append(Paragraph(f"<b>Transit Favorability:</b> {html.escape(str(transits.get('score', 0)))}/10", styles['NormalText']))
+            story.append(Paragraph(f"<b>Overall Assessment:</b> {html.escape(str(transits.get('recommendation', 'N/A')))}", styles['NormalText']))
             
             if transits.get('current_transits'):
                 ct = transits['current_transits']
                 transit_table = Table([
                     ["Planet", "Current Sign"],
-                    ["Jupiter", ct.get('jupiter', 'Unknown')],
-                    ["Saturn", ct.get('saturn', 'Unknown')],
-                    ["Venus", ct.get('venus', 'Unknown')]
+                    ["Jupiter", html.escape(str(ct.get('jupiter', 'Unknown')))],
+                    ["Saturn", html.escape(str(ct.get('saturn', 'Unknown')))],
+                    ["Venus", html.escape(str(ct.get('venus', 'Unknown')))]
                 ], colWidths=[2*inch, 2*inch])
+                # ... same styles ...
                 transit_table.setStyle(TableStyle([
                     ('BACKGROUND', (0,0), (-1,0), colors.darkblue),
                     ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
@@ -689,7 +699,7 @@ class PDFReportService:
                 story.append(Spacer(1, 0.1*inch))
                 story.append(Paragraph("<b>Transit Insights:</b>", styles['NormalText']))
                 for point in transits['analysis']:
-                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+                    story.append(Paragraph(f"• {html.escape(str(point))}", styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
 
         # Marriage Windows
@@ -703,11 +713,11 @@ class PDFReportService:
                 for i, w in enumerate(windows['windows'][:5], 1):
                     window_table_data.append([
                         f"#{i}",
-                        w.get('start_date', 'N/A'),
-                        w.get('end_date', 'N/A'),
-                        w.get('bride_dasha', 'N/A'),
-                        w.get('groom_dasha', 'N/A'),
-                        w.get('favorability', 'N/A')
+                        html.escape(str(w.get('start_date', 'N/A'))),
+                        html.escape(str(w.get('end_date', 'N/A'))),
+                        html.escape(str(w.get('bride_dasha', 'N/A'))),
+                        html.escape(str(w.get('groom_dasha', 'N/A'))),
+                        html.escape(str(w.get('favorability', 'N/A')))
                     ])
                 
                 window_table = Table(window_table_data, colWidths=[0.5*inch, 1.2*inch, 1.2*inch, 1*inch, 1*inch, 1*inch])
@@ -724,7 +734,7 @@ class PDFReportService:
                 story.append(Spacer(1, 0.1*inch))
                 story.append(Paragraph("<b>Timing Analysis:</b>", styles['NormalText']))
                 for point in windows['analysis']:
-                    story.append(Paragraph(f"• {point}", styles['NormalText']))
+                    story.append(Paragraph(f"• {html.escape(str(point))}", styles['NormalText']))
             story.append(Spacer(1, 0.3*inch))
 
         story.append(PageBreak())

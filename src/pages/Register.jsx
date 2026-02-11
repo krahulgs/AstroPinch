@@ -14,20 +14,59 @@ const Register = () => {
         preferred_lang: 'en'
     });
     const [error, setError] = useState('');
+    const [formErrors, setFormErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const handleNext = () => setStep(step + 1);
-    const handleBack = () => setStep(step - 1);
+    const validateStep = (s) => {
+        const errors = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (s === 1) {
+            if (!formData.full_name.trim()) {
+                errors.full_name = 'Full name is required';
+            } else if (formData.full_name.trim().length < 2) {
+                errors.full_name = 'Name must be at least 2 characters';
+            }
+            if (!formData.email) {
+                errors.email = 'Email is required';
+            } else if (!emailRegex.test(formData.email)) {
+                errors.email = 'Invalid email format';
+            }
+        }
+
+        if (s === 2) {
+            if (!formData.password) {
+                errors.password = 'Password is required';
+            } else if (formData.password.length < 6) {
+                errors.password = 'Password must be at least 6 characters';
+            }
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleNext = () => {
+        if (validateStep(1)) {
+            setStep(step + 1);
+        }
+    };
+
+    const handleBack = () => {
+        setFormErrors({});
+        setStep(step - 1);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateStep(2)) return;
+
         setLoading(true);
         setError('');
         try {
             const success = await register(formData);
             if (success) {
-                // Registration successful, token is set in context
-                // Now we can either redirect to profile creation or finish
                 navigate('/profiles');
             } else {
                 setError('Registration failed. Email might already be in use.');
@@ -73,7 +112,7 @@ const Register = () => {
                     {renderStepNumbers()}
 
                     <div className="glass-panel p-10 rounded-[3rem] bg-white border border-primary/10 shadow-2xl">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                             {error && (
                                 <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-xs text-center font-bold">
                                     {error}
@@ -92,28 +131,48 @@ const Register = () => {
                                             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary group-focus-within:text-primary transition-colors" />
                                             <input
                                                 type="text"
-                                                required
-                                                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none focus:border-primary/50 transition-all font-medium placeholder:text-gray-400"
+                                                className={`w-full border rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none transition-all font-medium placeholder:text-gray-400
+                                                    ${formErrors.full_name
+                                                        ? 'border-red-300 bg-red-50 focus:border-red-400'
+                                                        : 'bg-gray-50 border-gray-200 focus:border-primary/50'}
+                                                `}
                                                 placeholder="Full Name"
                                                 value={formData.full_name}
                                                 onChange={(e) => {
                                                     const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                                     setFormData({ ...formData, full_name: filteredValue });
+                                                    if (formErrors.full_name) setFormErrors(prev => ({ ...prev, full_name: '' }));
                                                 }}
                                             />
                                         </div>
+                                        {formErrors.full_name && (
+                                            <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">
+                                                {formErrors.full_name}
+                                            </p>
+                                        )}
 
                                         <div className="relative group">
                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary group-focus-within:text-primary transition-colors" />
                                             <input
                                                 type="email"
-                                                required
-                                                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none focus:border-primary/50 transition-all font-medium placeholder:text-gray-400"
+                                                className={`w-full border rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none transition-all font-medium placeholder:text-gray-400
+                                                    ${formErrors.email
+                                                        ? 'border-red-300 bg-red-50 focus:border-red-400'
+                                                        : 'bg-gray-50 border-gray-200 focus:border-primary/50'}
+                                                `}
                                                 placeholder="Email Address"
                                                 value={formData.email}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, email: e.target.value });
+                                                    if (formErrors.email) setFormErrors(prev => ({ ...prev, email: '' }));
+                                                }}
                                             />
                                         </div>
+                                        {formErrors.email && (
+                                            <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">
+                                                {formErrors.email}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <button
@@ -138,13 +197,24 @@ const Register = () => {
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary group-focus-within:text-primary transition-colors" />
                                         <input
                                             type="password"
-                                            required
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none focus:border-primary/50 transition-all font-medium placeholder:text-gray-400"
+                                            className={`w-full border rounded-2xl py-4 pl-12 pr-4 text-primary text-sm focus:outline-none transition-all font-medium placeholder:text-gray-400
+                                                ${formErrors.password
+                                                    ? 'border-red-300 bg-red-50 focus:border-red-400'
+                                                    : 'bg-gray-50 border-gray-200 focus:border-primary/50'}
+                                            `}
                                             placeholder="Secure Password"
                                             value={formData.password}
-                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, password: e.target.value });
+                                                if (formErrors.password) setFormErrors(prev => ({ ...prev, password: '' }));
+                                            }}
                                         />
                                     </div>
+                                    {formErrors.password && (
+                                        <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">
+                                            {formErrors.password}
+                                        </p>
+                                    )}
 
                                     <div className="flex gap-3 pt-2">
                                         <button

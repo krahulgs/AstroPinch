@@ -87,8 +87,12 @@ class ReportGenerator:
                 AstrologyAggregator.get_kundali_svg,
                 name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone
             )
-
-            # Collect AI Results
+            navamsa_svg_future = executor.submit(
+                AstrologyAggregator.get_navamsa_svg,
+                name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone
+            )
+            
+            # Collect Results
             try:
                 vedic_personality_analysis = personality_future.result()
             except Exception as e:
@@ -112,6 +116,12 @@ class ReportGenerator:
             except Exception as e:
                 print(f"SVG Error: {e}")
                 kundali_svg = None
+
+            try:
+                navamsa_svg = navamsa_svg_future.result()
+            except Exception as e:
+                print(f"Navamsa SVG Error: {e}")
+                navamsa_svg = None
 
         # Extract Loshu Grid to move it to Vedic Astrology
         loshu_data = numerology.pop('loshu_grid', None)
@@ -162,6 +172,7 @@ class ReportGenerator:
                 "graha_effects": vedic_full.get('graha_effects'),
                 "ai_summary": vedic_full.get('ai_summary'),
                 "chart_svg": kundali_svg,
+                "navamsa_svg": navamsa_svg,
                 "vedic_personality_analysis": vedic_personality_analysis,
                 "career_analysis": None, # career_analysis disabled as per original
                 "relationship_analysis": relationship_analysis,

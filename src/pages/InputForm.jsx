@@ -10,6 +10,7 @@ const InputForm = () => {
     const { saveUserData, loading, error: serverError } = useChart();
 
     const [progress, setProgress] = useState(0);
+    const [formErrors, setFormErrors] = useState({});
     const [formData, setFormData] = useState({
         name: '',
         day: '',
@@ -22,19 +23,57 @@ const InputForm = () => {
         timezone: ''
     });
 
+    const validateForm = () => {
+        const errors = {};
+
+        if (!formData.name.trim()) {
+            errors.name = 'Full name is required';
+        } else if (formData.name.trim().length < 2) {
+            errors.name = 'Name must be at least 2 characters';
+        }
+
+        const d = parseInt(formData.day);
+        const m = parseInt(formData.month);
+        const y = parseInt(formData.year);
+
+        if (!formData.day || d < 1 || d > 31) errors.date = 'Invalid day';
+        if (!formData.month || m < 1 || m > 12) errors.date = 'Invalid month';
+        if (!formData.year || y < 1900 || y > new Date().getFullYear()) errors.date = 'Invalid year';
+
+        if (!errors.date) {
+            const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
+            const selectedDate = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (isNaN(selectedDate.getTime())) {
+                errors.date = 'Invalid date';
+            } else if (selectedDate > today) {
+                errors.date = 'Date of birth cannot be in the future';
+            } else if (selectedDate.getDate() !== d) {
+                // handles cases like Feb 30
+                errors.date = 'This date does not exist';
+            }
+        }
+
+        if (!formData.time) {
+            errors.time = 'Time of birth is required';
+        }
+
+        if (!formData.place || !formData.lat) {
+            errors.place = 'Please select a city from the dropdown';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Final validation for future date
-        const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
-        const selectedDate = new Date(dateStr);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        if (!validateForm()) return;
 
-        if (selectedDate > today) {
-            alert('Date of Birth cannot be in the future');
-            return;
-        }
+        const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
 
         const dataToSave = {
             ...formData,
@@ -70,8 +109,10 @@ const InputForm = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }));
+        if (name === 'day' || name === 'month' || name === 'year') setFormErrors(prev => ({ ...prev, date: '' }));
+
         if (name === 'name') {
-            // Remove numeric values and special characters, allow only letters and spaces
             const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
             setFormData({ ...formData, [name]: filteredValue });
         } else {
@@ -102,7 +143,7 @@ const InputForm = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                    <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
                         <div className="space-y-2">
                             <label className="text-secondary text-sm font-medium ml-1">Full Name</label>
                             <div className="relative group">
@@ -110,14 +151,16 @@ const InputForm = () => {
                                 <input
                                     type="text"
                                     name="name"
-                                    required
                                     autoFocus
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
+                                    className={`w-full bg-gray-50 border rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all text-primary placeholder:text-gray-400
+                                        ${formErrors.name ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                    `}
                                     placeholder="Enter Your Full Name"
                                 />
                             </div>
+                            {formErrors.name && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.name}</p>}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -127,40 +170,41 @@ const InputForm = () => {
                                     <div className="relative flex-1 group">
                                         <input
                                             type="number"
+                                            name="day"
                                             placeholder="DD"
-                                            min="1"
-                                            max="31"
-                                            required
                                             value={formData.day}
-                                            onChange={(e) => setFormData({ ...formData, day: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onChange={handleChange}
+                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            `}
                                         />
                                     </div>
                                     <div className="relative flex-1 group">
                                         <input
                                             type="number"
+                                            name="month"
                                             placeholder="MM"
-                                            min="1"
-                                            max="12"
-                                            required
                                             value={formData.month}
-                                            onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onChange={handleChange}
+                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            `}
                                         />
                                     </div>
                                     <div className="relative flex-[1.5] group">
                                         <input
                                             type="number"
+                                            name="year"
                                             placeholder="YYYY"
-                                            min="1900"
-                                            max={new Date().getFullYear()}
-                                            required
                                             value={formData.year}
-                                            onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            onChange={handleChange}
+                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            `}
                                         />
                                     </div>
                                 </div>
+                                {formErrors.date && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.date}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -170,12 +214,14 @@ const InputForm = () => {
                                     <input
                                         type="time"
                                         name="time"
-                                        required
                                         value={formData.time}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary placeholder:text-gray-400"
+                                        className={`w-full bg-gray-50 border rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all text-primary placeholder:text-gray-400
+                                            ${formErrors.time ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                        `}
                                     />
                                 </div>
+                                {formErrors.time && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.time}</p>}
                             </div>
                         </div>
 
@@ -190,9 +236,12 @@ const InputForm = () => {
                                         lng: city.longitude,
                                         timezone: city.timezone
                                     }));
+                                    if (formErrors.place) setFormErrors(prev => ({ ...prev, place: '' }));
                                 }}
                                 defaultValue={formData.place}
+                                error={!!formErrors.place}
                             />
+                            {formErrors.place && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.place}</p>}
                         </div>
 
                         <button

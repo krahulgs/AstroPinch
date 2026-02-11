@@ -692,7 +692,11 @@ const ConsolidatedReport = () => {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) throw new Error('Failed to generate PDF');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const detailMsg = typeof errorData.detail === 'object' ? errorData.detail.message : errorData.detail;
+                throw new Error(detailMsg || 'Failed to generate PDF');
+            }
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -706,7 +710,9 @@ const ConsolidatedReport = () => {
 
         } catch (err) {
             console.error("PDF generation failed", err);
-            alert(`Failed to download PDF: ${err.message}`);
+            let msg = err.message;
+            if (err.detail) msg += `: ${JSON.stringify(err.detail)}`;
+            alert(`Failed to download PDF: ${msg}`);
         } finally {
             setDownloading(false);
         }

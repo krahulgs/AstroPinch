@@ -308,6 +308,13 @@ def get_numerology_data(name, year, month, day, vedic_data=None, western_data=No
         # Attach integrations
         data["loshu_grid"] = loshu_data
         
+        # Add Hilary Gerard's Science of Success
+        try:
+            data["science_of_success"] = HilaryNumerologyService.get_science_of_success_report(name, day, month, year)
+        except Exception as e:
+            print(f"Science of Success error: {e}")
+            data["science_of_success"] = None
+        
         # Parallel Step 2: AI Insights (Dependent on previous results)
         ai_insights = generate_ai_insights(
             name, f"{year}-{month:02d}-{day:02d}", data,

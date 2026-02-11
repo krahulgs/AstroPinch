@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2 } from 'lucide-react';
 import { indianCities } from '../../data/indianCities';
 
-const CitySearch = ({ onSelect, defaultValue = '' }) => {
+const CitySearch = ({ onSelect, defaultValue = '', error = false }) => {
     const [query, setQuery] = useState(defaultValue);
     const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -141,9 +141,10 @@ const CitySearch = ({ onSelect, defaultValue = '' }) => {
                     setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all text-primary placeholder:text-slate-400"
+                className={`w-full border rounded-xl py-3 pl-12 pr-10 focus:outline-none transition-all text-primary placeholder:text-slate-400
+                    ${error ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'bg-white border-gray-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600'}
+                `}
                 placeholder="Enter City, District or Taluka..."
-                required
             />
 
             {isLoading && (

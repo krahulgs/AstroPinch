@@ -9,10 +9,34 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [formErrors, setFormErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const validateForm = () => {
+        const errors = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!email) {
+            errors.email = 'Email is required';
+        } else if (!emailRegex.test(email)) {
+            errors.email = 'Please enter a valid email address';
+        }
+
+        if (!password) {
+            errors.password = 'Password is required';
+        } else if (password.length < 6) {
+            errors.password = 'Password must be at least 6 characters';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
+
         setLoading(true);
         setError('');
         try {
@@ -49,7 +73,7 @@ const Login = () => {
 
                 {/* Login Form */}
                 <div className="glass-panel p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl">
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                         {error && (
                             <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm text-center font-medium animate-in shake duration-500">
                                 {error}
@@ -64,13 +88,24 @@ const Login = () => {
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
                                 <input
                                     type="email"
-                                    required
-                                    className="w-full p-4 pl-12 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none transition-all font-medium text-primary placeholder:text-gray-400"
+                                    className={`w-full p-4 pl-12 rounded-2xl border transition-all font-medium text-primary placeholder:text-gray-400 outline-none
+                                        ${formErrors.email
+                                            ? 'border-red-300 bg-red-50 focus:ring-2 focus:ring-red-200'
+                                            : 'border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500'}
+                                    `}
                                     placeholder="your@email.com"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        if (formErrors.email) setFormErrors(prev => ({ ...prev, email: '' }));
+                                    }}
                                 />
                             </div>
+                            {formErrors.email && (
+                                <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">
+                                    {formErrors.email}
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
@@ -86,13 +121,24 @@ const Login = () => {
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
                                 <input
                                     type="password"
-                                    required
-                                    className="w-full p-4 pl-12 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none transition-all font-medium text-primary placeholder:text-gray-400"
+                                    className={`w-full p-4 pl-12 rounded-2xl border transition-all font-medium text-primary placeholder:text-gray-400 outline-none
+                                        ${formErrors.password
+                                            ? 'border-red-300 bg-red-50 focus:ring-2 focus:ring-red-200'
+                                            : 'border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500'}
+                                    `}
                                     placeholder="••••••••"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        if (formErrors.password) setFormErrors(prev => ({ ...prev, password: '' }));
+                                    }}
                                 />
                             </div>
+                            {formErrors.password && (
+                                <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">
+                                    {formErrors.password}
+                                </p>
+                            )}
                         </div>
 
                         <button

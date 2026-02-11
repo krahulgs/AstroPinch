@@ -374,6 +374,14 @@ def get_pdf_report(details: BirthDetails):
         import traceback
         full_traceback = traceback.format_exc()
         print(f"PDF Generation Error Detail:\n{full_traceback}")
+        
+        # Log to file for visibility
+        with open("pdf_error.log", "a", encoding="utf-8") as f:
+            from datetime import datetime
+            f.write(f"\n--- PDF Error at {datetime.now()} ---\n")
+            f.write(full_traceback)
+            f.write("\n-----------------------------------\n")
+
         raise HTTPException(
             status_code=500, 
             detail={

@@ -87,7 +87,27 @@ class AstrologyAggregator:
         from services.vedic_astro_engine import VedicAstroEngine
         sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
         asc_sign = sidereal.get("ascendant", {}).get("sign_id", 1)
-        return KundaliPainter.draw_north_indian_chart(sidereal['planets'], f"Vedic Kundli for {name}", lang=lang, ascendant_sign=asc_sign)
+        return KundaliPainter.draw_north_indian_chart(sidereal['planets'], f"Lagna Chart (D1)", lang=lang, ascendant_sign=asc_sign)
+
+    @staticmethod
+    def get_navamsa_svg(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC"):
+        from services.vedic_astro_engine import VedicAstroEngine
+        sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
+        d_charts = VedicAstroEngine.calculate_divisional_charts(sidereal)
+        navamsa_planets = d_charts.get("D9", [])
+        
+        # Determine Navamsa Ascendant (simplified: 1st sign is Aries for mapping)
+        # Note: True Navamsa Asc requires Ascendant longitude / 3deg20min
+        asc_lon = sidereal.get("ascendant", {}).get("longitude", 0)
+        asc_sign_idx = int(asc_lon // 30) % 12
+        pos_in_sign = asc_lon % 30
+        pada = int(pos_in_sign / (30/9)) + 1
+        
+        element_group = (asc_sign_idx) % 4
+        start_offsets = [0, 9, 6, 3] # Fire=Aries, Earth=Cap, Air=Lib, Water=Can
+        nav_asc_sign = (start_offsets[element_group] + (pada - 1)) % 12 + 1
+        
+        return KundaliPainter.draw_north_indian_chart(navamsa_planets, f"Navamsa Chart (D9)", lang=lang, ascendant_sign=nav_asc_sign)
 
     @staticmethod
     def get_kundali_analysis(year, month, day, hour, minute, lat, lng, lang="en", timezone="Asia/Kolkata"):

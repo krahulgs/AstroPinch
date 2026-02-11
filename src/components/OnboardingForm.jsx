@@ -26,16 +26,10 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
     const [locationQuery, setLocationQuery] = useState(initialData?.location_name || '');
     const [locationResults, setLocationResults] = useState([]);
     const [searching, setSearching] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
         if (initialData) {
-            const time = initialData.birth_time || '';
-            let amPm = 'AM';
-            if (time) {
-                const [h] = time.split(':').map(Number);
-                amPm = h >= 12 ? 'PM' : 'AM';
-            }
-
             setFormData({
                 name: initialData.name || '',
                 gender: initialData.gender || 'male',
@@ -52,7 +46,6 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
             });
             setLocationQuery(initialData.location_name || '');
         } else {
-            // Reset if adding new
             setFormData({
                 name: '', gender: 'male', day: '', month: '', year: '', birth_time: '',
                 location_name: '', latitude: 0, longitude: 0,
@@ -60,9 +53,47 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
             });
             setLocationQuery('');
         }
+        setFormErrors({});
     }, [initialData]);
 
 
+
+    const validateStep = (s) => {
+        const errors = {};
+        if (s === 1) {
+            if (!formData.name.trim()) errors.name = 'Name is required';
+            else if (formData.name.trim().length < 2) errors.name = 'Name is too short';
+
+            if (!formData.day || !formData.month || !formData.year) {
+                errors.date = 'Full birth date is required';
+            } else {
+                const d = parseInt(formData.day);
+                const m = parseInt(formData.month);
+                const y = parseInt(formData.year);
+                const date = new Date(y, m - 1, d);
+                if (date.getFullYear() !== y || date.getMonth() !== (m - 1) || date.getDate() !== d) {
+                    errors.date = 'Invalid date';
+                } else if (date > new Date()) {
+                    errors.date = 'Date cannot be in future';
+                }
+            }
+
+            if (!formData.birth_time) errors.birth_time = 'Birth time is required';
+        }
+
+        if (s === 2) {
+            if (!formData.location_name || !formData.latitude) {
+                errors.location = 'Please search and select a location';
+            }
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleNext = () => {
+        if (validateStep(1)) setStep(2);
+    };
 
     const handleSearchLocation = async () => {
         if (!locationQuery) return;
@@ -100,11 +131,13 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
         if (loc.disabled) return;
         setFormData({ ...formData, location_name: loc.name, latitude: loc.lat, longitude: loc.lng });
         setLocationResults([]);
+        setFormErrors(prev => ({ ...prev, location: '' }));
         setStep(3); // Move to review/submit
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateStep(1) || !validateStep(2)) return;
         setLoading(true);
         try {
             const birth_date = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
@@ -141,11 +174,15 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 onChange={e => {
                                     const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                     setFormData({ ...formData, name: filteredValue });
+                                    if (formErrors.name) setFormErrors(prev => ({ ...prev, name: '' }));
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                className={`w-full bg-gray-50 border rounded-xl py-3 pl-10 text-primary focus:outline-none transition-colors
+                                        ${formErrors.name ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-gray-200 focus:border-purple-600'}
+                                    `}
                                 placeholder="Enter Your Full Name"
                             />
                         </div>
+                        {formErrors.name && <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">{formErrors.name}</p>}
                     </div>
 
                     <div>
@@ -154,7 +191,6 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                             <Calendar className="absolute left-3 top-3 w-5 h-5 text-secondary" />
                             <input
                                 type="date"
-                                required
                                 min="1900-01-01"
                                 max={new Date().toISOString().split('T')[0]}
                                 value={formData.year && formData.month && formData.day ? `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}` : ''}
@@ -166,10 +202,14 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     } else {
                                         setFormData({ ...formData, year: '', month: '', day: '' });
                                     }
+                                    if (formErrors.date) setFormErrors(prev => ({ ...prev, date: '' }));
                                 }}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                className={`w-full bg-gray-50 border rounded-xl py-3 pl-10 pr-4 text-primary focus:outline-none transition-colors
+                                        ${formErrors.date ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-gray-200 focus:border-purple-600'}
+                                    `}
                             />
                         </div>
+                        {formErrors.date && <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">{formErrors.date}</p>}
                     </div>
 
                     <div>
@@ -179,10 +219,16 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                             <input
                                 type="time"
                                 value={formData.birth_time}
-                                onChange={e => setFormData({ ...formData, birth_time: e.target.value })}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                onChange={e => {
+                                    setFormData({ ...formData, birth_time: e.target.value });
+                                    if (formErrors.birth_time) setFormErrors(prev => ({ ...prev, birth_time: '' }));
+                                }}
+                                className={`w-full bg-gray-50 border rounded-xl py-3 pl-10 text-primary focus:outline-none transition-colors
+                                        ${formErrors.birth_time ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-gray-200 focus:border-purple-600'}
+                                    `}
                             />
                         </div>
+                        {formErrors.birth_time && <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">{formErrors.birth_time}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -251,9 +297,8 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                     </div>
 
                     <button
-                        onClick={() => setStep(2)}
-                        disabled={!formData.name || !formData.day || !formData.month || !formData.year || !formData.birth_time}
-                        className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl font-bold text-white shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-4"
+                        onClick={handleNext}
+                        className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl font-bold text-white shadow-lg hover:shadow-purple-500/25 transition-all mt-4"
                     >
                         Next: Location
                     </button>
@@ -273,7 +318,9 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                     value={locationQuery}
                                     onChange={e => setLocationQuery(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && handleSearchLocation()}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 text-primary focus:border-purple-600 focus:outline-none transition-colors"
+                                    className={`w-full bg-gray-50 border rounded-xl py-3 pl-10 text-primary focus:outline-none transition-colors
+                                        ${formErrors.location ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-gray-200 focus:border-purple-600'}
+                                    `}
                                     placeholder="Search City..."
                                 />
                             </div>
@@ -284,6 +331,7 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                                 <Search className="w-5 h-5 text-primary" />
                             </button>
                         </div>
+                        {formErrors.location && <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest ml-1 mt-1">{formErrors.location}</p>}
                     </div>
 
                     {searching && <div className="text-center text-sm text-slate-400 py-4"><Loader className="w-5 h-5 animate-spin inline mr-2" />Searching...</div>}
@@ -327,57 +375,60 @@ const OnboardingForm = ({ onSuccess, initialData = null }) => {
                         Back
                     </button>
                 </div>
-            )}
+            )
+            }
 
             {/* Step 3: Review */}
-            {step === 3 && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-300">
-                    <div className="bg-gray-50 p-6 rounded-2xl space-y-4 border border-gray-100">
-                        <div className="flex justify-between border-b border-gray-200 pb-2">
-                            <span className="text-secondary">Name</span>
-                            <span className="text-primary font-bold">{formData.name}</span>
+            {
+                step === 3 && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-300">
+                        <div className="bg-gray-50 p-6 rounded-2xl space-y-4 border border-gray-100">
+                            <div className="flex justify-between border-b border-gray-200 pb-2">
+                                <span className="text-secondary">Name</span>
+                                <span className="text-primary font-bold">{formData.name}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-200 pb-2">
+                                <span className="text-secondary">Date/Time</span>
+                                <span className="text-primary font-bold">
+                                    {`${formData.day}-${formData.month}-${formData.year}`} • {(() => {
+                                        if (!formData.birth_time) return '';
+                                        const [h, m] = formData.birth_time.split(':').map(Number);
+                                        const h12 = h % 12 || 12;
+                                        const ampm = h >= 12 ? 'PM' : 'AM';
+                                        return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                                    })()}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-secondary">Place</span>
+                                <span className="text-primary font-bold text-right">
+                                    {formData.location_name}
+                                    <div className="text-xs text-slate-400 font-mono mt-1">
+                                        {formData.latitude?.toFixed(4)}, {formData.longitude?.toFixed(4)}
+                                    </div>
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex justify-between border-b border-gray-200 pb-2">
-                            <span className="text-secondary">Date/Time</span>
-                            <span className="text-primary font-bold">
-                                {`${formData.day}-${formData.month}-${formData.year}`} • {(() => {
-                                    if (!formData.birth_time) return '';
-                                    const [h, m] = formData.birth_time.split(':').map(Number);
-                                    const h12 = h % 12 || 12;
-                                    const ampm = h >= 12 ? 'PM' : 'AM';
-                                    return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
-                                })()}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-secondary">Place</span>
-                            <span className="text-primary font-bold text-right">
-                                {formData.location_name}
-                                <div className="text-xs text-slate-400 font-mono mt-1">
-                                    {formData.latitude?.toFixed(4)}, {formData.longitude?.toFixed(4)}
-                                </div>
-                            </span>
-                        </div>
-                    </div>
 
-                    <div className="flex flex-col gap-3">
-                        <button
-                            onClick={handleSubmit}
-                            disabled={loading}
-                            className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl font-bold text-white shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                        >
-                            {loading ? <Loader className="w-5 h-5 animate-spin" /> : (initialData ? 'Update Profile' : 'Create Profile')}
-                        </button>
-                        <button
-                            onClick={() => setStep(2)}
-                            className="text-sm text-slate-500 hover:text-white transition-colors"
-                        >
-                            Edit Details
-                        </button>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl font-bold text-white shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                            >
+                                {loading ? <Loader className="w-5 h-5 animate-spin" /> : (initialData ? 'Update Profile' : 'Create Profile')}
+                            </button>
+                            <button
+                                onClick={() => setStep(2)}
+                                className="text-sm text-slate-500 hover:text-white transition-colors"
+                            >
+                                Edit Details
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

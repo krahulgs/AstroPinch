@@ -92,12 +92,12 @@ const Home = () => {
                                     Your Celestial Destiny
                                 </div>
 
-                                <h1 className="text-6xl md:text-8xl font-medium text-white tracking-tight leading-[0.9] font-serif italic">
+                                <h1 className="text-5xl md:text-8xl font-medium text-white tracking-tight leading-[0.9] font-serif italic">
                                     Discover Your <br />
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">Cosmic Path</span>
                                 </h1>
 
-                                <p className="text-lg md:text-xl text-white/80 max-w-xl font-light tracking-wide leading-relaxed">
+                                <p className="text-base md:text-xl text-white/80 max-w-xl font-light tracking-wide leading-relaxed">
                                     Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through our NASA-powered precision engine.
                                 </p>
                             </div>

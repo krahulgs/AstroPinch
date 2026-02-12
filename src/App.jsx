@@ -56,27 +56,27 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/horoscope" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/horoscope/:sign" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><Predictions /></div>} />
-              <Route path="/chart" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><InputForm /></div>} />
-              <Route path="/birth-chart" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><BirthChart /></div>} />
-              <Route path="/lunar-chart" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><LunarChart /></div>} />
-              <Route path="/kundali" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><Kundali /></div>} />
-              <Route path="/numerology" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><Numerology /></div>} />
-              <Route path="/report/consolidated" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><ConsolidatedReport /></div>} />
-              <Route path="/calendar" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><CalendarPage /></div>} />
+              <Route path="/horoscope" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+              <Route path="/horoscope/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+              <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Predictions /></div>} />
+              <Route path="/chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><InputForm /></div>} />
+              <Route path="/birth-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><BirthChart /></div>} />
+              <Route path="/lunar-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><LunarChart /></div>} />
+              <Route path="/kundali" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Kundali /></div>} />
+              <Route path="/numerology" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Numerology /></div>} />
+              <Route path="/report/consolidated" element={<div className="max-w-7xl mx-auto px-0 md:px-6 pt-20 md:pt-24 pb-12"><ConsolidatedReport /></div>} />
+              <Route path="/calendar" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><CalendarPage /></div>} />
               <Route path="/profiles" element={
                 <ProtectedRoute>
-                  <div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><ProfileManagement /></div>
+                  <div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><ProfileManagement /></div>
                 </ProtectedRoute>
               } />
               <Route path="/daily-guidance" element={
                 <ProtectedRoute>
-                  <div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><DailyInsights /></div>
+                  <div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><DailyInsights /></div>
                 </ProtectedRoute>
               } />
-              <Route path="/kundali-match" element={<div className="max-w-7xl mx-auto px-6 pt-24 pb-12"><KundaliMatch /></div>} />
+              <Route path="/kundali-match" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><KundaliMatch /></div>} />
               <Route path="/premium-reports" element={<PremiumReports />} />
               <Route path="/vedic-astrology" element={<VedicAstrology />} />
               <Route path="/kp-astrology" element={<KPAstrology />} />

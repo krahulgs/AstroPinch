@@ -45,10 +45,10 @@ const Navbar = () => {
                         <Link to="/" className="flex items-center gap-2 md:gap-3 group" onClick={() => setIsMenuOpen(false)}>
                             <AstroLogo className="w-8 h-8 md:w-10 md:h-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-lg shadow-purple-500/20" />
                             <div className="flex flex-col">
-                                <span className={`text-lg md:text-2xl font-bold tracking-tight ${isHomePage && !isMenuOpen ? 'text-white' : 'text-white'}`}>
+                                <span className={`text-base md:text-2xl font-bold tracking-tight ${isHomePage && !isMenuOpen ? 'text-white' : 'text-white'}`}>
                                     AstroPinch
                                 </span>
-                                <span className={`text-[8px] md:text-[10px] uppercase tracking-wider font-medium ${isHomePage && !isMenuOpen ? 'text-white/70' : 'text-slate-400'}`}>
+                                <span className={`text-[7px] md:text-[10px] uppercase tracking-wider font-medium ${isHomePage && !isMenuOpen ? 'text-white/70' : 'text-slate-400'}`}>
                                     Astrology & Horoscopes
                                 </span>
                             </div>

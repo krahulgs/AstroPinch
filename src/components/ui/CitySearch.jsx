@@ -155,7 +155,7 @@ const CitySearch = ({ onSelect, defaultValue = '', error = false }) => {
             )}
 
             {isOpen && displayResults.length > 0 && (
-                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                         <span>{query.length < 2 ? "Popular Indian Cities" : "Search Results"}</span>
                         {query.length > 0 && <span className="text-purple-500">Found {displayResults.length} places</span>}

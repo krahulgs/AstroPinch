@@ -469,19 +469,19 @@ class VedicAstroEngine:
         now = datetime.now()
         active_m = None
         active_a = None
+        active_ant = None
         
         results = []
         for m in all_dashas:
             # We want current phase and future ones for the UI
             if m['end'] > now:
                 # If this is the active Mahadasha, find the active Antardasha
-                current_ant = None
                 if m['start'] <= now:
                     active_m = m['planet']
                     for a in m['antardashas']:
                         if a['start'] <= now < a['end']:
                             active_a = a['planet']
-                            current_ant = a
+                            active_ant = a
                             break
                             
                 results.append({
@@ -495,6 +495,8 @@ class VedicAstroEngine:
         return {
             "active_mahadasha": active_m,
             "active_antardasha": active_a,
+            "active_antardasha_start": active_ant['start'].strftime("%b %Y") if active_ant else None,
+            "active_antardasha_end": active_ant['end'].strftime("%b %Y") if active_ant else None,
             "timeline": results[:10] # Return next few periods
         }
     @staticmethod

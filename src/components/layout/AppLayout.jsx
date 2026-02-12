@@ -23,8 +23,8 @@ const AppLayout = ({ children }) => {
             <Footer />
 
             {/* Decorative background elements */}
-            <div className="fixed top-20 left-10 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
-            <div className="fixed bottom-20 right-10 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="fixed top-20 left-10 w-32 h-32 md:w-64 md:h-64 bg-purple-600/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            <div className="fixed bottom-20 right-10 w-48 h-48 md:w-96 md:h-96 bg-blue-600/15 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
         </div>
     );
 };

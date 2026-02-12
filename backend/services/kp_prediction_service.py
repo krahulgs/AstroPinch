@@ -48,6 +48,10 @@ class KPPredictionService:
             "positive": [6, 11],
             "negative": [1, 8, 12]
         },
+        "Foreign Travel": {
+            "positive": [12, 9, 3, 11],
+            "negative": [4, 2] # 4th is stay-at-home
+        },
         # Age-appropriate events
         "Education Success": {
             "positive": [4, 5, 9, 11],
@@ -68,6 +72,10 @@ class KPPredictionService:
         "Talent Development": {
             "positive": [3, 5, 11],
             "negative": [8]
+        },
+        "Promotion": {
+            "positive": [10, 11, 2, 6],
+            "negative": [8, 12]
         }
     }
     
@@ -84,12 +92,12 @@ class KPPredictionService:
             "max_age": 17
         },
         "young_adult": {  # 18-25 years
-            "events": ["Higher Studies", "New Job", "Career Guidance", "Property"],
+            "events": ["Higher Studies", "New Job", "Career Guidance", "Property", "Foreign Travel"],
             "min_age": 18,
             "max_age": 25
         },
         "adult": {  # 26+ years
-            "events": ["Marriage", "Job Change", "Business", "Childbirth", "Property"],
+            "events": ["Marriage", "Job Change", "Business", "Childbirth", "Property", "Foreign Travel", "Promotion"],
             "min_age": 26,
             "max_age": 150
         }
@@ -230,24 +238,37 @@ class KPPredictionService:
     def _get_time_window(outcome, dasha_data, event_name):
         """
         Determine time window based on outcome and dasha periods.
+        Dynamically calculates window based on active Vimshottari Dasha.
         """
         if outcome == "No" or outcome == "Unlikely":
             return "Not indicated currently"
         
-        # Simplified timing - in full implementation, would analyze:
-        # - Current mahadasha and bhukti
-        # - Transit confirmations
-        # - Ruling planets
+        # Try to use real dasha timing
+        if dasha_data:
+            m_lord = dasha_data.get('active_mahadasha')
+            a_lord = dasha_data.get('active_antardasha')
+            a_start = dasha_data.get('active_antardasha_start')
+            a_end = dasha_data.get('active_antardasha_end')
+            
+            if a_start and a_end:
+                if outcome == "Yes":
+                    # Favorable window based on current active bhukti
+                    return f"{a_start} – {a_end} ({m_lord}-{a_lord} period)"
+                elif outcome == "Delayed":
+                    # Usually indicates the period after current bhukti or next year
+                    import datetime
+                    current_year = datetime.datetime.now().year
+                    return f"Late {current_year + 1} – {current_year + 2} (After {a_lord} bhukti)"
         
+        # Static Fallback if dasha data is missing
         import datetime
         current_year = datetime.datetime.now().year
-        
         if outcome == "Yes":
             return f"March {current_year} – August {current_year + 1}"
         elif outcome == "Delayed":
             return f"Late {current_year + 1} – {current_year + 2}"
-        else:
-            return "Not indicated currently"
+            
+        return "Not indicated currently"
     
     @staticmethod
     def _get_guidance(event_name, outcome, lang):
@@ -305,6 +326,16 @@ class KPPredictionService:
                 "Yes": "Perfect time to develop creative talents. Dedicate regular practice time and seek quality instruction.",
                 "Delayed": "Talents will flourish with patience. Explore different interests and enjoy the learning process.",
                 "No": "Focus on foundational skills first. Every talent develops at its own pace."
+            },
+            "Foreign Travel": {
+                "Yes": "Excellent prospects for international travel or relocation. Ensure your documentation is ready during this active 9th/12th house period.",
+                "Delayed": "Travel plans may face minor administrative delays or rescheduling. Stay patient; the planetary alignment for abroad stay is ripening.",
+                "No": "Foreign travel is not strongly indicated in the current cycle. Focus on local opportunities or pilgrimages."
+            },
+            "Promotion": {
+                "Yes": "Strong indicators for career advancement and recognition. Your efforts in the 10th house area are likely to be rewarded with higher status.",
+                "Delayed": "Promotion is indicated but may require more time or clearing of current pending projects. Stay consistent in your performance.",
+                "No": "Current planetary periods suggest focusing on skill refinement rather than immediate advancement. Authority figures may be focused elsewhere."
             }
         }
         

@@ -25,47 +25,117 @@ const InputForm = () => {
 
     const validateForm = () => {
         const errors = {};
+        const allowedProfessions = ["student", "private job", "government job", "business", "self employed", "unemployed", "retired", "other"];
+        const allowedMaritalStatus = ["single", "married", "divorced", "widowed", "separated"];
 
-        if (!formData.name.trim()) {
-            errors.name = 'Full name is required';
-        } else if (formData.name.trim().length < 2) {
-            errors.name = 'Name must be at least 2 characters';
+        // 1. Full Name
+        const name = formData.name.trim().replace(/\s+/g, ' '); // Normalize spaces
+        if (!name) {
+            setFormErrors({ name: 'Full name is required' });
+            return false;
+        }
+        if (name.length < 2 || name.length > 80) {
+            setFormErrors({ name: 'Name must be 2-80 characters' });
+            return false;
+        }
+        if (!/^[a-zA-Z\. ]+$/.test(name)) {
+            setFormErrors({ name: 'Name must contain letters, spaces, and dots only' });
+            return false;
         }
 
+        // 2. Date of Birth
         const d = parseInt(formData.day);
         const m = parseInt(formData.month);
         const y = parseInt(formData.year);
+        const currentYear = new Date().getFullYear();
 
-        if (!formData.day || d < 1 || d > 31) errors.date = 'Invalid day';
-        if (!formData.month || m < 1 || m > 12) errors.date = 'Invalid month';
-        if (!formData.year || y < 1900 || y > new Date().getFullYear()) errors.date = 'Invalid year';
-
-        if (!errors.date) {
-            const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
-            const selectedDate = new Date(dateStr);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            if (isNaN(selectedDate.getTime())) {
-                errors.date = 'Invalid date';
-            } else if (selectedDate > today) {
-                errors.date = 'Date of birth cannot be in the future';
-            } else if (selectedDate.getDate() !== d) {
-                // handles cases like Feb 30
-                errors.date = 'This date does not exist';
-            }
+        if (!formData.day || !formData.month || !formData.year) {
+            setFormErrors({ date: 'Date of birth is completely required' });
+            return false;
         }
 
+        // Year check
+        if (y < 1900 || y > currentYear) {
+            setFormErrors({ date: 'Year must be between 1900 and ' + currentYear });
+            return false;
+        }
+
+        // Complex date check
+        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const selectedDate = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (isNaN(selectedDate.getTime()) || selectedDate.getDate() !== d) {
+            setFormErrors({ date: 'Invalid calendar date' });
+            return false;
+        }
+        if (selectedDate > today) {
+            setFormErrors({ date: 'Date cannot be in the future' });
+            return false;
+        }
+
+        // Age check (>120 years)
+        const age = today.getFullYear() - y;
+        if (age > 120) {
+            setFormErrors({ date: 'Age cannot exceed 120 years' });
+            return false;
+        }
+
+        // 3. Time of Birth
         if (!formData.time) {
-            errors.time = 'Time of birth is required';
+            setFormErrors({ time: 'Time of birth is required' });
+            return false;
+        }
+        // Format is handled by input type="time", but extra check:
+        const [hh, mm] = formData.time.split(':').map(Number);
+        if (isNaN(hh) || isNaN(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) {
+            setFormErrors({ time: 'Invalid time format' });
+            return false;
         }
 
-        if (!formData.place || !formData.lat) {
-            errors.place = 'Please select a city from the dropdown';
+        // 4. Profession
+        if (!formData.profession || !allowedProfessions.includes(formData.profession.toLowerCase())) {
+            setFormErrors({ profession: 'Please select a valid profession' });
+            return false;
         }
 
-        setFormErrors(errors);
-        return Object.keys(errors).length === 0;
+        // 5. Marital Status
+        if (!formData.marital_status || !allowedMaritalStatus.includes(formData.marital_status.toLowerCase())) {
+            setFormErrors({ marital_status: 'Please select a valid marital status' });
+            return false;
+        }
+
+        // 6. Place of Birth
+        // Note: CitySearch writes to formData.place. We validate that string.
+        const place = (formData.place || "").trim();
+        if (!place || !formData.lat) { // Ensure lat/lng selected too
+            setFormErrors({ place: 'Please select a city from the list' });
+            return false;
+        }
+        if (place.length < 2) {
+            setFormErrors({ place: 'Place name too short' });
+            return false;
+        }
+        // Regex: Letters, spaces, commas, hyphen only.
+        if (!/^[a-zA-Z\s,\-]+$/.test(place)) {
+            setFormErrors({ place: 'Place contains invalid characters (no numbers allowed)' });
+            return false;
+        }
+
+        // Pass validation and Normalize Data
+        // Capitalize Name
+        const activeName = name.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+        // Update state with normalized values before submit
+        setFormData(prev => ({
+            ...prev,
+            name: activeName,
+            place: place // Title case handled by CitySearch usually, but we keep raw text safe
+        }));
+
+        setFormErrors({});
+        return true;
     };
 
     const handleSubmit = async (e) => {
@@ -113,8 +183,16 @@ const InputForm = () => {
         if (name === 'day' || name === 'month' || name === 'year') setFormErrors(prev => ({ ...prev, date: '' }));
 
         if (name === 'name') {
-            const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+            const filteredValue = value.replace(/[^a-zA-Z\s\.]/g, ''); // Allow dots too based on validation rule
             setFormData({ ...formData, [name]: filteredValue });
+        } else if (name === 'day' || name === 'month') {
+            if (value.length <= 2) {
+                setFormData({ ...formData, [name]: value });
+            }
+        } else if (name === 'year') {
+            if (value.length <= 4) {
+                setFormData({ ...formData, [name]: value });
+            }
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -222,6 +300,62 @@ const InputForm = () => {
                                     />
                                 </div>
                                 {formErrors.time && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.time}</p>}
+                            </div>
+                        </div>
+
+                        {/* Profession and Marital Status */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-secondary text-sm font-medium ml-1">Profession</label>
+                                <div className="relative group">
+                                    <select
+                                        name="profession"
+                                        value={formData.profession || ""}
+                                        onChange={handleChange}
+                                        className={`w-full bg-gray-50 border rounded-xl py-3 px-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary appearance-none
+                                            ${formErrors.profession ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200'}
+                                        `}
+                                    >
+                                        <option value="" disabled>Select Profession</option>
+                                        <option value="student">Student</option>
+                                        <option value="private job">Private Job</option>
+                                        <option value="government job">Government Job</option>
+                                        <option value="business">Business</option>
+                                        <option value="self employed">Self Employed</option>
+                                        <option value="unemployed">Unemployed</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <div className="absolute right-4 top-3.5 pointer-events-none">
+                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                                {formErrors.profession && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.profession}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-secondary text-sm font-medium ml-1">Marital Status</label>
+                                <div className="relative group">
+                                    <select
+                                        name="marital_status"
+                                        value={formData.marital_status || ""}
+                                        onChange={handleChange}
+                                        className={`w-full bg-gray-50 border rounded-xl py-3 px-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary appearance-none
+                                            ${formErrors.marital_status ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200'}
+                                        `}
+                                    >
+                                        <option value="" disabled>Select Status</option>
+                                        <option value="single">Single</option>
+                                        <option value="married">Married</option>
+                                        <option value="divorced">Divorced</option>
+                                        <option value="widowed">Widowed</option>
+                                        <option value="separated">Separated</option>
+                                    </select>
+                                    <div className="absolute right-4 top-3.5 pointer-events-none">
+                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                                {formErrors.marital_status && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.marital_status}</p>}
                             </div>
                         </div>
 

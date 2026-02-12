@@ -8,7 +8,19 @@ import SEO from '../components/SEO';
 const Home = () => {
     const { token } = useProfile();
     const [selectedSign, setSelectedSign] = useState(null);
-    const scrollRef = useRef(null);
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const heroBackgrounds = [
+        '/app_bg.png',
+        '/dark_cosmos_bg.png',
+        '/lighter_cosmos_bg.png'
+    ];
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentSlide(prev => (prev + 1) % heroBackgrounds.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     const scroll = (direction) => {
         if (scrollRef.current) {
@@ -18,48 +30,47 @@ const Home = () => {
         }
     };
 
-    // Redirect to profiles if logged in
-    if (token) return <Navigate to="/profiles" replace />;
+    const scrollRef = useRef(null);
 
     const zodiacSigns = [
-        { name: 'Aries', symbol: '♈', dates: 'Mar 21 - Apr 19', color: 'from-red-500 to-orange-500', bg: 'bg-red-50' },
-        { name: 'Taurus', symbol: '♉', dates: 'Apr 20 - May 20', color: 'from-green-500 to-emerald-500', bg: 'bg-green-50' },
-        { name: 'Gemini', symbol: '♊', dates: 'May 21 - Jun 20', color: 'from-yellow-500 to-amber-500', bg: 'bg-yellow-50' },
-        { name: 'Cancer', symbol: '♋', dates: 'Jun 21 - Jul 22', color: 'from-gray-400 to-slate-500', bg: 'bg-gray-50' },
-        { name: 'Leo', symbol: '♌', dates: 'Jul 23 - Aug 22', color: 'from-orange-500 to-red-600', bg: 'bg-orange-50' },
-        { name: 'Virgo', symbol: '♍', dates: 'Aug 23 - Sep 22', color: 'from-green-600 to-teal-600', bg: 'bg-emerald-50' },
-        { name: 'Libra', symbol: '♎', dates: 'Sep 23 - Oct 22', color: 'from-pink-500 to-rose-500', bg: 'bg-pink-50' },
-        { name: 'Scorpio', symbol: '♏', dates: 'Oct 23 - Nov 21', color: 'from-red-600 to-rose-700', bg: 'bg-rose-50' },
-        { name: 'Sagittarius', symbol: '♐', dates: 'Nov 22 - Dec 21', color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50' },
-        { name: 'Capricorn', symbol: '♑', dates: 'Dec 22 - Jan 19', color: 'from-gray-600 to-slate-700', bg: 'bg-slate-50' },
-        { name: 'Aquarius', symbol: '♒', dates: 'Jan 20 - Feb 18', color: 'from-blue-500 to-cyan-500', bg: 'bg-blue-50' },
-        { name: 'Pisces', symbol: '♓', dates: 'Feb 19 - Mar 20', color: 'from-teal-500 to-cyan-600', bg: 'bg-teal-50' }
+        { name: 'Aries', dates: 'Mar 21 - Apr 19', symbol: '♈', color: 'from-red-500 to-orange-500' },
+        { name: 'Taurus', dates: 'Apr 20 - May 20', symbol: '♉', color: 'from-green-500 to-emerald-500' },
+        { name: 'Gemini', dates: 'May 21 - Jun 20', symbol: '♊', color: 'from-yellow-400 to-amber-500' },
+        { name: 'Cancer', dates: 'Jun 21 - Jul 22', symbol: '♋', color: 'from-blue-400 to-indigo-500' },
+        { name: 'Leo', dates: 'Jul 23 - Aug 22', symbol: '♌', color: 'from-orange-500 to-red-600' },
+        { name: 'Virgo', dates: 'Aug 23 - Sep 22', symbol: '♍', color: 'from-emerald-500 to-teal-600' },
+        { name: 'Libra', dates: 'Sep 23 - Oct 22', symbol: '♎', color: 'from-pink-400 to-rose-500' },
+        { name: 'Scorpio', dates: 'Oct 23 - Nov 21', symbol: '♏', color: 'from-purple-600 to-indigo-700' },
+        { name: 'Sagittarius', dates: 'Nov 22 - Dec 21', symbol: '♐', color: 'from-amber-500 to-orange-600' },
+        { name: 'Capricorn', dates: 'Dec 22 - Jan 19', symbol: '♑', color: 'from-slate-600 to-gray-700' },
+        { name: 'Aquarius', dates: 'Jan 20 - Feb 18', symbol: '♒', color: 'from-cyan-500 to-blue-600' },
+        { name: 'Pisces', dates: 'Feb 19 - Mar 20', symbol: '♓', color: 'from-violet-500 to-purple-600' }
     ];
 
     const features = [
         {
-            icon: Star,
+            icon: Sparkles,
             title: "Daily Horoscope",
-            description: "Your personalized daily forecast",
+            description: "Get personalized daily insights based on your zodiac sign and current planetary transits.",
             link: "/horoscope"
         },
         {
             icon: Calculator,
             title: "Birth Chart",
-            description: "Free natal chart calculator",
-            link: "/birth-chart"
+            description: "Generate your comprehensive Vedic birth chart with detailed planetary positions and analysis.",
+            link: "/chart"
         },
         {
             icon: Heart,
             title: "Compatibility",
-            description: "Love & relationship insights",
-            link: "/compatibility"
+            description: "Check relationship compatibility using traditional Ashtakoot Guna Milan methodology.",
+            link: "/kundali-match"
         },
         {
-            icon: Sparkles,
-            title: "Tarot Reading",
-            description: "Daily card guidance",
-            link: "/tarot"
+            icon: Cpu,
+            title: "Numerology",
+            description: "Discover the hidden meaning of numbers in your life with our advanced numerology calculator.",
+            link: "/numerology"
         }
     ];
 
@@ -70,19 +81,23 @@ const Home = () => {
                 description="Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through AstroPinch."
             />
             {/* Hero Section - Sleek, Modern, Two-Column */}
-            <section className="relative min-h-[80vh] flex items-center justify-center px-6 overflow-hidden">
-                {/* Background Image */}
+            <section className="relative min-h-[80vh] flex items-center justify-center px-6 overflow-hidden transition-all duration-500">
+                {/* Sliding Background Images */}
                 <div className="absolute inset-0 z-0">
-                    <img
-                        src="/app_bg.png"
-                        alt="Cosmic background"
-                        className="w-full h-full object-cover animate-pulse-slow"
-                    />
+                    {heroBackgrounds.map((bg, index) => (
+                        <div key={bg} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
+                            <img
+                                src={bg}
+                                alt={`Cosmic background ${index + 1}`}
+                                className="w-full h-full object-cover animate-pulse-slow"
+                            />
+                        </div>
+                    ))}
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
                     <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-transparent"></div>
                 </div>
 
-                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-10">
+                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-20">
                     <div className="grid lg:grid-cols-2 gap-16 items-center text-left">
                         {/* Left Side: Information and CTA */}
                         <div className="space-y-10">
@@ -127,7 +142,7 @@ const Home = () => {
                         </div>
 
                         {/* Right Side: The Orbital Engine */}
-                        <div className="relative hidden lg:block h-[650px] w-full flex items-center justify-center pointer-events-none scale-90">
+                        <div className="relative hidden lg:block h-[500px] w-full flex items-center justify-center pointer-events-none scale-90">
                             {/* Stellar Core */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                 <div className="w-5 h-5 rounded-full bg-white shadow-[0_0_80px_rgba(255,255,255,1)] animate-pulse"></div>
@@ -201,9 +216,9 @@ const Home = () => {
                                         {/* Multi-Directional Orbital Engine */}
 
                                         {/* Ring 1: Fast & Clockwise (Inner) */}
-                                        <div className="absolute border border-white/5 rounded-full w-[380px] h-[380px] animate-orbit-fast">
+                                        <div className="absolute border border-white/5 rounded-full w-[280px] h-[280px] animate-orbit-fast">
                                             {/* Top: VedAstro */}
-                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2">
                                                 <TechCard
                                                     icon={BookOpen}
                                                     title="VedAstro Engine"
@@ -215,7 +230,7 @@ const Home = () => {
                                             </div>
 
                                             {/* Bottom: Groq */}
-                                            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+                                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
                                                 <TechCard
                                                     icon={Cpu}
                                                     title="Groq LPU"
@@ -228,9 +243,9 @@ const Home = () => {
                                         </div>
 
                                         {/* Ring 2: Slow & Counter-Clockwise (Outer) */}
-                                        <div className="absolute border border-white/5 rounded-full w-[650px] h-[650px] animate-orbit-slow-rev">
+                                        <div className="absolute border border-white/5 rounded-full w-[450px] h-[450px] animate-orbit-slow-rev">
                                             {/* Right: AstroAI */}
-                                            <div className="absolute top-1/2 -right-12 -translate-y-1/2">
+                                            <div className="absolute top-1/2 -right-10 -translate-y-1/2">
                                                 <TechCard
                                                     icon={Zap}
                                                     title="AstroAI Predictor"
@@ -243,7 +258,7 @@ const Home = () => {
                                             </div>
 
                                             {/* Left: JPL Horizons */}
-                                            <div className="absolute top-1/2 -left-12 -translate-y-1/2">
+                                            <div className="absolute top-1/2 -left-10 -translate-y-1/2">
                                                 <TechCard
                                                     icon={Calculator}
                                                     title="JPL Horizons"

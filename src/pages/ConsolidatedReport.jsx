@@ -350,10 +350,12 @@ const YearlyPredictionGraph = ({ data, userData }) => {
         return new Date().getFullYear() - 30;
     };
 
-    const startYear = getBirthYear();
-    const endYear = startYear + 100; // 100 Year Horizon
+    const birthYear = getBirthYear();
+    const currentYearVal = new Date().getFullYear();
+    const startYear = currentYearVal - 10;
+    const endYear = currentYearVal + 50; // 60 Year Forecast Horizon (-10 to +50)
     const totalYears = endYear - startYear;
-    const yearWidth = 60; // Pixels per year
+    const yearWidth = 80; // Increased width for better detail in 10-year view
 
     // Seeded Random for consistency across renders for the same profile
     const seed = userData ? (new Date(userData.date).getTime() + (userData.time || "").charCodeAt(0) || 0) : 123;
@@ -363,8 +365,14 @@ const YearlyPredictionGraph = ({ data, userData }) => {
     };
 
     // Calculate "NOW" position
-    const currentYearVal = new Date().getFullYear();
-    const nowOffsetYears = currentYearVal - startYear;
+    // We need to account for startYear when calculating prompt offset
+    // currentDayOffsetYears = (CurrentTime - StartOfYear(currentYear))
+    // BUT nowCursorLeft = ( (currentYear - startYear) + currentDayOffsetYears ) * yearWidth 
+
+    // Fraction of current year passed
+    const fractionPassed = (new Date().getTime() - new Date(currentYearVal, 0, 1).getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+    const nowOffsetYears = (currentYearVal - startYear) + fractionPassed;
+
     // Clamp cursor between 0 and total width if needed, or hide if out of range
     const showNowCursor = nowOffsetYears >= 0 && nowOffsetYears <= totalYears;
     const nowCursorLeft = showNowCursor ? nowOffsetYears * yearWidth : 0;
@@ -425,8 +433,8 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                 <div className="flex items-center gap-2 md:gap-3">
                     <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     <div>
-                        <h3 className="text-sm md:text-lg font-bold text-slate-800 tracking-wide uppercase">Life Cycle Forecast</h3>
-                        <p className="text-[8px] md:text-[10px] text-slate-500 font-mono tracking-wider uppercase">VedAstro V.4.2 // 100-Year Life Cycle (DOB: {startYear})</p>
+                        <h3 className="text-sm md:text-lg font-bold text-slate-800 tracking-wide uppercase">Life Forecast</h3>
+                        <p className="text-[8px] md:text-[10px] text-slate-500 font-mono tracking-wider uppercase">VedAstro V.4.2 // 60-Year Forecast (Born: {birthYear})</p>
                     </div>
                 </div>
                 {/* Legend */}

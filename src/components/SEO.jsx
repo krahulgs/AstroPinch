@@ -93,8 +93,18 @@ const SEO = ({
             <link rel="canonical" href={fullUrl} />
             <meta name="author" content={author || "AstroPinch"} />
             <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-            <meta name="googlebot" content="index, follow" />
-            <meta name="bingbot" content="index, follow" />
+
+            {/* Search Engine Crawler Tags */}
+            <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+            <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+            <meta name="google" content="notranslate" />
+            <meta name="google-site-verification" content="verification_token" />
+            <meta name="yandex-verification" content="verification_token" />
+
+            {/* Browser & Security Tags */}
+            <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="referrer" content="strict-origin-when-cross-origin" />
+            <meta name="format-detection" content="telephone=no" />
 
             {/* Mobile Optimization */}
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />

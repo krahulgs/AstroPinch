@@ -76,6 +76,14 @@ class KPPredictionService:
         "Promotion": {
             "positive": [10, 11, 2, 6],
             "negative": [8, 12]
+        },
+        "Vehicle Purchase": {
+            "positive": [4, 11, 2, 9],
+            "negative": [8, 12]
+        },
+        "Financial Prosperity": {
+            "positive": [2, 6, 11, 10],
+            "negative": [8, 12]
         }
     }
     
@@ -97,7 +105,7 @@ class KPPredictionService:
             "max_age": 25
         },
         "adult": {  # 26+ years
-            "events": ["Marriage", "Job Change", "Business", "Childbirth", "Property", "Foreign Travel", "Promotion"],
+            "events": ["Marriage", "Job Change", "Business", "Childbirth", "Property", "Foreign Travel", "Promotion", "Vehicle Purchase", "Financial Prosperity"],
             "min_age": 26,
             "max_age": 150
         }
@@ -300,6 +308,26 @@ class KPPredictionService:
                 "Yes": "Good time for property investments. Research thoroughly and ensure legal documentation is clear.",
                 "Delayed": "Property acquisition may take longer than expected. Be patient and don't rush into decisions.",
                 "No": "Property purchase is not strongly indicated now. Continue saving and wait for better opportunities."
+            },
+            "Foreign Travel": {
+                "Yes": "Excellent prospects for international travel or relocation. Ensure your documentation is ready during this active 9th/12th house period.",
+                "Delayed": "Travel plans may face minor administrative delays or rescheduling. Stay patient; the planetary alignment for abroad stay is ripening.",
+                "No": "Foreign travel is not strongly indicated in the current cycle. Focus on local opportunities or pilgrimages."
+            },
+            "Promotion": {
+                "Likely": "Major professional climb expected. This is your time to shine and take on more responsibility.",
+                "Unlikely": "Stability in current role is advised. Focus on building skills for future growth.",
+                "Neutral": "Steady progress continuing. Maintain your performance rhythm for future opportunities."
+            },
+            "Vehicle Purchase": {
+                "Likely": "Excellent period for acquiring a new vehicle or upgrading your transport assets.",
+                "Unlikely": "Delay vehicle purchases if possible; focus on maintaining existing assets for now.",
+                "Neutral": "Routine conditions for assets. Evaluate your needs carefully before committing."
+            },
+            "Financial Prosperity": {
+                "Likely": "Strong indicators of financial growth and accumulation. Investments Made now will yield results.",
+                "Unlikely": "Practice financial caution. Avoid major risks and focus on consolidating your resources.",
+                "Neutral": "Balanced financial phase. Normal gains expected through regular channels."
             },
             # Age-appropriate event guidance
             "Education Success": {

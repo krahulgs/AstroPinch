@@ -12,13 +12,17 @@ class KPAnalysisService:
                 "health": "Health & Longevity",
                 "career": "Job & Business",
                 "property": "Property & Assets",
-                "marriage": "Marriage & Relationship"
+                "marriage": "Marriage & Relationship",
+                "wealth": "Wealth & Finance",
+                "education": "Education & Children"
             },
             "hi": {
                 "health": "स्वास्थ्य और लंबी आयु",
                 "career": "नौकरी और व्यवसाय",
                 "property": "संपत्ति और वाहन",
-                "marriage": "विवाह और संबंध"
+                "marriage": "विवाह और संबंध",
+                "wealth": "धन और आर्थिक स्थिति",
+                "education": "शिक्षा और संतान"
             }
         }
         t = titles.get(lang, titles["en"])
@@ -73,6 +77,54 @@ class KPAnalysisService:
                     "Ketu": "आपका पेशेवर मार्ग अक्सर आध्यात्मिक अनुसंधान, तकनीकी नवाचार या उन भूमिकाओं से जुड़ा होता है जिनमें अवलोकन और वैराग्य की अनूठी भावना की आवश्यकता होती है। आप उन विशेष क्षेत्रों के लिए उपयुक्त हैं जहाँ गहन एकाग्रता और गहरे सत्य की खोज की आवश्यकता होती है। आपको उस काम में सबसे अधिक संतुष्टि मिलती है जो आपको स्वतंत्र रूप से काम करने और जटिल, अपरंपरागत समस्याओं को हल करने के लिए अपनी सहज अंतर्दृष्टि का उपयोग करने की अनुमति देता है।"
                 }
             },
+            "wealth": {
+                "en": {
+                    "Sun": "Your financial situation is likely to be characterized by steady gains and opportunities for wealth accumulation through authoritative roles. You have a natural sense of value and the capacity to attract significant financial resources through your public identity and leadership traits. Maintaining clarity in your financial goals ensures long-term prosperity and assets.",
+                    "Moon": "Your wealth and financial stability are often influenced by your emotional security and family connections. You may find that your intuition plays a key role in making successful financial decisions. Focusing on building a secure and liquid set of assets will provide you with the necessary peace of mind and long-term financial comfort.",
+                    "Mars": "You possess a very proactive and bold approach to wealth creation, often succeeding through competitive environments or land-based investments. Your financial gains come from your direct efforts and your willingness to take calculated risks. Strategic planning and decisive actions will lead to high levels of financial success and asset growth.",
+                    "Mercury": "Financial prosperity for you is closely linked to your communicative skills, intellect, and networking abilities. You excel in environments where financial information is processed and shared effectively. By leveraging your analytical mind and diverse professional connections, you will build a versatile and stable financial portfolio over time.",
+                    "Jupiter": "You are naturally blessed with significant financial opportunities and a wise approach to managing your wealth. Your path to prosperity involves high-level consulting, teaching, or financial management where integrity is key. Your ability to see the broader financial picture ensures consistent growth and a respected status in your financial life.",
+                    "Venus": "Wealth and luxury flow to you through your appreciation for aesthetics, arts, and lifestyle comforts. You attract resources that allow you to live a very balanced and elegant life. Your financial success is often a result of your charm and your ability to create value through beauty and social harmony, leading to lasting prosperity.",
+                    "Saturn": "Your financial growth is built on a foundation of long-term discipline, patience, and extremely structured planning. You accumulate wealth steadily over time through careful savings and reliable investments. By maintaining a sober and realistic view of your resources, you ensure enduring financial stability and great security for your future.",
+                    "Rahu": "You may experience unconventional or sudden financial gains through modern technologies or innovative business models. Your approach to wealth is forward-thinking and often involves exploring new financial horizons. Maintaining a grounded perspective amidst rapid changes will allow you to capitalize on unique opportunities and build an impressive portfolio.",
+                    "Ketu": "Financial stability for you involves a sense of detachment and a focus on essential, meaningful assets. You may find that your wealth comes through specialized research, spiritual work, or independent technical roles. By prioritizing inner growth alongside financial needs, you cultivate a life that is both materially sufficient and spiritually rewarding."
+                },
+                "hi": {
+                    "Sun": "आपकी वित्तीय स्थिति आधिकारिक भूमिकाओं के माध्यम से स्थिर लाभ और धन संचय के अवसरों से चिह्नित होने की संभावना है। आपके पास सार्वजनिक पहचान और नेतृत्व के गुणों के माध्यम से महत्वपूर्ण वित्तीय संसाधनों को आकर्षित करने की स्वाभाविक क्षमता है। अपने वित्तीय लक्ष्यों में स्पष्टता बनाए रखना दीर्घकालिक समृद्धि सुनिश्चित करता है।",
+                    "Moon": "आपका धन और वित्तीय स्थिरता अक्सर आपकी भावनात्मक सुरक्षा और पारिवारिक संबंधों से प्रभावित होती है। आप पाएंगे कि सफल वित्तीय निर्णय लेने में आपकी अंतर्दृष्टि मुख्य भूमिका निभाती है। संपत्ति का एक सुरक्षित और तरल समूह बनाने पर ध्यान केंद्रित करने से आपको आवश्यक मानसिक शांति और दीर्घकालिक वित्तीय आराम मिलेगा।",
+                    "Mars": "आपके पास धन सृजन के लिए एक बहुत ही सक्रिय और साहसी दृष्टिकोण है, जो अक्सर प्रतिस्पर्धी वातावरण या भूमि-आधारित निवेशों के माध्यम से सफल होता है। आपके वित्तीय लाभ आपके प्रत्यक्ष प्रयासों और जोखिम लेने की इच्छा से आते हैं। रणनीतिक योजना और निर्णायक कार्य उच्च स्तर की वित्तीय सफलता की ओर ले जाएंगे।",
+                    "Mercury": "आपके लिए वित्तीय समृद्धि आपके संचार कौशल, बुद्धि और नेटवर्किंग क्षमताओं से गहराई से जुड़ी है। आप उन वातावरणों में उत्कृष्ट प्रदर्शन करते हैं जहाँ वित्तीय जानकारी को प्रभावी ढंग से संसाधित और साझा किया जाता है। अपने विश्लेषणात्मक दिमाग का लाभ उठाकर, आप समय के साथ एक बहुमुखी और स्थिर वित्तीय पोर्टफोलियो बनाएंगे।",
+                    "Jupiter": "आप स्वाभाविक रूप से महत्वपूर्ण वित्तीय अवसरों और अपने धन के प्रबंधन के लिए एक बुद्धिमान दृष्टिकोण से धन्य हैं। समृद्धि का आपका मार्ग उच्च स्तरीय परामर्श, शिक्षण या वित्तीय प्रबंधन से जुड़ा है जहाँ अखंडता महत्वपूर्ण है। व्यापक वित्तीय तस्वीर देखने की आपकी क्षमता निरंतर विकास और सम्मानित स्थिति सुनिश्चित करती है।",
+                    "Venus": "सौंदर्यशास्त्र, कला और जीवनशैली के सुखों के प्रति आपकी प्रशंसा के माध्यम से धन और विलासिता आपके पास आती है। आप उन संसाधनों को आकर्षित करते हैं जो आपको एक बहुत ही संतुलित और सुरुचिपूर्ण जीवन जीने की अनुमति देते हैं। आपकी वित्तीय सफलता अक्सर आपके आकर्षण और सुंदरता के माध्यम से मूल्य बनाने की आपकी क्षमता का परिणाम होती है।",
+                    "Saturn": "आपका वित्तीय विकास दीर्घकालिक अनुशासन, धैर्य और संरचित योजना की नींव पर बना है। आप सावधानीपूर्वक बचत और विश्वसनीय निवेश के माध्यम से समय के साथ लगातार धन संचय करते हैं। अपने संसाधनों के प्रति यथार्थवादी दृष्टिकोण बनाए रखकर, आप अपने भविष्य के लिए स्थायी वित्तीय स्थिरता और सुरक्षा सुनिश्चित करते हैं।",
+                    "Rahu": "आप आधुनिक तकनीकों या नवीन व्यावसायिक मॉडलों के माध्यम से अपरंपरागत या अचानक वित्तीय लाभ का अनुभव कर सकते हैं। धन के प्रति आपका दृष्टिकोण भविष्यवादी है और अक्सर नए वित्तीय क्षितिजों की खोज से जुड़ा होता है। तेजी से परिवर्तनों के बीच जमीनी दृष्टिकोण बनाए रखने से आप अद्वितीय अवसरों का लाभ उठा सकेंगे।",
+                    "Ketu": "आपके लिए वित्तीय स्थिरता में वैराग्य की भावना और आवश्यक, सार्थक संपत्तियों पर ध्यान केंद्रित करना शामिल है। आप पा सकते हैं कि आपका धन विशिष्ट शोध, आध्यात्मिक कार्य या स्वतंत्र तकनीकी भूमिकाओं के माध्यम से आता है। वित्तीय जरूरतों के साथ आंतरिक विकास को प्राथमिकता देकर, आप एक ऐसा जीवन विकसित करते हैं जो भौतिक रूप से पर्याप्त और आध्यात्मिक रूप से पुरस्कृत हो।"
+                }
+            },
+            "education": {
+                "en": {
+                    "Sun": "Your educational journey and creative pursuits are marked by a strong sense of purpose and leadership. You naturally excel in academic environments where you can take initiative and lead intellectual discussions. Your creative talents are likely to bring you recognition and contribute to your overall sense of achievement and personal pride.",
+                    "Moon": "You have a very intuitive and creative approach to learning, often excelling in subjects that involve empathy, arts, or humanities. Your educational path is influenced by your emotional state, and having a supportive learning environment is key to your success. You find deep joy in sharing your knowledge and nurturing others' growth.",
+                    "Mars": "Your approach to education and creative projects is energetic and highly competitive. You excel in technical fields, sports, or any area that requires quick thinking and physical energy. Your drive to succeed ensures that you overcome challenges and achieve your goals through persistence and bold intellectual efforts.",
+                    "Mercury": "You possess a highly versatile and analytical mind, excelling in subjects that require clear communication and logical thinking. Your educational path is diverse, and you enjoy exploring multiple areas of knowledge simultaneously. Your ability to process information rapidly and share it with others is your primary academic strength.",
+                    "Jupiter": "You are destined for high-level education and are naturally inclined toward philosophical or traditional academic pursuits. You find great joy in teaching others and sharing your wisdom. Your educational journey is marked by successful outcomes and a deep commitment to lifelong learning and ethical growth.",
+                    "Venus": "Your education and creative life are deeply linked to your love for beauty, balance, and the fine arts. You excel in creative subjects that allow you to express your aesthetic vision. A harmonious learning environment and social connections play a major role in your academic and creative success and overall happiness.",
+                    "Saturn": "Your path to education and creative mastery involves deep discipline, patience, and long-term focus. You excel in subjects that require precision and a structured approach to learning. Your dedication ensures that you build a solid intellectual foundation that provides you with great respect and reliability in your field.",
+                    "Rahu": "You are drawn to unconventional and modern academic subjects that challenge traditional thinking. Your education may involve innovative research or cutting-edge technologies. Embracing your unique perspective and staying open to global trends will allow you to achieve significant breakthroughs in your intellectual and creative pursuits.",
+                    "Ketu": "Your educational journey is often linked to specialized research, spiritual studies, or technical innovation. You have a unique ability to concentrate on complex subjects and find deeper truths. By following your intuitive insights and independent thinking, you will achieve significant success in your chosen academic and creative path."
+                },
+                "hi": {
+                    "Sun": "आपकी शैक्षिक यात्रा और रचनात्मक प्रयास उद्देश्य और नेतृत्व की मजबूत भावना से चिह्नित हैं। आप स्वाभाविक रूप से उन शैक्षणिक वातावरणों में उत्कृष्ट प्रदर्शन करते हैं जहाँ आप पहल कर सकते हैं और बौद्धिक चर्चाओं का नेतृत्व कर सकते हैं। आपकी रचनात्मक प्रतिभा आपको पहचान दिलाने और व्यक्तिगत गौरव की भावना में योगदान करने की संभावना रखती है।",
+                    "Moon": "सीखने के प्रति आपका दृष्टिकोण बहुत ही सहज और रचनात्मक है, जो अक्सर सहानुभूति, कला या मानविकी से जुड़े विषयों में उत्कृष्ट होता है। आपका शैक्षिक पथ आपकी भावनात्मक स्थिति से प्रभावित होता है। आप अपना ज्ञान साझा करने और दूसरों के विकास को पोषित करने में गहरा आनंद पाते हैं।",
+                    "Mars": "शिक्षा और रचनात्मक परियोजनाओं के प्रति आपका दृष्टिकोण ऊर्जावान और अत्यधिक प्रतिस्पर्धी है। आप तकनीकी क्षेत्रों, खेल या किसी भी ऐसे क्षेत्र में उत्कृष्ट प्रदर्शन करते हैं जिसमें त्वरित सोच और शारीरिक ऊर्जा की आवश्यकता होती है। सफल होने का आपका जज्बा यह सुनिश्चित करता है कि आप चुनौतियों पर विजय प्राप्त करें।",
+                    "Mercury": "आपके पास एक बहुत ही बहुमुखी और विश्लेषणात्मक दिमाग है, जो उन विषयों में उत्कृष्ट है जिनमें स्पष्ट संचार और तार्किक सोच की आवश्यकता होती है। आपका शैक्षिक पथ विविध है, और आप ज्ञान के कई क्षेत्रों को एक साथ तलाशने का आनंद लेते हैं। जानकारी को तेजी से संसाधित करने की आपकी क्षमता आपकी प्राथमिक शैक्षणिक ताकत है।",
+                    "Jupiter": "आप उच्च स्तरीय शिक्षा के लिए नियत हैं और स्वाभाविक रूप से दार्शनिक या पारंपरिक शैक्षणिक गतिविधियों की ओर झुके हुए हैं। आप दूसरों को सिखाने और अपना ज्ञान साझा करने में बहुत खुशी पाते हैं। आपकी शैक्षिक यात्रा सफल परिणामों और आजीवन सीखने के प्रति गहरी प्रतिबद्धता द्वारा चिह्नित है।",
+                    "Venus": "आपकी शिक्षा और रचनात्मक जीवन सौंदर्य, संतुलन और ललित कलाओं के प्रति आपके प्रेम से गहराई से जुड़े हुए हैं। आप उन रचनात्मक विषयों में उत्कृष्ट प्रदर्शन करते हैं जो आपको अपने कलात्मक दृष्टिकोण को व्यक्त करने की अनुमति देते हैं। एक सामंजस्यपूर्ण सीखने का माहौल आपकी शैक्षणिक सफलता में प्रमुख भूमिका निभाता है।",
+                    "Saturn": "शिक्षा और रचनात्मक महारत का आपका मार्ग गहन अनुशासन, धैर्य और दीर्घकालिक फोकस से जुड़ा है। आप उन विषयों में उत्कृष्ट प्रदर्शन करते हैं जिनमें सटीकता और सीखने के लिए एक संरचित दृष्टिकोण की आवश्यकता होती है। आपका समर्पण यह सुनिश्चित करता है कि आप एक ठोस बौद्धिक नींव बनाएं जो आपको सम्मान दिलाए।",
+                    "Rahu": "आप अपरंपरागत और आधुनिक शैक्षणिक विषयों की ओर आकर्षित हैं जो पारंपरिक सोच को चुनौती देते हैं। आपकी शिक्षा में नवीन शोध या अत्याधुनिक तकनीकें शामिल हो सकती हैं। अपने अद्वितीय दृष्टिकोण को अपनाने से आप अपने बौद्धिक प्रयासों में महत्वपूर्ण सफलता प्राप्त कर सकेंगे।",
+                    "Ketu": "आपकी शैक्षिक यात्रा अक्सर विशिष्ट शोध, आध्यात्मिक अध्ययन या तकनीकी नवाचार से जुड़ी होती है। आपके पास जटिल विषयों पर ध्यान केंद्रित करने और गहरे सत्य खोजने की अद्वितीय क्षमता है। अपनी सहज अंतर्दष्टि और स्वतंत्र सोच का पालन करके, आप अपने चुने हुए शैक्षणिक पथ में महत्वपूर्ण सफलता प्राप्त करेंगे।"
+                }
+            },
             "marriage": {
                 "en": {
                     "Sun": "Your ideal life partner is someone who is highly respected in society and naturally carries themselves with authority and grace. Your relationship will thrive on mutual admiration and a shared sense of pride in each other's achievements. You are likely to build a home that is governed by traditional values and a strong sense of responsibility toward family and social standing.",
@@ -86,15 +138,15 @@ class KPAnalysisService:
                     "Ketu": "You seek a partnership based on a very deep, quiet understanding and a shared interest in spiritual or intellectual growth. Your relationship will be defined by mutual respect for each other's need for space and reflection. By focusing on a simple, meaningful lifestyle together, you and your partner will cultivate a bond that is spiritually fulfilling and built on a foundation of profound inner peace."
                 },
                 "hi": {
-                    "Sun": "आपका आदर्श जीवनसाथी वह है जो समाज में अत्यधिक सम्मानित हो और स्वाभाविक रूप से अधिकार और शालीनता के साथ खुद को पेश करे। आपका रिश्ता आपसी प्रशंसा और एक-दूसरे की उपलब्धियों पर गर्व की साझा भावना पर फलेगा-फूलेगा। आप एक ऐसा घर बनाने की संभावना रखते हैं जो पारंपरिक मूल्यों और परिवार तथा सामाजिक स्थिति के प्रति जिम्मेदारी की मजबूत भावना से शासित हो।",
-                    "Moon": "आपके दीर्घकालिक रिश्ते की नींव आपके और आपके साथी के बीच एक बहुत गहरा और संवेदनशील भावनात्मक जुड़ाव होगा। आप अपनी भावनाओं को खुलकर साझा करने और बड़ी सहानुभूति के साथ जीवन के उतार-चढ़ाव में एक-दूसरे का समर्थन करने में सुकून पाएंगे। आपका घर एक शांतिपूर्ण आश्रय होगा जहाँ भावनात्मक सुरक्षा और आपसी देखभाल को हर चीज़ से ऊपर प्राथमिकता दी जाएगी।",
-                    "Mars": "आप एक बहुत ही गतिशील और ऊर्जावान साझेदारी का अनुभव करेंगे जहाँ आप और आपके जीवनसाथी दोनों सक्रिय रूप से मिलकर अपने लक्ष्यों का पीछा करेंगे। आपके रिश्ते में ईमानदारी, साहस और एक टीम के रूप में समस्याओं को हल करने के लिए एक सक्रिय दृष्टिकोण होगा। स्वतंत्र गतिविधियों और साझा शारीरिक प्रयासों का स्वस्थ संतुलन बनाए रखना आपके विवाह में उत्साह और बंधन को मजबूत और जीवंत बनाए रखेगा।",
-                    "Mercury": "आपके लिए, एक सफल विवाह का सबसे महत्वपूर्ण पहलू मानसिक अनुकूलता और अंतहीन, दिलचस्प बातचीत करने की क्षमता है। आप और आपके साथी नए विचारों की खोज करने, एक साथ यात्रा करने और सामाजिक रूप से सक्रिय रहने का आनंद लेंगे। बौद्धिक मित्रता, साझा हास्य और स्पष्ट संचार पर आधारित रिश्ता स्थायी खुशी और एक बहुत ही जीवंत पारिवारिक जीवन सुनिश्चित करेगा।",
-                    "Jupiter": "आपका वैवाहिक जीवन अत्यधिक स्थिरता, आपसी सम्मान और ज्ञान तथा सीखने के प्रति साझा समर्पण द्वारा जाना जाएगा। आप और आपके जीवनसाथी पारंपरिक मूल्यों का पालन करने और दया तथा धैर्य के साथ एक-दूसरे के विकास का समर्थन करने की संभावना रखते हैं। आपके बंधन की ताकत जीवन के आपके साझा दर्शन और एक-दूसरे को एक सार्थक और समृद्ध भविष्य की ओर ले जाने की आपकी क्षमता में निहित है।",
-                    "Venus": "आपके लिए एक सामंजस्यपूर्ण और रोमांटिक साझेदारी तय है, जहाँ प्यार, सुंदरता और शारीरिक आराम केंद्रीय विषय होंगे। आप और आपके जीवनसाथी जीवन की बेहतर चीजों के लिए गहरी प्रशंसा साझा करेंगे और एक सुंदर और सुरुचिपूर्ण रहने का वातावरण बनाने के लिए मिलकर काम करेंगे। आपका रिश्ता स्नेह के लगातार संकेतों और एक शानदार और शांतिपूर्ण जीवन की साझा इच्छा के माध्यम से फलेगा-फूलेगा।",
-                    "Saturn": "आप अपने विवाह में गहरी प्रतिबद्धता और व्यावहारिक स्थिरता को महत्व देते हैं, अक्सर ऐसे साथी को चुनते हैं जो सुरक्षा और विश्वसनीयता की मजबूत भावना प्रदान करता है। जैसे-जैसे आप अपने भविष्य के लिए एक ठोस आधार बनाने के लिए मिलकर काम करेंगे, समय के साथ आपका रिश्ता और मजबूत होता जाएगा। वफादारी, धैर्य और साझा जिम्मेदारी के माध्यम से, आप एक लंबे समय तक चलने वाला और गहरा सार्थक मिलन बनाएंगे जो समय की कसौटी पर खरा उतरता है।",
-                    "Rahu": "आपकी जीवन साझेदारी काफी अपरंपरागत हो सकती है और इसमें बहुत अलग सांस्कृतिक या सामाजिक पृष्ठभूमि वाला जीवनसाथी शामिल हो सकता है। आप और आपके साथी बदलाव को अपनाकर और पारंपरिक अपेक्षाओं के प्रति लचीला दृष्टिकोण रखकर फलेंगे-फूलेंगे। यह अनूठा बंधन आप दोनों को नए दृष्टिकोण तलाशने और एक ऐसा जीवन बनाने की अनुमति देगा जो अलग, रोमांचक और आधुनिक विकास से भरा हो।",
-                    "Ketu": "आप बहुत गहरी, शांत समझ और आध्यात्मिक या बौद्धिक विकास में साझा रुचि पर आधारित साझेदारी की तलाश करते हैं। आपका रिश्ता एक-दूसरे की एकांत और चिंतन की आवश्यकता के प्रति आपसी सम्मान द्वारा परिभाषित होगा। एक साथ सरल, सार्थक जीवनशैली पर ध्यान केंद्रित करके, आप और आपके साथी एक ऐसा बंधन विकसित करेंगे जो आध्यात्मिक रूप से संतोषजनक होगा और गहरे आंतरिक शांति की नींव पर बना होगा।"
+                    "Sun": "आपका आदर्श जीवनसाथी वह है जो समाज में अत्यधिक सम्मानित हो और स्वाभाविक रूप से अधिकार और शालीनता के साथ खुद को पेश करे। आपका रिश्ता आपसी प्रशंसा और एक-दूसरे की उपलब्धियों पर गर्व की साझा भावना पर फलेगा-फूलेगा। आप एक ऐसा घर बनाने की संभावना रखते हैं जो पारंपरिक मूल्यों और सामाजिक स्थिति के प्रति जिम्मेदारी की मजबूत भावना से शासित हो।",
+                    "Moon": "आपके दीर्घकालिक रिश्ते की नींव आपके और आपके साथी के बीच एक बहुत गहरा और संवेदनशील भावनात्मक जुड़ाव होगा। आप अपनी भावनाओं को खुलकर साझा करने और बड़ी सहानुभूति के साथ एक-दूसरे का समर्थन करने में सुकून पाएंगे। आपका घर एक शांतिपूर्ण आश्रय होगा जहाँ भावनात्मक सुरक्षा और आपसी देखभाल को प्राथमिकता दी जाएगी।",
+                    "Mars": "आप एक बहुत ही गतिशील और ऊर्जावान साझेदारी का अनुभव करेंगे जहाँ आप और आपके जीवनसाथी दोनों सक्रिय रूप से मिलकर अपने लक्ष्यों का पीछा करेंगे। आपके रिश्ते में ईमानदारी, साहस और एक टीम के रूप में समस्याओं को हल करने के लिए एक सक्रिय दृष्टिकोण होगा। स्वतंत्र गतिविधियों का स्वस्थ संतुलन आपके विवाह में उत्साह और बंधन को मजबूत बनाए रखेगा।",
+                    "Mercury": "आपके लिए, एक सफल विवाह का सबसे महत्वपूर्ण पहलू मानसिक अनुकूलता और अंतहीन, दिलचस्प बातचीत करने की क्षमता है। आप और आपके साथी नए विचारों की खोज करने और एक साथ यात्रा करने का आनंद लेंगे। बौद्धिक मित्रता और स्पष्ट संचार पर आधारित रिश्ता स्थायी खुशी और एक बहुत ही जीवंत पारिवारिक जीवन सुनिश्चित करेगा।",
+                    "Jupiter": "आपका वैवाहिक जीवन अत्यधिक स्थिरता, आपसी सम्मान और ज्ञान तथा सीखने के प्रति साझा समर्पण द्वारा जाना जाएगा। आप और आपके जीवनसाथी पारंपरिक मूल्यों का पालन करने और दया तथा धैर्य के साथ एक-दूसरे के विकास का समर्थन करने की संभावना रखते हैं। आपके बंधन की ताकत जीवन के आपके साझा दर्शन में निहित है।",
+                    "Venus": "आपके लिए एक सामंजस्यपूर्ण और रोमांटिक साझेदारी तय है, जहाँ प्यार, सुंदरता और शारीरिक आराम केंद्रीय विषय होंगे। आप और आपके जीवनसाथी जीवन की बेहतर चीजों के लिए गहरी प्रशंसा साझा करेंगे और एक सुंदर वातावरण बनाने के लिए मिलकर काम करेंगे। आपका रिश्ता स्नेह के लगातार संकेतों के माध्यम से फलेगा-फूलेगा।",
+                    "Saturn": "आप अपने विवाह में गहरी प्रतिबद्धता और व्यावहारिक स्थिरता को महत्व देते हैं, अक्सर ऐसे साथी को चुनते हैं जो सुरक्षा और विश्वसनीयता की मजबूत भावना प्रदान करता है। जैसे-जैसे आप भविष्य के लिए एक ठोस आधार बनाने के लिए मिलकर काम करेंगे, समय के साथ आपका रिश्ता और मजबूत होता जाएगा। वफादारी और साझा जिम्मेदारी के माध्यम से आप एक सार्थक मिलन बनाएंगे।",
+                    "Rahu": "आपकी जीवन साझेदारी काफी अपरंपरागत हो सकती है और इसमें बहुत अलग सांस्कृतिक या सामाजिक पृष्ठभूमि वाला जीवनसाथी शामिल हो सकता है। आप और आपके साथी बदलाव को अपनाकर और पारंपरिक अपेक्षाओं के प्रति लचीला दृष्टिकोण रखकर फलेंगे-फूलेंगे। यह अनूठा बंधन आप दोनों को नए दृष्टिकोण तलाशने और रोमांचक जीवन बनाने की अनुमति देगा।",
+                    "Ketu": "आप बहुत गहरी, शांत समझ और आध्यात्मिक या बौद्धिक विकास में साझा रुचि पर आधारित साझेदारी की तलाश करते हैं। आपका रिश्ता एक-दूसरे की चिंतन की आवश्यकता के प्रति आपसी सम्मान द्वारा परिभाषित होगा। एक साथ सार्थक जीवनशैली पर ध्यान केंद्रित करके, आप एक ऐसा बंधन विकसित करेंगे जो आध्यात्मिक रूप से संतोषजनक होगा।"
                 }
             }
         }
@@ -106,19 +158,27 @@ class KPAnalysisService:
                 meaning_text = mappings["health"].get(lang, mappings["health"]["en"]).get(csl_1, "You have a natural ability to maintain your health through consistent balance and positive habits.")
                 analysis.append({"type": t["health"], "meaning": meaning_text})
 
-            # 2. Job & Business
+            # 2. Wealth & Finance
+            csl_2 = kp_cusps.get("2", {}).get("sub_lord")
+            if csl_2:
+                msg = mappings["wealth"].get(lang, mappings["wealth"]["en"]).get(csl_2, "Financial stability and wealth accumulation are promised through your dedicated efforts and clear goals.")
+                analysis.append({"type": t["wealth"], "meaning": msg})
+
+            # 3. Education & Children
+            csl_5 = kp_cusps.get("5", {}).get("sub_lord")
+            if csl_5:
+                msg = mappings["education"].get(lang, mappings["education"]["en"]).get(csl_5, "Creative pursuits and academic growth find a natural and successful path in your life.")
+                analysis.append({"type": t["education"], "meaning": msg})
+
+            # 4. Job & Business
             csl_10 = kp_cusps.get("10", {}).get("sub_lord")
             if csl_10:
                 msg = mappings["career"].get(lang, mappings["career"]["en"]).get(csl_10, "Success is promised in your chosen path through dedication and hard work.")
                 analysis.append({"type": t["career"], "meaning": msg})
 
-            # 3. Property & Assets
+            # 5. Property & Assets
             csl_4 = kp_cusps.get("4", {}).get("sub_lord")
             if csl_4:
-                prop_map_detailed = mappings["career"] # Using the same structure idea
-                # Reuse the logic but for property map contents
-                msg = mappings["career"].get(lang, {}).get(csl_4) # Placeholder for detailed property if needed, but I'll use the specific property text from memory/PDF alignment
-                
                 # Manual entry for property to ensure 50+ words
                 prop_entries = {
                     "en": {
@@ -147,7 +207,7 @@ class KPAnalysisService:
                 msg = prop_entries.get(lang, prop_entries["en"]).get(csl_4, "You will find great success in building a stable physical foundation and acquiring property that provides security and comfort for you and your family throughout your life.")
                 analysis.append({"type": t["property"], "meaning": msg})
 
-            # 4. Marriage & Relationship
+            # 6. Marriage & Relationship
             csl_7 = kp_cusps.get("7", {}).get("sub_lord")
             if csl_7:
                 msg = mappings["marriage"].get(lang, mappings["marriage"]["en"]).get(csl_7, "A deeply fulfilling and balanced relationship is promised, built on mutual respect and shared goals for a happy future together.")

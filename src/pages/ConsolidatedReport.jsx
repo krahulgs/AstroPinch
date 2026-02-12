@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import AstrocartographyChart from '../components/charts/AstrocartographyChart';
 import ChatWidget from '../components/ChatWidget';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp, User, Calendar, Eye, Target, Lightbulb } from 'lucide-react';
+import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp, User, Calendar, Eye, Target, Lightbulb, GraduationCap, Car } from 'lucide-react';
 import SEO from '../components/SEO';
 
 class ErrorBoundary extends React.Component {
@@ -2675,6 +2675,8 @@ const ConsolidatedReport = () => {
                                                         if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
                                                         if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
                                                         if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
+                                                        if (t.includes('wealth') || t.includes('finance')) return { icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                        if (t.includes('education') || t.includes('child')) return { icon: GraduationCap, color: 'text-violet-600', bg: 'bg-violet-50/50', border: 'border-violet-100', accent: 'bg-violet-100' };
                                                         if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
                                                         return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
                                                     };
@@ -2879,10 +2881,172 @@ const ConsolidatedReport = () => {
                             );
                         })()}
 
+                        {/* Financial Prosperity Prediction Engine (Special Feature) */}
+                        {(() => {
+                            const wealthPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Financial Prosperity');
+                            if (!wealthPrediction) return null;
+                            return (
+                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-indigo-700 to-purple-900 text-white relative overflow-hidden shadow-2xl border border-indigo-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                    <div className="absolute top-0 right-0 p-12 opacity-15 -rotate-6 transition-transform hover:scale-110">
+                                        <Gem className="w-64 h-64 text-white" />
+                                    </div>
+
+                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="space-y-8">
+                                            <div className="space-y-4">
+                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
+                                                    <Target className="w-4 h-4 text-indigo-200" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">KP Wealth Engine</span>
+                                                </div>
+                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                    Financial <br />
+                                                    <span className="text-indigo-300">Prosperity</span>
+                                                </h3>
+                                            </div>
+
+                                            <div className="flex items-center gap-6">
+                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${wealthPrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                                                    'bg-amber-500 text-white shadow-amber-500/30'
+                                                    }`}>
+                                                    {wealthPrediction.outcome}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Outcome Probability</span>
+                                                    <span className="text-lg font-bold">{wealthPrediction.confidence} Confidence</span>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-lg md:text-xl text-indigo-50 font-medium leading-relaxed italic border-l-4 border-indigo-400/30 pl-6">
+                                                "{wealthPrediction.guidance}"
+                                            </p>
+                                        </div>
+
+                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Clock className="w-5 h-5 text-indigo-200" />
+                                                        <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">Timing of Opportunity</h4>
+                                                    </div>
+                                                    <p className="text-2xl font-black tracking-tight text-white">
+                                                        {wealthPrediction.time_window || "Currently neutral"}
+                                                    </p>
+                                                </div>
+
+                                                <div className="pt-6 border-t border-white/10">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <Target className="w-5 h-5 text-indigo-200" />
+                                                        <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">KP Logic Breakdown</h4>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
+                                                            <span className="text-emerald-400 font-black">{wealthPrediction.kp_logic?.supporting_houses}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
+                                                            <span className="text-rose-400 font-black">{wealthPrediction.kp_logic?.opposing_houses}</span>
+                                                        </div>
+                                                        <div className="p-3 bg-indigo-900/40 rounded-xl border border-indigo-400/20">
+                                                            <p className="text-xs text-indigo-50 font-medium leading-relaxed italic">
+                                                                {wealthPrediction.kp_logic?.sublord_judgment}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Vehicle Purchase Prediction Engine (Special Feature) */}
+                        {(() => {
+                            const vehiclePrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Vehicle Purchase');
+                            if (!vehiclePrediction) return null;
+                            return (
+                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-teal-700 to-cyan-900 text-white relative overflow-hidden shadow-2xl border border-teal-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                    <div className="absolute top-0 right-0 p-12 opacity-15 rotate-3 transition-transform hover:scale-110">
+                                        <Car className="w-64 h-64 text-white" />
+                                    </div>
+
+                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="space-y-8">
+                                            <div className="space-y-4">
+                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
+                                                    <Target className="w-4 h-4 text-teal-200" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-100">KP Vehicle Engine</span>
+                                                </div>
+                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                    Vehicle <br />
+                                                    <span className="text-teal-300">Purchase</span>
+                                                </h3>
+                                            </div>
+
+                                            <div className="flex items-center gap-6">
+                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${vehiclePrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                                                    'bg-amber-500 text-white shadow-amber-500/30'
+                                                    }`}>
+                                                    {vehiclePrediction.outcome}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-200">Outcome Probability</span>
+                                                    <span className="text-lg font-bold">{vehiclePrediction.confidence} Confidence</span>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-lg md:text-xl text-teal-50 font-medium leading-relaxed italic border-l-4 border-teal-400/30 pl-6">
+                                                "{vehiclePrediction.guidance}"
+                                            </p>
+                                        </div>
+
+                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Clock className="w-5 h-5 text-teal-200" />
+                                                        <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">Timing of Opportunity</h4>
+                                                    </div>
+                                                    <p className="text-2xl font-black tracking-tight text-white">
+                                                        {vehiclePrediction.time_window || "Currently neutral"}
+                                                    </p>
+                                                </div>
+
+                                                <div className="pt-6 border-t border-white/10">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <Target className="w-5 h-5 text-teal-200" />
+                                                        <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">KP Logic Breakdown</h4>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
+                                                            <span className="text-emerald-400 font-black">{vehiclePrediction.kp_logic?.supporting_houses}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
+                                                            <span className="text-rose-400 font-black">{vehiclePrediction.kp_logic?.opposing_houses}</span>
+                                                        </div>
+                                                        <div className="p-3 bg-teal-900/40 rounded-xl border border-teal-400/20">
+                                                            <p className="text-xs text-teal-50 font-medium leading-relaxed italic">
+                                                                {vehiclePrediction.kp_logic?.sublord_judgment}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         {/* KP Predictions Grid */}
                         {report.kp_analysis && report.kp_analysis.predictions && report.kp_analysis.predictions.length > 0 ? (
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {report.kp_analysis.predictions.filter(p => !['Foreign Travel', 'Promotion'].includes(p.event)).map((prediction, idx) => (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {report.kp_analysis.predictions.filter(p => !['Foreign Travel', 'Promotion', 'Vehicle Purchase', 'Financial Prosperity'].includes(p.event)).map((prediction, idx) => (
                                     <div key={idx} className="bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl">
                                         {/* Event Header */}
                                         <div className="flex items-start justify-between mb-4">
@@ -2891,8 +3055,8 @@ const ConsolidatedReport = () => {
                                                     {prediction.event}
                                                 </h3>
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${prediction.outcome === 'Yes' ? 'bg-green-100 text-green-700' :
-                                                        prediction.outcome === 'No' ? 'bg-red-100 text-red-700' :
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${prediction.outcome === 'Yes' || prediction.outcome === 'Likely' ? 'bg-green-100 text-green-700' :
+                                                        prediction.outcome === 'No' || prediction.outcome === 'Unlikely' ? 'bg-red-100 text-red-700' :
                                                             prediction.outcome === 'Delayed' ? 'bg-amber-100 text-amber-700' :
                                                                 'bg-gray-100 text-gray-700'
                                                         }`}>
@@ -3010,7 +3174,7 @@ const ConsolidatedReport = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -165,19 +165,95 @@ const DailyInsights = () => {
                         </div>
                     </Link>
 
-                    {/* Quick Stats */}
+                    {/* Quick Stats & Cosmic Metrics */}
                     {!loading && insights && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="glass-panel p-4 rounded-2xl text-center bg-white border border-gray-100 shadow-xl">
-                                <div className="text-xs text-secondary uppercase font-bold">{t('daily.stats.lucky_color')}</div>
-                                <div className="text-lg font-bold text-primary mt-1" style={{ color: insights.lucky_color === 'Gold' ? '#fbbf24' : insights.lucky_color }}>
-                                    {insights.lucky_color}
+                        <div className="space-y-6">
+                            {/* Lucky Elements */}
+                            <div className="glass-panel p-5 rounded-3xl bg-white border border-gray-100 shadow-xl space-y-4">
+                                <h3 className="font-bold text-primary flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-purple-600" /> Lucky Elements
+                                </h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="text-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="text-[10px] text-secondary uppercase font-bold mb-1">Color</div>
+                                        <div className="font-bold text-primary text-sm truncate" style={{ color: insights.lucky_color === 'Gold' ? '#fbbf24' : insights.lucky_color }}>
+                                            {insights.lucky_color}
+                                        </div>
+                                    </div>
+                                    <div className="text-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="text-[10px] text-secondary uppercase font-bold mb-1">Number</div>
+                                        <div className="font-bold text-primary text-lg">{insights.lucky_number}</div>
+                                    </div>
+                                    <div className="text-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="text-[10px] text-secondary uppercase font-bold mb-1">Time</div>
+                                        <div className="font-bold text-primary text-xs">{insights.lucky_time || '10:00 - 12:00'}</div>
+                                    </div>
+                                    <div className="text-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="text-[10px] text-secondary uppercase font-bold mb-1">Direction</div>
+                                        <div className="font-bold text-primary text-sm">{insights.lucky_direction || 'East'}</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="glass-panel p-4 rounded-2xl text-center bg-white border border-gray-100 shadow-xl">
-                                <div className="text-xs text-secondary uppercase font-bold">{t('daily.stats.lucky_number')}</div>
-                                <div className="text-2xl font-black text-primary mt-1">{insights.lucky_number}</div>
-                            </div>
+
+                            {/* Gemstone Caution & Cosmic Alerts */}
+                            {insights.gemstone_caution && (
+                                <div className="glass-panel p-5 rounded-3xl bg-white border border-gray-100 shadow-xl space-y-4">
+                                    <h3 className="font-bold text-primary flex items-center gap-2">
+                                        <AlertTriangle className="w-4 h-4 text-orange-600" /> Cosmic Caution
+                                    </h3>
+
+                                    <div className="space-y-4">
+                                        {/* Scores */}
+                                        <div className="space-y-1">
+                                            <div className="flex items-center justify-between text-xs font-semibold">
+                                                <span className="text-slate-600">Daily Score</span>
+                                                <span className="text-green-600">{insights.gemstone_caution.daily_score}/100</span>
+                                            </div>
+                                            <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                <div className="bg-green-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${insights.gemstone_caution.daily_score}%` }}></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <div className="flex items-center justify-between text-xs font-semibold">
+                                                <span className="text-slate-600">Risk Level</span>
+                                                <span className={insights.gemstone_caution.risk_score > 50 ? 'text-red-500' : 'text-blue-500'}>
+                                                    {insights.gemstone_caution.risk_score}/100
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                <div className={`h-1.5 rounded-full transition-all duration-1000 ${insights.gemstone_caution.risk_score > 50 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${insights.gemstone_caution.risk_score}%` }}></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Risk Indicators */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className={`p-2 rounded-lg border text-center ${insights.gemstone_caution.financial_alert ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                                                <div className="text-[10px] uppercase font-bold">Finance Risk</div>
+                                                <div className="text-xs font-bold mt-0.5">{insights.gemstone_caution.financial_alert ? 'High' : 'Low'}</div>
+                                            </div>
+                                            <div className={`p-2 rounded-lg border text-center ${['High', 'उच्च'].includes(insights.gemstone_caution.conflict_probability) ? 'bg-red-50 border-red-200 text-red-700' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                                                <div className="text-[10px] uppercase font-bold">Conflict Prob.</div>
+                                                <div className="text-xs font-bold mt-0.5">{insights.gemstone_caution.conflict_probability}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Avoid List */}
+                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                            <div className="text-[10px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">
+                                                <AlertTriangle className="w-3 h-3" /> Things to Avoid
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {insights.gemstone_caution.avoid.map((item, i) => (
+                                                    <span key={i} className="px-2 py-1 bg-white text-slate-600 text-[10px] font-medium rounded-md border border-slate-200 shadow-sm">
+                                                        {item}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -384,6 +384,39 @@ class AstrologyAggregator:
             sun_idx = zodiac_order.index(sun_pos['sign'])
             sun_house = (sun_idx - sign_idx) % 12 + 1
             
+            # --- Cosmic Metrics Calculation ---
+            random.seed(f"{sign}-{now.date()}")
+            s_hour = random.randint(6, 20)
+            lucky_time = f"{s_hour:02d}:00 - {s_hour+2:02d}:00"
+            
+            dirs_en = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
+            dirs_hi = ["उत्तर", "उत्तर-पूर्व", "पूर्व", "दक्षिण-पूर्व", "दक्षिण", "दक्षिण-पश्चिम", "पश्चिम", "उत्तर-पश्चिम"]
+            lucky_direction = random.choice(dirs_hi if lang == "hi" else dirs_en)
+            
+            bad_aspects_cnt = len([a for a in aspects if a['type'] in ['Square', 'Opposition']])
+            risk_score = min(10 + (bad_aspects_cnt * 15) + random.randint(0, 20), 95)
+            daily_score = max(100 - risk_score - random.randint(0, 10), 5)
+            
+            has_fin_risk = any((a['p1'] in ['Jupiter', 'Venus'] or a['p2'] in ['Jupiter', 'Venus']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
+            has_conf_risk = any((a['p1'] in ['Mars', 'Sun'] or a['p2'] in ['Mars', 'Sun']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
+            
+            conf_prob = "High" if has_conf_risk else ("Medium" if bad_aspects_cnt > 2 else "Low")
+            if lang == "hi":
+                conf_prob = "उच्च" if has_conf_risk else ("मध्यम" if bad_aspects_cnt > 2 else "कम")
+            
+            av_en = ["Signing contracts", "Lending money", "Arguments", "Late travel", "Impulsive buys", "Red clothes", "Neglect health"]
+            av_hi = ["अनुबंध हस्ताक्षर", "पैसा उधार", "बहस", "देर रात यात्रा", "आवेगी खरीदारी", "लाल कपड़े", "स्वास्थ्य की उपेक्षा"]
+            avoid_items = random.sample(av_hi if lang == "hi" else av_en, 2)
+            
+            gemstone_caution = {
+                "risk_score": risk_score,
+                "daily_score": daily_score,
+                "financial_alert": has_fin_risk,
+                "conflict_probability": conf_prob,
+                "avoid": avoid_items
+            }
+            # ----------------------------------
+
             # 3. AI Enhancement (Groq/Gemini)
             # We pass the calculated transit data to the AI
             try:
@@ -397,6 +430,9 @@ class AstrologyAggregator:
                         "prediction": ai_data.get("prediction", "Cosmic balance is key today."),
                         "lucky_number": ai_data.get("lucky_number", 7),
                         "lucky_color": ai_data.get("lucky_color", "White"),
+                        "lucky_time": lucky_time,
+                        "lucky_direction": lucky_direction,
+                        "gemstone_caution": gemstone_caution,
                         "energy_level": ai_data.get("energy_level", 3),
                         "mood": ai_data.get("mood", "Neutral"),
                         "aspects": aspects[:3],
@@ -561,6 +597,9 @@ class AstrologyAggregator:
                 "prediction": prediction,
                 "lucky_number": random.randint(1, 99),
                 "lucky_color": lucky_color,
+                "lucky_time": lucky_time,
+                "lucky_direction": lucky_direction,
+                "gemstone_caution": gemstone_caution,
                 "energy_level": random.randint(3, 5),
                 "mood": mood,
                 "aspects": aspects[:3],

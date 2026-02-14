@@ -3,11 +3,9 @@ import asyncio
 from database import AsyncSessionLocal
 from models import User, AuthMethod, AuthProvider
 try:
-    from auth_utils import get_password_hash
-except ImportError:
-    import sys
-    sys.path.append('.')
-    from auth_utils import get_password_hash
+   from auth_utils import get_password_hash
+except:
+   import sys; sys.path.append('.'); from auth_utils import get_password_hash
 
 from sqlalchemy.future import select
 
@@ -15,28 +13,15 @@ async def add_user():
     print("----------------START----------------")
     try:
         async with AsyncSessionLocal() as db:
-            email = "rahulgskumar12@gmail.com" # Lowercase matching input
+            email = "rahulgskumar12@gmail.com"
             password = "India@123"
             
-            # Check existing
+            email = email.lower()
+            
             result = await db.execute(select(User).filter(User.email == email))
             existing = result.scalars().first()
             if existing:
                 print(f"User {email} already exists locally.")
-                # We need to ensure AuthMethod exists too
-                res_auth = await db.execute(select(AuthMethod).filter(AuthMethod.user_id == existing.id))
-                auth = res_auth.scalars().first()
-                if not auth:
-                     print("Adding missing auth method...")
-                     auth = AuthMethod(
-                        user_id=existing.id, 
-                        provider=AuthProvider.EMAIL, 
-                        identifier=email, 
-                        secret_hash=get_password_hash(password)
-                    )
-                     db.add(auth)
-                     await db.commit()
-                     print("Auth added.")
                 return
 
             new_user = User(email=email, full_name="Rahul Kumar", preferred_lang="en")

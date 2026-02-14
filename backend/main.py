@@ -11,7 +11,8 @@ from services.numerology_service import get_numerology_data
 from services.ai_service import generate_numerology_insights
 from generate_report import ReportGenerator
 from routers import profile_router, auth_router, insights_router, chat_router, vedastro_router
-from database import engine, Base
+from services.migration_service import migrate_emails_to_lowercase
+from database import engine, Base, AsyncSessionLocal
 
 app = FastAPI()
 
@@ -28,6 +29,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    # Run Migration for Email Lowercase
+    await migrate_emails_to_lowercase(AsyncSessionLocal)
 
 # Include Routers
 app.include_router(auth_router.router)

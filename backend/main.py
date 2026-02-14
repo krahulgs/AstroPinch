@@ -1,6 +1,11 @@
 from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, HTTPException, Request
+import time
+
+# Force reload, Request
+from fastapi.exceptions import RequestValidationError
+
 # Force reload, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -18,6 +23,17 @@ from services.reset_password_migration import add_reset_columns
 from database import engine, Base, AsyncSessionLocal
 
 app = FastAPI()
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"Request: {request.method} {request.url}")
+    try:
+        response = await call_next(request)
+        print(f"Response: {response.status_code}")
+        return response
+    except Exception as e:
+        print(f"Middleware Error: {e}")
+        raise e
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):

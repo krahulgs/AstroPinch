@@ -10,9 +10,9 @@ const Home = () => {
     const [selectedSign, setSelectedSign] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const heroBackgrounds = [
-        '/app_bg.png',
-        '/dark_cosmos_bg.png',
-        '/lighter_cosmos_bg.png'
+        'https://images.unsplash.com/photo-1519681393798-2f77f3741586?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2072&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1505506874110-6a7a69069a08?q=80&w=2070&auto=format&fit=crop'
     ];
 
     React.useEffect(() => {
@@ -141,17 +141,17 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Right Side: The Orbital Engine */}
-                        <div className="relative hidden lg:block h-[500px] w-full flex items-center justify-center pointer-events-none scale-90">
-                            {/* Stellar Core */}
+                        {/* Right Side: The Orbital Engine - Organized Grid */}
+                        <div className="relative hidden lg:flex h-[600px] w-full items-center justify-center pointer-events-none">
+                            {/* Stellar Core - Subtle Background */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                <div className="w-5 h-5 rounded-full bg-white shadow-[0_0_80px_rgba(255,255,255,1)] animate-pulse"></div>
-                                <div className="absolute inset-0 w-5 h-5 rounded-full bg-blue-500/30 blur-3xl scale-[6] animate-pulse"></div>
+                                <div className="w-1 h-1 rounded-full bg-white shadow-[0_0_120px_rgba(255,255,255,0.8)] animate-pulse"></div>
+                                <div className="absolute inset-0 w-1 h-1 rounded-full bg-blue-500/20 blur-3xl scale-[20] animate-pulse"></div>
                             </div>
 
-                            {/* Tech Card Template Component with Counter-Rotation */}
+                            {/* Tech Card Template Component */}
                             {(() => {
-                                const TechCard = ({ icon: Icon, title, subtitle, footer, color, iconColor, footerColor, titleColor, subtitleColor, revAnim, side = 'left' }) => {
+                                const TechCard = ({ icon: Icon, title, subtitle, footer, color }) => {
                                     const colorMap = {
                                         blue: { title: 'text-blue-100', sub: 'text-blue-200/70', foot: 'text-cyan-200', accent: 'blue' },
                                         cyan: { title: 'text-cyan-100', sub: 'text-cyan-200/70', foot: 'text-emerald-200', accent: 'cyan' },
@@ -163,113 +163,109 @@ const Home = () => {
                                     const theme = colorMap[color] || colorMap.blue;
 
                                     return (
-                                        <div className={`animate-${revAnim} pointer-events-auto`}>
-                                            <div className={`group relative bg-slate-900/40 backdrop-blur-3xl p-6 rounded-[2.5rem] border border-white/5 hover:border-${theme.accent}-500/30 transition-all duration-700 w-72 shadow-[0_30px_100px_rgba(0,0,0,0.5)] overflow-hidden group/card`}>
+                                        <div className="pointer-events-auto transform hover:-translate-y-2 transition-transform duration-500">
+                                            <div className={`group relative bg-slate-900/40 backdrop-blur-md p-4 rounded-[2rem] border border-white/5 hover:border-${theme.accent}-500/30 transition-all duration-500 w-full shadow-2xl overflow-hidden`}>
                                                 {/* Advanced Animated Backgrounds */}
-                                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 opacity-30"></div>
-                                                <div className={`absolute inset-0 bg-gradient-to-tr from-${theme.accent}-500/0 via-${theme.accent}-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000`}></div>
-
-                                                {/* Scanning Line Effect */}
-                                                <div className="absolute inset-0 overflow-hidden opacity-20 group-hover:opacity-40 transition-opacity">
-                                                    <div className={`absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-${theme.accent}-400 to-transparent animate-scan`}></div>
-                                                </div>
+                                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/40 opacity-50"></div>
+                                                <div className={`absolute inset-0 bg-gradient-to-tr from-${theme.accent}-500/0 via-${theme.accent}-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
 
                                                 {/* Inner Glow Base */}
-                                                <div className={`absolute -inset-24 bg-${theme.accent}-500/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`}></div>
+                                                <div className={`absolute -inset-24 bg-${theme.accent}-500/10 blur-[50px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`}></div>
 
-                                                <div className="relative z-10 space-y-6">
-                                                    <div className={`flex items-center gap-5 ${side === 'right' ? 'flex-row-reverse text-right' : ''}`}>
+                                                <div className="relative z-10 space-y-4">
+                                                    <div className="flex items-start gap-3">
                                                         {/* Premium Icon Container */}
-                                                        <div className="relative">
-                                                            <div className={`absolute inset-0 bg-${theme.accent}-500/40 blur-xl rounded-full scale-50 group-hover:scale-125 transition-transform duration-700`}></div>
-                                                            <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/20 shadow-2xl group-hover:border-${theme.accent}-400/50 group-hover:-translate-y-1 transition-all duration-500`}>
-                                                                <Icon className={`w-7 h-7 text-white group-hover:text-${theme.accent}-400 transition-colors duration-500 group-hover:rotate-[360deg] duration-[1500ms]`} />
+                                                        <div className="relative flex-shrink-0">
+                                                            <div className={`absolute inset-0 bg-${theme.accent}-500/30 blur-lg rounded-full scale-0 group-hover:scale-125 transition-transform duration-500`}></div>
+                                                            <div className={`relative w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 shadow-lg group-hover:border-${theme.accent}-400/40 transition-all duration-300`}>
+                                                                <Icon className={`w-6 h-6 text-white/90 group-hover:text-${theme.accent}-300 transition-colors duration-300`} />
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex-1">
-                                                            <h4 className={`font-black text-[10px] tracking-[0.25em] uppercase leading-none mb-2 ${theme.title} group-hover:text-white transition-colors`}>{title}</h4>
-                                                            <p className={`text-[10px] font-medium leading-relaxed ${theme.sub} group-hover:text-white transition-colors`}>{subtitle}</p>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className={`font-black text-[10px] tracking-wide uppercase leading-tight mb-1.5 ${theme.title} group-hover:text-white transition-colors`}>{title}</h4>
+                                                            <p className={`text-[10px] font-medium leading-relaxed ${theme.sub} group-hover:text-white/90 transition-colors truncate`}>{subtitle}</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className={`pt-5 border-t border-white/10 flex items-center justify-between ${side === 'right' ? 'flex-row-reverse text-right' : ''}`}>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">Status: Active</span>
-                                                            <span className={`text-[11px] font-black ${theme.foot} tracking-[0.1em] uppercase group-hover:tracking-[0.15em] transition-all`}>{footer}</span>
-                                                        </div>
-                                                        <div className="relative flex items-center justify-center">
-                                                            <div className={`absolute inset-0 w-full h-full bg-${theme.accent}-400 blur-md animate-pulse opacity-50`}></div>
-                                                            <div className={`w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_15_rgba(255,255,255,1)] z-10 animate-glow`}></div>
-                                                        </div>
+                                                    <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                                                        <span className={`text-[9px] font-black ${theme.foot} tracking-[0.15em] uppercase`}>{footer}</span>
+                                                        <div className={`w-1.5 h-1.5 rounded-full bg-${theme.accent}-400 shadow-[0_0_10px_currentColor] animate-pulse`}></div>
                                                     </div>
                                                 </div>
-
-                                                <div className={`absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-tl from-${theme.accent}-500/20 to-transparent rotate-45 translate-x-6 translate-y-6`}></div>
                                             </div>
                                         </div>
                                     );
                                 };
 
                                 return (
-                                    <>
-                                        {/* Multi-Directional Orbital Engine */}
-
-                                        {/* Ring 1: Fast & Clockwise (Inner) */}
-                                        <div className="absolute border border-white/5 rounded-full w-[280px] h-[280px] animate-orbit-fast">
-                                            {/* Top: VedAstro */}
-                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-                                                <TechCard
-                                                    icon={BookOpen}
-                                                    title="VedAstro Engine"
-                                                    subtitle="Ancient Vedic Traditions"
-                                                    footer="Swiss Ephemeris 2.10"
-                                                    color="blue"
-                                                    revAnim="orbit-fast-rev"
-                                                />
-                                            </div>
-
-                                            {/* Bottom: Groq */}
-                                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-                                                <TechCard
-                                                    icon={Cpu}
-                                                    title="Groq LPU"
-                                                    subtitle="Ultra-Fast Inference"
-                                                    footer="Real-time Prediction"
-                                                    color="cyan"
-                                                    revAnim="orbit-fast-rev"
-                                                />
-                                            </div>
+                                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl px-4 animate-in fade-in slide-in-from-right-8 duration-1000">
+                                        {/* Card 1 */}
+                                        <div>
+                                            <TechCard
+                                                icon={BookOpen}
+                                                title="VedAstro Engine"
+                                                subtitle="Ancient Vedic Traditions"
+                                                footer="Swiss Ephemeris 2.10"
+                                                color="blue"
+                                            />
                                         </div>
 
-                                        {/* Ring 2: Slow & Counter-Clockwise (Outer) */}
-                                        <div className="absolute border border-white/5 rounded-full w-[450px] h-[450px] animate-orbit-slow-rev">
-                                            {/* Right: AstroAI */}
-                                            <div className="absolute top-1/2 -right-10 -translate-y-1/2">
-                                                <TechCard
-                                                    icon={Zap}
-                                                    title="AstroAI Predictor"
-                                                    subtitle="Neural Core Modeling"
-                                                    footer="Proprietary Analytics"
-                                                    color="rose"
-                                                    revAnim="orbit-slow"
-                                                    side="right"
-                                                />
-                                            </div>
-
-                                            {/* Left: JPL Horizons */}
-                                            <div className="absolute top-1/2 -left-10 -translate-y-1/2">
-                                                <TechCard
-                                                    icon={Calculator}
-                                                    title="JPL Horizons"
-                                                    subtitle="Skyfield Precision"
-                                                    footer="NASA JPL Planetary Data"
-                                                    color="amber"
-                                                    revAnim="orbit-slow"
-                                                />
-                                            </div>
+                                        {/* Card 2 */}
+                                        <div>
+                                            <TechCard
+                                                icon={Cpu}
+                                                title="Groq LPU"
+                                                subtitle="Ultra-Fast Inference"
+                                                footer="Real-time Prediction"
+                                                color="cyan"
+                                            />
                                         </div>
-                                    </>
+
+                                        {/* Card 3 */}
+                                        <div>
+                                            <TechCard
+                                                icon={Calculator}
+                                                title="JPL Horizons"
+                                                subtitle="Skyfield Precision"
+                                                footer="NASA JPL Planetary Data"
+                                                color="amber"
+                                            />
+                                        </div>
+
+                                        {/* Card 4 */}
+                                        <div>
+                                            <TechCard
+                                                icon={Zap}
+                                                title="AstroAI Predictor"
+                                                subtitle="Neural Core Modeling"
+                                                footer="Proprietary Analytics"
+                                                color="rose"
+                                            />
+                                        </div>
+
+                                        {/* Card 5 - New */}
+                                        <div>
+                                            <TechCard
+                                                icon={Database}
+                                                title="Cosmic Data Lake"
+                                                subtitle="Historical Alignment Records"
+                                                footer="5000+ Years Data"
+                                                color="indigo"
+                                            />
+                                        </div>
+
+                                        {/* Card 6 - New */}
+                                        <div>
+                                            <TechCard
+                                                icon={Compass}
+                                                title="Stellar Positioning"
+                                                subtitle="Vibrational Analysis"
+                                                footer="Geocentric Mapping"
+                                                color="purple"
+                                            />
+                                        </div>
+                                    </div>
                                 );
                             })()}
                         </div>
@@ -293,88 +289,83 @@ const Home = () => {
 
 
 
-            {/* Quick Access Features - Premium Light Design (Matching Reference Image) */}
-            <section className="bg-[#fcfdff] py-32 relative overflow-hidden">
-                {/* Subtle Artistic Accents */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-100/40 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2 opacity-60"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-50/40 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-50"></div>
+            {/* Celestial Dashboard - Professional Redesign for WOW Factor */}
+            <section className="relative py-32 bg-slate-50 overflow-hidden">
+                {/* Dynamic Backgrounds & Texture */}
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent opacity-50"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.4]"></div>
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                    <div className="flex flex-col items-center justify-center mb-16 space-y-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200/50">
-                            <Sparkles className="w-3 h-3 text-purple-500" />
-                            Explore Wisdom
+                {/* Ambient Glowing Orbs */}
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-300/20 rounded-full blur-[120px] mix-blend-multiply pointer-events-none animate-pulse-slow"></div>
+                <div className="absolute bottom-0 left-[-200px] w-[600px] h-[600px] bg-rose-300/20 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"></div>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    {/* Section Header */}
+                    <div className="text-center max-w-3xl mx-auto mb-20 animate-on-scroll">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-500 text-[10px] font-bold uppercase tracking-widest shadow-sm mb-6">
+                            <Sparkles className="w-3 h-3 text-indigo-500" />
+                            <span>Cosmic Toolkit</span>
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
-                            Personalized <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">Astrology Tools</span>
+                        <h2 className="text-4xl md:text-6xl font-serif text-slate-900 leading-[1.1] mb-6">
+                            Your Personal <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-rose-500">Celestial Dashboard</span>
                         </h2>
-                        <p className="max-w-2xl text-slate-500 font-medium leading-relaxed">
-                            Navigate your life with precision using our suite of celestial insights.
+                        <p className="text-slate-600 text-lg leading-relaxed font-light">
+                            Unlock the mysteries of your life path with our suite of precision astrology tools, combining ancient Vedic wisdom with modern algorithmic accuracy.
                         </p>
                     </div>
 
-                    {/* NEW: Daily Horoscope Select Grid */}
-                    <div className="mb-20">
-                        <div className="flex items-center justify-center gap-2 mb-8">
-                            <h3 className="text-xl font-serif italic text-slate-700">Select your Sign for Daily Insights</h3>
-                            <div className="h-[1px] w-12 bg-slate-200"></div>
+                    {/* Zodiac Strip - Glass Tiles */}
+                    <div className="mb-24 relative">
+                        <div className="flex flex-col items-center justify-center mb-12 space-y-3">
+                            <h3 className="font-serif text-3xl text-slate-800 italic">Daily Guidance</h3>
+                            <div className="flex items-center gap-3">
+                                <div className="h-px w-8 bg-slate-300"></div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Select Your Sign</span>
+                                <div className="h-px w-8 bg-slate-300"></div>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {zodiacSigns.map((sign) => (
-                                <Link
-                                    key={sign.name}
-                                    to={`/horoscope/${sign.name.toLowerCase()}`}
-                                    className="group relative p-4 rounded-2xl bg-white border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:border-purple-100 transition-all duration-300 flex flex-col items-center text-center overflow-hidden"
-                                >
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${sign.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-                                    <span className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300 filter drop-shadow-sm">{sign.symbol}</span>
-                                    <h4 className="font-bold text-slate-800 text-sm group-hover:text-purple-700 transition-colors">{sign.name}</h4>
-                                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide group-hover:text-purple-500/70 transition-colors">{sign.dates}</p>
+                                <Link key={sign.name} to={`/horoscope/${sign.name.toLowerCase()}`} className="group relative aspect-[4/5] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-500 overflow-hidden flex flex-col items-center justify-center text-center p-4 z-10">
+                                    <div className={`absolute inset-0 bg-gradient-to-b ${sign.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+                                    <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-500">
+                                        <span className="text-5xl mb-4 block filter drop-shadow-sm transition-transform duration-300 group-hover:rotate-12">{sign.symbol}</span>
+                                        <h4 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-indigo-600 transition-colors">{sign.name}</h4>
+                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest group-hover:text-indigo-400 transition-colors">{sign.dates}</p>
+                                    </div>
+                                    {/* Hover bottom bar */}
+                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                                 </Link>
                             ))}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {features.map((feature, idx) => {
-                            const Icon = feature.icon;
-                            // Professional styling configs
-                            const styles = [
-                                { bg: "hover:shadow-purple-500/10 hover:border-purple-500/20", iconBg: "bg-purple-100", iconColor: "text-purple-600", accent: "purple" }, // Horoscope
-                                { bg: "hover:shadow-amber-500/10 hover:border-amber-500/20", iconBg: "bg-amber-100", iconColor: "text-amber-600", accent: "amber" },   // Chart
-                                { bg: "hover:shadow-rose-500/10 hover:border-rose-500/20", iconBg: "bg-rose-100", iconColor: "text-rose-600", accent: "rose" },     // Compatibility
-                                { bg: "hover:shadow-emerald-500/10 hover:border-emerald-500/20", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", accent: "emerald" } // Tarot
-                            ][idx];
+                    {/* Feature Cards - Modern Bento Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                        {features.map((feature, idx) => (
+                            <Link key={idx} to={feature.link} className="group relative overflow-hidden bg-white rounded-[2.5rem] p-8 md:p-10 border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 flex items-center gap-8">
+                                {/* Interactive Background Hover Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-slate-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="absolute -right-20 -top-20 w-64 h-64 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000 opacity-0 group-hover:opacity-100"></div>
 
-                            return (
-                                <Link
-                                    key={idx}
-                                    to={feature.link}
-                                    className={`group relative flex flex-col p-8 bg-white rounded-[2rem] border border-slate-200/60 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${styles.bg}`}
-                                >
-                                    <div className="flex items-start justify-between mb-8">
-                                        <div className={`w-14 h-14 rounded-2xl ${styles.iconBg} flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-                                            <Icon className={`w-7 h-7 ${styles.iconColor}`} />
-                                        </div>
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0">
-                                            <ArrowRight className={`w-4 h-4 ${styles.iconColor}`} />
-                                        </div>
+                                <div className="relative shrink-0 w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-white group-hover:rotate-6 transition-all duration-500 border border-slate-100 group-hover:border-indigo-100 shadow-sm group-hover:shadow-md">
+                                    <feature.icon className="w-8 h-8 text-slate-400 group-hover:text-indigo-600 transition-colors duration-500" />
+                                </div>
+
+                                <div className="relative z-10 flex-1">
+                                    <h3 className="text-2xl font-serif font-bold text-slate-900 mb-2 group-hover:text-indigo-700 transition-colors">{feature.title}</h3>
+                                    <p className="text-sm text-slate-500 leading-relaxed font-medium">{feature.description}</p>
+                                </div>
+
+                                <div className="relative z-10">
+                                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 delay-75">
+                                        <ArrowRight className="w-5 h-5 text-indigo-500" />
                                     </div>
-
-                                    <div className="mt-auto">
-                                        <h3 className="text-xl font-serif font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors">
-                                            {feature.title}
-                                        </h3>
-                                        <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                                            {feature.description}
-                                        </p>
-                                    </div>
-
-                                    {/* Bottom aesthetic line */}
-                                    <div className={`absolute bottom-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-${styles.accent}-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                                </Link>
-                            );
-                        })}
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </section>

@@ -108,25 +108,32 @@ export const ProfileProvider = ({ children }) => {
     };
 
     const register = async (userData) => {
-        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
 
-        if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem('token', data.access_token);
-            setToken(data.access_token);
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('token', data.access_token);
+                setToken(data.access_token);
 
-            // Trigger background fetch without blocking
-            setTimeout(() => {
-                fetchUser();
-            }, 0);
+                // Trigger background fetch without blocking
+                setTimeout(() => {
+                    fetchUser();
+                }, 0);
 
-            return true;
+                return true;
+            } else {
+                const errorData = await res.json();
+                throw new Error(errorData.detail || "Registration failed. Please check your details.");
+            }
+        } catch (err) {
+            console.error("Registration Error:", err);
+            throw err;
         }
-        return false;
     };
 
     const addProfile = async (profileData) => {

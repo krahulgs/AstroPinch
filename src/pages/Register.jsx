@@ -66,14 +66,10 @@ const Register = () => {
         setLoading(true);
         setError('');
         try {
-            const success = await register(formData);
-            if (success) {
-                navigate('/profiles');
-            } else {
-                setError('Registration failed. Email might already be in use.');
-            }
+            await register(formData);
+            navigate('/profiles');
         } catch (err) {
-            setError('Something went wrong. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }

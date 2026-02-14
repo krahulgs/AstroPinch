@@ -20,6 +20,7 @@ from generate_report import ReportGenerator
 from routers import profile_router, auth_router, insights_router, chat_router, vedastro_router
 from services.migration_service import migrate_emails_to_lowercase
 from services.reset_password_migration import add_reset_columns
+from services.profile_schema_migration import add_profile_columns
 from database import engine, Base, AsyncSessionLocal
 
 app = FastAPI()
@@ -52,8 +53,12 @@ async def startup():
     # Run Migration for Email Lowercase
     await migrate_emails_to_lowercase(AsyncSessionLocal)
     
+
     # Run Migration for Reset Password Columns
     await add_reset_columns(AsyncSessionLocal)
+
+    # Run Migration for Profile Columns
+    await add_profile_columns(AsyncSessionLocal)
 
 # Include Routers
 app.include_router(auth_router.router)

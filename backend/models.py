@@ -33,7 +33,7 @@ class User(Base):
     phone = Column(String, unique=True, index=True, nullable=True)
     full_name = Column(String)
     is_active = Column(Boolean, default=True)
-    is_active = Column(Boolean, default=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     preferred_lang = Column(String, default="en")
     photo_url = Column(String, nullable=True)

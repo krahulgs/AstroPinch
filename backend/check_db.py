@@ -1,21 +1,25 @@
 
-from database import SessionLocal
-from models import Profile
-import sys
+import asyncio
+from sqlalchemy.future import select
+from database import AsyncSessionLocal
+from models import User, AuthMethod
 
-def check_db():
+async def main():
     try:
-        db = SessionLocal()
-        p = db.query(Profile).order_by(Profile.created_at.desc()).first()
-        if p:
-            print(f"DEBUG DB: Profile Name: {p.name}")
-            print(f"DEBUG DB: Lat: {p.latitude}, Lng: {p.longitude}")
-            print(f"DEBUG DB: Birth: {p.birth_date} {p.birth_time}")
-            print(f"DEBUG DB: Timezone: {p.timezone_id}")
-        else:
-            print("DEBUG DB: No profiles found.")
+        print("----------------START----------------")
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(User))
+            users = result.scalars().all()
+            print(f"Total Users: {len(users)}")
+            for u in users:
+                print(f"User: {u.email} (ID: {u.id})")
+                res_auth = await db.execute(select(AuthMethod).filter(AuthMethod.user_id == u.id))
+                auths = res_auth.scalars().all()
+                for a in auths:
+                     print(f"  Auth: {a.provider}, Identifier: {a.identifier}")
+        print("----------------END----------------")
     except Exception as e:
-        print(f"DEBUG DB ERROR: {e}")
+        print(f"Error checking DB: {e}")
 
 if __name__ == "__main__":
-    check_db()
+    asyncio.run(main())

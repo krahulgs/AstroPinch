@@ -50,6 +50,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
 @router.post("/register", response_model=Token)
 async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
     # Check if user already exists
+    user_in.email = user_in.email.lower()
     result = await db.execute(select(User).filter(User.email == user_in.email))
     if result.scalars().first():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -79,6 +80,7 @@ async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    form_data.username = form_data.username.lower()
     result = await db.execute(
         select(AuthMethod).filter(
             AuthMethod.identifier == form_data.username,

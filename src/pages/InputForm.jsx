@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChart } from '../context/ChartContext';
 import { User, Calendar, Clock, Loader2 } from 'lucide-react';
@@ -23,6 +23,11 @@ const InputForm = () => {
         timezone: ''
     });
 
+    // Refs for auto-focus navigation
+    const dayRef = useRef(null);
+    const monthRef = useRef(null);
+    const yearRef = useRef(null);
+
     const validateForm = () => {
         const errors = {};
         const allowedProfessions = ["student", "private job", "government job", "business", "self employed", "unemployed", "retired", "other"];
@@ -34,8 +39,8 @@ const InputForm = () => {
             setFormErrors({ name: 'Full name is required' });
             return false;
         }
-        if (name.length < 2 || name.length > 80) {
-            setFormErrors({ name: 'Name must be 2-80 characters' });
+        if (name.length < 2 || name.length > 40) {
+            setFormErrors({ name: 'Name must be 2-40 characters' });
             return false;
         }
         if (!/^[a-zA-Z\. ]+$/.test(name)) {
@@ -184,10 +189,28 @@ const InputForm = () => {
 
         if (name === 'name') {
             const filteredValue = value.replace(/[^a-zA-Z\s\.]/g, ''); // Allow dots too based on validation rule
-            setFormData({ ...formData, [name]: filteredValue });
-        } else if (name === 'day' || name === 'month') {
+            // Limit to 40 characters
+            const limitedValue = filteredValue.slice(0, 40);
+            // Apply Title Case (Camel Case) formatting
+            const titleCaseValue = limitedValue.toLowerCase().split(' ').map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            setFormData({ ...formData, [name]: titleCaseValue });
+        } else if (name === 'day') {
             if (value.length <= 2) {
                 setFormData({ ...formData, [name]: value });
+                // Auto-focus to month when day has 2 digits
+                if (value.length === 2 && monthRef.current) {
+                    monthRef.current.focus();
+                }
+            }
+        } else if (name === 'month') {
+            if (value.length <= 2) {
+                setFormData({ ...formData, [name]: value });
+                // Auto-focus to year when month has 2 digits
+                if (value.length === 2 && yearRef.current) {
+                    yearRef.current.focus();
+                }
             }
         } else if (name === 'year') {
             if (value.length <= 4) {
@@ -247,6 +270,7 @@ const InputForm = () => {
                                 <div className="flex gap-2">
                                     <div className="relative flex-1 group">
                                         <input
+                                            ref={dayRef}
                                             type="number"
                                             name="day"
                                             placeholder="DD"
@@ -259,6 +283,7 @@ const InputForm = () => {
                                     </div>
                                     <div className="relative flex-1 group">
                                         <input
+                                            ref={monthRef}
                                             type="number"
                                             name="month"
                                             placeholder="MM"
@@ -271,6 +296,7 @@ const InputForm = () => {
                                     </div>
                                     <div className="relative flex-[1.5] group">
                                         <input
+                                            ref={yearRef}
                                             type="number"
                                             name="year"
                                             placeholder="YYYY"

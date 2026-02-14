@@ -347,9 +347,10 @@ class AstrologyAggregator:
         return detailed_analysis
 
     @staticmethod
-    def get_dynamic_horoscope(sign, lang="en", context=None):
+    def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None):
         """
         Generates a dynamic horoscope based on advanced planetary transits and aspects.
+        If profile_data is provided, calculates personalized Transit-to-Natal aspects.
         """
         import datetime
         now = datetime.datetime.now()
@@ -359,14 +360,35 @@ class AstrologyAggregator:
             sign = sign.capitalize()
             
             # Calculate transits using Kerykeion
-            # Use Greenwich as default for universal transits if no user location
+            lat = profile_data.get('latitude', 51.5) if profile_data else 51.5
+            lng = profile_data.get('longitude', 0.0) if profile_data else 0.0
+            
             chart_data = KerykeionService.calculate_chart(
                 "Transit", now.year, now.month, now.day, now.hour, now.minute,
-                "Greenwich", 51.5, 0.0
+                "Local", lat, lng
             )
             planets = chart_data['planets']
             
-            # 1. Aspect Engine: Find interactions between major planets
+            # Calculate Natal Aspects if profile available
+            natal_aspects = []
+            if profile_data and 'birth_date' in profile_data:
+                try:
+                    y, m, d = map(int, profile_data['birth_date'].split('-'))
+                    h, min_ = map(int, profile_data['birth_time'].split(':'))
+                    # Use profile coords for natal approximation if birth coords not distinct
+                    # Ideally profile stores birth_lat/lng separately, but we use what we have
+                    n_lat = profile_data.get('latitude', 0.0)
+                    n_lng = profile_data.get('longitude', 0.0)
+                    
+                    natal_chart = KerykeionService.calculate_chart(
+                        "Natal", y, m, d, h, min_,
+                        "BirthPlace", n_lat, n_lng
+                    )
+                    natal_aspects = AstrologyAggregator._calculate_transit_to_natal(planets, natal_chart['planets'])
+                except Exception as e:
+                    print(f"Natal Analysis Error: {e}")
+            
+            # 1. Aspect Engine: Find interactions between major planets (Universal)
             aspects = AstrologyAggregator._calculate_aspects(planets)
             
             # 2. Sign Analysis
@@ -385,7 +407,10 @@ class AstrologyAggregator:
             sun_house = (sun_idx - sign_idx) % 12 + 1
             
             # --- Cosmic Metrics Calculation ---
-            random.seed(f"{sign}-{now.date()}")
+            # Dynamic Seed for unique results per profile
+            seed_key = f"{profile_data.get('name', 'User')}-{profile_data.get('birth_date', '0000')}-{now.date()}" if profile_data else f"{sign}-{now.date()}"
+            random.seed(seed_key)
+            
             s_hour = random.randint(6, 20)
             lucky_time = f"{s_hour:02d}:00 - {s_hour+2:02d}:00"
             
@@ -393,16 +418,27 @@ class AstrologyAggregator:
             dirs_hi = ["उत्तर", "उत्तर-पूर्व", "पूर्व", "दक्षिण-पूर्व", "दक्षिण", "दक्षिण-पश्चिम", "पश्चिम", "उत्तर-पश्चिम"]
             lucky_direction = random.choice(dirs_hi if lang == "hi" else dirs_en)
             
-            bad_aspects_cnt = len([a for a in aspects if a['type'] in ['Square', 'Opposition']])
-            risk_score = min(10 + (bad_aspects_cnt * 15) + random.randint(0, 20), 95)
-            daily_score = max(100 - risk_score - random.randint(0, 10), 5)
+            # Risk Analysis using Personal Aspects if available
+            if natal_aspects:
+                active_aspects = natal_aspects
+                bad_aspects_cnt = len([a for a in active_aspects if a['type'] in ['Square', 'Opposition']])
+                
+                # Check specifics for Personal Hits
+                has_fin_risk = any(a['natal'] in ['Venus', 'Jupiter', '2nd House'] and a['type'] in ['Square', 'Opposition'] for a in active_aspects)
+                has_conf_risk = any(a['natal'] in ['Mars', 'Sun', 'Moon'] and a['type'] in ['Square', 'Opposition'] for a in active_aspects)
+            else:
+                active_aspects = aspects
+                bad_aspects_cnt = len([a for a in active_aspects if a['type'] in ['Square', 'Opposition']])
+                
+                has_fin_risk = any((a['p1'] in ['Jupiter', 'Venus'] or a['p2'] in ['Jupiter', 'Venus']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
+                has_conf_risk = any((a['p1'] in ['Mars', 'Sun'] or a['p2'] in ['Mars', 'Sun']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
             
-            has_fin_risk = any((a['p1'] in ['Jupiter', 'Venus'] or a['p2'] in ['Jupiter', 'Venus']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
-            has_conf_risk = any((a['p1'] in ['Mars', 'Sun'] or a['p2'] in ['Mars', 'Sun']) and a['type'] in ['Square', 'Opposition'] for a in aspects)
+            risk_score = min(15 + (bad_aspects_cnt * 10) + random.randint(0, 25), 95)
+            daily_score = max(100 - risk_score - random.randint(0, 10), 10)
             
-            conf_prob = "High" if has_conf_risk else ("Medium" if bad_aspects_cnt > 2 else "Low")
+            conf_prob = "High" if has_conf_risk else ("Medium" if bad_aspects_cnt > 1 else "Low")
             if lang == "hi":
-                conf_prob = "उच्च" if has_conf_risk else ("मध्यम" if bad_aspects_cnt > 2 else "कम")
+                conf_prob = "उच्च" if has_conf_risk else ("मध्यम" if bad_aspects_cnt > 1 else "कम")
             
             av_en = ["Signing contracts", "Lending money", "Arguments", "Late travel", "Impulsive buys", "Red clothes", "Neglect health"]
             av_hi = ["अनुबंध हस्ताक्षर", "पैसा उधार", "बहस", "देर रात यात्रा", "आवेगी खरीदारी", "लाल कपड़े", "स्वास्थ्य की उपेक्षा"]
@@ -492,6 +528,17 @@ class AstrologyAggregator:
                 prediction = f"{sign} के लिए आज का आकाशीय ध्यान {house_themes.get(sun_house, 'व्यक्तिगत विकास')} पर है।{major_impact} अधिकतम सामंजस्य के लिए अपने कार्यों को इस ब्रह्मांडीय प्रवाह के साथ संरेखित करें।"
             else:
                 prediction = f"The celestial focus for {sign} today is on {house_themes.get(sun_house, 'personal growth')}. {major_impact} Align your actions with this cosmic current for maximum harmony."
+                
+            # Override/Enhance with Personal Transit Prediction if available
+            if natal_aspects:
+                top = natal_aspects[0] # Most exact aspect
+                interp = AstrologyAggregator._get_transit_meaning(top, lang)
+                if lang == "hi":
+                     base_pred = f"महत्वपूर्ण: गोचर का {top['transit']} आपके जन्म के {top['natal']} को सक्रिय कर रहा है।"
+                     prediction = f"{base_pred} {interp} यह {sign} के लिए एक शक्तिशाली समय है।"
+                else:
+                     base_pred = f"Key Personal Transit: {top['transit']} is actively influencing your Natal {top['natal']} ({top['type']})."
+                     prediction = f"{base_pred} {interp} This overrides general trends for {sign}."
             
             # 5. Life Area Insights (Deepened Analysis)
             # Map planets to areas
@@ -837,21 +884,18 @@ class AstrologyAggregator:
                 # Dignity Refinement
                 dignity_note = ""
                 if p_dignity == "Exalted":
-                    dignity_note = dt["exalted"].format(name=p_name)
+                    dignity_note = dt["exalted"].format(name=p_sanskrit if lang == "hi" else p_name)
                 elif p_dignity == "Debilitated":
-                    dignity_note = dt["debilitated"].format(name=p_name)
+                    dignity_note = dt["debilitated"].format(name=p_sanskrit if lang == "hi" else p_name)
                 elif p_dignity == "Own Sign":
-                    dignity_note = dt["own"].format(name=p_name)
-                
+                    dignity_note = dt["own"]
+                    
                 effects.append({
                     "planet": p_name,
-                    "sanskrit": p_sanskrit,
                     "house": p_house,
-                    "nature": insight_data["nature"],
-                    "effect": f"{core_effect}{dignity_note}",
-                    "dignity": p_dignity
+                    "insight": f"{core_effect}{dignity_note}"
                 })
-        
+                
         return effects
 
     @staticmethod
@@ -1223,3 +1267,89 @@ Generate predictions now based on authentic KP principles:"""
             print(f"Alert calc error: {e}")
             
         return alerts
+
+    @staticmethod
+    def _calculate_transit_to_natal(transit_planets, natal_planets):
+        """
+        Calculates aspects between transit planets and natal planets.
+        """
+        aspect_types = [
+            {"name": "Conjunction", "angle": 0, "orb": 5},
+            {"name": "Opposition", "angle": 180, "orb": 5},
+            {"name": "Trine", "angle": 120, "orb": 5},
+            {"name": "Square", "angle": 90, "orb": 5},
+            {"name": "Sextile", "angle": 60, "orb": 3}
+        ]
+        
+        results = []
+        natal_map = {p['name']: p for p in natal_planets}
+        
+        for t_planet in transit_planets:
+            t_name = t_planet['name']
+            
+            for n_name, n_planet in natal_map.items():
+                if n_name not in ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Ascendant', 'Midheaven']:
+                    continue
+                
+                # Calculate angle
+                diff = abs(t_planet['position'] - n_planet['position'])
+                if diff > 180: diff = 360 - diff
+                
+                for aspect in aspect_types:
+                    if abs(diff - aspect['angle']) <= aspect['orb']:
+                        results.append({
+                            "transit": t_name,
+                            "natal": n_name,
+                            "type": aspect['name'],
+                            "orb": round(abs(diff - aspect['angle']), 1)
+                        })
+        
+        # Sort by tightness (orb)
+        return sorted(results, key=lambda x: x['orb'])
+
+    @staticmethod
+    def _get_transit_meaning(aspect, lang="en"):
+        t, n, type_ = aspect['transit'], aspect['natal'], aspect['type']
+        
+        meaning_en = ""
+        meaning_hi = ""
+        
+        is_hard = type_ in ["Square", "Opposition"]
+        is_soft = type_ in ["Trine", "Sextile"]
+        
+        # Descriptions
+        keywords = {
+            "Sun": "essence/ego", "Moon": "emotions/heart", "Mercury": "mind", "Venus": "love/values", 
+            "Mars": "drive", "Jupiter": "luck/growth", "Saturn": "structure/discipline", 
+            "Uranus": "freedom", "Neptune": "dreams", "Pluto": "transformation",
+            "Ascendant": "self-image", "Midheaven": "career"
+        }
+        
+        n_desc = keywords.get(n, n)
+        
+        if is_hard:
+            meaning_en = f"This aspect challenges your {n_desc}. Growth comes through overcoming tension."
+            meaning_hi = f"यह आपके {n} (जीवन क्षेत्र) के लिए एक चुनौती है। तनाव पर काबू पाने से विकास होता है।"
+            
+            if t == "Saturn":
+                meaning_en = f"Saturn demands patience and restrictions regarding your {n_desc}."
+            elif t == "Mars":
+                meaning_en = f"Watch for impulsive reactions impacting your {n_desc}."
+            elif t == "Pluto":
+                meaning_en = f"Intense transformation is reshaping your {n_desc}."
+        elif is_soft:
+            meaning_en = f"Energy flows smoothly to your {n_desc}. Take advantage of opportunities."
+            meaning_hi = f"ऊर्जा आपके {n} (जीवन क्षेत्र) में आसानी से प्रवाहित होती है। अवसरों का लाभ उठाएं।"
+            
+            if t == "Jupiter":
+                meaning_en = f"Great fortune and expansion protect your {n_desc}."
+            elif t == "Venus":
+                 meaning_en = f"Pleasure and harmony grace your {n_desc}."
+        else: # Conjunction
+            meaning_en = f"Your {n_desc} is intensely merged with {t} energy. Focus is key."
+            meaning_hi = f"आपका {n} तीव्रता से {t} ऊर्जा के साथ विलीन हो गया है। ध्यान महत्वपूर्ण है।"
+            
+            if t == "Sun":
+                 meaning_en = f"The Sun illuminates your {n_desc}, bringing clarity and vitality."
+            
+        return meaning_hi if lang == "hi" else meaning_en

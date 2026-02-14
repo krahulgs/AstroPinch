@@ -50,7 +50,7 @@ def get_daily_insights(profile: dict):
         }
         lang = profile.get("lang", "en")
         
-        horoscope = AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang, context=context)
+        horoscope = AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang, context=context, profile_data=profile)
         
         # 3. Get Alerts
         alerts = AstrologyAggregator.get_cosmic_alerts(lang=lang)

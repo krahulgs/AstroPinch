@@ -10,7 +10,7 @@ const Home = () => {
     const [selectedSign, setSelectedSign] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const heroBackgrounds = [
-        'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2072&auto=format&fit=crop'
+        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2070&auto=format&fit=crop'
     ];
 
     React.useEffect(() => {

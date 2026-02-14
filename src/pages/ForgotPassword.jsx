@@ -27,11 +27,12 @@ const ForgotPassword = () => {
                 setStatus('success');
                 setMessage('If an account confirms to this email, a reset link has been sent. Please check your inbox (or console in dev).');
             } else {
-                throw new Error('Request failed');
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.message || data.detail || 'Request failed');
             }
         } catch (err) {
             setStatus('error');
-            setMessage('Something went wrong. Please try again later.');
+            setMessage(err.message || 'Something went wrong. Please try again later.');
         }
     };
 

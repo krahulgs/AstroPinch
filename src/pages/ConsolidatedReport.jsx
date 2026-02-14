@@ -383,23 +383,33 @@ const YearlyPredictionGraph = ({ data, userData }) => {
     const liveStatus = currentYearData ? currentYearData.status : "Positive";
 
 
-    // Helper to generate random heatmap strips
+    // Helper to generate deterministic heatmap strips based on seed
     const generateStrips = (trackId) => {
         const strips = [];
         let currentYear = startYear;
+        // Create a unique offset for each track to ensure they look different
+        const trackOffset = trackId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
         while (currentYear < endYear) {
-            const duration = Math.random() * 0.5 + 0.1; // Granular strips (months/weeks)
-            const intensity = Math.random();
+            // Use getSeededValue for deterministic randomness
+            // We multiply by varying factors to avoid correlation between duration and intensity
+            const r1 = getSeededValue(currentYear + trackOffset);
+            const r2 = getSeededValue(currentYear + trackOffset + 0.5);
+            const r3 = getSeededValue(currentYear + trackOffset + 0.9);
+
+            const duration = r1 * 0.5 + 0.1; // Granular strips (months/weeks)
+            const intensity = r2;
+
             let color;
             if (intensity < 0.3) {
                 // Red (Bad)
-                color = `rgba(220, 38, 38, ${0.5 + Math.random() * 0.5})`;
+                color = `rgba(220, 38, 38, ${0.5 + r3 * 0.5})`;
             } else if (intensity > 0.6) {
                 // Green (Good)
-                color = `rgba(34, 197, 94, ${0.5 + Math.random() * 0.5})`;
+                color = `rgba(34, 197, 94, ${0.5 + r3 * 0.5})`;
             } else {
                 // Neutral
-                color = `rgba(255, 255, 255, ${0.1 + Math.random() * 0.2})`;
+                color = `rgba(255, 255, 255, ${0.1 + r3 * 0.2})`;
             }
 
             strips.push({
@@ -632,7 +642,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                     <Info className="w-3 h-3" />
                     <span>SCROLL TO VIEW FUTURE PREDICTIONS &rarr;</span>
                 </div>
-                <span>ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                <span>ID: {Math.floor(seed).toString(36).toUpperCase().substr(0, 9)}</span>
             </div>
         </div>
     );
@@ -641,6 +651,8 @@ const YearlyPredictionGraph = ({ data, userData }) => {
 const ConsolidatedReport = () => {
     const { t, i18n } = useTranslation();
     const location = useLocation();
+    const [activeTab, setActiveTab] = useState('vedic');
+    const [activeVedicSection, setActiveVedicSection] = useState('charts'); // 'charts' | 'predictions' | 'remedies'
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -726,7 +738,7 @@ const ConsolidatedReport = () => {
         }
     };
 
-    const [activeTab, setActiveTab] = useState('vedic');
+
     const [westernSvg, setWesternSvg] = useState(null);
     const [vedicSvg, setVedicSvg] = useState(null);
     const [predictionGraphData, setPredictionGraphData] = useState(null);
@@ -1094,20 +1106,63 @@ const ConsolidatedReport = () => {
                 {/* VEDIC TAB (Previously Overview) */}
                 {activeTab === 'vedic' && (
                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* AI Executive Summary */}
+                        {/* 1. Report Highlights */}
+                        <div className="glass-panel p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-100/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="relative z-10">
+                                <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                                    <Sparkles className="w-6 h-6 text-indigo-600" />
+                                    {t('report.highlights.title', 'Report Highlights')}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-white/50">
+                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Core Self</div>
+                                        <div className="text-lg font-black text-slate-800">{report.vedic_astrology.panchang?.ascendant?.name} Ascendant</div>
+                                        <p className="text-sm text-slate-600 mt-1 leading-snug">
+                                            Your fundamental approach to life is driven by {report.vedic_astrology.panchang?.ascendant?.name} energy.
+                                        </p>
+                                    </div>
+                                    <div className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-white/50">
+                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Emotional Mind</div>
+                                        <div className="text-lg font-black text-slate-800">{report.vedic_astrology.panchang?.nakshatra?.name} Nakshatra</div>
+                                        <p className="text-sm text-slate-600 mt-1 leading-snug">
+                                            Your emotional core is influenced by the {report.vedic_astrology.panchang?.nakshatra?.name} star constellation.
+                                        </p>
+                                    </div>
+                                    <div className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-white/50">
+                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Phase</div>
+                                        <div className="text-lg font-black text-slate-800">{report.vedic_astrology.dasha?.active_mahadasha} Cycle</div>
+                                        <p className="text-sm text-slate-600 mt-1 leading-snug">
+                                            You are currently navigating the major life period governing {report.vedic_astrology.dasha?.active_mahadasha} themes.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-
-
+                        {/* 2. Section Navigation */}
+                        <div className="flex justify-center sticky top-20 z-30">
+                            <div className="inline-flex bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-indigo-50 shadow-lg">
+                                {['charts', 'predictions', 'remedies'].map((section) => (
+                                    <button
+                                        key={section}
+                                        onClick={() => setActiveVedicSection(section)}
+                                        className={`px-6 py-2 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${activeVedicSection === section
+                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50'
+                                            }`}
+                                    >
+                                        {t(`report.section.${section}`, section.charAt(0).toUpperCase() + section.slice(1))}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-
-                            {/* Western Astrology Card */}
-
-
-                            {/* Vedic Astrology Card */}
-                            {report.vedic_astrology && (
-                                <div className="col-span-full glass-panel p-5 md:p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
+                            {/* CHARTS SECTION START */}
+                            {activeVedicSection === 'charts' && report.vedic_astrology && (
+                                <div className="col-span-full glass-panel p-5 md:p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl animate-in fade-in zoom-in-95 duration-300">
                                     <div className="absolute top-0 right-0 p-6 opacity-5 hidden md:block">
                                         <Scroll className="w-32 h-32 text-primary" />
                                     </div>
@@ -1122,7 +1177,7 @@ const ConsolidatedReport = () => {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                        {/* Left Column: Chart & Basic Info */}
+                                        {/* Chart Vis */}
                                         <div className="space-y-6">
                                             {report.vedic_astrology.chart_svg && (
                                                 <div className="flex justify-center p-3 md:p-5 bg-purple-50/50 rounded-2xl border border-purple-100 shadow-inner">
@@ -1132,12 +1187,14 @@ const ConsolidatedReport = () => {
                                                     />
                                                 </div>
                                             )}
+                                        </div>
 
+                                        {/* Basic Info */}
+                                        <div className="space-y-6">
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
                                                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.nakshatra')}</span>
                                                     <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.nakshatra?.name}</span>
-                                                    <span className="text-[10px] text-purple-600 uppercase font-black">{report.vedic_astrology.panchang?.nakshatra?.lord}</span>
                                                 </div>
                                                 <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
                                                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.tithi')}</span>
@@ -1151,282 +1208,156 @@ const ConsolidatedReport = () => {
                                                     <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Karana</span>
                                                     <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.karana?.name}</span>
                                                 </div>
-                                                <div className="col-span-2 flex flex-col p-3 bg-purple-50 border border-purple-100 rounded-xl">
-                                                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1">{t('report.vedic.current_mahadasha')}</span>
-                                                    <span className="text-base font-bold text-primary">{report.vedic_astrology.dasha?.[0]?.planet || report.vedic_astrology.dasha?.active_mahadasha}</span>
-                                                </div>
                                             </div>
-
-                                        </div>
-
-                                        {/* Right Column: AI Analysis */}
-                                        <div className="space-y-6">
-                                            {report.vedic_astrology.vedic_personality_analysis ? (
-                                                <div className="bg-purple-50/30 p-4 md:p-6 rounded-2xl border border-purple-100 h-full flex flex-col justify-between">
-                                                    <div className="space-y-5">
-                                                        {report.vedic_astrology.avakhada && (
-                                                            <div className="mb-4 p-4 bg-white/50 rounded-2xl border border-purple-100 shadow-sm">
-                                                                <div className="flex items-center gap-2 mb-4">
-                                                                    <div className="p-1.5 bg-purple-100 rounded-lg">
-                                                                        <Moon className="w-3.5 h-3.5 text-purple-600" />
-                                                                    </div>
-                                                                    <span className="text-[10px] md:text-xs font-black text-primary uppercase tracking-widest">Avakhada Chakra Details</span>
-                                                                </div>
-                                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                                                    {[
-                                                                        { label: 'Varna', value: report.vedic_astrology.avakhada.varna, color: 'indigo', desc: "Soul's Nature" },
-                                                                        { label: 'Vashya', value: report.vedic_astrology.avakhada.vashya, color: 'blue', desc: "Dominance" },
-                                                                        { label: 'Gana', value: report.vedic_astrology.avakhada.gana, color: 'purple', desc: "Temperament" },
-                                                                        { label: 'Yoni', value: report.vedic_astrology.avakhada.yoni, color: 'pink', desc: "Instinct" },
-                                                                        { label: 'Nadi', value: report.vedic_astrology.avakhada.nadi, color: 'rose', desc: "Constitution" },
-                                                                        { label: 'Paya (Charan)', value: report.vedic_astrology.avakhada.paya, color: 'amber', desc: "Foundation" },
-                                                                        { label: 'Yunja', value: report.vedic_astrology.avakhada.yunja, color: 'emerald', desc: "Structure" },
-                                                                        { label: 'Tatwa', value: report.vedic_astrology.avakhada.tatwa, color: 'orange', desc: "Element" }
-                                                                    ].map((item, idx) => (
-                                                                        <div key={idx} className="flex flex-col group/item relative">
-                                                                            <span className={`text-[9px] font-black uppercase text-slate-400 group-hover/item:text-primary transition-colors tracking-tight`}>{item.label}</span>
-                                                                            <span className="text-xs md:text-sm font-black text-primary border-b border-transparent group-hover/item:border-purple-200 transition-all">{item.value}</span>
-                                                                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover/item:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl z-20 whitespace-nowrap">
-                                                                                {item.desc}
-                                                                                <div className="absolute top-full left-2 border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-900"></div>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        <div>
-                                                            <h4 className="text-sm font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
-                                                                <Star className="w-4 h-4 text-purple-600" />
-                                                                Overall Personality
-                                                            </h4>
-                                                            <ul className="space-y-2">
-                                                                {report.vedic_astrology.vedic_personality_analysis.overall_personality?.map((point, i) => (
-                                                                    <li key={i} className="flex gap-2 text-sm text-slate-600">
-                                                                        <span className="text-purple-400">•</span>
-                                                                        {point}
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-
-                                                            {report.vedic_astrology.vedic_personality_analysis.manglik_status && (
-                                                                <div className="mt-4 p-3 rounded-lg bg-rose-50 border border-rose-100/50">
-                                                                    <div className="text-xs font-black text-rose-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                                                                        Manglik Analysis
-                                                                    </div>
-                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                                                        {report.vedic_astrology.vedic_personality_analysis.manglik_status}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-
-                                                            {report.vedic_astrology.vedic_personality_analysis.pitru_dosha_status && (
-                                                                <div className="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-100/50">
-                                                                    <div className="text-xs font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                                                                        Pitru Dosha Analysis
-                                                                    </div>
-                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                                                        {report.vedic_astrology.vedic_personality_analysis.pitru_dosha_status}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <h5 className="text-xs font-black text-secondary uppercase tracking-widest mb-1">Emotional Nature</h5>
-                                                                <p className="text-sm text-slate-600 leading-relaxed italic">
-                                                                    "{report.vedic_astrology.vedic_personality_analysis.emotional_nature}"
-                                                                </p>
-                                                            </div>
-                                                            <div>
-                                                                <h5 className="text-xs font-black text-secondary uppercase tracking-widest mb-1">Life Theme</h5>
-                                                                <p className="text-sm text-purple-700 font-bold leading-relaxed">
-                                                                    {report.vedic_astrology.vedic_personality_analysis.life_theme}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-3 pt-2 border-t border-purple-100/50">
-                                                            <div>
-                                                                <span className="text-sm font-bold text-emerald-600 uppercase tracking-wider mr-2">Strengths:</span>
-                                                                <span className="text-sm text-slate-600">
-                                                                    {report.vedic_astrology.vedic_personality_analysis.strengths?.join(", ")}
-                                                                </span>
-                                                            </div>
-                                                            <div>
-                                                                <span className="text-sm font-bold text-amber-600 uppercase tracking-wider mr-2">Challenges:</span>
-                                                                <span className="text-sm text-slate-600">
-                                                                    {report.vedic_astrology.vedic_personality_analysis.challenges?.join(", ")}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="mt-6 text-center">
-                                                        <p className="text-sm text-slate-400 italic">
-                                                            "This chart shows tendencies, not fixed destiny."
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                    <Brain className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="text-sm">Generating detailed personality analysis...</p>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
-
                                 </div>
                             )}
 
                             {/* KP System Card */}
                             {/* Dasha Timeline Section (Promoted) */}
-                            <div className="col-span-full glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
-                                            <Activity className="w-7 h-7 text-indigo-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
-                                            <p className="text-indigo-600/60 text-sm font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Active Period Highlight Card */}
-                                    {report.vedic_astrology?.dasha?.active_mahadasha && (
-                                        <div className="mb-6 md:mb-8 p-5 md:p-8 rounded-3xl md:rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
-                                            {/* Cosmic Background Effect */}
-                                            <div className="absolute inset-0 opacity-20 hidden md:block">
-                                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-300 transition-colors duration-1000"></div>
-                                                <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
+                            {activeVedicSection === 'predictions' && (
+                                <div className="col-span-full glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-4 mb-8">
+                                            <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
+                                                <Activity className="w-7 h-7 text-indigo-600" />
                                             </div>
+                                            <div>
+                                                <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
+                                                <p className="text-indigo-600/60 text-sm font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
+                                            </div>
+                                        </div>
 
-                                            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-                                                <div className="flex items-center gap-4 md:gap-6">
-                                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
-                                                        <span className="text-xl md:text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
-                                                            <span className="text-indigo-200 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em]">Current Cycle</span>
+                                        {/* Active Period Highlight Card */}
+                                        {report.vedic_astrology?.dasha?.active_mahadasha && (
+                                            <div className="mb-6 md:mb-8 p-5 md:p-8 rounded-3xl md:rounded-[2rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-2xl relative overflow-hidden group">
+                                                {/* Cosmic Background Effect */}
+                                                <div className="absolute inset-0 opacity-20 hidden md:block">
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-300 transition-colors duration-1000"></div>
+                                                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
+                                                </div>
+
+                                                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                                                    <div className="flex items-center gap-4 md:gap-6">
+                                                        <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
+                                                            <span className="text-xl md:text-3xl font-black">{report.vedic_astrology.dasha.active_mahadasha[0]}</span>
                                                         </div>
-                                                        <h3 className="text-xl md:text-4xl font-serif italic leading-tight">
-                                                            {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
-                                                        </h3>
-                                                        {report.vedic_astrology.dasha.active_antardasha && (
-                                                            <p className="text-indigo-200 mt-1 md:mt-2 text-[10px] md:text-sm font-medium flex items-center gap-2">
-                                                                <span className="w-1 h-1 rounded-full bg-white/50"></span>
-                                                                {report.vedic_astrology.dasha.active_antardasha} Bhukti
-                                                            </p>
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
+                                                                <span className="text-indigo-200 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em]">Current Cycle</span>
+                                                            </div>
+                                                            <h3 className="text-xl md:text-4xl font-serif italic leading-tight">
+                                                                {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
+                                                            </h3>
+                                                            {report.vedic_astrology.dasha.active_antardasha && (
+                                                                <p className="text-indigo-200 mt-1 md:mt-2 text-[10px] md:text-sm font-medium flex items-center gap-2">
+                                                                    <span className="w-1 h-1 rounded-full bg-white/50"></span>
+                                                                    {report.vedic_astrology.dasha.active_antardasha} Bhukti
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="md:text-right">
+                                                        <div className="inline-block px-3 py-1 md:px-5 md:py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
+                                                            <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Mobile Card View */}
+                                        <div className="md:hidden space-y-3">
+                                            {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
+                                                <div key={i} className={`p-4 rounded-2xl border transition-all ${d.is_active ? 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-200' : 'bg-white border-indigo-50 shadow-sm'}`}>
+                                                    <div className="flex justify-between items-center mb-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${d.is_active ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                                {d.planet.substring(0, 2)}
+                                                            </div>
+                                                            <span className="font-bold text-slate-900 text-sm">{d.planet}</span>
+                                                        </div>
+                                                        {d.is_active && (
+                                                            <span className="px-2 py-0.5 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest animate-pulse">
+                                                                Active
+                                                            </span>
                                                         )}
                                                     </div>
-                                                </div>
-
-                                                <div className="md:text-right">
-                                                    <div className="inline-block px-3 py-1 md:px-5 md:py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                        <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Mobile Card View */}
-                                    <div className="md:hidden space-y-3">
-                                        {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
-                                            <div key={i} className={`p-4 rounded-2xl border transition-all ${d.is_active ? 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-200' : 'bg-white border-indigo-50 shadow-sm'}`}>
-                                                <div className="flex justify-between items-center mb-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${d.is_active ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
-                                                            {d.planet.substring(0, 2)}
+                                                    <div className="flex justify-between items-center text-xs">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">Start</span>
+                                                            <span className="text-slate-700 font-bold">{d.start}</span>
                                                         </div>
-                                                        <span className="font-bold text-slate-900 text-sm">{d.planet}</span>
-                                                    </div>
-                                                    {d.is_active && (
-                                                        <span className="px-2 py-0.5 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest animate-pulse">
-                                                            Active
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex justify-between items-center text-xs">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">Start</span>
-                                                        <span className="text-slate-700 font-bold">{d.start}</span>
-                                                    </div>
-                                                    <div className="w-8 h-px bg-slate-100"></div>
-                                                    <div className="flex flex-col text-right">
-                                                        <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">End</span>
-                                                        <span className="text-slate-700 font-bold">{d.end}</span>
+                                                        <div className="w-8 h-px bg-slate-100"></div>
+                                                        <div className="flex flex-col text-right">
+                                                            <span className="text-slate-400 uppercase font-black tracking-tight mb-0.5">End</span>
+                                                            <span className="text-slate-700 font-bold">{d.end}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
 
-                                    {/* Desktop Table View */}
-                                    <div className="hidden md:block overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
-                                        <table className="w-full text-left">
-                                            <thead>
-                                                <tr className="bg-indigo-50/50">
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Planetary Period</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Start Date</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">End Date</th>
-                                                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900 text-right">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-indigo-50">
-                                                {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
-                                                    <tr key={i} className={`group transition-all ${d.is_active ? 'bg-indigo-100/30' : 'hover:bg-indigo-50/20'}`}>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${d.is_active ? 'bg-indigo-600 text-white shadow-md' : 'bg-indigo-50 text-indigo-600'}`}>
-                                                                    {d.planet.substring(0, 2)}
-                                                                </div>
-                                                                <span className="font-bold text-slate-900 tracking-tight">
-                                                                    {d.planet} Mahadasha
-                                                                    {d.is_active && report.vedic_astrology?.dasha?.active_antardasha && (
-                                                                        <span className="text-indigo-600 ml-2">/ {report.vedic_astrology.dasha.active_antardasha} Bhukti</span>
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.start}</td>
-                                                        <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.end}</td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            {d.is_active ? (
-                                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest shadow-sm animate-pulse">
-                                                                    Current Phase
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-                                                                    {new Date(d.start) > new Date() ? 'Upcoming' : 'Past'}
-                                                                </span>
-                                                            )}
-                                                        </td>
+                                        {/* Desktop Table View */}
+                                        <div className="hidden md:block overflow-x-auto rounded-3xl border border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                                            <table className="w-full text-left">
+                                                <thead>
+                                                    <tr className="bg-indigo-50/50">
+                                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Planetary Period</th>
+                                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">Start Date</th>
+                                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900">End Date</th>
+                                                        <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-indigo-900 text-right">Status</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody className="divide-y divide-indigo-50">
+                                                    {report.vedic_astrology?.dasha?.timeline?.map((d, i) => (
+                                                        <tr key={i} className={`group transition-all ${d.is_active ? 'bg-indigo-100/30' : 'hover:bg-indigo-50/20'}`}>
+                                                            <td className="px-6 py-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${d.is_active ? 'bg-indigo-600 text-white shadow-md' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                                        {d.planet.substring(0, 2)}
+                                                                    </div>
+                                                                    <span className="font-bold text-slate-900 tracking-tight">
+                                                                        {d.planet} Mahadasha
+                                                                        {d.is_active && report.vedic_astrology?.dasha?.active_antardasha && (
+                                                                            <span className="text-indigo-600 ml-2">/ {report.vedic_astrology.dasha.active_antardasha} Bhukti</span>
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.start}</td>
+                                                            <td className="px-6 py-4 text-sm text-slate-500 font-medium">{d.end}</td>
+                                                            <td className="px-6 py-4 text-right">
+                                                                {d.is_active ? (
+                                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-black bg-indigo-600 text-white uppercase tracking-widest shadow-sm animate-pulse">
+                                                                        Current Phase
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">
+                                                                        {new Date(d.start) > new Date() ? 'Upcoming' : 'Past'}
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                    <div className="mt-6 flex items-center gap-2 text-xs text-indigo-400 font-bold uppercase tracking-widest justify-center">
-                                        <Info className="w-3 h-3" /> Based on {report.vedic_astrology?.panchang?.nakshatra?.name || 'Moon Nakshatra'} 120-year cosmic cycle
+                                        <div className="mt-6 flex items-center gap-2 text-xs text-indigo-400 font-bold uppercase tracking-widest justify-center">
+                                            <Info className="w-3 h-3" /> Based on {report.vedic_astrology?.panchang?.nakshatra?.name || 'Moon Nakshatra'} 120-year cosmic cycle
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Vedic Remedies Card (Enhanced) */}
 
-                            {report.vedic_astrology?.remedies && (
+                            {activeVedicSection === 'remedies' && report.vedic_astrology?.remedies && (
                                 <div className="col-span-full glass-panel p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden bg-gradient-to-br from-amber-50 via-purple-50 to-white border border-amber-100 shadow-xl">
                                     <div className="absolute top-0 right-0 p-10 opacity-5">
                                         <Sparkles className="w-48 h-48 text-amber-500" />
@@ -1523,540 +1454,554 @@ const ConsolidatedReport = () => {
                         </div>
 
                         <section className="space-y-8">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                                    <Scroll className="w-6 h-6 text-amber-600" />
-                                </div>
-                                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Kundli Insights</h2>
-                            </div>
-
-                            {/* Vedic AI Summary - Robust Rendering (Support Object and String) */}
-                            {report.vedic_astrology?.ai_summary ? (
-                                typeof report.vedic_astrology.ai_summary === 'object' ? (
-                                    <>
-
-                                        {/* 1. The Foundation: Birth Chart Analysis */}
-                                        {report.vedic_astrology.ai_summary.personality_analysis && (
-                                            <div className="glass-panel p-5 md:p-12 rounded-3xl md:rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
-                                                <div className="absolute top-0 right-0 p-6 opacity-10 hidden md:block">
-                                                    <Scroll className="w-32 h-32 text-indigo-600" />
-                                                </div>
-                                                <div className="relative z-10 space-y-6">
-                                                    <div className="flex items-center gap-4 mb-6">
-                                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
-                                                            <Scroll className="w-5 h-5 md:w-8 md:h-8 text-indigo-600" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-lg md:text-3xl font-black text-primary uppercase italic tracking-tighter leading-tight">
-                                                                {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
-                                                            </h3>
-                                                            <p className="text-indigo-600 text-[10px] md:text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                                                                <Sparkles className="w-3 h-3" /> Personalized Life Insights
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="prose prose-indigo max-w-none">
-                                                        {(() => {
-                                                            const content = report.vedic_astrology.ai_summary.personality_analysis.content;
-                                                            if (typeof content === 'object' && content !== null && !Array.isArray(content)) {
-                                                                return (
-                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                                                        {Object.entries(content).map(([label, text], i) => (
-                                                                            <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
-                                                                                <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
-                                                                                    {label}
-                                                                                </span>
-                                                                                <p className={`text-slate-700 leading-relaxed ${label === 'Life Theme' ? 'text-lg font-bold italic text-indigo-800' : 'text-sm font-medium'}`}>
-                                                                                    {text}
-                                                                                </p>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                );
-                                                            }
-                                                            return (
-                                                                <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                    {content}
-                                                                </p>
-                                                            );
-                                                        })()}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* 2. The Self: Core Insights Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                                            {Object.entries(report.vedic_astrology.ai_summary)
-                                                .filter(([key]) => ['emotional_core', 'life_phase'].includes(key))
-                                                .map(([key, section]) => {
-                                                    const icons = {
-                                                        emotional_core: <Moon className="w-5 h-5 text-blue-600" />,
-                                                        life_phase: <Activity className="w-5 h-5 text-purple-600" />,
-                                                    };
-                                                    const bgColors = {
-                                                        emotional_core: 'bg-blue-50/50 border-blue-100',
-                                                        life_phase: 'bg-purple-50/50 border-purple-100',
-                                                    };
-                                                    return (
-                                                        <div key={key} className={`glass-panel p-6 rounded-3xl border ${bgColors[key] || 'bg-gray-50/50 border-gray-100'} shadow-md hover:shadow-lg transition-all`}>
-                                                            <div className="flex items-center gap-3 mb-4">
-                                                                <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
-                                                                    {icons[key] || <Brain className="w-5 h-5 text-gray-600" />}
-                                                                </div>
-                                                                <h4 className="font-bold text-primary tracking-tight">{section.title}</h4>
-                                                            </div>
-                                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                                                                {typeof section.content === 'object'
-                                                                    ? JSON.stringify(section.content, null, 2)
-                                                                    : section.content}
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                })}
+                            {activeVedicSection === 'predictions' && (
+                                <>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                                            <Scroll className="w-6 h-6 text-amber-600" />
                                         </div>
-
-
-
-                                        {/* 4. The Connection: Marriage & Relationships */}
-                                        {report.vedic_astrology.ai_summary.relationships && (
-                                            <div className="mb-12">
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
-                                                        <Heart className="w-6 h-6 text-pink-600" />
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Marriage & Relationships</h3>
-                                                </div>
-
-                                                <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                                                        <Heart className="w-40 h-40 text-pink-600" />
-                                                    </div>
-                                                    <div className="relative z-10">
-                                                        <div className="prose prose-pink max-w-none">
-                                                            {(() => {
-                                                                const relContent = report.vedic_astrology.ai_summary.relationships.content;
-
-                                                                if (typeof relContent === 'object' && !Array.isArray(relContent) && relContent !== null) {
-                                                                    return (
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                            {Object.entries(relContent).map(([label, text], i) => (
-                                                                                <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
-                                                                                    <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
-                                                                                        {label}
-                                                                                    </span>
-                                                                                    <p className="text-slate-700 text-sm leading-relaxed">
-                                                                                        {text}
-                                                                                    </p>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    );
-                                                                }
-
-                                                                return (
-                                                                    <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                        {typeof relContent === 'object'
-                                                                            ? JSON.stringify(relContent, null, 2)
-                                                                            : relContent}
-                                                                    </p>
-                                                                );
-                                                            })()}
-                                                        </div>
-                                                        <div className="mt-8 pt-6 border-t border-pink-100 flex items-center justify-between">
-                                                            <div className="flex items-center gap-2 text-xs text-pink-600/60 font-black uppercase tracking-[0.2em]">
-                                                                <Heart className="w-4 h-4" /> Union & Partnership Insights
-                                                            </div>
-                                                            <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
-                                                                <Sparkles className="w-3 h-3" /> Relationship Harmony
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-
-
-
-
-
-                                        {/* Other Life Insights Grid (Catch-all for any additional AI insights) */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                                            {Object.entries(report.vedic_astrology.ai_summary)
-                                                .filter(([key]) => !['personality_analysis', 'career_path', 'relationships', 'dosha_check', 'remedies', 'transit_analysis', 'emotional_core', 'life_phase'].includes(key))
-                                                .map(([key, section]) => {
-                                                    // Safety check: ensure section is an object and has required fields
-                                                    if (typeof section !== 'object' || !section) return null;
-
-                                                    return (
-                                                        <div key={key} className="glass-panel p-6 rounded-3xl border bg-gray-50/50 border-gray-100 shadow-md hover:shadow-lg transition-all">
-                                                            <div className="flex items-center gap-3 mb-4">
-                                                                <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
-                                                                    <Brain className="w-5 h-5 text-gray-600" />
-                                                                </div>
-                                                                <h4 className="font-bold text-primary tracking-tight">{section.title || key}</h4>
-                                                            </div>
-                                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                                                                {typeof section.content === 'object'
-                                                                    ? JSON.stringify(section.content, null, 2)
-                                                                    : (section.content || '')}
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                })}
-                                        </div>
-                                    </>
-                                ) : (
-                                    /* Legacy String Fallback */
-                                    <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
-                                        <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                            {report.vedic_astrology.ai_summary}
-                                        </p>
-                                        <div className="mt-6 pt-6 border-t border-indigo-100/50 flex justify-center">
-                                            <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest">
-                                                Note: Regenerate report to view enhanced card-based analysis.
-                                            </p>
-                                        </div>
+                                        <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Kundli Insights</h2>
                                     </div>
-                                )
-                            ) : null}
 
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-                                {/* Vedic Data Table (5:7 Split) */}
-                                <div className="lg:col-span-5 space-y-6 order-2 lg:order-1">
-                                    <div className="glass-panel p-6 rounded-[2.5rem] border-gray-100 bg-white shadow-xl">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className="flex items-center gap-3">
-                                                <Activity className="w-5 h-5 text-amber-600" />
-                                                <h4 className="font-black text-primary uppercase text-xs md:text-xs tracking-widest">{t('report.vedic.cosmic_alignment')}</h4>
-                                            </div>
-                                            <div className="text-xs font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1 rounded-md">
-                                                {t('report.vedic.lahiri_ayanamsa')}
-                                            </div>
-                                        </div>
+                                    {/* Vedic AI Summary - Robust Rendering (Support Object and String) */}
+                                    {report.vedic_astrology?.ai_summary ? (
+                                        typeof report.vedic_astrology.ai_summary === 'object' ? (
+                                            <>
 
-                                        <div className="block lg:hidden space-y-4">
-                                            {report.vedic_astrology?.planets?.map((p, idx) => (
-                                                <div key={idx} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-3">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-primary">{p.name}</span>
-                                                            <span className="text-sm text-secondary uppercase font-black">{p.sanskrit_name}</span>
+                                                {/* 1. The Foundation: Birth Chart Analysis */}
+                                                {report.vedic_astrology.ai_summary.personality_analysis && (
+                                                    <div className="glass-panel p-5 md:p-12 rounded-3xl md:rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
+                                                        <div className="absolute top-0 right-0 p-6 opacity-10 hidden md:block">
+                                                            <Scroll className="w-32 h-32 text-indigo-600" />
                                                         </div>
-                                                        <div className="text-right">
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
-                                                            {p.dignity?.status !== 'Neutral' ? (
-                                                                <span className={`text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
-                                                                    p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-500' :
-                                                                        'bg-red-500/20 text-red-500'
-                                                                    }`}>
-                                                                    {p.dignity?.status}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-sm text-slate-400 uppercase font-black">Neutral</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50">
-                                                        <div>
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
-                                                            <div className="text-xs font-bold text-primary">{p.house}</div>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
-                                                            <div className="text-xs font-bold text-primary">{p.sign}</div>
-                                                        </div>
-                                                    </div>
-                                                    {p.nakshatra && (
-                                                        <div className="pt-2 border-t border-gray-200/50">
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
-                                                            <div className="text-xs font-medium text-amber-800 italic">{p.nakshatra.name}</div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div className="hidden lg:block overflow-x-auto">
-                                            <table className="w-full text-left">
-                                                <thead>
-                                                    <tr className="border-b border-gray-100">
-                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.graha')}</th>
-                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.status')}</th>
-                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-center">{t('report.vedic.house_short')}</th>
-                                                        <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-right">{t('report.vedic.sign')}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100">
-                                                    {report.vedic_astrology?.planets?.map((p, idx) => (
-                                                        <tr key={idx} className="group/row hover:bg-gray-50 transition-colors">
-                                                            <td className="py-2.5">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-sm font-bold text-primary tracking-tight">{p.name} <span className="text-sm text-secondary">({p.sanskrit_name})</span></span>
-                                                                    <span className="text-sm text-amber-700/60 font-medium italic">{p.nakshatra?.name || ''}</span>
+                                                        <div className="relative z-10 space-y-6">
+                                                            <div className="flex items-center gap-4 mb-6">
+                                                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
+                                                                    <Scroll className="w-5 h-5 md:w-8 md:h-8 text-indigo-600" />
                                                                 </div>
-                                                            </td>
-                                                            <td className="py-2.5">
+                                                                <div>
+                                                                    <h3 className="text-lg md:text-3xl font-black text-primary uppercase italic tracking-tighter leading-tight">
+                                                                        {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
+                                                                    </h3>
+                                                                    <p className="text-indigo-600 text-[10px] md:text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                                                                        <Sparkles className="w-3 h-3" /> Personalized Life Insights
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="prose prose-indigo max-w-none">
+                                                                {(() => {
+                                                                    const content = report.vedic_astrology.ai_summary.personality_analysis.content;
+                                                                    if (typeof content === 'object' && content !== null && !Array.isArray(content)) {
+                                                                        return (
+                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                                                {Object.entries(content).map(([label, text], i) => (
+                                                                                    <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
+                                                                                        <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
+                                                                                            {label}
+                                                                                        </span>
+                                                                                        <p className={`text-slate-700 leading-relaxed ${label === 'Life Theme' ? 'text-lg font-bold italic text-indigo-800' : 'text-sm font-medium'}`}>
+                                                                                            {text}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                    return (
+                                                                        <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                                            {content}
+                                                                        </p>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* 2. The Self: Core Insights Grid */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                                                    {Object.entries(report.vedic_astrology.ai_summary)
+                                                        .filter(([key]) => ['emotional_core', 'life_phase'].includes(key))
+                                                        .map(([key, section]) => {
+                                                            const icons = {
+                                                                emotional_core: <Moon className="w-5 h-5 text-blue-600" />,
+                                                                life_phase: <Activity className="w-5 h-5 text-purple-600" />,
+                                                            };
+                                                            const bgColors = {
+                                                                emotional_core: 'bg-blue-50/50 border-blue-100',
+                                                                life_phase: 'bg-purple-50/50 border-purple-100',
+                                                            };
+                                                            return (
+                                                                <div key={key} className={`glass-panel p-6 rounded-3xl border ${bgColors[key] || 'bg-gray-50/50 border-gray-100'} shadow-md hover:shadow-lg transition-all`}>
+                                                                    <div className="flex items-center gap-3 mb-4">
+                                                                        <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
+                                                                            {icons[key] || <Brain className="w-5 h-5 text-gray-600" />}
+                                                                        </div>
+                                                                        <h4 className="font-bold text-primary tracking-tight">{section.title}</h4>
+                                                                    </div>
+                                                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                                                                        {typeof section.content === 'object'
+                                                                            ? JSON.stringify(section.content, null, 2)
+                                                                            : section.content}
+                                                                    </p>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+
+
+
+                                                {/* 4. The Connection: Marriage & Relationships */}
+                                                {report.vedic_astrology.ai_summary.relationships && (
+                                                    <div className="mb-12">
+                                                        <div className="flex items-center gap-4 mb-6">
+                                                            <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
+                                                                <Heart className="w-6 h-6 text-pink-600" />
+                                                            </div>
+                                                            <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Marriage & Relationships</h3>
+                                                        </div>
+
+                                                        <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
+                                                            <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
+                                                                <Heart className="w-40 h-40 text-pink-600" />
+                                                            </div>
+                                                            <div className="relative z-10">
+                                                                <div className="prose prose-pink max-w-none">
+                                                                    {(() => {
+                                                                        const relContent = report.vedic_astrology.ai_summary.relationships.content;
+
+                                                                        if (typeof relContent === 'object' && !Array.isArray(relContent) && relContent !== null) {
+                                                                            return (
+                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                    {Object.entries(relContent).map(([label, text], i) => (
+                                                                                        <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
+                                                                                            <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
+                                                                                                {label}
+                                                                                            </span>
+                                                                                            <p className="text-slate-700 text-sm leading-relaxed">
+                                                                                                {text}
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            );
+                                                                        }
+
+                                                                        return (
+                                                                            <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                                                {typeof relContent === 'object'
+                                                                                    ? JSON.stringify(relContent, null, 2)
+                                                                                    : relContent}
+                                                                            </p>
+                                                                        );
+                                                                    })()}
+                                                                </div>
+                                                                <div className="mt-8 pt-6 border-t border-pink-100 flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2 text-xs text-pink-600/60 font-black uppercase tracking-[0.2em]">
+                                                                        <Heart className="w-4 h-4" /> Union & Partnership Insights
+                                                                    </div>
+                                                                    <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
+                                                                        <Sparkles className="w-3 h-3" /> Relationship Harmony
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+
+
+
+
+
+                                                {/* Other Life Insights Grid (Catch-all for any additional AI insights) */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                                                    {Object.entries(report.vedic_astrology.ai_summary)
+                                                        .filter(([key]) => !['personality_analysis', 'career_path', 'relationships', 'dosha_check', 'remedies', 'transit_analysis', 'emotional_core', 'life_phase'].includes(key))
+                                                        .map(([key, section]) => {
+                                                            // Safety check: ensure section is an object and has required fields
+                                                            if (typeof section !== 'object' || !section) return null;
+
+                                                            return (
+                                                                <div key={key} className="glass-panel p-6 rounded-3xl border bg-gray-50/50 border-gray-100 shadow-md hover:shadow-lg transition-all">
+                                                                    <div className="flex items-center gap-3 mb-4">
+                                                                        <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
+                                                                            <Brain className="w-5 h-5 text-gray-600" />
+                                                                        </div>
+                                                                        <h4 className="font-bold text-primary tracking-tight">{section.title || key}</h4>
+                                                                    </div>
+                                                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                                                                        {typeof section.content === 'object'
+                                                                            ? JSON.stringify(section.content, null, 2)
+                                                                            : (section.content || '')}
+                                                                    </p>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            /* Legacy String Fallback */
+                                            <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
+                                                <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                    {report.vedic_astrology.ai_summary}
+                                                </p>
+                                                <div className="mt-6 pt-6 border-t border-indigo-100/50 flex justify-center">
+                                                    <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest">
+                                                        Note: Regenerate report to view enhanced card-based analysis.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )
+                                    ) : null}
+                                </>
+                            )}
+
+                            {activeVedicSection === 'charts' && (
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
+                                    {/* Vedic Data Table (5:7 Split) */}
+                                    <div className="lg:col-span-5 space-y-6 order-2 lg:order-1">
+                                        <div className="glass-panel p-6 rounded-[2.5rem] border-gray-100 bg-white shadow-xl">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <div className="flex items-center gap-3">
+                                                    <Activity className="w-5 h-5 text-amber-600" />
+                                                    <h4 className="font-black text-primary uppercase text-xs md:text-xs tracking-widest">{t('report.vedic.cosmic_alignment')}</h4>
+                                                </div>
+                                                <div className="text-xs font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1 rounded-md">
+                                                    {t('report.vedic.lahiri_ayanamsa')}
+                                                </div>
+                                            </div>
+
+                                            <div className="block lg:hidden space-y-4">
+                                                {report.vedic_astrology?.planets?.map((p, idx) => (
+                                                    <div key={idx} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-3">
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-sm font-bold text-primary">{p.name}</span>
+                                                                <span className="text-sm text-secondary uppercase font-black">{p.sanskrit_name}</span>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
                                                                 {p.dignity?.status !== 'Neutral' ? (
-                                                                    <span className={`text-xs font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-400' :
-                                                                        p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-400' :
-                                                                            'bg-red-500/20 text-red-400'
+                                                                    <span className={`text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
+                                                                        p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-500' :
+                                                                            'bg-red-500/20 text-red-500'
                                                                         }`}>
                                                                         {p.dignity?.status}
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="text-sm text-slate-500 uppercase font-bold">Neutral</span>
+                                                                    <span className="text-sm text-slate-400 uppercase font-black">Neutral</span>
                                                                 )}
-                                                            </td>
-                                                            <td className="py-2.5 text-xs text-secondary text-center font-bold">{p.house}</td>
-                                                            <td className="py-2.5 text-xs text-slate-500 text-right font-mono">{(p.sign || '').substring?.(0, 3) || p.sign}</td>
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50">
+                                                            <div>
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
+                                                                <div className="text-xs font-bold text-primary">{p.house}</div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
+                                                                <div className="text-xs font-bold text-primary">{p.sign}</div>
+                                                            </div>
+                                                        </div>
+                                                        {p.nakshatra && (
+                                                            <div className="pt-2 border-t border-gray-200/50">
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
+                                                                <div className="text-xs font-medium text-amber-800 italic">{p.nakshatra.name}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="hidden lg:block overflow-x-auto">
+                                                <table className="w-full text-left">
+                                                    <thead>
+                                                        <tr className="border-b border-gray-100">
+                                                            <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.graha')}</th>
+                                                            <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.status')}</th>
+                                                            <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-center">{t('report.vedic.house_short')}</th>
+                                                            <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-right">{t('report.vedic.sign')}</th>
                                                         </tr>
-                                                    ))}
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {report.vedic_astrology?.planets?.map((p, idx) => (
+                                                            <tr key={idx} className="group/row hover:bg-gray-50 transition-colors">
+                                                                <td className="py-2.5">
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-sm font-bold text-primary tracking-tight">{p.name} <span className="text-sm text-secondary">({p.sanskrit_name})</span></span>
+                                                                        <span className="text-sm text-amber-700/60 font-medium italic">{p.nakshatra?.name || ''}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="py-2.5">
+                                                                    {p.dignity?.status !== 'Neutral' ? (
+                                                                        <span className={`text-xs font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-400' :
+                                                                            p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-400' :
+                                                                                'bg-red-500/20 text-red-400'
+                                                                            }`}>
+                                                                            {p.dignity?.status}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-sm text-slate-500 uppercase font-bold">Neutral</span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2.5 text-xs text-secondary text-center font-bold">{p.house}</td>
+                                                                <td className="py-2.5 text-xs text-slate-500 text-right font-mono">{(p.sign || '').substring?.(0, 3) || p.sign}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Vedic Chart (5:7 Split) - Updated Color & Size */}
+                                    <div className="lg:col-span-7 order-1 lg:order-2">
+                                        <div className="glass-panel p-4 md:p-8 rounded-[2.5rem] bg-indigo-950/5 border-indigo-100 shadow-inner relative overflow-hidden group">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
+                                            <div className="relative z-10 flex flex-col items-center">
+                                                {vedicSvg ? (
+                                                    <div
+                                                        className="w-full max-w-[550px] aspect-square flex items-center justify-center overflow-hidden transition-all duration-700 group-hover:scale-[1.02] p-2"
+                                                        style={{
+                                                            // filter: 'hue-rotate(250deg) brightness(1.2) contrast(1.1) saturate(1.2)', // Removed for clear black lines
+                                                            // backgroundColor: 'transparent'
+                                                        }}
+                                                        dangerouslySetInnerHTML={{ __html: vedicSvg }}
+                                                    />
+                                                ) : (
+                                                    <div className="aspect-square w-full flex items-center justify-center bg-gray-50 rounded-[2rem] text-secondary border border-dashed border-gray-200">
+                                                        No Vedic chart available
+                                                    </div>
+                                                )}
+
+                                                <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-black uppercase tracking-widest text-indigo-400">
+                                                    <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">North Indian</span>
+                                                    <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Sidereal View</span>
+                                                    <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Planet Positions</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Vedic Charts Section - Lagna & Navamsa */}
+                            {activeVedicSection === 'charts' && (
+                                <div className="mt-12 space-y-8">
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                                            <Layers className="w-6 h-6 text-purple-600" />
+                                        </div>
+                                        <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Birth Charts</h2>
+                                    </div>
+
+                                    <VedicChartsDisplay userData={userData} />
+                                </div>
+                            )}
+
+                            {/* VedAstro Yearly Prediction Graph */}
+                            {activeVedicSection === 'predictions' && (
+                                <YearlyPredictionGraph data={predictionGraphData} userData={userData} />
+                            )}
+
+                            {/* Graha Insights - Full Width & Non-Scrollable */}
+                            {activeVedicSection === 'charts' && (
+                                <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
+                                            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center">
+                                                <Scroll className="w-7 h-7 text-amber-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
+                                                <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                            {report.vedic_astrology?.graha_effects?.map((effect, idx) => (
+                                                <div key={idx} className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-300 group hover:-translate-y-1">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
+                                                                <span className="text-sm font-black text-gray-900 group-hover:text-amber-700">{effect.house}</span>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-bold text-gray-900 capitalize">
+                                                                    {effect.planet}
+                                                                </p>
+                                                                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
+                                                            </div>
+                                                        </div>
+                                                        <span className="px-3 py-1 bg-amber-50 rounded-full text-sm font-black text-amber-700 uppercase tracking-widest border border-amber-100">
+                                                            {effect.nature}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="relative">
+                                                        <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-amber-100 rounded-full group-hover:bg-amber-300 transition-colors"></div>
+                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium pl-3">
+                                                            {effect.effect}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+
+                            {/* Dosha Awareness Section */}
+                            {activeVedicSection === 'remedies' && (
+                                <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
+                                            <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shadow-lg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 w-7 h-7"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></svg>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
+                                                <p className="text-red-900/60 text-sm font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="md:hidden space-y-4">
+                                            {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
+                                                const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                                const isPresent = data.present;
+                                                const isModerate = data.intensity?.includes('Moderate');
+
+                                                const bgClass = !isPresent ? 'bg-emerald-50 border-emerald-100 opacity-80' : (isModerate ? 'bg-orange-50 border-orange-100 shadow-md' : 'bg-rose-50 border-rose-100 shadow-md');
+                                                const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
+                                                const badgeClass = !isPresent ? 'bg-emerald-600' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
+
+                                                return (
+                                                    <div key={key} className={`p-5 rounded-3xl border transition-all ${bgClass}`}>
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
+                                                                {isPresent ? (isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />) : <Zap className="w-5 h-5" />}
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
+                                                                <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest mt-1 text-white shadow-lg ${badgeClass}`}>
+                                                                    {isPresent ? 'Present' : 'Absent'}
+                                                                </div>
+                                                            </div>
+                                                            {isPresent && (
+                                                                <div className="text-right">
+                                                                    <div className={`text-xs uppercase font-black tracking-widest mb-1 ${isModerate ? 'text-orange-600' : 'text-rose-600'}`}>Intensity</div>
+                                                                    <div className={`text-xs font-black ${isModerate ? 'text-orange-700' : 'text-rose-700'}`}>{data.intensity}</div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {isPresent && (
+                                                            <div className={`bg-white/60 p-3 rounded-xl border ${isModerate ? 'border-orange-200/50' : 'border-rose-200/50'} mb-3`}>
+                                                                <p className={`text-sm font-bold leading-tight italic ${isModerate ? 'text-orange-800' : 'text-rose-800'}`}>
+                                                                    {data.reason}
+                                                                </p>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="space-y-1">
+                                                            <div className="text-xs text-slate-400 uppercase font-black tracking-widest">Remedy</div>
+                                                            <p className={`text-xs leading-relaxed ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-500 italic'}`}>
+                                                                {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required.')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="hidden md:block overflow-x-auto -mx-4 md:mx-0">
+                                            <table className="w-full border-separate border-spacing-y-3">
+                                                <thead>
+                                                    <tr className="text-xs text-slate-400 uppercase tracking-widest font-black">
+                                                        <th className="px-6 py-2 text-left">Dosha Detail</th>
+                                                        <th className="px-6 py-2 text-left">Status</th>
+                                                        <th className="px-6 py-2 text-left">Intensity</th>
+                                                        <th className="px-6 py-2 text-left">Remedial Measures</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
+                                                        const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                                        const isPresent = data.present;
+                                                        const isModerate = data.intensity?.includes('Moderate');
+
+                                                        const rowBg = !isPresent ? 'bg-emerald-50/20' : (isModerate ? 'bg-orange-50/30' : 'bg-rose-50/30');
+                                                        const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
+                                                        const badgeBg = !isPresent ? 'bg-emerald-600 shadow-emerald-100' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
+
+                                                        return (
+                                                            <tr key={key} className={`group transition-all duration-300 ${rowBg} rounded-2xl`}>
+                                                                <td className="px-6 py-5 rounded-l-2xl border-l border-y border-transparent">
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
+                                                                            {isPresent ? (
+                                                                                isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />
+                                                                            ) : (
+                                                                                <Zap className="w-5 h-5" />
+                                                                            )}
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
+                                                                            {isPresent && <div className={`text-xs font-bold leading-tight max-w-[200px] mt-1 italic ${isModerate ? 'text-orange-600/70' : 'text-rose-600/70'}`}>{data.reason}</div>}
+                                                                            {!isPresent && <div className="text-xs text-emerald-600/70 font-bold mt-1">Favorable Alignment</div>}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 border-y border-transparent">
+                                                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-lg ${badgeBg}`}>
+                                                                        {isPresent ? (
+                                                                            <>
+                                                                                <AlertTriangle className="w-3 h-3" />
+                                                                                Present
+                                                                            </>
+                                                                        ) : (
+                                                                            'Absent'
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 border-y border-transparent">
+                                                                    <div className="flex flex-col">
+                                                                        <span className={`text-xs font-black ${isPresent ? (isModerate ? 'text-orange-700' : 'text-rose-700') : 'text-slate-400'}`}>
+                                                                            {isPresent ? data.intensity : 'N/A'}
+                                                                        </span>
+                                                                        {isPresent && (
+                                                                            <div className="w-16 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
+                                                                                <div
+                                                                                    className={`h-full rounded-full ${data.intensity?.includes('High') ? 'bg-rose-600 w-full' :
+                                                                                        data.intensity?.includes('Moderate') ? 'bg-orange-500 w-2/3' :
+                                                                                            'bg-amber-400 w-1/3'
+                                                                                        }`}
+                                                                                ></div>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 rounded-r-2xl border-r border-y border-transparent">
+                                                                    <div className="flex gap-3">
+                                                                        <div className={`mt-1 flex-shrink-0 w-1 h-full rounded-full ${isPresent ? 'bg-rose-200' : 'bg-emerald-200'}`}></div>
+                                                                        <p className={`text-xs leading-relaxed max-w-sm ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-400 italic'}`}>
+                                                                            {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required for this alignment.')}
+                                                                        </p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Vedic Chart (5:7 Split) - Updated Color & Size */}
-                                <div className="lg:col-span-7 order-1 lg:order-2">
-                                    <div className="glass-panel p-4 md:p-8 rounded-[2.5rem] bg-indigo-950/5 border-indigo-100 shadow-inner relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
-                                        <div className="relative z-10 flex flex-col items-center">
-                                            {vedicSvg ? (
-                                                <div
-                                                    className="w-full max-w-[550px] aspect-square flex items-center justify-center overflow-hidden transition-all duration-700 group-hover:scale-[1.02] p-2"
-                                                    style={{
-                                                        // filter: 'hue-rotate(250deg) brightness(1.2) contrast(1.1) saturate(1.2)', // Removed for clear black lines
-                                                        // backgroundColor: 'transparent'
-                                                    }}
-                                                    dangerouslySetInnerHTML={{ __html: vedicSvg }}
-                                                />
-                                            ) : (
-                                                <div className="aspect-square w-full flex items-center justify-center bg-gray-50 rounded-[2rem] text-secondary border border-dashed border-gray-200">
-                                                    No Vedic chart available
-                                                </div>
-                                            )}
-
-                                            <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-black uppercase tracking-widest text-indigo-400">
-                                                <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">North Indian</span>
-                                                <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Sidereal View</span>
-                                                <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Planet Positions</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Vedic Charts Section - Lagna & Navamsa */}
-                            <div className="mt-12 space-y-8">
-                                <div className="flex items-center gap-4 mb-2">
-                                    <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-                                        <Layers className="w-6 h-6 text-purple-600" />
-                                    </div>
-                                    <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Birth Charts</h2>
-                                </div>
-
-                                <VedicChartsDisplay userData={userData} />
-                            </div>
-
-                            {/* VedAstro Yearly Prediction Graph */}
-                            <YearlyPredictionGraph data={predictionGraphData} userData={userData} />
-
-                            {/* Graha Insights - Full Width & Non-Scrollable */}
-                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center">
-                                            <Scroll className="w-7 h-7 text-amber-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
-                                            <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                        {report.vedic_astrology?.graha_effects?.map((effect, idx) => (
-                                            <div key={idx} className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-300 group hover:-translate-y-1">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
-                                                            <span className="text-sm font-black text-gray-900 group-hover:text-amber-700">{effect.house}</span>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-bold text-gray-900 capitalize">
-                                                                {effect.planet}
-                                                            </p>
-                                                            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
-                                                        </div>
-                                                    </div>
-                                                    <span className="px-3 py-1 bg-amber-50 rounded-full text-sm font-black text-amber-700 uppercase tracking-widest border border-amber-100">
-                                                        {effect.nature}
-                                                    </span>
-                                                </div>
-
-                                                <div className="relative">
-                                                    <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-amber-100 rounded-full group-hover:bg-amber-300 transition-colors"></div>
-                                                    <p className="text-sm text-slate-700 leading-relaxed font-medium pl-3">
-                                                        {effect.effect}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            {/* Dosha Awareness Section */}
-                            <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shadow-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 w-7 h-7"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
-                                            <p className="text-red-900/60 text-sm font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="md:hidden space-y-4">
-                                        {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
-                                            const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                                            const isPresent = data.present;
-                                            const isModerate = data.intensity?.includes('Moderate');
-
-                                            const bgClass = !isPresent ? 'bg-emerald-50 border-emerald-100 opacity-80' : (isModerate ? 'bg-orange-50 border-orange-100 shadow-md' : 'bg-rose-50 border-rose-100 shadow-md');
-                                            const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
-                                            const badgeClass = !isPresent ? 'bg-emerald-600' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
-
-                                            return (
-                                                <div key={key} className={`p-5 rounded-3xl border transition-all ${bgClass}`}>
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
-                                                            {isPresent ? (isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />) : <Zap className="w-5 h-5" />}
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                            <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-widest mt-1 text-white shadow-lg ${badgeClass}`}>
-                                                                {isPresent ? 'Present' : 'Absent'}
-                                                            </div>
-                                                        </div>
-                                                        {isPresent && (
-                                                            <div className="text-right">
-                                                                <div className={`text-xs uppercase font-black tracking-widest mb-1 ${isModerate ? 'text-orange-600' : 'text-rose-600'}`}>Intensity</div>
-                                                                <div className={`text-xs font-black ${isModerate ? 'text-orange-700' : 'text-rose-700'}`}>{data.intensity}</div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {isPresent && (
-                                                        <div className={`bg-white/60 p-3 rounded-xl border ${isModerate ? 'border-orange-200/50' : 'border-rose-200/50'} mb-3`}>
-                                                            <p className={`text-sm font-bold leading-tight italic ${isModerate ? 'text-orange-800' : 'text-rose-800'}`}>
-                                                                {data.reason}
-                                                            </p>
-                                                        </div>
-                                                    )}
-
-                                                    <div className="space-y-1">
-                                                        <div className="text-xs text-slate-400 uppercase font-black tracking-widest">Remedy</div>
-                                                        <p className={`text-xs leading-relaxed ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-500 italic'}`}>
-                                                            {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required.')}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-
-                                    <div className="hidden md:block overflow-x-auto -mx-4 md:mx-0">
-                                        <table className="w-full border-separate border-spacing-y-3">
-                                            <thead>
-                                                <tr className="text-xs text-slate-400 uppercase tracking-widest font-black">
-                                                    <th className="px-6 py-2 text-left">Dosha Detail</th>
-                                                    <th className="px-6 py-2 text-left">Status</th>
-                                                    <th className="px-6 py-2 text-left">Intensity</th>
-                                                    <th className="px-6 py-2 text-left">Remedial Measures</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {report.vedic_astrology?.doshas && Object.entries(report.vedic_astrology.doshas).map(([key, data]) => {
-                                                    const formatName = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                                                    const isPresent = data.present;
-                                                    const isModerate = data.intensity?.includes('Moderate');
-
-                                                    const rowBg = !isPresent ? 'bg-emerald-50/20' : (isModerate ? 'bg-orange-50/30' : 'bg-rose-50/30');
-                                                    const iconBg = !isPresent ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : (isModerate ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-rose-100 border-rose-200 text-rose-600');
-                                                    const badgeBg = !isPresent ? 'bg-emerald-600 shadow-emerald-100' : (isModerate ? 'bg-orange-600 shadow-orange-200' : 'bg-rose-600 shadow-rose-200');
-
-                                                    return (
-                                                        <tr key={key} className={`group transition-all duration-300 ${rowBg} rounded-2xl`}>
-                                                            <td className="px-6 py-5 rounded-l-2xl border-l border-y border-transparent">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg}`}>
-                                                                        {isPresent ? (
-                                                                            isModerate ? <AlertTriangle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />
-                                                                        ) : (
-                                                                            <Zap className="w-5 h-5" />
-                                                                        )}
-                                                                    </div>
-                                                                    <div>
-                                                                        <div className="text-sm font-black text-slate-800 uppercase tracking-tight">{formatName(key)}</div>
-                                                                        {isPresent && <div className={`text-xs font-bold leading-tight max-w-[200px] mt-1 italic ${isModerate ? 'text-orange-600/70' : 'text-rose-600/70'}`}>{data.reason}</div>}
-                                                                        {!isPresent && <div className="text-xs text-emerald-600/70 font-bold mt-1">Favorable Alignment</div>}
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 border-y border-transparent">
-                                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-lg ${badgeBg}`}>
-                                                                    {isPresent ? (
-                                                                        <>
-                                                                            <AlertTriangle className="w-3 h-3" />
-                                                                            Present
-                                                                        </>
-                                                                    ) : (
-                                                                        'Absent'
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 border-y border-transparent">
-                                                                <div className="flex flex-col">
-                                                                    <span className={`text-xs font-black ${isPresent ? (isModerate ? 'text-orange-700' : 'text-rose-700') : 'text-slate-400'}`}>
-                                                                        {isPresent ? data.intensity : 'N/A'}
-                                                                    </span>
-                                                                    {isPresent && (
-                                                                        <div className="w-16 h-1 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
-                                                                            <div
-                                                                                className={`h-full rounded-full ${data.intensity?.includes('High') ? 'bg-rose-600 w-full' :
-                                                                                    data.intensity?.includes('Moderate') ? 'bg-orange-500 w-2/3' :
-                                                                                        'bg-amber-400 w-1/3'
-                                                                                    }`}
-                                                                            ></div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 rounded-r-2xl border-r border-y border-transparent">
-                                                                <div className="flex gap-3">
-                                                                    <div className={`mt-1 flex-shrink-0 w-1 h-full rounded-full ${isPresent ? 'bg-rose-200' : 'bg-emerald-200'}`}></div>
-                                                                    <p className={`text-xs leading-relaxed max-w-sm ${isPresent ? 'text-slate-700 font-medium' : 'text-slate-400 italic'}`}>
-                                                                        {isPresent ? data.remedy : (data.remedy || 'No specific remedial actions required for this alignment.')}
-                                                                    </p>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                            )}
 
 
                         </section>
@@ -2578,610 +2523,612 @@ const ConsolidatedReport = () => {
                 }
 
                 {/* KP ASTROLOGY TAB */}
-                {activeTab === 'kp' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* KP Analysis Header */}
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 border-2 border-blue-100">
-                            <div className="flex items-center gap-3 mb-4">
-                                <Target className="w-8 h-8 text-blue-600" />
-                                <div>
-                                    <h2 className="text-3xl font-black text-primary uppercase tracking-tight">
-                                        KP Astrology Analysis
-                                    </h2>
-                                    <p className="text-sm text-blue-600 font-semibold">
-                                        Krishnamurti Paddhati • Event-Based Predictions
-                                    </p>
-                                </div>
-                            </div>
-                            <p className="text-slate-700 leading-relaxed">
-                                Precise event timing using sub-lord theory, ruling planets, and significator analysis.
-                                Clear yes/no answers with confidence levels and practical guidance.
-                            </p>
-                        </div>
-
-                        {/* KP Predictions Grid */}
-                        {report.vedic_astrology?.kp_system && (
-                            <div className="glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
-                                <div className="absolute top-0 right-0 p-6 opacity-5">
-                                    <Star className="w-32 h-32 text-primary" />
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Star className="w-6 h-6 text-emerald-600" />
+                {
+                    activeTab === 'kp' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* KP Analysis Header */}
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 border-2 border-blue-100">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <Target className="w-8 h-8 text-blue-600" />
                                     <div>
-                                        <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
-                                        <p className="text-sm text-emerald-600">Krishnamurti Paddhati</p>
+                                        <h2 className="text-3xl font-black text-primary uppercase tracking-tight">
+                                            KP Astrology Analysis
+                                        </h2>
+                                        <p className="text-sm text-blue-600 font-semibold">
+                                            Krishnamurti Paddhati • Event-Based Predictions
+                                        </p>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {/* Left Column: Planetary Table */}
-                                    <div className="space-y-4">
-                                        {/* Mobile View Cards */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
-                                            {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-primary">{p.planet}</span>
-                                                        <span className="text-sm text-secondary uppercase">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
-                                                    </div>
-                                                    <div className="flex gap-4 text-right">
-                                                        <div>
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest">Star</div>
-                                                            <div className="text-xs font-bold text-emerald-700">{p.star_lord}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-xs text-secondary uppercase font-bold tracking-widest">Sub</div>
-                                                            <div className="text-xs font-bold text-amber-700">{p.sub_lord}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Desktop View Table */}
-                                        <div className="hidden lg:block space-y-2">
-                                            <div className="grid grid-cols-4 text-sm font-bold text-secondary uppercase pb-2 border-b border-gray-100">
-                                                <span>Planet</span>
-                                                <span>Sign</span>
-                                                <span>Star</span>
-                                                <span>Sub</span>
-                                            </div>
-                                            {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
-                                                <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
-                                                    <span className="text-primary font-bold">{p.planet}</span>
-                                                    <span className="text-secondary text-sm">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
-                                                    <span className="text-emerald-700 font-medium text-sm">{p.star_lord}</span>
-                                                    <span className="text-amber-700 font-medium text-sm">{p.sub_lord}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Right Column: Easy English Analysis (Enhanced) */}
-                                    <div className="space-y-6 relative">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                                    <Scroll className="w-5 h-5 text-emerald-600" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
-                                                    <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Detailed Personal Insights</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {report.vedic_astrology.kp_analysis ? (
-                                            <div className="grid grid-cols-1 gap-4 relative z-10">
-                                                {report.vedic_astrology.kp_analysis.map((item, idx) => {
-                                                    // Helper to match icons and colors
-                                                    const getStyle = (type) => {
-                                                        const t = (type || '').toLowerCase();
-                                                        if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
-                                                        if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
-                                                        if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
-                                                        if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
-                                                        if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
-                                                        if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
-                                                        if (t.includes('wealth') || t.includes('finance')) return { icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
-                                                        if (t.includes('education') || t.includes('child')) return { icon: GraduationCap, color: 'text-violet-600', bg: 'bg-violet-50/50', border: 'border-violet-100', accent: 'bg-violet-100' };
-                                                        if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
-                                                        return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
-                                                    };
-                                                    const style = getStyle(item.type);
-                                                    const ItemIcon = style.icon;
-
-                                                    return (
-                                                        <div key={idx} className={`p-5 rounded-[1.5rem] border transition-all hover:bg-white hover:shadow-lg ${style.bg} ${style.border} group`}>
-                                                            <div className="flex gap-4">
-                                                                <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${style.accent}`}>
-                                                                    <ItemIcon className={`w-5 h-5 ${style.color}`} />
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <span className={`text-xs font-black uppercase tracking-[0.2em] ${style.color}`}>
-                                                                        {item.type}
-                                                                    </span>
-                                                                    <p className="text-sm text-slate-700 leading-relaxed font-medium"
-                                                                        dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>') }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                <Brain className="w-8 h-8 mb-2 opacity-50" />
-                                                <p className="text-sm italic">Personalized interpretation is being ready...</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
-                                    <p className="text-sm text-emerald-700 uppercase tracking-widest font-bold">
-                                        {t('report.vedic.source_kp')}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Foreign Travel Prediction Engine (Special Feature) */}
-                        {(() => {
-                            const travelPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Foreign Travel');
-                            if (!travelPrediction) return null;
-                            return (
-                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-800 text-white relative overflow-hidden shadow-2xl border border-blue-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
-                                    <div className="absolute top-0 right-0 p-12 opacity-15 rotate-12 transition-transform hover:scale-110">
-                                        <Globe className="w-64 h-64 text-white" />
-                                    </div>
-
-                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                        <div className="space-y-8">
-                                            <div className="space-y-4">
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
-                                                    <Target className="w-4 h-4 text-blue-200" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-100">KP Astrology Engine</span>
-                                                </div>
-                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
-                                                    Foreign Travel <br />
-                                                    <span className="text-blue-300">Prediction</span>
-                                                </h3>
-                                            </div>
-
-                                            <div className="flex items-center gap-6">
-                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${travelPrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
-                                                    'bg-amber-500 text-white shadow-amber-500/30'
-                                                    }`}>
-                                                    {travelPrediction.outcome}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">Outcome Probability</span>
-                                                    <span className="text-lg font-bold">{travelPrediction.confidence} Confidence</span>
-                                                </div>
-                                            </div>
-
-                                            <p className="text-lg md:text-xl text-blue-50 font-medium leading-relaxed italic border-l-4 border-blue-400/30 pl-6">
-                                                "{travelPrediction.guidance}"
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
-                                            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <Clock className="w-5 h-5 text-blue-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-blue-100">Timing of Opportunity</h4>
-                                                    </div>
-                                                    <p className="text-2xl font-black tracking-tight text-white">
-                                                        {travelPrediction.time_window || "Currently neutral"}
-                                                    </p>
-                                                </div>
-
-                                                <div className="pt-6 border-t border-white/10">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <Target className="w-5 h-5 text-blue-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-blue-100">KP Logic Breakdown</h4>
-                                                    </div>
-                                                    <div className="space-y-4">
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-blue-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
-                                                            <span className="text-emerald-400 font-black">{travelPrediction.kp_logic?.supporting_houses}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-blue-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
-                                                            <span className="text-rose-400 font-black">{travelPrediction.kp_logic?.opposing_houses}</span>
-                                                        </div>
-                                                        <div className="p-3 bg-blue-900/40 rounded-xl border border-blue-400/20">
-                                                            <p className="text-xs text-blue-50 font-medium leading-relaxed italic">
-                                                                {travelPrediction.kp_logic?.sublord_judgment}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
-                        {/* Career Promotion Engine (Special Feature) */}
-                        {(() => {
-                            const promotionPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Promotion');
-                            if (!promotionPrediction) return null;
-                            return (
-                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-slate-800 to-slate-950 text-white relative overflow-hidden shadow-2xl border border-slate-700/30 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
-                                    <div className="absolute top-0 right-0 p-12 opacity-10 -rotate-12 transition-transform hover:scale-110">
-                                        <Briefcase className="w-64 h-64 text-white" />
-                                    </div>
-
-                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                        <div className="space-y-8">
-                                            <div className="space-y-4">
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-700/40 border border-slate-600/30 backdrop-blur-md">
-                                                    <Brain className="w-4 h-4 text-blue-400" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Corporate Recognition Engine</span>
-                                                </div>
-                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic text-white">
-                                                    Career <br />
-                                                    <span className="text-blue-400">Promotion</span>
-                                                </h3>
-                                            </div>
-
-                                            <div className="flex items-center gap-6">
-                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${promotionPrediction.outcome === 'Yes' ? 'bg-blue-600 text-white shadow-blue-500/30' :
-                                                    'bg-amber-600 text-white shadow-amber-500/30'
-                                                    }`}>
-                                                    {promotionPrediction.outcome}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Outcome Probability</span>
-                                                    <span className="text-lg font-bold text-slate-100">{promotionPrediction.confidence} Confidence</span>
-                                                </div>
-                                            </div>
-
-                                            <p className="text-lg md:text-xl text-slate-300 font-medium leading-relaxed italic border-l-4 border-blue-500/50 pl-6">
-                                                "{promotionPrediction.guidance}"
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
-                                            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] space-y-6">
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <TrendingUp className="w-5 h-5 text-blue-400" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Peak Elevation Window</h4>
-                                                    </div>
-                                                    <p className="text-2xl font-black tracking-tight text-white">
-                                                        {promotionPrediction.time_window || "Currently neutral"}
-                                                    </p>
-                                                </div>
-
-                                                <div className="pt-6 border-t border-white/5">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <Target className="w-5 h-5 text-blue-400" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Cuspal Logic Breakdown</h4>
-                                                    </div>
-                                                    <div className="space-y-4">
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Active Houses</span>
-                                                            <span className="text-blue-400 font-black">{promotionPrediction.kp_logic?.supporting_houses}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Resistance factors</span>
-                                                            <span className="text-rose-400 font-black">{promotionPrediction.kp_logic?.opposing_houses}</span>
-                                                        </div>
-                                                        <div className="p-3 bg-slate-800/40 rounded-xl border border-white/5">
-                                                            <p className="text-xs text-slate-400 font-medium leading-relaxed italic">
-                                                                {promotionPrediction.kp_logic?.sublord_judgment}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
-                        {/* Financial Prosperity Prediction Engine (Special Feature) */}
-                        {(() => {
-                            const wealthPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Financial Prosperity');
-                            if (!wealthPrediction) return null;
-                            return (
-                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-indigo-700 to-purple-900 text-white relative overflow-hidden shadow-2xl border border-indigo-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
-                                    <div className="absolute top-0 right-0 p-12 opacity-15 -rotate-6 transition-transform hover:scale-110">
-                                        <Gem className="w-64 h-64 text-white" />
-                                    </div>
-
-                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                        <div className="space-y-8">
-                                            <div className="space-y-4">
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
-                                                    <Target className="w-4 h-4 text-indigo-200" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">KP Wealth Engine</span>
-                                                </div>
-                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
-                                                    Financial <br />
-                                                    <span className="text-indigo-300">Prosperity</span>
-                                                </h3>
-                                            </div>
-
-                                            <div className="flex items-center gap-6">
-                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${wealthPrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
-                                                    'bg-amber-500 text-white shadow-amber-500/30'
-                                                    }`}>
-                                                    {wealthPrediction.outcome}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Outcome Probability</span>
-                                                    <span className="text-lg font-bold">{wealthPrediction.confidence} Confidence</span>
-                                                </div>
-                                            </div>
-
-                                            <p className="text-lg md:text-xl text-indigo-50 font-medium leading-relaxed italic border-l-4 border-indigo-400/30 pl-6">
-                                                "{wealthPrediction.guidance}"
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
-                                            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <Clock className="w-5 h-5 text-indigo-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">Timing of Opportunity</h4>
-                                                    </div>
-                                                    <p className="text-2xl font-black tracking-tight text-white">
-                                                        {wealthPrediction.time_window || "Currently neutral"}
-                                                    </p>
-                                                </div>
-
-                                                <div className="pt-6 border-t border-white/10">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <Target className="w-5 h-5 text-indigo-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">KP Logic Breakdown</h4>
-                                                    </div>
-                                                    <div className="space-y-4">
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
-                                                            <span className="text-emerald-400 font-black">{wealthPrediction.kp_logic?.supporting_houses}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
-                                                            <span className="text-rose-400 font-black">{wealthPrediction.kp_logic?.opposing_houses}</span>
-                                                        </div>
-                                                        <div className="p-3 bg-indigo-900/40 rounded-xl border border-indigo-400/20">
-                                                            <p className="text-xs text-indigo-50 font-medium leading-relaxed italic">
-                                                                {wealthPrediction.kp_logic?.sublord_judgment}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
-                        {/* Vehicle Purchase Prediction Engine (Special Feature) */}
-                        {(() => {
-                            const vehiclePrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Vehicle Purchase');
-                            if (!vehiclePrediction) return null;
-                            return (
-                                <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-teal-700 to-cyan-900 text-white relative overflow-hidden shadow-2xl border border-teal-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
-                                    <div className="absolute top-0 right-0 p-12 opacity-15 rotate-3 transition-transform hover:scale-110">
-                                        <Car className="w-64 h-64 text-white" />
-                                    </div>
-
-                                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                        <div className="space-y-8">
-                                            <div className="space-y-4">
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
-                                                    <Target className="w-4 h-4 text-teal-200" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-100">KP Vehicle Engine</span>
-                                                </div>
-                                                <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
-                                                    Vehicle <br />
-                                                    <span className="text-teal-300">Purchase</span>
-                                                </h3>
-                                            </div>
-
-                                            <div className="flex items-center gap-6">
-                                                <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${vehiclePrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
-                                                    'bg-amber-500 text-white shadow-amber-500/30'
-                                                    }`}>
-                                                    {vehiclePrediction.outcome}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-teal-200">Outcome Probability</span>
-                                                    <span className="text-lg font-bold">{vehiclePrediction.confidence} Confidence</span>
-                                                </div>
-                                            </div>
-
-                                            <p className="text-lg md:text-xl text-teal-50 font-medium leading-relaxed italic border-l-4 border-teal-400/30 pl-6">
-                                                "{vehiclePrediction.guidance}"
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-col justify-between gap-8 order-last md:order-none">
-                                            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <Clock className="w-5 h-5 text-teal-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">Timing of Opportunity</h4>
-                                                    </div>
-                                                    <p className="text-2xl font-black tracking-tight text-white">
-                                                        {vehiclePrediction.time_window || "Currently neutral"}
-                                                    </p>
-                                                </div>
-
-                                                <div className="pt-6 border-t border-white/10">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <Target className="w-5 h-5 text-teal-200" />
-                                                        <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">KP Logic Breakdown</h4>
-                                                    </div>
-                                                    <div className="space-y-4">
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
-                                                            <span className="text-emerald-400 font-black">{vehiclePrediction.kp_logic?.supporting_houses}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
-                                                            <span className="text-rose-400 font-black">{vehiclePrediction.kp_logic?.opposing_houses}</span>
-                                                        </div>
-                                                        <div className="p-3 bg-teal-900/40 rounded-xl border border-teal-400/20">
-                                                            <p className="text-xs text-teal-50 font-medium leading-relaxed italic">
-                                                                {vehiclePrediction.kp_logic?.sublord_judgment}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
-                        {/* KP Predictions Grid */}
-                        {report.kp_analysis && report.kp_analysis.predictions && report.kp_analysis.predictions.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {report.kp_analysis.predictions.filter(p => !['Foreign Travel', 'Promotion', 'Vehicle Purchase', 'Financial Prosperity'].includes(p.event)).map((prediction, idx) => (
-                                    <div key={idx} className="bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl">
-                                        {/* Event Header */}
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex-1">
-                                                <h3 className="text-xl font-black text-primary uppercase tracking-tight mb-1">
-                                                    {prediction.event}
-                                                </h3>
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${prediction.outcome === 'Yes' || prediction.outcome === 'Likely' ? 'bg-green-100 text-green-700' :
-                                                        prediction.outcome === 'No' || prediction.outcome === 'Unlikely' ? 'bg-red-100 text-red-700' :
-                                                            prediction.outcome === 'Delayed' ? 'bg-amber-100 text-amber-700' :
-                                                                'bg-gray-100 text-gray-700'
-                                                        }`}>
-                                                        {prediction.outcome}
-                                                    </span>
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${prediction.confidence === 'High' ? 'bg-blue-100 text-blue-700' :
-                                                        prediction.confidence === 'Medium' ? 'bg-purple-100 text-purple-700' :
-                                                            'bg-slate-100 text-slate-700'
-                                                        }`}>
-                                                        {prediction.confidence} Confidence
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Time Window */}
-                                        {prediction.time_window && (
-                                            <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <Clock className="w-4 h-4 text-blue-600" />
-                                                    <span className="text-xs font-black text-blue-900 uppercase tracking-wider">
-                                                        Time Window
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm font-bold text-blue-700">
-                                                    {prediction.time_window}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        {/* KP Logic Summary */}
-                                        {prediction.kp_logic && (
-                                            <div className="mb-4 space-y-2">
-                                                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
-                                                    KP Logic Summary
-                                                </h4>
-                                                {prediction.kp_logic.supporting_houses && (
-                                                    <div className="text-sm">
-                                                        <span className="font-bold text-green-700">Supporting: </span>
-                                                        <span className="text-slate-700">{prediction.kp_logic.supporting_houses}</span>
-                                                    </div>
-                                                )}
-                                                {prediction.kp_logic.opposing_houses && (
-                                                    <div className="text-sm">
-                                                        <span className="font-bold text-red-700">Opposing: </span>
-                                                        <span className="text-slate-700">{prediction.kp_logic.opposing_houses}</span>
-                                                    </div>
-                                                )}
-                                                {prediction.kp_logic.sublord_judgment && (
-                                                    <div className="text-sm">
-                                                        <span className="font-bold text-blue-700">Sub-lord: </span>
-                                                        <span className="text-slate-700">{prediction.kp_logic.sublord_judgment}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* User Guidance */}
-                                        {prediction.guidance && (
-                                            <div className="p-3 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-100">
-                                                <div className="flex items-start gap-2">
-                                                    <Lightbulb className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
-                                                    <div>
-                                                        <h4 className="text-xs font-black text-purple-900 uppercase tracking-wider mb-1">
-                                                            Guidance
-                                                        </h4>
-                                                        <p className="text-sm text-slate-700 leading-relaxed">
-                                                            {prediction.guidance}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl p-12 border-2 border-slate-100 text-center">
-                                <Target className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                                <h3 className="text-xl font-bold text-slate-600 mb-2">
-                                    KP Analysis Not Available
-                                </h3>
-                                <p className="text-slate-500">
-                                    KP predictions require precise birth time. Please ensure your birth time is accurate.
+                                <p className="text-slate-700 leading-relaxed">
+                                    Precise event timing using sub-lord theory, ruling planets, and significator analysis.
+                                    Clear yes/no answers with confidence levels and practical guidance.
                                 </p>
                             </div>
-                        )}
 
-                        {/* KP Methodology Info */}
-                        <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-6 border border-slate-200">
-                            <h3 className="text-lg font-black text-primary uppercase tracking-tight mb-4">
-                                About KP Astrology
-                            </h3>
-                            <div className="grid md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <h4 className="font-bold text-blue-700 mb-1">Sub-Lord Theory</h4>
-                                    <p className="text-slate-600">
-                                        The sub-lord of house cusps determines the final outcome of events.
+                            {/* KP Predictions Grid */}
+                            {report.vedic_astrology?.kp_system && (
+                                <div className="glass-panel p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
+                                    <div className="absolute top-0 right-0 p-6 opacity-5">
+                                        <Star className="w-32 h-32 text-primary" />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Star className="w-6 h-6 text-emerald-600" />
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.kp_system')}</h3>
+                                            <p className="text-sm text-emerald-600">Krishnamurti Paddhati</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Left Column: Planetary Table */}
+                                        <div className="space-y-4">
+                                            {/* Mobile View Cards */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-primary">{p.planet}</span>
+                                                            <span className="text-sm text-secondary uppercase">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
+                                                        </div>
+                                                        <div className="flex gap-4 text-right">
+                                                            <div>
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Star</div>
+                                                                <div className="text-xs font-bold text-emerald-700">{p.star_lord}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs text-secondary uppercase font-bold tracking-widest">Sub</div>
+                                                                <div className="text-xs font-bold text-amber-700">{p.sub_lord}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Desktop View Table */}
+                                            <div className="hidden lg:block space-y-2">
+                                                <div className="grid grid-cols-4 text-sm font-bold text-secondary uppercase pb-2 border-b border-gray-100">
+                                                    <span>Planet</span>
+                                                    <span>Sign</span>
+                                                    <span>Star</span>
+                                                    <span>Sub</span>
+                                                </div>
+                                                {report.vedic_astrology.kp_system.slice(0, 9).map((p, idx) => (
+                                                    <div key={idx} className="grid grid-cols-4 text-sm items-center py-2 border-b border-gray-100 last:border-0 hover:bg-emerald-50/50 transition-colors rounded-lg px-2 -mx-2">
+                                                        <span className="text-primary font-bold">{p.planet}</span>
+                                                        <span className="text-secondary text-sm">{(p.sign || '').substring?.(0, 3) || p.sign}</span>
+                                                        <span className="text-emerald-700 font-medium text-sm">{p.star_lord}</span>
+                                                        <span className="text-amber-700 font-medium text-sm">{p.sub_lord}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Right Column: Easy English Analysis (Enhanced) */}
+                                        <div className="space-y-6 relative">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                                        <Scroll className="w-5 h-5 text-emerald-600" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-black text-primary uppercase tracking-widest">{t('report.vedic.kp_analysis', 'KP ANALYSIS')}</h4>
+                                                        <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Detailed Personal Insights</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {report.vedic_astrology.kp_analysis ? (
+                                                <div className="grid grid-cols-1 gap-4 relative z-10">
+                                                    {report.vedic_astrology.kp_analysis.map((item, idx) => {
+                                                        // Helper to match icons and colors
+                                                        const getStyle = (type) => {
+                                                            const t = (type || '').toLowerCase();
+                                                            if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
+                                                            if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
+                                                            if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
+                                                            if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
+                                                            if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
+                                                            if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
+                                                            if (t.includes('wealth') || t.includes('finance')) return { icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                            if (t.includes('education') || t.includes('child')) return { icon: GraduationCap, color: 'text-violet-600', bg: 'bg-violet-50/50', border: 'border-violet-100', accent: 'bg-violet-100' };
+                                                            if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                            return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
+                                                        };
+                                                        const style = getStyle(item.type);
+                                                        const ItemIcon = style.icon;
+
+                                                        return (
+                                                            <div key={idx} className={`p-5 rounded-[1.5rem] border transition-all hover:bg-white hover:shadow-lg ${style.bg} ${style.border} group`}>
+                                                                <div className="flex gap-4">
+                                                                    <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${style.accent}`}>
+                                                                        <ItemIcon className={`w-5 h-5 ${style.color}`} />
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <span className={`text-xs font-black uppercase tracking-[0.2em] ${style.color}`}>
+                                                                            {item.type}
+                                                                        </span>
+                                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium"
+                                                                            dangerouslySetInnerHTML={{ __html: (item.meaning || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>') }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                    <Brain className="w-8 h-8 mb-2 opacity-50" />
+                                                    <p className="text-sm italic">Personalized interpretation is being ready...</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+                                        <p className="text-sm text-emerald-700 uppercase tracking-widest font-bold">
+                                            {t('report.vedic.source_kp')}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Foreign Travel Prediction Engine (Special Feature) */}
+                            {(() => {
+                                const travelPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Foreign Travel');
+                                if (!travelPrediction) return null;
+                                return (
+                                    <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-800 text-white relative overflow-hidden shadow-2xl border border-blue-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                        <div className="absolute top-0 right-0 p-12 opacity-15 rotate-12 transition-transform hover:scale-110">
+                                            <Globe className="w-64 h-64 text-white" />
+                                        </div>
+
+                                        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                            <div className="space-y-8">
+                                                <div className="space-y-4">
+                                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
+                                                        <Target className="w-4 h-4 text-blue-200" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-100">KP Astrology Engine</span>
+                                                    </div>
+                                                    <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        Foreign Travel <br />
+                                                        <span className="text-blue-300">Prediction</span>
+                                                    </h3>
+                                                </div>
+
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${travelPrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                                                        'bg-amber-500 text-white shadow-amber-500/30'
+                                                        }`}>
+                                                        {travelPrediction.outcome}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">Outcome Probability</span>
+                                                        <span className="text-lg font-bold">{travelPrediction.confidence} Confidence</span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-lg md:text-xl text-blue-50 font-medium leading-relaxed italic border-l-4 border-blue-400/30 pl-6">
+                                                    "{travelPrediction.guidance}"
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                                <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <Clock className="w-5 h-5 text-blue-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-blue-100">Timing of Opportunity</h4>
+                                                        </div>
+                                                        <p className="text-2xl font-black tracking-tight text-white">
+                                                            {travelPrediction.time_window || "Currently neutral"}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="pt-6 border-t border-white/10">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <Target className="w-5 h-5 text-blue-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-blue-100">KP Logic Breakdown</h4>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-blue-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
+                                                                <span className="text-emerald-400 font-black">{travelPrediction.kp_logic?.supporting_houses}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-blue-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
+                                                                <span className="text-rose-400 font-black">{travelPrediction.kp_logic?.opposing_houses}</span>
+                                                            </div>
+                                                            <div className="p-3 bg-blue-900/40 rounded-xl border border-blue-400/20">
+                                                                <p className="text-xs text-blue-50 font-medium leading-relaxed italic">
+                                                                    {travelPrediction.kp_logic?.sublord_judgment}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Career Promotion Engine (Special Feature) */}
+                            {(() => {
+                                const promotionPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Promotion');
+                                if (!promotionPrediction) return null;
+                                return (
+                                    <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-slate-800 to-slate-950 text-white relative overflow-hidden shadow-2xl border border-slate-700/30 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                        <div className="absolute top-0 right-0 p-12 opacity-10 -rotate-12 transition-transform hover:scale-110">
+                                            <Briefcase className="w-64 h-64 text-white" />
+                                        </div>
+
+                                        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                            <div className="space-y-8">
+                                                <div className="space-y-4">
+                                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-700/40 border border-slate-600/30 backdrop-blur-md">
+                                                        <Brain className="w-4 h-4 text-blue-400" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Corporate Recognition Engine</span>
+                                                    </div>
+                                                    <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic text-white">
+                                                        Career <br />
+                                                        <span className="text-blue-400">Promotion</span>
+                                                    </h3>
+                                                </div>
+
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${promotionPrediction.outcome === 'Yes' ? 'bg-blue-600 text-white shadow-blue-500/30' :
+                                                        'bg-amber-600 text-white shadow-amber-500/30'
+                                                        }`}>
+                                                        {promotionPrediction.outcome}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Outcome Probability</span>
+                                                        <span className="text-lg font-bold text-slate-100">{promotionPrediction.confidence} Confidence</span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-lg md:text-xl text-slate-300 font-medium leading-relaxed italic border-l-4 border-blue-500/50 pl-6">
+                                                    "{promotionPrediction.guidance}"
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                                <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] space-y-6">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <TrendingUp className="w-5 h-5 text-blue-400" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Peak Elevation Window</h4>
+                                                        </div>
+                                                        <p className="text-2xl font-black tracking-tight text-white">
+                                                            {promotionPrediction.time_window || "Currently neutral"}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="pt-6 border-t border-white/5">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <Target className="w-5 h-5 text-blue-400" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Cuspal Logic Breakdown</h4>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Active Houses</span>
+                                                                <span className="text-blue-400 font-black">{promotionPrediction.kp_logic?.supporting_houses}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Resistance factors</span>
+                                                                <span className="text-rose-400 font-black">{promotionPrediction.kp_logic?.opposing_houses}</span>
+                                                            </div>
+                                                            <div className="p-3 bg-slate-800/40 rounded-xl border border-white/5">
+                                                                <p className="text-xs text-slate-400 font-medium leading-relaxed italic">
+                                                                    {promotionPrediction.kp_logic?.sublord_judgment}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Financial Prosperity Prediction Engine (Special Feature) */}
+                            {(() => {
+                                const wealthPrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Financial Prosperity');
+                                if (!wealthPrediction) return null;
+                                return (
+                                    <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-indigo-700 to-purple-900 text-white relative overflow-hidden shadow-2xl border border-indigo-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                        <div className="absolute top-0 right-0 p-12 opacity-15 -rotate-6 transition-transform hover:scale-110">
+                                            <Gem className="w-64 h-64 text-white" />
+                                        </div>
+
+                                        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                            <div className="space-y-8">
+                                                <div className="space-y-4">
+                                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
+                                                        <Target className="w-4 h-4 text-indigo-200" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">KP Wealth Engine</span>
+                                                    </div>
+                                                    <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        Financial <br />
+                                                        <span className="text-indigo-300">Prosperity</span>
+                                                    </h3>
+                                                </div>
+
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${wealthPrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                                                        'bg-amber-500 text-white shadow-amber-500/30'
+                                                        }`}>
+                                                        {wealthPrediction.outcome}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Outcome Probability</span>
+                                                        <span className="text-lg font-bold">{wealthPrediction.confidence} Confidence</span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-lg md:text-xl text-indigo-50 font-medium leading-relaxed italic border-l-4 border-indigo-400/30 pl-6">
+                                                    "{wealthPrediction.guidance}"
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                                <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <Clock className="w-5 h-5 text-indigo-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">Timing of Opportunity</h4>
+                                                        </div>
+                                                        <p className="text-2xl font-black tracking-tight text-white">
+                                                            {wealthPrediction.time_window || "Currently neutral"}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="pt-6 border-t border-white/10">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <Target className="w-5 h-5 text-indigo-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-indigo-100">KP Logic Breakdown</h4>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
+                                                                <span className="text-emerald-400 font-black">{wealthPrediction.kp_logic?.supporting_houses}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-indigo-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
+                                                                <span className="text-rose-400 font-black">{wealthPrediction.kp_logic?.opposing_houses}</span>
+                                                            </div>
+                                                            <div className="p-3 bg-indigo-900/40 rounded-xl border border-indigo-400/20">
+                                                                <p className="text-xs text-indigo-50 font-medium leading-relaxed italic">
+                                                                    {wealthPrediction.kp_logic?.sublord_judgment}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Vehicle Purchase Prediction Engine (Special Feature) */}
+                            {(() => {
+                                const vehiclePrediction = report.kp_analysis?.predictions?.find(p => p.event === 'Vehicle Purchase');
+                                if (!vehiclePrediction) return null;
+                                return (
+                                    <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-gradient-to-br from-teal-700 to-cyan-900 text-white relative overflow-hidden shadow-2xl border border-teal-400/20 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+                                        <div className="absolute top-0 right-0 p-12 opacity-15 rotate-3 transition-transform hover:scale-110">
+                                            <Car className="w-64 h-64 text-white" />
+                                        </div>
+
+                                        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                            <div className="space-y-8">
+                                                <div className="space-y-4">
+                                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-md">
+                                                        <Target className="w-4 h-4 text-teal-200" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-teal-100">KP Vehicle Engine</span>
+                                                    </div>
+                                                    <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        Vehicle <br />
+                                                        <span className="text-teal-300">Purchase</span>
+                                                    </h3>
+                                                </div>
+
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`px-6 py-2 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl ${vehiclePrediction.outcome === 'Yes' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+                                                        'bg-amber-500 text-white shadow-amber-500/30'
+                                                        }`}>
+                                                        {vehiclePrediction.outcome}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-teal-200">Outcome Probability</span>
+                                                        <span className="text-lg font-bold">{vehiclePrediction.confidence} Confidence</span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-lg md:text-xl text-teal-50 font-medium leading-relaxed italic border-l-4 border-teal-400/30 pl-6">
+                                                    "{vehiclePrediction.guidance}"
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col justify-between gap-8 order-last md:order-none">
+                                                <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] space-y-6">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <Clock className="w-5 h-5 text-teal-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">Timing of Opportunity</h4>
+                                                        </div>
+                                                        <p className="text-2xl font-black tracking-tight text-white">
+                                                            {vehiclePrediction.time_window || "Currently neutral"}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="pt-6 border-t border-white/10">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <Target className="w-5 h-5 text-teal-200" />
+                                                            <h4 className="text-xs font-black uppercase tracking-widest text-teal-100">KP Logic Breakdown</h4>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Positive Significators</span>
+                                                                <span className="text-emerald-400 font-black">{vehiclePrediction.kp_logic?.supporting_houses}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-teal-200 font-bold uppercase tracking-wider text-[10px]">Opposing Factors</span>
+                                                                <span className="text-rose-400 font-black">{vehiclePrediction.kp_logic?.opposing_houses}</span>
+                                                            </div>
+                                                            <div className="p-3 bg-teal-900/40 rounded-xl border border-teal-400/20">
+                                                                <p className="text-xs text-teal-50 font-medium leading-relaxed italic">
+                                                                    {vehiclePrediction.kp_logic?.sublord_judgment}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* KP Predictions Grid */}
+                            {report.kp_analysis && report.kp_analysis.predictions && report.kp_analysis.predictions.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {report.kp_analysis.predictions.filter(p => !['Foreign Travel', 'Promotion', 'Vehicle Purchase', 'Financial Prosperity'].includes(p.event)).map((prediction, idx) => (
+                                        <div key={idx} className="bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl">
+                                            {/* Event Header */}
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex-1">
+                                                    <h3 className="text-xl font-black text-primary uppercase tracking-tight mb-1">
+                                                        {prediction.event}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${prediction.outcome === 'Yes' || prediction.outcome === 'Likely' ? 'bg-green-100 text-green-700' :
+                                                            prediction.outcome === 'No' || prediction.outcome === 'Unlikely' ? 'bg-red-100 text-red-700' :
+                                                                prediction.outcome === 'Delayed' ? 'bg-amber-100 text-amber-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                            }`}>
+                                                            {prediction.outcome}
+                                                        </span>
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${prediction.confidence === 'High' ? 'bg-blue-100 text-blue-700' :
+                                                            prediction.confidence === 'Medium' ? 'bg-purple-100 text-purple-700' :
+                                                                'bg-slate-100 text-slate-700'
+                                                            }`}>
+                                                            {prediction.confidence} Confidence
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Time Window */}
+                                            {prediction.time_window && (
+                                                <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <Clock className="w-4 h-4 text-blue-600" />
+                                                        <span className="text-xs font-black text-blue-900 uppercase tracking-wider">
+                                                            Time Window
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm font-bold text-blue-700">
+                                                        {prediction.time_window}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* KP Logic Summary */}
+                                            {prediction.kp_logic && (
+                                                <div className="mb-4 space-y-2">
+                                                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
+                                                        KP Logic Summary
+                                                    </h4>
+                                                    {prediction.kp_logic.supporting_houses && (
+                                                        <div className="text-sm">
+                                                            <span className="font-bold text-green-700">Supporting: </span>
+                                                            <span className="text-slate-700">{prediction.kp_logic.supporting_houses}</span>
+                                                        </div>
+                                                    )}
+                                                    {prediction.kp_logic.opposing_houses && (
+                                                        <div className="text-sm">
+                                                            <span className="font-bold text-red-700">Opposing: </span>
+                                                            <span className="text-slate-700">{prediction.kp_logic.opposing_houses}</span>
+                                                        </div>
+                                                    )}
+                                                    {prediction.kp_logic.sublord_judgment && (
+                                                        <div className="text-sm">
+                                                            <span className="font-bold text-blue-700">Sub-lord: </span>
+                                                            <span className="text-slate-700">{prediction.kp_logic.sublord_judgment}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* User Guidance */}
+                                            {prediction.guidance && (
+                                                <div className="p-3 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-100">
+                                                    <div className="flex items-start gap-2">
+                                                        <Lightbulb className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                                                        <div>
+                                                            <h4 className="text-xs font-black text-purple-900 uppercase tracking-wider mb-1">
+                                                                Guidance
+                                                            </h4>
+                                                            <p className="text-sm text-slate-700 leading-relaxed">
+                                                                {prediction.guidance}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-2xl p-12 border-2 border-slate-100 text-center">
+                                    <Target className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                                    <h3 className="text-xl font-bold text-slate-600 mb-2">
+                                        KP Analysis Not Available
+                                    </h3>
+                                    <p className="text-slate-500">
+                                        KP predictions require precise birth time. Please ensure your birth time is accurate.
                                     </p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-purple-700 mb-1">Ruling Planets</h4>
-                                    <p className="text-slate-600">
-                                        Ascendant lord, Moon star lord, and Day lord indicate timing and answers.
-                                    </p>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-indigo-700 mb-1">Significators</h4>
-                                    <p className="text-slate-600">
-                                        Planets connected to specific houses through lordship, occupation, or aspect.
-                                    </p>
+                            )}
+
+                            {/* KP Methodology Info */}
+                            <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-6 border border-slate-200">
+                                <h3 className="text-lg font-black text-primary uppercase tracking-tight mb-4">
+                                    About KP Astrology
+                                </h3>
+                                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <h4 className="font-bold text-blue-700 mb-1">Sub-Lord Theory</h4>
+                                        <p className="text-slate-600">
+                                            The sub-lord of house cusps determines the final outcome of events.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-purple-700 mb-1">Ruling Planets</h4>
+                                        <p className="text-slate-600">
+                                            Ascendant lord, Moon star lord, and Day lord indicate timing and answers.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-indigo-700 mb-1">Significators</h4>
+                                        <p className="text-slate-600">
+                                            Planets connected to specific houses through lordship, occupation, or aspect.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )
+                }
+            </div >
         </div >
     );
 };

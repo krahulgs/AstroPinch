@@ -10,7 +10,9 @@ const Home = () => {
     const [selectedSign, setSelectedSign] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const heroBackgrounds = [
-        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2070&auto=format&fit=crop'
+        'https://images.unsplash.com/photo-1519681393798-2f77f3741586?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2072&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1505506874110-6a7a69069a08?q=80&w=2070&auto=format&fit=crop'
     ];
 
     React.useEffect(() => {
@@ -95,7 +97,7 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-transparent"></div>
                 </div>
 
-                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-8">
+                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-20">
                     <div className="grid lg:grid-cols-2 gap-16 items-center text-left">
                         {/* Left Side: Information and CTA */}
                         <div className="space-y-10">

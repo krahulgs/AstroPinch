@@ -595,15 +595,15 @@ const Home = () => {
             </section>
 
             {/* User Reviews Section (Leo/Expression Theme) - Professional Redesign */}
-            <section className="relative py-32 overflow-hidden bg-[#0a0a0b]">
+            <section className="relative py-32 overflow-hidden bg-slate-100">
                 {/* Background Image with Lighter Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
                         src="/lighter_cosmos_bg.png"
                         alt="Cosmic background"
-                        className="w-full h-full object-cover opacity-60"
+                        className="w-full h-full object-cover opacity-20"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-[#0a0a0b]/80"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-100/90 to-slate-50"></div>
                 </div>
 
                 {/* Visual Anchors */}
@@ -612,37 +612,37 @@ const Home = () => {
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     {/* Header Block */}
-                    <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-10 border-b border-white/5 pb-10">
+                    <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-10 border-b border-slate-200 pb-10">
                         <div className="max-w-2xl space-y-4">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-violet-300 font-bold text-[10px] uppercase tracking-[0.25em]">
-                                <Star className="w-3 h-3 fill-violet-300" />
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 border border-violet-200 backdrop-blur-md text-violet-700 font-bold text-[10px] uppercase tracking-[0.25em]">
+                                <Star className="w-3 h-3 fill-violet-600" />
                                 Community Validation
                             </div>
-                            <h2 className="text-5xl md:text-7xl font-serif text-white tracking-tight leading-none">
-                                Trust in the <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-violet-200 via-indigo-300 to-white">Cosmos</span>
+                            <h2 className="text-5xl md:text-7xl font-serif text-slate-900 tracking-tight leading-none">
+                                Trust in the <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-600 to-slate-800">Cosmos</span>
                             </h2>
-                            <p className="text-slate-400 text-lg font-light leading-relaxed max-w-xl">
+                            <p className="text-slate-600 text-lg font-light leading-relaxed max-w-xl">
                                 Join a community of over 2 million seekers who rely on our precision-guided celestial insights for clarity in an uncertain world.
                             </p>
                         </div>
 
                         {/* Trust Indicator / Badge */}
-                        <div className="flex items-center gap-8 bg-slate-900/50 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl">
-                            <div className="text-center px-4 border-r border-white/10">
-                                <div className="text-4xl font-black text-white mb-1">4.98</div>
+                        <div className="flex items-center gap-8 bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 shadow-2xl">
+                            <div className="text-center px-4 border-r border-slate-200">
+                                <div className="text-4xl font-black text-slate-900 mb-1">4.98</div>
                                 <div className="flex justify-center gap-0.5 mb-2">
                                     {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />)}
                                 </div>
-                                <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">App Store Rating</div>
+                                <div className="text-[9px] text-slate-600 uppercase tracking-widest font-bold">App Store Rating</div>
                             </div>
                             <div className="px-2">
                                 <div className="flex -space-x-3 mb-2">
                                     {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-[#1a1b1e] bg-slate-800 bg-cover bg-center" style={{ backgroundImage: `url('https://i.pravatar.cc/100?img=${i + 20}')` }}></div>
+                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 bg-cover bg-center" style={{ backgroundImage: `url('https://i.pravatar.cc/100?img=${i + 20}')` }}></div>
                                     ))}
-                                    <div className="w-10 h-10 rounded-full border-2 border-[#1a1b1e] bg-slate-800 flex items-center justify-center text-xs font-bold text-white">2M+</div>
+                                    <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-700 flex items-center justify-center text-xs font-bold text-white">2M+</div>
                                 </div>
-                                <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold text-center">Active Users</div>
+                                <div className="text-[9px] text-slate-600 uppercase tracking-widest font-bold text-center">Active Users</div>
                             </div>
                         </div>
                     </div>
@@ -650,8 +650,8 @@ const Home = () => {
                     {/* Testimonials Slider */}
                     <div className="relative w-full overflow-hidden mask-linear-fade">
                         {/* Gradient Masks for smooth fade edges */}
-                        <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-[#0a0a0b] to-transparent z-10"></div>
-                        <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-[#0a0a0b] to-transparent z-10"></div>
+                        <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-slate-100 to-transparent z-10"></div>
+                        <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-slate-100 to-transparent z-10"></div>
 
                         <div className="flex w-max animate-scroll-left hover:pause-animation">
                             {[...Array(2)].map((_, i) => (
@@ -700,24 +700,24 @@ const Home = () => {
                                             img: "https://i.pravatar.cc/150?u=priya"
                                         }
                                     ].map((review, idx) => (
-                                        <div key={idx} className="w-[300px] group relative p-6 rounded-[1.5rem] bg-slate-900/40 backdrop-blur-sm border border-white/5 hover:border-white/20 hover:bg-slate-900/80 transition-all duration-300">
+                                        <div key={idx} className="w-[300px] group relative p-6 rounded-[1.5rem] bg-white/60 backdrop-blur-sm border border-slate-200 hover:border-violet-300 hover:bg-white/90 transition-all duration-300 shadow-lg">
                                             <div className="flex gap-0.5 mb-4 opacity-70 group-hover:opacity-100 transition-opacity">
                                                 {[...Array(review.rating)].map((_, i) => (
                                                     <Star key={i} className="w-3 h-3 fill-amber-500 text-amber-500" />
                                                 ))}
                                             </div>
 
-                                            <p className="text-slate-300 font-medium text-sm leading-relaxed mb-6 group-hover:text-white transition-colors line-clamp-3">
+                                            <p className="text-slate-700 font-medium text-sm leading-relaxed mb-6 group-hover:text-slate-900 transition-colors line-clamp-3">
                                                 "{review.text}"
                                             </p>
 
                                             <div className="flex items-center gap-3 mt-auto">
-                                                <div className="w-10 h-10 rounded-full border border-white/10 p-0.5">
+                                                <div className="w-10 h-10 rounded-full border border-slate-200 p-0.5">
                                                     <img src={review.img} alt={review.name} className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-white font-bold text-xs tracking-wide">{review.name}</h4>
-                                                    <p className="text-slate-500 text-[9px] uppercase tracking-widest font-bold group-hover:text-indigo-300 transition-colors">{review.role}</p>
+                                                    <h4 className="text-slate-900 font-bold text-xs tracking-wide">{review.name}</h4>
+                                                    <p className="text-slate-600 text-[9px] uppercase tracking-widest font-bold group-hover:text-violet-600 transition-colors">{review.role}</p>
                                                 </div>
                                             </div>
                                         </div>

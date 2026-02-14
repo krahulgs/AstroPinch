@@ -49,7 +49,15 @@ app.include_router(vedastro_router.router)
 # Allow CORS for React Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all origins for development to avoid issues
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173", # Vite default
+        "http://127.0.0.1:5173",
+        "https://astropinch.com",
+        "https://www.astropinch.com",
+        "https://astropinch-api.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

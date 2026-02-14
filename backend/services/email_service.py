@@ -1,20 +1,12 @@
 
 import os
 import smtplib
+import asyncio
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-async def send_reset_email(email: str, token: str):
-    """
-    Send password reset email using configured SMTP server.
-    """
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-    if "localhost" in frontend_url and os.getenv("RENDER"):
-         # Fix for render if not set
-         frontend_url = "https://astropinch.com"
-         
-    reset_link = f"{frontend_url}/reset-password?token={token}"
-    
+def _send_smtp_email(email: str, reset_link: str):
+    """Synchronous SMTP logic to run in thread."""
     sender_email = os.getenv("SMTP_USERNAME")
     sender_password = os.getenv("SMTP_PASSWORD")
     smtp_server = os.getenv("SMTP_SERVER")
@@ -57,9 +49,23 @@ async def send_reset_email(email: str, token: str):
         server.quit()
         print(f"Reset email sent to {email}")
         return True
-        
+    
     except Exception as e:
         print(f"Failed to send email: {e}")
         # Fallback log
         print(f"RESET LINK (Fallback): {reset_link}")
         return False
+
+async def send_reset_email(email: str, token: str):
+    """
+    Send password reset email using configured SMTP server (Async wrapper).
+    """
+    frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000") # Default to IPv4 safe
+    if "localhost" in frontend_url and os.getenv("RENDER"):
+         # Fix for render if not set
+         frontend_url = "https://astropinch.com"
+         
+    reset_link = f"{frontend_url}/reset-password?token={token}"
+    
+    # Run blocking SMTP in thread
+    return await asyncio.to_thread(_send_smtp_email, email, reset_link)

@@ -10,10 +10,9 @@ const Home = () => {
     const [selectedSign, setSelectedSign] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const heroBackgrounds = [
-        'https://images.unsplash.com/photo-1519681393798-2f77f3741586?q=80&w=2070&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2072&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1505506874110-6a7a69069a08?q=80&w=2070&auto=format&fit=crop'
+        'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2013&auto=format&fit=crop'
     ];
+    // Single dark space background - all light backgrounds removed
 
     React.useEffect(() => {
         const interval = setInterval(() => {
@@ -81,7 +80,7 @@ const Home = () => {
                 description="Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through AstroPinch."
             />
             {/* Hero Section - Sleek, Modern, Two-Column */}
-            <section className="relative min-h-[80vh] flex items-center justify-center px-6 overflow-hidden transition-all duration-500">
+            <section className="relative min-h-[70vh] flex items-center justify-center px-6 overflow-hidden transition-all duration-500">
                 {/* Sliding Background Images */}
                 <div className="absolute inset-0 z-0">
                     {heroBackgrounds.map((bg, index) => (
@@ -97,7 +96,7 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-transparent"></div>
                 </div>
 
-                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-20">
+                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center text-left">
                         {/* Left Side: Information and CTA */}
                         <div className="space-y-10">
@@ -273,7 +272,7 @@ const Home = () => {
                     </div>
 
                     {/* Footer / Trust Bar Integrated into Hero */}
-                    <div className="pt-16 border-t border-white/5 mt-auto flex flex-wrap justify-between items-center gap-8 opacity-50 hover:opacity-100 transition-opacity">
+                    <div className="pt-8 border-t border-white/5 mt-auto flex flex-wrap justify-between items-center gap-8 opacity-50 hover:opacity-100 transition-opacity">
                         {['Astrology Weekly', 'Zenith Times', 'Cosmic Daily', 'Star Guide', 'Nebula Insight'].map(brand => (
                             <span key={brand} className="text-white font-serif italic text-sm tracking-widest leading-none">{brand}</span>
                         ))}

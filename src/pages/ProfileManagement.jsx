@@ -3,11 +3,12 @@ import { useProfile } from '../context/ProfileContext';
 import { useChart } from '../context/ChartContext';
 import { useNavigate } from 'react-router-dom';
 import OnboardingForm from '../components/OnboardingForm';
-import { Plus, User, Trash2, FileText, Hash, Loader, Sparkles, Pencil, Lock } from 'lucide-react';
+import { Plus, User, Trash2, FileText, Hash, Loader, Sparkles, Pencil, Lock, Bell, Phone } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
+import AlertConfigModal from '../components/AlertConfigModal';
 
 const ProfileManagement = () => {
-    const { profiles, activeProfile, switchProfile, deleteProfile, user, logout, fetchProfiles } = useProfile();
+    const { profiles, activeProfile, switchProfile, deleteProfile, user, logout, fetchProfiles, token } = useProfile();
     const { saveUserData } = useChart();
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
@@ -15,6 +16,7 @@ const ProfileManagement = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [editingProfile, setEditingProfile] = useState(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [alertProfile, setAlertProfile] = useState(null);
 
     // Profile limit removed
     const used = profiles.length;
@@ -28,6 +30,11 @@ const ProfileManagement = () => {
         setRefreshing(true);
         await fetchProfiles();
         setRefreshing(false);
+    };
+
+    const handleAlertUpdate = async () => {
+        await fetchProfiles();
+        // Optionally show toast
     };
 
     const handleViewReport = async (profile, path) => {
@@ -61,7 +68,7 @@ const ProfileManagement = () => {
 
                 <div className="flex justify-between items-end">
                     <div>
-                        <h1 className="text-4xl font-bold text-primary mb-2">Profiles</h1>
+                        <h1 className="text-4xl font-bold text-primary mb-2">My Astro Profiles</h1>
                         <p className="text-secondary">Manage charts for yourself, family, and friends.</p>
                         <div className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
                             <span>
@@ -131,6 +138,33 @@ const ProfileManagement = () => {
                                         const ampm = h >= 12 ? 'PM' : 'AM';
                                         return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
                                     })()}</p>
+
+                                    {(profile.phone_number || profile.alert_daily || profile.alert_weekly || profile.alert_monthly) && (
+                                        <div className="pt-3 mt-1 border-t border-dashed border-gray-100 flex flex-col gap-2">
+                                            {profile.phone_number && (
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <div className="p-1 rounded-full bg-slate-100">
+                                                        <Phone className="w-3 h-3 text-slate-400" />
+                                                    </div>
+                                                    <span className="font-semibold">{profile.phone_number}</span>
+                                                </div>
+                                            )}
+
+                                            {(profile.alert_daily || profile.alert_weekly || profile.alert_monthly) && (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {profile.alert_daily && (
+                                                        <span className="text-[9px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200">DAILY</span>
+                                                    )}
+                                                    {profile.alert_weekly && (
+                                                        <span className="text-[9px] font-bold bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">WEEKLY</span>
+                                                    )}
+                                                    {profile.alert_monthly && (
+                                                        <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200">MONTHLY</span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-3 mt-auto">
@@ -173,10 +207,24 @@ const ProfileManagement = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
+                                                setAlertProfile(profile);
+                                            }}
+                                            className={`p-2 rounded-lg transition-colors border ${(profile.alert_daily || profile.alert_weekly || profile.alert_monthly)
+                                                    ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
+                                                    : 'bg-red-50 text-red-400 border-red-100 hover:text-red-600 hover:bg-red-100'
+                                                }`}
+                                            title="Alert Settings"
+                                        >
+                                            <Bell className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
                                                 setEditingProfile(profile);
                                                 setShowForm(true);
                                             }}
                                             className="p-2 rounded-lg hover:bg-gray-100 text-secondary hover:text-primary transition-colors"
+                                            title="Edit Profile"
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
@@ -186,6 +234,7 @@ const ProfileManagement = () => {
                                                 if (confirm('Delete this profile?')) deleteProfile(profile.id);
                                             }}
                                             className="p-2 rounded-lg hover:bg-red-50 text-secondary hover:text-red-600 transition-colors"
+                                            title="Delete Profile"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -203,8 +252,17 @@ const ProfileManagement = () => {
                         )}
                     </div>
                 )}
+
+                {alertProfile && (
+                    <AlertConfigModal
+                        profile={alertProfile}
+                        onClose={() => setAlertProfile(null)}
+                        token={token}
+                        onUpdate={handleAlertUpdate}
+                    />
+                )}
             </div>
-        </div>
+        </div >
     );
 };
 

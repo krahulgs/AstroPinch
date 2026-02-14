@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X } from 'lucide-react';
+import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X, Key, ChevronDown, Settings } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 import AstroLogo from '../../components/AstroLogo';
+import ChangePasswordModal from '../ChangePasswordModal';
+import { API_BASE_URL } from '../../api/config';
 
 const Navbar = () => {
     const location = useLocation();
@@ -11,6 +13,14 @@ const Navbar = () => {
     const { user, login, logout, token } = useProfile();
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+    const getPhotoUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http')) return url;
+        return `${API_BASE_URL}${url}`;
+    };
 
     const isActive = (path) => location.pathname === path;
 
@@ -77,25 +87,100 @@ const Navbar = () => {
 
                         <div className="hidden sm:flex items-center gap-2 md:gap-4">
                             {token ? (
-                                <div className={`flex items-center gap-2 md:gap-3 pl-4 border-l ${isHomePage && !isMenuOpen ? 'border-white/20' : 'border-white/10'}`}>
-                                    <Link
-                                        to="/profiles"
-                                        className={`p-2 rounded-xl transition-all border ${isHomePage && !isMenuOpen
+                                <div className={`relative flex items-center gap-2 md:gap-3 pl-4 border-l ${isHomePage && !isMenuOpen ? 'border-white/20' : 'border-white/10'}`}>
+                                    {/* Profile Dropdown Button */}
+                                    <button
+                                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all border ${isHomePage && !isMenuOpen
                                             ? 'bg-white/10 hover:bg-white/20 text-white border-white/20'
                                             : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border-indigo-500/20'}`}
-                                        title="My Profiles"
                                     >
-                                        <User className="w-4 h-4" />
-                                    </Link>
-                                    <button
-                                        onClick={logout}
-                                        className={`p-2 rounded-xl transition-all group ${isHomePage && !isMenuOpen
-                                            ? 'bg-white/5 hover:bg-red-500/20 text-white/70 hover:text-red-300'
-                                            : 'bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-300'}`}
-                                        title="Logout"
-                                    >
-                                        <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                        {user?.photo_url ? (
+                                            <img src={getPhotoUrl(user.photo_url)} alt="Profile" className="w-5 h-5 rounded-full object-cover border border-white/20" />
+                                        ) : (
+                                            <User className="w-4 h-4" />
+                                        )}
+                                        <span className="text-sm font-medium hidden md:block">Profile</span>
+                                        <ChevronDown className={`w-4 h-4 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
                                     </button>
+
+                                    {/* Dropdown Menu */}
+                                    {showProfileMenu && (
+                                        <>
+                                            {/* Backdrop */}
+                                            <div
+                                                className="fixed inset-0 z-40"
+                                                onClick={() => setShowProfileMenu(false)}
+                                            />
+
+                                            {/* Menu */}
+                                            <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {/* User Info */}
+                                                <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-slate-200 flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-500 font-bold overflow-hidden shadow-sm">
+                                                        {user?.photo_url ? (
+                                                            <img
+                                                                src={getPhotoUrl(user.photo_url)}
+                                                                alt={user.full_name}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            user?.full_name?.charAt(0) || 'U'
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-slate-900 text-sm truncate max-w-[120px]">{user?.full_name || 'User'}</p>
+                                                        <p className="text-xs text-slate-600 truncate max-w-[120px]">{user?.email}</p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Menu Items */}
+                                                <div className="py-2">
+                                                    <Link
+                                                        to="/profiles"
+                                                        onClick={() => setShowProfileMenu(false)}
+                                                        className="flex items-center gap-3 px-4 py-2.5 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                                    >
+                                                        <User className="w-4 h-4" />
+                                                        <span className="font-medium text-sm">My Astro Profiles</span>
+                                                    </Link>
+
+                                                    <Link
+                                                        to="/my-profile"
+                                                        onClick={() => setShowProfileMenu(false)}
+                                                        className="flex items-center gap-3 px-4 py-2.5 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                                    >
+                                                        <Settings className="w-4 h-4" />
+                                                        <span className="font-medium text-sm">Personal Details</span>
+                                                    </Link>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowChangePassword(true);
+                                                            setShowProfileMenu(false);
+                                                        }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                                                    >
+                                                        <Key className="w-4 h-4" />
+                                                        <span className="font-medium text-sm">Change Password</span>
+                                                    </button>
+
+                                                    <div className="my-1 border-t border-slate-200" />
+
+                                                    <button
+                                                        onClick={() => {
+                                                            logout();
+                                                            setShowProfileMenu(false);
+                                                        }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors"
+                                                    >
+                                                        <LogOut className="w-4 h-4" />
+                                                        <span className="font-medium text-sm">Logout</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 <Link
@@ -144,8 +229,16 @@ const Navbar = () => {
                             {token ? (
                                 <>
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 font-bold">
-                                            {user?.full_name?.charAt(0)}
+                                        <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 font-bold overflow-hidden">
+                                            {user?.photo_url ? (
+                                                <img
+                                                    src={getPhotoUrl(user.photo_url)}
+                                                    alt={user.full_name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                user?.full_name?.charAt(0)
+                                            )}
                                         </div>
                                         <div>
                                             <p className="font-bold text-white">{user?.full_name}</p>
@@ -158,8 +251,26 @@ const Navbar = () => {
                                         className="flex items-center gap-3 text-slate-400 hover:text-white font-medium py-2 transition-colors"
                                     >
                                         <User className="w-5 h-5" />
-                                        <span>My Profiles</span>
+                                        <span>My Astro Profiles</span>
                                     </Link>
+                                    <Link
+                                        to="/my-profile"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 text-slate-400 hover:text-white font-medium py-2 transition-colors"
+                                    >
+                                        <Settings className="w-5 h-5" />
+                                        <span>Personal Details</span>
+                                    </Link>
+                                    <button
+                                        onClick={() => {
+                                            setShowChangePassword(true);
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className="flex items-center gap-3 text-slate-400 hover:text-white font-medium py-2 transition-colors"
+                                    >
+                                        <Key className="w-5 h-5" />
+                                        <span>Change Password</span>
+                                    </button>
                                     <button
                                         onClick={() => {
                                             logout();
@@ -186,6 +297,14 @@ const Navbar = () => {
                 )
                 }
             </div >
+
+            {/* Change Password Modal */}
+            {showChangePassword && (
+                <ChangePasswordModal
+                    onClose={() => setShowChangePassword(false)}
+                    token={token}
+                />
+            )}
         </nav >
     );
 };

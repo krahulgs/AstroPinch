@@ -44,7 +44,8 @@ export const ProfileProvider = ({ children }) => {
             if (res && res.ok) {
                 const userData = await res.json();
                 setUser(userData);
-                await fetchProfiles();
+                // Fetch profiles in background without blocking
+                fetchProfiles();
             } else {
                 logout();
             }
@@ -93,6 +94,12 @@ export const ProfileProvider = ({ children }) => {
             const data = await res.json();
             localStorage.setItem('token', data.access_token);
             setToken(data.access_token);
+
+            // Trigger background fetch without blocking
+            setTimeout(() => {
+                fetchUser();
+            }, 0);
+
             return true;
         }
 
@@ -111,6 +118,12 @@ export const ProfileProvider = ({ children }) => {
             const data = await res.json();
             localStorage.setItem('token', data.access_token);
             setToken(data.access_token);
+
+            // Trigger background fetch without blocking
+            setTimeout(() => {
+                fetchUser();
+            }, 0);
+
             return true;
         }
         return false;

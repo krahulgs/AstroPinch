@@ -36,6 +36,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     preferred_lang = Column(String, default="en")
+    photo_url = Column(String, nullable=True)
     
     # Profile Limits
     purchased_slots = Column(sqlalchemy.Integer, default=0)
@@ -76,6 +77,14 @@ class Profile(Base):
     profession = Column(String, nullable=True)
     marital_status = Column(String, nullable=True)
     system = Column(SQLEnum(AstrologySystem), default=AstrologySystem.BOTH)
+    
+    # Alert Configuration
+    phone_number = Column(String, nullable=True)
+    alert_daily = Column(Boolean, default=False)
+    alert_weekly = Column(Boolean, default=False)
+    alert_monthly = Column(Boolean, default=False)
+    alert_active = Column(Boolean, default=True)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     
     owner = relationship("User", back_populates="profiles")

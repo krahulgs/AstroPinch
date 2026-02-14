@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -8,6 +8,8 @@ from auth_utils import create_access_token, verify_password, get_password_hash, 
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+import os
+import shutil
 
 router = APIRouter(
     prefix="/api/auth",
@@ -100,5 +102,43 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "id": current_user.id,
         "email": current_user.email,
         "full_name": current_user.full_name,
-        "preferred_lang": current_user.preferred_lang
+        "preferred_lang": current_user.preferred_lang,
+        "phone_number": current_user.phone,
+        "photo_url": current_user.photo_url
     }
+
+class ProfileUpdate(BaseModel):
+    phone_number: Optional[str] = None
+    full_name: Optional[str] = None
+
+@router.put("/update-profile")
+async def update_profile(profile_update: ProfileUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if profile_update.phone_number is not None:
+        current_user.phone = profile_update.phone_number
+    if profile_update.full_name is not None:
+        current_user.full_name = profile_update.full_name
+        
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return {"message": "Profile updated successfully"}
+
+@router.post("/upload-photo")
+async def upload_photo(photo: UploadFile = File(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    UPLOAD_DIR = "uploads"
+    if not os.path.exists(UPLOAD_DIR):
+        os.makedirs(UPLOAD_DIR)
+        
+    file_extension = os.path.splitext(photo.filename)[1]
+    filename = f"{current_user.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(photo.file, buffer)
+        
+    # Return relative URL
+    current_user.photo_url = f"/uploads/{filename}"
+    db.add(current_user)
+    await db.commit()
+    
+    return {"photo_url": current_user.photo_url}

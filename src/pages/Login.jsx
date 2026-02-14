@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, LogIn, Chrome, Star, Sparkles, Heart } from 'lucide-react';
+import { Mail, Lock, LogIn, Chrome, Star, Sparkles, Heart, Eye, EyeOff } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const Login = () => {
@@ -12,6 +12,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [formErrors, setFormErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const validateForm = () => {
         const errors = {};
@@ -126,8 +127,8 @@ const Login = () => {
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
                                 <input
-                                    type="password"
-                                    className={`w-full p-4 pl-12 rounded-2xl border transition-all font-medium text-primary placeholder:text-gray-400 outline-none
+                                    type={showPassword ? "text" : "password"}
+                                    className={`w-full p-4 pl-12 pr-12 rounded-2xl border transition-all font-medium text-primary placeholder:text-gray-400 outline-none
                                         ${formErrors.password
                                             ? 'border-red-300 bg-red-50 focus:ring-2 focus:ring-red-200'
                                             : 'border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500'}
@@ -139,6 +140,14 @@ const Login = () => {
                                         if (formErrors.password) setFormErrors(prev => ({ ...prev, password: '' }));
                                     }}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors focus:outline-none"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
                             {formErrors.password && (
                                 <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">

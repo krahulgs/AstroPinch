@@ -71,7 +71,12 @@ async def create_profile(
             relation=profile_in.relation,
             profession=profile_in.profession,
             marital_status=profile_in.marital_status,
-            system=profile_in.system
+            system=profile_in.system,
+            phone_number=profile_in.phone_number,
+            alert_daily=profile_in.alert_daily,
+            alert_weekly=profile_in.alert_weekly,
+            alert_monthly=profile_in.alert_monthly,
+            alert_active=profile_in.alert_active
         )
         
         db.add(new_profile)
@@ -152,9 +157,21 @@ async def update_profile(
         update_data["timezone_id"] = tz_id
         update_data["utc_offset"] = final_offset
 
+    # Check for phone number update to send alert
+    original_phone = profile.phone_number
+    
     for field, value in update_data.items():
         setattr(profile, field, value)
         
     await db.commit()
     await db.refresh(profile)
+    
+    # Simulate Sending Alert
+    new_phone = profile.phone_number
+    if new_phone and new_phone != original_phone:
+        print(f"----------------------------------------------------------------")
+        print(f"[SMS GATEWAY] Sending to {new_phone}:")
+        print(f"'Your AstroPinch alert number for {profile.name} has been updated.'")
+        print(f"----------------------------------------------------------------")
+    
     return profile

@@ -18,6 +18,13 @@ class ProfileBase(BaseModel):
     profession: Optional[str] = None
     marital_status: Optional[str] = None
     system: AstrologySystem = AstrologySystem.BOTH
+    
+    # Alert Configuration
+    phone_number: Optional[str] = None
+    alert_daily: bool = False
+    alert_weekly: bool = False
+    alert_monthly: bool = False
+    alert_active: bool = True
 
     class Config:
         from_attributes = True
@@ -40,6 +47,13 @@ class ProfileUpdate(BaseModel):
     profession: Optional[str] = None
     marital_status: Optional[str] = None
     system: Optional[AstrologySystem] = None
+    
+    # Alert Configuration
+    phone_number: Optional[str] = None
+    alert_daily: Optional[bool] = None
+    alert_weekly: Optional[bool] = None
+    alert_monthly: Optional[bool] = None
+    alert_active: Optional[bool] = None
 
 class ProfileOut(ProfileBase):
     id: str

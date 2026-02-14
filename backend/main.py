@@ -45,6 +45,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+import os
+
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 from typing import Optional, List
 
 class BirthDetails(BaseModel):

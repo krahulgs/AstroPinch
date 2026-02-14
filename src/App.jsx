@@ -21,6 +21,7 @@ import KundaliMatch from './pages/KundaliMatch';
 import PremiumReports from './pages/PremiumReports';
 import VedicAstrology from './pages/VedicAstrology';
 import KPAstrology from './pages/KPAstrology';
+import MyProfile from './pages/MyProfile';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -74,6 +75,11 @@ function App() {
               <Route path="/daily-guidance" element={
                 <ProtectedRoute>
                   <div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><DailyInsights /></div>
+                </ProtectedRoute>
+              } />
+              <Route path="/my-profile" element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><MyProfile /></div>
                 </ProtectedRoute>
               } />
               <Route path="/kundali-match" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><KundaliMatch /></div>} />

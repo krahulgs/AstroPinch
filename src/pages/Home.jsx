@@ -95,7 +95,7 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-transparent"></div>
                 </div>
 
-                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-20">
+                <div className="w-full max-w-7xl mx-auto px-6 relative z-10 animate-in fade-in duration-1000 pt-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center text-left">
                         {/* Left Side: Information and CTA */}
                         <div className="space-y-10">

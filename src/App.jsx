@@ -17,6 +17,8 @@ import ProfileManagement from './pages/ProfileManagement';
 import DailyInsights from './pages/DailyInsights';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import KundaliMatch from './pages/KundaliMatch';
 import PremiumReports from './pages/PremiumReports';
 import VedicAstrology from './pages/VedicAstrology';
@@ -57,6 +59,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/horoscope" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
               <Route path="/horoscope/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
               <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Predictions /></div>} />

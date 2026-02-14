@@ -38,6 +38,10 @@ class User(Base):
     preferred_lang = Column(String, default="en")
     photo_url = Column(String, nullable=True)
     
+    # Password Reset
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
+    
     # Profile Limits
     purchased_slots = Column(sqlalchemy.Integer, default=0)
     total_profiles_created = Column(sqlalchemy.Integer, default=0) # Analytics

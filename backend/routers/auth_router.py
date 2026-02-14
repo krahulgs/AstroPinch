@@ -7,7 +7,9 @@ from models import User, AuthMethod, AuthProvider, AstrologySystem
 from auth_utils import create_access_token, verify_password, get_password_hash, decode_access_token
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
+from services.email_service import send_reset_email
 import os
 import shutil
 
@@ -27,6 +29,13 @@ class UserRegister(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
@@ -144,3 +153,63 @@ async def upload_photo(photo: UploadFile = File(...), current_user: User = Depen
     await db.commit()
     
     return {"photo_url": current_user.photo_url}
+
+# Forgot Password Endpoint
+@router.post("/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).filter(User.email == request.email.lower()))
+    user = result.scalars().first()
+    
+    if not user:
+        # Don't reveal user existence, return success anyway (security best practice)
+        return {"message": "If email exists, reset link sent."}
+    
+    # Generate token
+    token = secrets.token_urlsafe(32)
+    user.reset_token = token
+    user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+    
+    db.add(user)
+    await db.commit()
+    
+    # Send email (Mock service prints to console)
+    await send_reset_email(user.email, token)
+    
+    return {"message": "Reset link sent to email."}
+
+# Reset Password Endpoint
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).filter(User.reset_token == request.token))
+    user = result.scalars().first()
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid token")
+        
+    if user.reset_token_expires < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Token expired")
+        
+    # Find Auth Method (Email provider)
+    # We need to query auth_methods explicitly or assume related
+    # Since existing user usually has it.
+    auth_result = await db.execute(select(AuthMethod).filter(
+        AuthMethod.user_id == user.id, 
+        AuthMethod.provider == AuthProvider.EMAIL
+    ))
+    auth_method = auth_result.scalars().first()
+    
+    if not auth_method:
+         raise HTTPException(status_code=400, detail="No email login associated with account")
+         
+    # Update Password
+    auth_method.secret_hash = get_password_hash(request.new_password)
+    
+    # Clear token
+    user.reset_token = None
+    user.reset_token_expires = None
+    
+    db.add(auth_method)
+    db.add(user)
+    await db.commit()
+    
+    return {"message": "Password reset successfully"}

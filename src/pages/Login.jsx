@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, LogIn, Chrome, Star, Sparkles, Heart } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Login = () => {
     const { login } = useProfile();
@@ -58,6 +59,11 @@ const Login = () => {
         <div className="min-h-screen pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
             <div className="max-w-md mx-auto">
                 {/* Header */}
+                <SEO
+                    title="Login"
+                    description="Access your personalized astrology dashboard. Sign in to view your saved charts, daily predictions, and premium reports."
+                    url="/login"
+                />
                 <div className="text-center mb-12 space-y-4">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 text-purple-600 text-[10px] font-bold uppercase tracking-widest border border-purple-100">
                         <Heart className="w-3 h-3 fill-purple-600" />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useChart } from '../context/ChartContext';
 import { Navigate } from 'react-router-dom';
 import { BookOpen, Info, Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Kundali = () => {
     const { userData, kundaliSvg, chartAnalysis } = useChart();
@@ -19,6 +20,11 @@ const Kundali = () => {
 
     return (
         <div className="space-y-12 pb-20">
+            <SEO
+                title={`${userData.name}'s Vedic Kundali`}
+                description={`View the traditional Vedic Janma Patrika for ${userData.name}. Detailed house analysis and planetary positions.`}
+                url="/kundali"
+            />
             <div className="text-center space-y-4 pt-10 px-4">
                 <span className="text-primary font-medium tracking-widest uppercase text-sm">Vedic Janma Patrika</span>
                 <h2 className="text-5xl font-black text-primary uppercase tracking-tighter italic">

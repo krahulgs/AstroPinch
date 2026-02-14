@@ -6,6 +6,10 @@ User-agent: *
 Allow: /
 Disallow: /profiles
 Disallow: /daily-guidance
+Disallow: /report/
+Disallow: /birth-chart
+Disallow: /kundali
+Disallow: /lunar-chart
 Disallow: /api/
 Disallow: /*.json$
 Crawl-delay: 1

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Lock, Calendar, Clock, MapPin, Sparkles, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Register = () => {
     const { register } = useProfile();
@@ -93,6 +94,11 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-background flex shadow-inner relative overflow-hidden">
+            <SEO
+                title="Create Account"
+                description="Join AstroPinch to get your free Vedic birth chart and personalized daily horoscopes. Start your cosmic journey today."
+                url="/register"
+            />
             {/* Split Screen Design */}
             <div className="hidden lg:flex w-1/2 bg-primary/5 relative items-center justify-center p-20 overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />

@@ -77,7 +77,7 @@ const Home = () => {
     return (
         <div className="min-h-screen flex flex-col">
             <SEO
-                title="Home"
+                title="Free Vedic Astrology, Kundali Matching & Daily Horoscope"
                 description="Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through AstroPinch."
             />
             {/* Hero Section - Sleek, Modern, Two-Column */}

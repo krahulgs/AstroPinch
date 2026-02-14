@@ -2,6 +2,7 @@ import React from 'react';
 import { useChart } from '../context/ChartContext';
 import { Navigate } from 'react-router-dom';
 import { Moon } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const LunarChart = () => {
     const { userData, chartData, lunarSvg } = useChart();
@@ -12,6 +13,11 @@ const LunarChart = () => {
 
     return (
         <div className="space-y-8 pb-20 px-4">
+            <SEO
+                title={`${userData.name}'s Lunar Chart`}
+                description={`View the Chandra Kundli (Moon Chart) for ${userData.name}. Understand your emotional landscape and subconscious drivers.`}
+                url="/lunar-chart"
+            />
             <div className="text-center space-y-2 pt-10">
                 <span className="text-primary font-medium tracking-widest uppercase text-sm">Chandra Kundli</span>
                 <h2 className="text-3xl font-bold text-primary">

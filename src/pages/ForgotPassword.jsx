@@ -25,7 +25,7 @@ const ForgotPassword = () => {
 
             if (res.ok) {
                 setStatus('success');
-                setMessage('If an account confirms to this email, a reset link has been sent. Please check your inbox (or console in dev).');
+                setMessage('If an account confirms to this email, a reset link has been sent. Please check your inbox and Spam folder (mark as not spam for future communication).');
             } else {
                 const data = await res.json().catch(() => ({}));
                 throw new Error(data.message || data.detail || 'Request failed');

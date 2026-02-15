@@ -7,13 +7,16 @@ from email.mime.multipart import MIMEMultipart
 
 def _send_smtp_email(email: str, reset_link: str):
     """Synchronous SMTP logic to run in thread."""
-    sender_email = os.getenv("SMTP_USERNAME")
+    smtp_username = os.getenv("SMTP_USERNAME")
+    sender_email = os.getenv("SMTP_FROM", smtp_username)
     sender_password = os.getenv("SMTP_PASSWORD")
     smtp_server = os.getenv("SMTP_SERVER")
-    smtp_port = int(os.getenv("SMTP_PORT", 465))
-    use_ssl = os.getenv("SMTP_USE_SSL", "True").lower() == "true"
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    use_ssl = os.getenv("SMTP_USE_SSL", "False").lower() == "true"
+    use_tls = os.getenv("SMTP_USE_TLS", "True").lower() == "true"
     
-    if not sender_email or not sender_password:
+    
+    if not smtp_username or not sender_password:
         print("SMTP Credentials missing. Printing link to console.")
         print(f"RESET LINK: {reset_link}")
         return True
@@ -42,9 +45,10 @@ def _send_smtp_email(email: str, reset_link: str):
             server = smtplib.SMTP_SSL(smtp_server, smtp_port)
         else:
             server = smtplib.SMTP(smtp_server, smtp_port)
-            server.starttls()
+            if use_tls:
+                server.starttls()
             
-        server.login(sender_email, sender_password)
+        server.login(smtp_username, sender_password)
         server.send_message(msg)
         server.quit()
         print(f"Reset email sent to {email}")

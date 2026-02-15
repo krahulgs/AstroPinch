@@ -22,37 +22,44 @@ def _send_smtp_email(email: str, reset_link: str):
         return True
 
     try:
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = email
-        msg['Subject'] = "Reset Your AstroPinch Password"
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = email
+    msg['Subject'] = "Reset Your AstroPinch Password"
 
-        body = f"""
-        <html>
-            <body>
-                <h2>Password Reset Request</h2>
-                <p>You requested a password reset for your AstroPinch account.</p>
-                <p>Click the link below to reset your password:</p>
-                <p><a href="{reset_link}">Reset Password</a></p>
-                <p>This link is valid for 1 hour.</p>
-                <p>If you did not request this, please ignore this email.</p>
-            </body>
-        </html>
-        """
-        msg.attach(MIMEText(body, 'html'))
+    body = f"""
+    <html>
+        <body>
+            <h2>Password Reset Request</h2>
+            <p>You requested a password reset for your AstroPinch account.</p>
+            <p>Click the link below to reset your password:</p>
+            <p><a href="{reset_link}">Reset Password</a></p>
+            <p>This link is valid for 1 hour.</p>
+            <p>If you did not request this, please ignore this email.</p>
+        </body>
+    </html>
+    """
 
-        if use_ssl:
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-        else:
-            server = smtplib.SMTP(smtp_server, smtp_port)
-            if use_tls:
-                server.starttls()
-            
-        server.login(smtp_username, sender_password)
-        server.send_message(msg)
-        server.quit()
-        print(f"Reset email sent to {email}")
-        return True
+    msg.attach(MIMEText(body, 'html'))
+
+    # ✅ Always connect explicitly
+    if use_ssl:
+        server = smtplib.SMTP_SSL(timeout=30)
+        server.connect(smtp_server, smtp_port)
+    else:
+        server = smtplib.SMTP(timeout=30)
+        server.connect(smtp_server, smtp_port)
+
+        if use_tls:
+            server.starttls()
+
+    server.login(smtp_username, sender_password)
+    server.send_message(msg)
+    server.quit()
+
+    print(f"Reset email sent to {email}")
+    return True
+
     
     except Exception as e:
         print(f"Failed to send email: {e}")

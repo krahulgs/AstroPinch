@@ -26,16 +26,47 @@ def _send_smtp_email(email: str, reset_link: str):
         msg['To'] = email
         msg['Subject'] = "Reset Your AstroPinch Password"
 
+        logo_url = "https://astropinch.com/logo.png" # Ideally hosted asset
+        
         body = f"""
+        <!DOCTYPE html>
         <html>
-            <body>
-                <h2>Password Reset Request</h2>
-                <p>You requested a password reset for your AstroPinch account.</p>
-                <p>Click the link below to reset your password:</p>
-                <p><a href="{reset_link}">Reset Password</a></p>
-                <p>This link is valid for 1 hour.</p>
-                <p>If you did not request this, please ignore this email.</p>
-            </body>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb; }}
+                .container {{ max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }}
+                .header {{ background-color: #7c3aed; padding: 30px; text-align: center; }}
+                .logo {{ font-size: 24px; font-weight: bold; color: white; text-decoration: none; }}
+                .content {{ padding: 40px; }}
+                h2 {{ color: #1f2937; margin-top: 0; font-size: 24px; }}
+                p {{ margin-bottom: 20px; color: #4b5563; }}
+                .button {{ display: inline-block; background-color: #7c3aed; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }}
+                .footer {{ background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                   <div class="logo">AstroPinch</div>
+                </div>
+                <div class="content">
+                    <h2>Reset Your Password</h2>
+                    <p>Hello,</p>
+                    <p>We received a request to reset the password for your AstroPinch account. If you made this request, please click the button below to secure your account:</p>
+                    <div style="text-align: center;">
+                        <a href="{reset_link}" class="button" style="color: white;">Reset Password</a>
+                    </div>
+                    <p>This link will expire in 1 hour for security purposes.</p>
+                    <p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+                    <p>Best regards,<br>The AstroPinch Team</p>
+                </div>
+                <div class="footer">
+                    <p>&copy; 2026 AstroPinch. All rights reserved.</p>
+                    <p>This is an automated message, please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
         </html>
         """
 
@@ -50,7 +81,9 @@ def _send_smtp_email(email: str, reset_link: str):
                 server.starttls()
 
         server.login(smtp_username, sender_password)
-        server.send_message(msg)
+        print(f"DEBUG: Sending from {msg['From']} to {msg['To']}")
+        result = server.send_message(msg)
+        print(f"DEBUG: send_message result: {result}")
         server.quit()
 
         print(f"Reset email sent to {email}")

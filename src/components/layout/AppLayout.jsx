@@ -14,7 +14,6 @@ const AppLayout = ({ children }) => {
                 className="fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: 'url("/assets/cosmic-bg.png")' }}
             ></div> */}
-            <div className={`fixed inset-0 -z-10 transition-colors duration-500 ${isHomePage ? 'bg-transparent' : 'bg-background/80 backdrop-blur-[2px]'}`}></div>
 
             <Navbar />
             <main className="min-h-[calc(100vh-80px)] relative z-10 w-full">

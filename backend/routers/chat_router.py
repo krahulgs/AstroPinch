@@ -21,7 +21,7 @@ async def chat_with_profile(request: ChatRequest):
     Chat with the AI assistant about the user's astrological profile.
     """
     try:
-        response = generate_chat_response(
+        response = await generate_chat_response(
             request.message,
             request.context,
             history=request.history,

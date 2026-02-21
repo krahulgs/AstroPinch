@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://astropinch-api.onrender.com'; // DIRECT PRODUCTION LINK FOR TESTING
+export const API_BASE_URL = 'http://localhost:8000'; // LOCAL DEV

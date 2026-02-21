@@ -5,7 +5,7 @@ from services.kundali_painter import KundaliPainter
 
 class AstrologyAggregator:
     @staticmethod
-    def get_aggregated_best_prediction(name, year, month, day, hour, minute, city, lat, lng, timezone, lang="en", context=None, vedic_data=None, numerology_data=None, western_data=None):
+    async def get_aggregated_best_prediction(name, year, month, day, hour, minute, city, lat, lng, timezone, lang="en", context=None, vedic_data=None, numerology_data=None, western_data=None):
         """
         Combines insights from multiple astrological systems with localization.
         """
@@ -59,7 +59,7 @@ class AstrologyAggregator:
         if vedic_data and numerology_data:
             try:
                 from services.ai_service import generate_executive_summary
-                ai_summary = generate_executive_summary(name, western_data, vedic_data, numerology_data, context=context)
+                ai_summary = await generate_executive_summary(name, western_data, vedic_data, numerology_data, context=context)
             except Exception as e:
                 print(f"Executive AI Summary Error: {e}")
         
@@ -80,6 +80,105 @@ class AstrologyAggregator:
                 "data": technical_data
             },
             "best_prediction": ai_summary if ai_summary else l["summary"]
+        }
+        
+    @staticmethod
+    async def get_vedic_full_report(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="Asia/Kolkata", context=None):
+        """
+        Aggregates all Vedic astrology data (Planets, Dasha, Panchang) for detailed analysis.
+        """
+        from services.vedic_astro_engine import VedicAstroEngine
+        from concurrent.futures import ThreadPoolExecutor
+        import datetime
+        
+        # 1. Sidereal Planets (D1)
+        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
+        
+        # Doshas and other calcs can be parallelized (Sync)
+        with ThreadPoolExecutor() as executor:
+            # Parallel Calculations
+            panchang_future = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
+            dasha_future = executor.submit(VedicAstroEngine.calculate_vimshottari_dasha, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
+            divisional_future = executor.submit(VedicAstroEngine.calculate_divisional_charts, sidereal_data)
+            remedies_future = executor.submit(VedicAstroEngine.calculate_remedies, sidereal_data, lang=lang)
+            kp_future = executor.submit(VedicAstroEngine.calculate_kp_system, sidereal_data)
+            doshas_future = executor.submit(VedicAstroEngine.calculate_doshas, sidereal_data)
+            avakhada_future = executor.submit(VedicAstroEngine.calculate_avakhada, sidereal_data)
+            
+            # Dependent Calculations (Wait for some results)
+            panchang = panchang_future.result()
+            dasha = dasha_future.result()
+            divisional = divisional_future.result()
+            remedies = remedies_future.result()
+            kp = kp_future.result()
+            doshas = doshas_future.result()
+            avakhada = avakhada_future.result()
+
+            # Parallel Step 2: KP Cusps & Interpretations
+            kerykeion_future = executor.submit(
+                KerykeionService.calculate_chart, name, year, month, day, hour, minute, "", lat, lng, timezone_str=timezone
+            )
+            
+            # Parallel Step 3: Graha Effects & Transits
+            graha_effects_future = executor.submit(AstrologyAggregator.get_graha_effects, sidereal_data['planets'], lang=lang)
+            
+            def get_transits():
+                try:
+                    now = datetime.datetime.now()
+                    return VedicAstroEngine.calculate_sidereal_planets(
+                        now.year, now.month, now.day, now.hour, now.minute, lat, lng, timezone_str=timezone
+                    ).get('planets', [])
+                except Exception as te:
+                    print(f"Transit Calculation Error: {te}")
+                    return []
+
+            transits_future = executor.submit(get_transits)
+
+            # Wait for Kerykeion to get KP Cusps
+            kery_data = kerykeion_future.result()
+            angles_tropical = kery_data.get('angles', {}) if kery_data else {}
+            tropical_cusps_map = {
+                "1": angles_tropical.get('Ascendant', 0),
+                "4": angles_tropical.get('IC', 0),
+                "7": angles_tropical.get('Descendant', 0),
+                "10": angles_tropical.get('Midheaven', 0)
+            }
+            kp_cusps = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, sidereal_data['ayanamsa'])
+            
+            # KP Analysis
+            from services.kp_analysis_service import KPAnalysisService
+            kp_final_analysis = KPAnalysisService.generate_analysis(kp, kp_cusps, lang=lang)
+            
+            # Collect results for Graha & Transits
+            graha_effects = graha_effects_future.result()
+            current_transits = transits_future.result()
+
+        # Parallel Step 4: AI Summary (Final high-latency task) - NOW AWAITED
+        try:
+            from services.ai_service import generate_vedic_ai_summary
+            ai_summary = await generate_vedic_ai_summary(
+                name, sidereal_data['planets'], panchang, dasha, 
+                lang=lang, context=context, doshas=doshas, transits=current_transits
+            )
+        except Exception as e:
+            print(f"AI Summary Error: {e}")
+            ai_summary = None
+        
+        return {
+            "planets": sidereal_data['planets'],
+            "ascendant": sidereal_data['ascendant'],
+            "charts": divisional,
+            "dasha": dasha,
+            "panchang": panchang,
+            "remedies": remedies,
+            "kp_system": kp,
+            "kp_cusps": kp_cusps,
+            "kp_analysis": kp_final_analysis,
+            "doshas": doshas,
+            "avakhada": avakhada,
+            "graha_effects": graha_effects,
+            "current_transits": current_transits,
+            "ai_summary": ai_summary
         }
 
     @staticmethod
@@ -347,7 +446,7 @@ class AstrologyAggregator:
         return detailed_analysis
 
     @staticmethod
-    def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None):
+    async def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None):
         """
         Generates a dynamic horoscope based on advanced planetary transits and aspects.
         If profile_data is provided, calculates personalized Transit-to-Natal aspects.
@@ -457,7 +556,7 @@ class AstrologyAggregator:
             # We pass the calculated transit data to the AI
             try:
                 from services.ai_service import generate_daily_guidance
-                ai_data = generate_daily_guidance(sign, planets, context=context, lang=lang)
+                ai_data = await generate_daily_guidance(sign, planets, context=context, lang=lang)
                 
                 if ai_data:
                     # Merge AI data with our structure
@@ -892,8 +991,10 @@ class AstrologyAggregator:
                     
                 effects.append({
                     "planet": p_name,
+                    "sanskrit": p_sanskrit,
                     "house": p_house,
-                    "insight": f"{core_effect}{dignity_note}"
+                    "nature": insight_data.get("nature", ""),
+                    "effect": f"{core_effect}{dignity_note}"
                 })
                 
         return effects
@@ -1010,104 +1111,6 @@ Generate predictions now based on authentic KP principles:"""
             
         return interpretations
 
-    @staticmethod
-    def get_vedic_full_report(name, year, month, day, hour, minute, lat, lng, lang="en", timezone=None, context=None):
-        from services.vedic_astro_engine import VedicAstroEngine
-        from concurrent.futures import ThreadPoolExecutor
-        import datetime
-        
-        # 1. Essential Base Data (Sync because others depend on it)
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
-            year, month, day, hour, minute, lat, lng, timezone_str=timezone
-        )
-        
-        with ThreadPoolExecutor() as executor:
-            # Parallel Calculations
-            panchang_future = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
-            dasha_future = executor.submit(VedicAstroEngine.calculate_vimshottari_dasha, year, month, day, hour, minute, lat, lng, timezone_str=timezone)
-            divisional_future = executor.submit(VedicAstroEngine.calculate_divisional_charts, sidereal_data)
-            remedies_future = executor.submit(VedicAstroEngine.calculate_remedies, sidereal_data, lang=lang)
-            kp_future = executor.submit(VedicAstroEngine.calculate_kp_system, sidereal_data)
-            doshas_future = executor.submit(VedicAstroEngine.calculate_doshas, sidereal_data)
-            avakhada_future = executor.submit(VedicAstroEngine.calculate_avakhada, sidereal_data)
-            
-            # Dependent Calculations (Wait for some results)
-            panchang = panchang_future.result()
-            dasha = dasha_future.result()
-            divisional = divisional_future.result()
-            remedies = remedies_future.result()
-            kp = kp_future.result()
-            doshas = doshas_future.result()
-            avakhada = avakhada_future.result()
-
-            # Parallel Step 2: KP Cusps & Interpretations
-            # Map Angles to Houses (Approximate KP Cusps for Angles)
-            # Use a separate future for Kerykeion which can be slow
-            kerykeion_future = executor.submit(
-                KerykeionService.calculate_chart, name, year, month, day, hour, minute, "", lat, lng, timezone_str=timezone
-            )
-            
-            # Parallel Step 3: Graha Effects & Transits
-            graha_effects_future = executor.submit(AstrologyAggregator.get_graha_effects, sidereal_data['planets'], lang=lang)
-            
-            def get_transits():
-                try:
-                    now = datetime.datetime.now()
-                    return VedicAstroEngine.calculate_sidereal_planets(
-                        now.year, now.month, now.day, now.hour, now.minute, lat, lng, timezone_str=timezone
-                    ).get('planets', [])
-                except Exception as te:
-                    print(f"Transit Calculation Error: {te}")
-                    return []
-
-            transits_future = executor.submit(get_transits)
-
-            # Wait for Kerykeion to get KP Cusps
-            angles_tropical = kerykeion_future.result().get('angles', {})
-            tropical_cusps_map = {
-                "1": angles_tropical.get('Ascendant', 0),
-                "4": angles_tropical.get('IC', 0),
-                "7": angles_tropical.get('Descendant', 0),
-                "10": angles_tropical.get('Midheaven', 0)
-            }
-            kp_cusps = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, sidereal_data['ayanamsa'])
-            
-            # KP Analysis
-            from services.kp_analysis_service import KPAnalysisService
-            kp_final_analysis = KPAnalysisService.generate_analysis(kp, kp_cusps, lang=lang)
-            
-            # Collect results for Graha & Transits
-            graha_effects = graha_effects_future.result()
-            current_transits = transits_future.result()
-
-            # Parallel Step 4: AI Summary (Final high-latency task)
-            try:
-                from services.ai_service import generate_vedic_ai_summary
-                ai_summary = generate_vedic_ai_summary(
-                    name, sidereal_data['planets'], panchang, dasha, 
-                    lang=lang, context=context, doshas=doshas, transits=current_transits
-                )
-            except Exception as e:
-                print(f"AI Summary Error: {e}")
-                ai_summary = None
-
-        return {
-            "ayanamsa": sidereal_data["ayanamsa"],
-            "planets": sidereal_data["planets"],
-            "panchang": panchang,
-            "dasha": dasha,
-            "divisional_charts": divisional,
-            "remedies": remedies,
-            "kp_system": kp,
-            "kp_cusps": kp_cusps,
-            "kp_analysis": kp_final_analysis,
-            "graha_effects": graha_effects,
-            "doshas": doshas,
-            "avakhada": avakhada,
-            "ai_summary": ai_summary,
-            "transits": current_transits,
-            "kundali_analysis": graha_effects # Matching key for backward compatibility if needed
-        }
     
     @staticmethod
     def get_current_transits(lat, lng, timezone="Asia/Kolkata"):

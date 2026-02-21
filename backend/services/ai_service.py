@@ -5,7 +5,9 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-from groq import Groq
+from groq import AsyncGroq, Groq
+import google.generativeai as genai
+import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -20,10 +22,13 @@ try:
 except ImportError:
     W_SIGNS, W_HOUSES, W_PLANETS = {}, {}, {}
 
+async_client = None
 client = None
 if GROQ_API_KEY:
     try:
+        async_client = AsyncGroq(api_key=GROQ_API_KEY)
         client = Groq(api_key=GROQ_API_KEY)
+        print("Groq Clients Initialized (Sync & Async)")
     except Exception as e:
         print(f"Groq Client Init Error: {e}")
 
@@ -38,16 +43,11 @@ if GEMINI_API_KEY:
 else:
     print("No GEMINI_API_KEY found")
 
-if client:
-    print("Groq Client Initialized")
-else:
-    print("Groq Client NOT Initialized (API Key missing or invalid)")
-
-def generate_numerology_insights(numerology_data, context=None, lang="en"):
+async def generate_numerology_insights(numerology_data, context=None, lang="en"):
     """
-    Generate personalized numerology insights using AI
+    Generate personalized numerology insights using AI (Async)
     """
-    if not client and not model:
+    if not async_client and not model:
         return get_fallback_insights(numerology_data, lang=lang)
     
     # Context
@@ -58,7 +58,7 @@ def generate_numerology_insights(numerology_data, context=None, lang="en"):
         if p: ctx_str += f"- Profession: {p}\n"
         if m: ctx_str += f"- Marital Status: {m}\n"
 
-    lang_instruction = "Respond in Hindi (Devanagari script)." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style) using Devanagari script. Use English words for technical terms (e.g., Career, Finance) to make it easy to understand. Avoid complex Hindi/Sanskrit." if lang == "hi" else "Respond in English."
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -70,45 +70,68 @@ def generate_numerology_insights(numerology_data, context=None, lang="en"):
             age_filter = "RULE: User is a TEENAGER. Focus on studies, skills, and hobbies. Avoid marriage or deep professional predictions."
 
     try:
-        prompt = f"""You are a world-class professional with 30+ years of experience.
-Your role is to explain numerology in simple, modern, and reassuring language.
+        prompt = f"""
+        Act as a highly experienced Astrologer and Numerologist working for AstroPinch Astrology Portal.
+        Your role is to give clear, honest, and straightforward predictions without hiding or softening important truths.
 
-**Rules:**
-- Always write for common users, not specialists
-- Avoid technical jargon unless absolutely necessary
-- If technical terms are used, explain them in one simple line
-- Focus on practical life impact, not theory
-- Never create fear or extreme predictions
-- Always end with a positive or actionable insight
-- Keep tone calm, confident, and empathetic
-- No medical or legal claims
-- Predictions should be guidance, not absolute fate
-- {age_filter}
-- IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
+        STRICT RULES:
+        - Use simple, plain language that is easy for non-experts to understand.
+        - Avoid complicated words, technical jargon, or confusing sentences.
+        - Be direct and transparent. Do not hide negative results (challenges, delays, losses, risks).
+        - Give practical guidance along with predictions.
+        - Mention important planetary positions, doshas, numbers, or cycles in simple words.
+        - Focus on: Career & Business, Money & Finance, Marriage & Relationships, Health, Education, Property & Travel.
+        - Tone: Honest, Calm, Supportive, Professional. No drama. No sugarcoating.
+        - Format: Use short paragraphs or bullet points for easy reading.
 
-**Numerology Data for {numerology_data['name']}:**
-Birth Date: {numerology_data['birth_date']}
-{ctx_str}
-Numbers:
-- Life Path: {numerology_data['life_path']}
-- Expression: {numerology_data['expression']}
-- Soul Urge: {numerology_data['soul_urge']}
-- Personality: {numerology_data['personality']}
-- Birthday: {numerology_data['birthday']}
+        PROFILE ANALYSIS:
+        Name: {numerology_data['name']}
+        Birth Date: {numerology_data['birth_date']}
+        {ctx_str}
+        Numbers:
+        - Life Path: {numerology_data['life_path']}
+        - Expression: {numerology_data['expression']}
+        - Soul Urge: {numerology_data['soul_urge']}
+        - Personality: {numerology_data['personality']}
+        - Birthday: {numerology_data['birthday']}
+        
+        RESPONSE STRUCTURE (Follow exactly):
+        Start with a short summary: 
+        "Based on your birth details and numerology, this is your honest reading." (Translate to target language)
 
-Please provide:
-1. A comprehensive overview (2-3 paragraphs) of their life purpose and destiny
-2. Key strengths and talents
-3. Potential challenges to be aware of
-4. Career and life path guidance
-5. Relationship insights
-6. A powerful affirmation for them
+        Then follow this format:
+        1. Current Phase
+        Explain what is happening now (Personal Year/Dasha context).
 
-{lang_instruction}"""
+        2. Future Prediction (6–12 Months)
+        Explain upcoming events clearly.
 
-        if client:
+        3. Positive Points
+        What will work in favor.
+
+        4. Challenges & Warnings
+        What may go wrong and why. Be honest.
+
+        5. Remedies & Advice
+        Simple, practical solutions.
+
+        6. Lucky Factors
+        Lucky dates, numbers, colors.
+
+        Other Rules:
+        - Never give fake hope.
+        - Never exaggerate.
+        - Never copy generic horoscope content.
+        - Every answer must feel personal and sincere.
+
+        {age_filter}
+        
+        IMPORTANT: {lang_instruction}
+        """
+
+        if async_client:
             # Use Groq
-            response = client.chat.completions.create(
+            response = await async_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
             )
@@ -193,7 +216,7 @@ def get_life_path_description(number):
     }
     return descriptions.get(number, "self-discovery")
 
-def generate_daily_guidance(sign, transits, context=None, outcomes_structure=None, lang="en"):
+async def generate_daily_guidance(sign, transits, context=None, outcomes_structure=None, lang="en"):
     """
     Generate daily daily horoscope using Groq/Gemini based on precise Skyfield data.
     transits: List of planet objects [{'name': 'Sun', 'sign': 'Aries', 'house': 1, 'retrograde': False}, ...]
@@ -213,7 +236,7 @@ def generate_daily_guidance(sign, transits, context=None, outcomes_structure=Non
         retro = "(Retrograde)" if p.get('retrograde') else ""
         sky_data += f"- {p['name']} in {p['sign']} (House {p.get('house')}) {retro}\n"
     
-    lang_instruction = "All values in the JSON (prediction, summary, details, etc.) MUST be in Hindi (Devanagari)." if lang == "hi" else "All values must be in English."
+    lang_instruction = "All values must be in conversational Hindi (Hinglish style, Devanagari script). Use English words for Main Terms (Career, Love, Health). Keep it simple and non-jargon." if lang == "hi" else "All values must be in English."
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -278,15 +301,13 @@ Make the insights specific to the planetary positions provided.
 {lang_instruction}
 """
     try:
-        if client:
-            response = client.chat.completions.create(
+        if async_client:
+            response = await async_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.7,
                 response_format={"type": "json_object"}
             )
-            import json
-            return json.loads(response.choices[0].message.content)
             import json
             return json.loads(response.choices[0].message.content)
             
@@ -299,11 +320,11 @@ Make the insights specific to the planetary positions provided.
         print(f"AI Daily Generation Error: {e}")
         return None
 
-def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context=None, doshas=None, transits=None):
+async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context=None, doshas=None, transits=None):
     """
     Generates a structured, high-quality Vedic summary using Groq (Llama 3.3) or Gemini fallback.
     """
-    if not client and not model:
+    if not async_client and not model:
         return None
 
     import json
@@ -394,7 +415,7 @@ def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context
         else:
             dasha_data = "Dasha data unavailable"
 
-        lang_instruction = "Respond in Hindi language (Devanagari script) using appropriate Vedic terminology." if lang == "hi" else "Respond in English."
+        lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for technical terms (Career, Relationship, Finance) for easy readability. Avoid complex Shuddh Hindi." if lang == "hi" else "Respond in English."
 
         # Subscription Tier Logic
         tier = 'free'
@@ -452,10 +473,10 @@ Rules: No fear, no medical/legal claims, supportive tone.
 JSON only:"""
 
         # Try Groq with Llama 3.3 (High Quality)
-        if client:
+        if async_client:
             try:
                 print(f"Attempting Groq (Llama 3.3) for {name}...")
-                response = client.chat.completions.create(
+                response = await async_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model="llama-3.3-70b-versatile",
                     temperature=0.7,
@@ -467,7 +488,7 @@ JSON only:"""
                 # Try Groq with Llama 3.1 8B (Higher Rate Limits/Faster)
                 try:
                     print(f"Attempting Groq (Llama 3.1 8B) fallback for {name}...")
-                    response = client.chat.completions.create(
+                    response = await async_client.chat.completions.create(
                         messages=[{"role": "user", "content": prompt}],
                         model="llama-3.1-8b-instant",
                         temperature=0.7,
@@ -621,11 +642,11 @@ def generate_vedic_summary_fallback(name, planets, panchang, doshas, age=None):
     }
 
 
-def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None, context=None, lang="en"):
+async def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None, context=None, lang="en"):
     """
     Generates a psychological Western analysis summary using Groq, now including Houses.
     """
-    if not client and not model:
+    if not async_client and not model:
         return None
 
     planet_summary = "\n".join([f"- {p['name']} in {p['sign']} at {p.get('position', '??')}° (House {p['house']})" for p in planets])
@@ -636,7 +657,7 @@ def generate_western_ai_summary(name, sun, moon, ascendant, planets, houses=None
     if houses:
         house_summary = "HOUSE SIGN ALIGNMENTS:\n" + "\n".join([f"- House {i+1} ({W_HOUSES.get(i+1, {}).get('name', 'N/A')}): {sign} - Theme: {W_HOUSES.get(i+1, {}).get('theme', '')}" for i, sign in enumerate(houses)])
 
-    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in plain, warm English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for psychological/astrological terms where helpful for clarity. Keep it simple." if lang == "hi" else "Respond in plain, warm English."
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -710,7 +731,10 @@ Provide a comprehensive Western psychological analysis (300-350 words) covering:
 - Use authentic Western terminology: Dignities, aspects, houses, nodes, lots
 - Mention planetary sect (benefic/malefic in day/night charts)
 - Be specific about house placements and their psychological significance
-- Tone: Academic yet accessible, empowering, psychologically insightful
+- Explicitly discuss psychological SHADOWS and conflicts openly.
+- Explain hard lessons (Saturn/Pluto/Mars) clearly without sugar-coating.
+- Provide constructive ways to integrate these challenges.
+- Tone: Academic yet accessible, deep, and honest (acknowledge shadow sides).
 - {lang_instruction}
 
 Generate the analysis now:"""
@@ -734,11 +758,11 @@ Generate the analysis now:"""
         print(f"Western AI Summary Error: {e}")
         return None
 
-def generate_executive_summary(name, western_data, vedic_data, numerology_data, context=None, lang="en"):
+async def generate_executive_summary(name, western_data, vedic_data, numerology_data, context=None, lang="en"):
     """
     Generates a high-level executive summary combining all systems.
     """
-    if not client and not model:
+    if not async_client and not model:
         return None
 
     # Data Simplification & Research Synthesis
@@ -752,7 +776,7 @@ def generate_executive_summary(name, western_data, vedic_data, numerology_data, 
     v_brief = f"Lagna: {v_asc}, Nakshatra: {v_nak}, Moon: {v_moon} (Vedic)"
     n_brief = f"Fadic: {numerology_data.get('fadic_number', 'N/A')} ({numerology_data.get('fadic_type', 'N/A')})"
 
-    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use common English words (Risk, Solution, Career) to be easily understood by a layperson. No complex jargon." if lang == "hi" else "Respond in English."
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -762,31 +786,30 @@ def generate_executive_summary(name, western_data, vedic_data, numerology_data, 
              age_filter = "CRITICAL: User is a MINOR. Focus the Soul Mission on learning, discovery, and character. NO marriage/career talk."
 
     prompt = f"""You are a world-class Master Astrologer with 30+ years of experience.
-Your role is to provide a powerful, one-paragraph "Executive Summary" for {name} in simple, modern, and reassuring language.
+    Your role is to provide a comprehensive "Executive Summary" for {name}.
+    The user demands honesty, clarity, and practical solutions. Do NOT sugar-coat or hide difficult facts.
 
-**Rules:**
-- Always write for common users, not specialists
-- Avoid technical jargon unless absolutely necessary
-- If technical terms are used, explain them in one simple line
-- Focus on practical life impact, not theory
-- Never create fear or extreme predictions
-- Always end with a positive or actionable insight
-- Keep tone calm, confident, and empathetic
-- Guidance, not absolute fate
-- {age_filter}
-- IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
+    **Strict Rules:**
+    - Be direct and straightforward.
+    - Explicitly identify the most critical RISK or challenge in their chart (e.g., career instability, health issue, relationship delay).
+    - For every risk mentioned, provide a clear, actionable REMEDY or solution.
+    - Do not use vague positive fluff.
+    - Explain technical reasons simply (e.g., "Due to Saturn's position...").
+    - Balance the bad news with the good news objectively.
+    - {age_filter}
+    - Tone: Professional, realistic, and solution-oriented.
 
-RESEARCH PARAMETERS (Synthesis of Western, Vedic, and Numerology):
-- Western: {w_brief}
-- Vedic: {v_brief}
-- Numerology: {n_brief}
+    RESEARCH PARAMETERS (Synthesis of Western, Vedic, and Numerology):
+    - Western: {w_brief}
+    - Vedic: {v_brief}
+    - Numerology: {n_brief}
 
-**Your Task:**
-Synthesize these inputs into a single, cohesive "Soul Mission". Don't just list data. Find the one "Core Theme" that links all three systems.
-Exactly one paragraph (max 150 words).
-{lang_instruction}
+    **Your Task:**
+    Synthesize these inputs into a single, cohesive paragraph (max 150 words).
+    Start with the summary of their nature, then immediately address the critical challenges/risks and their solutions.
+    {lang_instruction}
 
-Respond with the summary text only."""
+    Respond with the summary text only."""
 
     try:
         if client:
@@ -813,7 +836,7 @@ Respond with the summary text only."""
         print(f"Executive Summary AI Error: {e}")
         return None
 
-def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en", dob=None, place=None, age=None):
+async def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en", dob=None, place=None, age=None):
     """
     Generates a high-quality, detailed Vedic personality analysis without astrological jargon.
     """
@@ -854,7 +877,7 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     
     dosha_str = "; ".join(dosha_list) if dosha_list else "None"
 
-    lang_instruction = "Respond in Hindi language (Devanagari script) using simple English loanwords where appropriate." if lang == "hi" else "Respond in plain, simple, and detailed English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). HEAVILY use English words for concepts like 'Personality', 'Career', 'Strength', 'Challenge'. Make it sound like a modern expert talking to a friend." if lang == "hi" else "Respond in plain, simple, and detailed English."
 
     prompt = f"""You are a world-class life coach and personality expert who uses Vedic wisdom to help people understand themselves.
     
@@ -872,31 +895,31 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
 
     **Strict Rules for Output**:
     1. **NO ASTROLOGICAL JARGON**: Do not mention "Houses," "Lords," "Signs," "Conjunctions," "Aspects," "Dasha," or "Sub Lord."
-    2. **USE PLAIN ENGLISH**: Describe the traits as a modern psychologist or life coach would.
+    2. **USE PLAIN ENGLISH**: Describe the traits as a modern analyst would.
     3. **BE DETAILED**: Each point in 'overall_personality' must be at least 40-50 words long.
-    4. **TONE**: Warm, empowering, and insightful.
-    
+    4. **TONE**: Professional, objective, and honest. Avoid sugar-coating.
+
     **Required JSON Structure**:
     {{
         "overall_personality": [
-            "A detailed 50-word paragraph about their core nature and how they interact with the world.",
-            "A detailed 50-word paragraph about their mental approach, thinking patterns, and intellectual strengths.",
-            "A detailed 50-word paragraph about their social style, reputation, and how others perceive them.",
-            "A detailed 50-word paragraph about their inner drive, willpower, and life energy."
+            "A detailed 50-word paragraph about their core nature (positive and negative traits).",
+            "A detailed 50-word paragraph about their mental approach and intellectual blind spots.",
+            "A detailed 50-word paragraph about their social style and how they might be misunderstood.",
+            "A detailed 50-word paragraph about their inner drive and potential burn-out risks."
         ],
-        "manglik_status": "A simple, jargon-free statement about the presence or absence of Manglik Dosha and what it means for them in plain English.",
-        "pitru_dosha_status": "A simple, jargon-free statement about the presence or absence of Pitru Dosha and what it means for them in plain English. If present, emphasize it as an opportunity for ancestral healing.",
-        "emotional_nature": "A detailed 60-80 word analysis of their inner feelings, needs, and emotional triggers based on {pan_nak}.",
+        "manglik_status": "A simple, straightforward statement about Manglik Dosha status and its REAL impact on marriage.",
+        "pitru_dosha_status": "A simple statement about Pitru Dosha. If present, explain the karmic burden clearly.",
+        "emotional_nature": "A detailed 60-80 word analysis of their emotional vulnerabilities and needs based on {pan_nak}.",
         "strengths": [
             "Specific strength 1 described in 20-30 words",
             "Specific strength 2 described in 20-30 words",
             "Specific strength 3 described in 20-30 words"
         ],
         "challenges": [
-            "A potential hurdle described with a growth-mindset focus in 30 words",
-            "Another area for improvement described supportively in 30 words"
+            "A critical risk or challenge they face (be honest) in 30 words",
+            "A specific area requiring caution or remedy in 30 words"
         ],
-        "life_theme": "A powerful, detailed 40-word summary of their soul's mission or main life theme."
+        "life_theme": "A powerful, detailed 40-word summary of their life theme, including challenges to overcome."
     }}
 
     **AGE-AWARE FILTERING (STRICT)**:
@@ -907,12 +930,12 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
     """
 
     # Try Groq (Preferred)
-    if client:
+    if async_client:
         import time
         try:
             # Attempt 1: Fast Model
             model_to_use = "llama-3.1-8b-instant" 
-            response = client.chat.completions.create(
+            response = await async_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model=model_to_use,
                 temperature=0.7,
@@ -924,9 +947,9 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
             
             try:
                 # Attempt 2: Stronger Model (Fallback)
-                time.sleep(1) # Brief pause to help with rate limits
+                # time.sleep(1) # Brief pause no longer needed for async
                 print(f"Attempting Groq (Llama 3.3 70B) fallback for {name}...")
-                response = client.chat.completions.create(
+                response = await async_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model="llama-3.3-70b-versatile",
                     temperature=0.7,
@@ -985,14 +1008,14 @@ def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, lang="en
         "life_theme": f"Embracing your {traits[0].lower()} nature to achieve success."
     }
 
-def generate_chat_response(message, profile_context, history=None, lang="en"):
+async def generate_chat_response(message, profile_context, history=None, lang="en"):
     """
     Generate a chat response based on user query and profile context.
     """
-    if not client and not model:
+    if not async_client and not model:
         return "I apologize, but I am currently offline. Please try again later."
 
-    lang_instruction = "Respond in Hindi." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English terms for clarity. Be simple and direct." if lang == "hi" else "Respond in English."
     
     # Construct a rich context string from the profile data
     context_str = "User Profile Summary:\n"
@@ -1099,9 +1122,9 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
     Answer:"""
 
     try:
-        if client:
+        if async_client:
             try:
-                response = client.chat.completions.create(
+                response = await async_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model="llama-3.3-70b-versatile",
                     temperature=0.7,
@@ -1111,7 +1134,7 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
                 print(f"Groq 70B Chat Error: {e}")
                 # Fallback to Llama 3.1 8B (Faster/Higher Limits)
                 print("Attempting Groq 8B fallback...")
-                response = client.chat.completions.create(
+                response = await async_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model="llama-3.1-8b-instant",
                     temperature=0.7,
@@ -1123,7 +1146,7 @@ def generate_chat_response(message, profile_context, history=None, lang="en"):
         print(f"Chat Generation Error: {e}")
         return "I'm having trouble connecting to the stars right now. Please ask again in a moment."
 
-def generate_career_analysis(name, planets, panchang, lang="en", age=None):
+async def generate_career_analysis(name, planets, panchang, lang="en", age=None):
     """
     Generates a specific Career analysis based on Vedic chart.
     """
@@ -1156,7 +1179,7 @@ def generate_career_analysis(name, planets, panchang, lang="en", age=None):
     pan_nak = panchang.get('nakshatra', {}).get('name', 'Unknown') if panchang else 'Unknown'
     pan_asc = panchang.get('ascendant', {}).get('name', 'Unknown') if panchang else 'Unknown'
 
-    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for 'Job', 'Business', 'Growth', 'Career'. Keep language very simple." if lang == "hi" else "Respond in English."
 
     prompt = f"""You are a Career Astrologer.
     Using the user’s birth details, analyze the career path based on 10th house, Saturn, and Mercury.
@@ -1188,9 +1211,9 @@ def generate_career_analysis(name, planets, panchang, lang="en", age=None):
     """
 
     # Try Groq (Preferred)
-    if client:
+    if async_client:
         try:
-            response = client.chat.completions.create(
+            response = await async_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.7,
@@ -1250,7 +1273,7 @@ def generate_career_analysis(name, planets, panchang, lang="en", age=None):
         print(f"Fallback Logic Error: {e}")
         return None
 
-def generate_relationship_analysis(name, planets, panchang, lang="en", age=None):
+async def generate_relationship_analysis(name, planets, panchang, lang="en", age=None):
     """
     Generates a specific Relationship and Marriage analysis based on Vedic chart.
     """
@@ -1283,7 +1306,7 @@ def generate_relationship_analysis(name, planets, panchang, lang="en", age=None)
     pan_nak = panchang.get('nakshatra', {}).get('name', 'Unknown') if panchang else 'Unknown'
     pan_asc = panchang.get('ascendant', {}).get('name', 'Unknown') if panchang else 'Unknown'
 
-    lang_instruction = "Respond in Hindi language (Devanagari script)." if lang == "hi" else "Respond in English."
+    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for 'Partner', 'Relationship', 'Trust', 'Marriage'. Avoid complex Hindi." if lang == "hi" else "Respond in English."
 
     prompt = f"""You are an expert Relationship & Marriage Astrologer.
     Using the user’s birth details, analyze the marriage and relationships based on 7th house, Venus, Jupiter, and Mars.
@@ -1315,9 +1338,9 @@ def generate_relationship_analysis(name, planets, panchang, lang="en", age=None)
     """
 
     # Try Groq (Preferred)
-    if client:
+    if async_client:
         try:
-            response = client.chat.completions.create(
+            response = await async_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.7,

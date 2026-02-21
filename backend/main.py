@@ -277,9 +277,9 @@ def get_navamsa_chart_south(details: BirthDetails):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/predictions/best")
-def get_best_prediction(details: BirthDetails):
+async def get_best_prediction(details: BirthDetails):
     context = {"profession": details.profession, "marital_status": details.marital_status}
-    aggregated_data = AstrologyAggregator.get_aggregated_best_prediction(
+    aggregated_data = await AstrologyAggregator.get_aggregated_best_prediction(
         details.name, details.year, details.month, details.day,
         details.hour, details.minute, details.city, details.lat, details.lng, details.timezone,
         lang=details.lang,
@@ -288,12 +288,12 @@ def get_best_prediction(details: BirthDetails):
     return aggregated_data
 
 @app.post("/api/astrology/vedic")
-def get_vedic_report(details: BirthDetails):
+async def get_vedic_report(details: BirthDetails):
     """
     Returns full Vedic Astrology report including Sidereal Planets, Panchang, and Dasha.
     """
     try:
-        data = AstrologyAggregator.get_vedic_full_report(
+        data = await AstrologyAggregator.get_vedic_full_report(
             details.name,
             details.year, details.month, details.day,
             details.hour, details.minute,
@@ -307,17 +307,20 @@ def get_vedic_report(details: BirthDetails):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/horoscope/{sign}")
-def get_daily_horoscope(sign: str, lang: str = "en"):
-    horoscope = AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang)
+async def get_daily_horoscope(sign: str, lang: str = "en"):
+    horoscope = await AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang)
+    print(f"DEBUG: get_daily_horoscope return type: {type(horoscope)}")
     return horoscope
 
 @app.post("/api/numerology")
-def get_numerology(details: BirthDetails):
+async def get_numerology(details: BirthDetails):
     """Calculate numerology numbers using external APIs and generate AI insights"""
     try:
         context = {"profession": details.profession, "marital_status": details.marital_status}
-        # Get numerology data from external APIs (Roxy/RapidAPI) or fallback
-        numbers = get_numerology_data(
+        # get_numerology_data is sync but uses threads internally, so we run it in a thread
+        import asyncio
+        numbers = await asyncio.to_thread(
+            get_numerology_data,
             details.name,
             details.year,
             details.month,
@@ -327,20 +330,20 @@ def get_numerology(details: BirthDetails):
             gender=details.gender
         )
         
-        # Generate AI insights only if not already provided (e.g. by Groq/Gemini in service)
+        # generate_numerology_insights is async
         if "ai_insights" not in numbers:
-            insights = generate_numerology_insights(numbers, context=context)
-            numbers.update(insights)
+            insights = await generate_numerology_insights(numbers, context=context)
+            if insights:
+                numbers.update(insights)
         
-        # Combine results
-        result = numbers
-        
-        return result
+        return numbers
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to calculate numerology: {str(e)}")
 
 @app.post("/api/report/consolidated")
-def get_consolidated_report(details: BirthDetails):
+async def get_consolidated_report(details: BirthDetails):
     """
     Generate a comprehensive report combining Numerology, Western Astrology, and Vedic Analysis.
     """
@@ -350,7 +353,7 @@ def get_consolidated_report(details: BirthDetails):
             "marital_status": details.marital_status,
             "subscription_tier": details.subscription_tier
         }
-        report = ReportGenerator.generate_consolidated_report(
+        report = await ReportGenerator.generate_consolidated_report(
             details.name,
             details.year,
             details.month,
@@ -373,13 +376,12 @@ def get_consolidated_report(details: BirthDetails):
         raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
 
 @app.post("/api/report/pdf")
-def get_pdf_report(details: BirthDetails):
+async def get_pdf_report(details: BirthDetails):
     """
     Generate PDF Report
     """
     try:
         from services.pdf_service import PDFReportService
-        from fastapi.responses import StreamingResponse
         import io
         
         # 1. Generate Data Report
@@ -388,7 +390,7 @@ def get_pdf_report(details: BirthDetails):
             "marital_status": details.marital_status,
             "subscription_tier": details.subscription_tier
         }
-        report_data = ReportGenerator.generate_consolidated_report(
+        report_data = await ReportGenerator.generate_consolidated_report(
             details.name,
             details.year,
             details.month,

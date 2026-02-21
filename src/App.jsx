@@ -69,7 +69,7 @@ function App() {
               <Route path="/lunar-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><LunarChart /></div>} />
               <Route path="/kundali" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Kundali /></div>} />
               <Route path="/numerology" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Numerology /></div>} />
-              <Route path="/report/consolidated" element={<div className="max-w-7xl mx-auto px-0 md:px-6 pt-20 md:pt-24 pb-12"><ConsolidatedReport /></div>} />
+              <Route path="/report/consolidated" element={<div className="w-full pt-20 md:pt-24 pb-12"><ConsolidatedReport /></div>} />
               <Route path="/calendar" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><CalendarPage /></div>} />
               <Route path="/profiles" element={
                 <ProtectedRoute>

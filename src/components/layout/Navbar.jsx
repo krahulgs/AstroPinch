@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X, Key, ChevronDown, Settings } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 import AstroLogo from '../../components/AstroLogo';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 import ChangePasswordModal from '../ChangePasswordModal';
 import { API_BASE_URL } from '../../api/config';
 
@@ -38,7 +39,7 @@ const Navbar = () => {
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-[#0a0a20]/70 backdrop-blur-xl border-b border-white/10`}>
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="max-w-full mx-auto px-4 md:px-12">
                 <div className="flex items-center justify-between h-20">
                     <div className="flex items-center gap-4">
                         {/* Back Button */}
@@ -63,27 +64,28 @@ const Navbar = () => {
                                 </span>
                             </div>
                         </Link>
-                    </div>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden lg:flex items-center gap-1">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${isActive(item.path)
-                                    ? (isHomePage ? 'bg-white/20 text-white' : 'bg-white/10 text-white border border-white/20')
-                                    : (isHomePage ? 'text-white/80 hover:text-white hover:bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5')
-                                    }`}
-                            >
-                                <item.icon className="w-4 h-4" />
-                                <span className="font-medium text-sm">{t(item.name)}</span>
-                            </Link>
-                        ))}
+                        {/* Desktop Navigation (Moved to Left) */}
+                        <div className="hidden lg:flex items-center gap-1">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${isActive(item.path)
+                                        ? (isHomePage ? 'bg-white/20 text-white' : 'bg-white/10 text-white border border-white/20')
+                                        : (isHomePage ? 'text-white/80 hover:text-white hover:bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5')
+                                        }`}
+                                >
+                                    <item.icon className="w-4 h-4" />
+                                    <span className="font-medium text-sm">{t(item.name)}</span>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Right side actions */}
                     <div className="flex items-center gap-2 md:gap-4">
+                        <LanguageSwitcher />
 
                         <div className="hidden sm:flex items-center gap-2 md:gap-4">
                             {token ? (

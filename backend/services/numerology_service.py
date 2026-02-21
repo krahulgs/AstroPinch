@@ -4,6 +4,7 @@ Integrates RapidAPI (Numerology API) and Roxy API for numerology calculations
 With Phillips Numerology Model as comprehensive fallback
 """
 import os
+import json
 import requests
 from services.phillips_numerology import get_complete_numerology_profile
 from services.phillips_interpretations import get_interpretation, get_karmic_lesson_interpretation
@@ -11,6 +12,7 @@ from services.hilary_numerology_service import HilaryNumerologyService
 from services.loshu_service import LoshuService
 
 from groq import Groq
+import google.generativeai as genai
 
 # API Configuration
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
@@ -19,6 +21,10 @@ RAPIDAPI_HOST = "numerology-api4.p.rapidapi.com"
 
 ROXY_API_KEY = os.getenv("ROXY_API_KEY", "")
 ROXY_API_BASE = "https://roxyapi.com/api/v1"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None, vedic_data=None, western_data=None, context=None, lang="en"):
     """
@@ -91,10 +97,23 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
             elif age <= 17:
                 age_filter = "RULE: User is a TEENAGER. Focus on personality, studies, and social skills. Avoid marriage or professional predictions."
 
-        prompt = f"""
-        Act as an expert Numerologist specializing in Pythagorean and Vedic systems.
+        lang_instruction = "Respond in conversational Hindi (Hinglish style) using Devanagari script. Use English words for technical terms (e.g., Career, Finance) to make it easy to understand. Avoid complex Hindi/Sanskrit." if lang == "hi" else "Respond in English."
         
-        Analyze the following profile:
+        prompt = f"""
+        Act as a highly experienced Astrologer and Numerologist working for AstroPinch Astrology Portal.
+        Your role is to give clear, honest, and straightforward predictions without hiding or softening important truths.
+
+        STRICT RULES:
+        - Use simple, plain language that is easy for non-experts to understand.
+        - Avoid complicated words, technical jargon, or confusing sentences.
+        - Be direct and transparent. Do not hide negative results (challenges, delays, losses, risks).
+        - Give practical guidance along with predictions.
+        - Mention important planetary positions, doshas, numbers, or cycles in simple words.
+        - Focus on: Career & Business, Money & Finance, Marriage & Relationships, Health, Education, Property & Travel.
+        - Tone: Honest, Calm, Supportive, Professional. No drama. No sugarcoating.
+        - Format: Use short paragraphs or bullet points for easy reading.
+
+        PROFILE ANALYSIS:
         Name: {name}
         Birth Date: {birth_date_str}
         {ctx_str}
@@ -102,8 +121,8 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
         Mulank: {loshu_data.get('mulank') if loshu_data else 'Unknown'}
         Bhagyank: {loshu_data.get('bhagyank') if loshu_data else 'Unknown'}
         
-        Detailed Analysis Traits: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('strength')}
-        Challenges to Master: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('caution')}
+        Traits/Strengths: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('strength')}
+        Challenges: {numerology_data.get('detailed_analysis', {}).get('life_path', {}).get('caution')}
         
         Vedic Context:
         Nakshatra: {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Unknown'}
@@ -113,21 +132,42 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
         Sun Sign: {western_data.get('sun_sign') if western_data else 'Unknown'}
         Ascendant: {western_data.get('ascendant') if western_data else 'Unknown'}
 
-        Loshu Grid Missing Numbers & Remedies:
-        {', '.join(map(str, loshu_data.get('missing_numbers', []))) if loshu_data else 'None'}
+        Loshu Context:
+        Missing Numbers: {', '.join(map(str, loshu_data.get('missing_numbers', []))) if loshu_data else 'None'}
         Suggested Remedies: {loshu_data.get('remedies', {}) if loshu_data else 'None'}
-
-        Provide a deep, personalized 4-paragraph reading:
-        1. The Core Vibration: How their Life Path Number/Mulank shapes their fundamental character.
-        2. Cosmic Alignment: How their Nakshatra (Vedic) and Sun Sign (Western) create a multidimensional identity.
-        3. The Path to Success: Specific advice on leveraging their Numerology strengths alongside current Dasha energy.
-        4. Future Outlook: A motivational closing statement based on their unique cosmic signature.
         
-        Tone: Mystical but practical, encouraging, and authoritative.
-        Keep it under 300 words.
+        RESPONSE STRUCTURE (Follow exactly):
+        Start with a short summary: 
+        "Based on your birth details and numerology, this is your honest reading." (Translate this intro to the target language)
+
+        Then follow this format:
+        1. Current Phase
+        Explain what is happening now (Personal Year/Dasha context).
+
+        2. Future Prediction (6–12 Months)
+        Explain upcoming events clearly.
+
+        3. Positive Points
+        What will work in favor.
+
+        4. Challenges & Warnings
+        What may go wrong and why. Be honest.
+
+        5. Remedies & Advice
+        Simple, practical solutions.
+
+        6. Lucky Factors
+        Lucky dates, numbers, colors.
+
+        Other Rules:
+        - Never give fake hope.
+        - Never exaggerate.
+        - Never copy generic horoscope content.
+        - Every answer must feel personal and sincere.
+
         {age_filter}
         
-        IMPORTANT: Provide the response in {lang} language.
+        IMPORTANT: {lang_instruction}
         """
         
         response = client.chat.completions.create(
@@ -141,7 +181,22 @@ def generate_ai_insights(name, birth_date_str, numerology_data, loshu_data=None,
         )
         return response.choices[0].message.content
     except Exception as e:
-        print(f"Groq API Error: {e}")
+        print(f"Groq API Error in generate_ai_insights: {e}. Trying Gemini Fallback...")
+        if GEMINI_API_KEY:
+            try:
+                # Use verified model from user's system
+                model = genai.GenerativeModel('gemini-2.0-flash')
+                gem_response = model.generate_content(prompt)
+                return gem_response.text
+            except Exception as ge:
+                print(f"Gemini Fallback Error: {ge}. Trying gemini-2.5-flash...")
+                try:
+                    model = genai.GenerativeModel('gemini-2.5-flash')
+                    gem_response = model.generate_content(prompt)
+                    return gem_response.text
+                except:
+                    pass
+        
         return get_fallback()
 
 
@@ -232,6 +287,76 @@ def calculate_numerology_roxy(name, year, month, day):
     
     return None
 
+def generate_hindi_numerology_details(numerology_data, context=None):
+    """
+    Generates structured Hindi (Hinglish) translations for specific numerology sections.
+    """
+    if not GROQ_API_KEY:
+        return None
+
+    try:
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        # Prepare data for prompt - focus on core numbers and cycles
+        input_data = {
+            "life_path": numerology_data.get("life_path"),
+            "expression": numerology_data.get("expression"),
+            "soul_urge": numerology_data.get("soul_urge"),
+            "personality": numerology_data.get("personality"),
+            "personal_year": numerology_data.get("personal_year"),
+            "personal_month": numerology_data.get("personal_month"),
+        }
+        
+        system_msg = "You are a highly experienced Astrologer and Numerologist. Your role is to give clear, honest, and straightforward predictions without sugarcoating. Convert the following Numerology profile into conversational Hindi (Hinglish) using Devanagari script, but English for technical terms."
+        
+        user_msg = f"""
+        Please provide a JSON object with the following structure, filled with Hinglish content for the given numbers.
+        The content should be a direct translation/adaptation of standard numerology interpretations for these specific numbers.
+        
+        {{
+            "life_path": {{ "text": "...", "strength": "...", "caution": "..." }},
+            "expression": {{ "text": "...", "strength": "...", "caution": "..." }},
+            "soul_urge": {{ "text": "...", "strength": "...", "caution": "..." }},
+            "personality": {{ "text": "...", "strength": "...", "caution": "..." }},
+            "personal_year": {{ "title": "...", "theme": "...", "start": "...", "focus": "...", "avoid": "..." }},
+            "personal_month": {{ "title": "...", "theme": "...", "start": "...", "focus": "...", "avoid": "..." }},
+            "timing": {{ "best_activities": "...", "job_change": "...", "business": "...", "investment": "...", "warning": "..." }},
+            "name_insight": {{ "career": "...", "relationship": "...", "stability": "...", "suggestion": "..." }},
+            "lucky_elements": {{ "numbers": ["..."], "dates": "...", "colors": "...", "days": "...", "gemstone": "..." }}
+        }}
+
+        Input Numbers: {json.dumps(input_data)}
+        
+        Keep descriptions concise, honest, and direct. Do not sugarcoat challenges.
+        Respond with ONLY the JSON object.
+        """
+        
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_msg}
+            ],
+            model="llama-3.3-70b-versatile",
+            temperature=0.7,
+            max_tokens=2000,
+        )
+        
+        response_content = chat_completion.choices[0].message.content
+        
+        # Extract JSON
+        json_start = response_content.find('{')
+        json_end = response_content.rfind('}') + 1
+        if json_start != -1 and json_end != -1:
+            json_str = response_content[json_start:json_end]
+            return json.loads(json_str)
+        else:
+            print("Failed to parse JSON from Hindi Numerology response")
+            return None
+
+    except Exception as e:
+        print(f"Error generating Hindi numerology details: {e}")
+        return None
+
 def calculate_numerology_fallback(name, year, month, day):
     """
     Fallback numerology calculation using Phillips Pythagorean system
@@ -273,7 +398,149 @@ def calculate_numerology_fallback(name, year, month, day):
     
     return result
 
-def get_numerology_data(name, year, month, day, vedic_data=None, western_data=None, context=None, lang="en", gender="male"):
+def generate_health_insights(name, birth_date_str, numerology_data, loshu_data=None, vedic_data=None, western_data=None, context=None, lang="en"):
+    """
+    Generate detailed Honest Health Analysis (10-point structure).
+    """
+    if not GROQ_API_KEY:
+        return None
+        
+    try:
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        # Safe Dasha Extraction
+        dasha_lord = "Unknown"
+        if vedic_data:
+            d_data = vedic_data.get('dasha')
+            if isinstance(d_data, dict):
+                dasha_lord = f"{d_data.get('active_mahadasha', 'Unknown')} - {d_data.get('active_antardasha', 'Unknown')}"
+            elif isinstance(d_data, list) and d_data:
+                dasha_lord = d_data[0].get('planet', 'Unknown')
+
+        # Age Calculation for Relevance
+        from datetime import datetime
+        try:
+            birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d")
+            today = datetime.now()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        except:
+            age = None
+            
+        # Context String
+        ctx_str = ""
+        if context:
+            p = context.get('profession')
+            m = context.get('marital_status')
+            if p: ctx_str += f"Profession: {p}\n"
+            if m: ctx_str += f"Marital Status: {m}\n"
+
+        lang_instruction = "Respond in conversational Hindi (Hinglish style) using Devanagari script for the main analysis, but English headers." if lang == "hi" else "Respond in English."
+        
+        prompt = f"""
+        Act as a highly experienced Astrologer and Numerologist working for Astropinch Astrology Portal.
+        Your task is to give a clear, honest, and detailed health analysis based on astrology and numerology.
+
+        Input Profile:
+        Name: {name}
+        Age: {age}
+        Numerology: Life Path {numerology_data.get('life_path')}, Expression {numerology_data.get('expression')}, Personal Year {numerology_data.get('personal_year')}
+        Vedic Context: Dasha {dasha_lord}, Nakshatra {vedic_data.get('panchang', {}).get('nakshatra', {}).get('name') if vedic_data else 'Unknown'}
+        Loshu Grid Missing: {', '.join(map(str, loshu_data.get('missing_numbers', []))) if loshu_data else 'None'}
+        {ctx_str}
+        
+        ⚠️ Important Rules
+        - Be direct and transparent.
+        - Do not give medical diagnosis.
+        - Clearly mention risks if visible.
+        - Give practical advice.
+        - Always combine Astrology + Numerology.
+        - Keep language simple for non-English speakers.
+        - Tone: Straightforward, Non-judgmental, Objective, Professional. No sugarcoating or lecturing. Just clear indications.
+
+        📌 Structure of the Health Reading (Follow EXACTLY):
+
+        Start with:
+        "Based on your birth chart and numerology, this is your honest health analysis." (Translate if needed)
+
+        1️⃣ Current Health Phase
+        Explain current planetary influence affecting health (Dasha/Personal Year).
+        Mention energy level (low / average / strong).
+        Is this a stable period or sensitive period?
+
+        2️⃣ Physical Health Analysis
+        Mention body areas clearly:
+        - Head & Mental stress
+        - Heart & Blood pressure
+        - Stomach & Digestion
+        - Bones & Joints
+        - Skin & Allergies
+        Be specific and practical.
+
+        3️⃣ Mental & Emotional Health
+        Explain: Stress level, Anxiety risk, Overthinking pattern, Sleep quality.
+        Be honest if mental pressure is high.
+
+        4️⃣ Numerology Health Impact
+        Include: Life Path Number health tendency, Birth Date impact, Personal Year Number effect.
+
+        5️⃣ Risk Periods (Next 6–12 Months)
+        Mention sensitive months and transit impacts.
+        Clearly say when health needs attention.
+
+        6️⃣ Long-Term Health Pattern
+        Is this temporary, lifestyle-related, or recurring? Be honest.
+
+        7️⃣ Lifestyle Observations
+        Identify work stress, sleep habits, and food patterns. Provide clear, straightforward indications.
+
+        8️⃣ Practical Advice
+        Diet, Exercise, Yoga, Meditation, Routine.
+
+        9️⃣ Remedies (If Needed)
+        Mantras, Color suggestions, etc.
+
+        🔟 Health Risk Indicator
+        End with:
+        Health Status Level: [Green/Yellow/Red Circle] Stable / Needs Attention / High Risk Period
+        Add 2–3 line summary explaining the level.
+
+        IMPORTANT: {lang_instruction}
+        """
+        
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.3-70b-versatile",
+            temperature=0.6 
+        )
+        return response.choices[0].message.content
+        
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Health Analysis Error: {error_msg}. Trying Gemini Fallback...")
+        
+        # Gemini Fallback if Groq fails
+        if GEMINI_API_KEY:
+            try:
+                # Use verified model from user's system
+                model = genai.GenerativeModel('gemini-2.0-flash')
+                gem_response = model.generate_content(prompt)
+                return gem_response.text
+            except Exception as ge:
+                print(f"Gemini Health Fallback Error: {ge}. Trying gemini-2.5-flash...")
+                try:
+                    model = genai.GenerativeModel('gemini-2.5-flash')
+                    gem_response = model.generate_content(prompt)
+                    return gem_response.text
+                except:
+                    pass
+
+        if "rate_limit_exceeded" in error_msg.lower():
+            return "Error: AI Rate Limit Reached. The Honest Astrologer is currently busy with other consultations. Please try again in 1-2 minutes."
+        if "authentication" in error_msg.lower() or "api_key" in error_msg.lower():
+            return "Error: AI Authentication Failed. Please check if your GROQ_API_KEY is valid."
+        return f"Error: The AI encountered an issue generating your report ({error_msg[:50]}...). Please try again."
+
+def get_numerology_data(name, year, month, day, vedic_data=None, western_data=None, context=None, lang="en", gender="male", include_health=False):
     """
     Get numerology data from external APIs with Phillips fallback
     Parallelized version to handle external API latency.
@@ -316,16 +583,52 @@ def get_numerology_data(name, year, month, day, vedic_data=None, western_data=No
             data["science_of_success"] = None
         
         # Parallel Step 2: AI Insights (Dependent on previous results)
-        ai_insights = generate_ai_insights(
+        ai_future = executor.submit(
+            generate_ai_insights,
             name, f"{year}-{month:02d}-{day:02d}", data,
             loshu_data=loshu_data, vedic_data=vedic_data, 
             western_data=western_data, context=context, lang=lang
         )
         
+        health_future = None
+        if include_health:
+            health_future = executor.submit(
+                generate_health_insights,
+                name, f"{year}-{month:02d}-{day:02d}", data,
+                loshu_data=loshu_data, vedic_data=vedic_data, 
+                western_data=western_data, context=context, lang=lang
+            )
+        
+        hindi_details_future = None
+        if lang == "hi" and GROQ_API_KEY:
+             hindi_details_future = executor.submit(generate_hindi_numerology_details, data, context)
+        
+        ai_insights = ai_future.result()
+        
+        if hindi_details_future:
+            hindi_details = hindi_details_future.result()
+            if hindi_details:
+                if "detailed_analysis" not in data:
+                    data["detailed_analysis"] = {}
+                
+                # Update detailed analysis with Hindi content
+                for key, value in hindi_details.items():
+                    if value and isinstance(value, dict):
+                        data["detailed_analysis"][key] = value
+                        
+                        # Special handling for lucky_elements to update top-level key for frontend
+                        if key == "lucky_elements":
+                            data["lucky_elements"] = value
+
         if ai_insights:
             data["ai_insights"] = ai_insights
             data["source"] = "groq-ai"
             data["ai_model"] = "llama-3.3-70b-versatile"
+
+        if health_future:
+            health_analysis = health_future.result()
+            if health_analysis:
+                data["health_analysis"] = health_analysis
 
     return data
 

@@ -476,4 +476,6 @@ async def get_vedastro_prediction_graph(details: BirthDetails):
 
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

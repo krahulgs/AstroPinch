@@ -226,12 +226,63 @@
             "desc": "Unlock your full destiny by combining your numeric vibration with your complete Vedic and Western astrological blueprint.",
             "detail_analysis": "View Detail Analysis"
         },
+        "strength": "Strength",
+        "caution": "Caution",
+        "birthday_number": "Birthday Number",
+        "maturity_number": "Maturity Number",
         "descriptions": {
             "life_path": "Your life purpose and the path you are meant to walk",
             "expression": "Your natural talents and how you express yourself",
             "soul_urge": "Your inner desires and what motivates you at the deepest level",
             "personality": "How others perceive you and your outer personality",
             "birthday": "Special gifts and talents from your day of birth"
+        },
+        "personal_cycles": {
+            "title": "Personal Cycles",
+            "subtitle": "Where numerology becomes useful",
+            "current_year": "Current Personal Year",
+            "current_month": "Current Personal Month",
+            "theme": "Theme",
+            "what_to_start": "What to Start",
+            "focus_on": "Focus On",
+            "avoid": "Avoid"
+        },
+        "career_money": {
+            "title": "Career & Money Guidance",
+            "subtitle": "Strategies for wealth & professional success 💼💰",
+            "annual_strategy": "Annual Strategy",
+            "best_activities": "Best Activities This Year",
+            "prime_timing": "Prime Timing for Moves",
+            "job_change": "Job Change",
+            "business_start": "Business Start",
+            "investment": "Investment",
+            "warning_periods": "Warning Periods",
+            "handle_care": "Handle with care",
+            "timing_analysis": "Simple Timing Analysis • Precision Guidance"
+        },
+        "name_insights": {
+            "title": "Name Insights",
+            "subtitle": "Your identity's hidden vibration 💎",
+            "name_vibration": "Name Vibration",
+            "vibration_desc": "Representing the total sum of your potential and destiny.",
+            "career": "Career",
+            "relationships": "Relationships",
+            "stability": "Stability",
+            "simple_suggestion": "Simple Suggestion"
+        },
+        "lucky_elements": {
+            "title": "Lucky Elements",
+            "subtitle": "Your cosmic toolkit for success ✨",
+            "lucky_numbers": "Lucky Numbers",
+            "favorable_dates": "Favorable Dates",
+            "lucky_colors": "Lucky Colors",
+            "power_days": "Power Days",
+            "recommended_gemstone": "Recommended Gemstone",
+            "wear_this": "Wear this for enhanced vibration",
+            "pro_tip": "PRO TIP: KEEP THESE ELEMENTS IN MIND FOR MAJOR DECISIONS"
+        },
+        "ai_deep_dive": {
+            "title": "AI Deep Dive Reading"
         }
     }
 }

@@ -1014,51 +1014,48 @@ const ConsolidatedReport = () => {
         return (
             <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white overflow-hidden font-sans">
                 {/* Clean Geometric Background */}
-                <div className="absolute inset-0 pointer-events-none opacity-40 md:opacity-60">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] md:[background-size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"></div>
-                    <div className="absolute top-[-5%] right-[-10%] w-[50%] md:w-[40%] h-[50%] md:h-[40%] bg-purple-50/50 rounded-full blur-[80px] md:blur-[100px]"></div>
-                    <div className="absolute bottom-[-5%] left-[-10%] w-[50%] md:w-[40%] h-[50%] md:h-[40%] bg-blue-50/50 rounded-full blur-[80px] md:blur-[100px]"></div>
+                <div className="absolute inset-0 pointer-events-none opacity-30">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-[60px] opacity-50"></div>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 max-w-2xl px-4 md:px-6 text-center -mt-12">
-                    {/* Sophisticated Minimalist Spinner */}
-                    <div className="relative w-20 h-20 md:w-24 md:h-24">
-                        <div className="absolute inset-0 border-[3px] border-slate-100 rounded-full"></div>
-                        <div className="absolute inset-0 border-t-[3px] border-purple-600 rounded-full animate-spin"></div>
-                        <div className="absolute inset-4 border border-slate-50 rounded-full"></div>
+                <div className="relative z-10 flex flex-col items-center space-y-6 md:space-y-8 max-w-lg px-6 text-center">
+                    {/* Compact Minimalist Spinner */}
+                    <div className="relative w-12 h-12 md:w-16 md:h-16">
+                        <div className="absolute inset-0 border-2 border-slate-100 rounded-full"></div>
+                        <div className="absolute inset-0 border-t-2 border-purple-600 rounded-full animate-spin"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-600/60 animate-pulse" />
+                            <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-purple-600/40 animate-pulse" />
                         </div>
                     </div>
 
                     {/* Editorial Style Text Content */}
-                    <div className="space-y-4 md:space-y-6">
-                        <div className="space-y-2 md:space-y-3">
-                            <p className="text-[10px] md:text-xs font-black text-purple-600 uppercase tracking-[0.4em] mb-1">Initialising Cosmic Engine</p>
-                            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.1] px-2">
+                    <div className="space-y-3 md:space-y-4">
+                        <div className="space-y-1.5 md:space-y-2">
+                            <p className="text-[9px] md:text-xs font-black text-purple-600 uppercase tracking-[0.3em] mb-1">Cosmic Analysis</p>
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
                                 {userData?.name ? (
                                     <>
                                         Curating <span className="text-purple-600">{userData.name}&apos;s</span>
                                         <br />
-                                        <span className="block mt-1">Personal Revelation</span>
+                                        <span className="block mt-0.5">Personal Revelation</span>
                                     </>
                                 ) : (
-                                    "Curating Your Cosmic Revelation"
+                                    "Your Cosmic Revelation"
                                 )}
                             </h1>
                         </div>
 
-                        <div className="flex flex-col items-center gap-4">
-                            <p className="text-xs md:text-base text-slate-500 font-medium max-w-[280px] md:max-w-md mx-auto leading-relaxed">
-                                {t('report.status.synthesizing', 'Analyzing planetary harmonics and temporal cycles for precision analytics...')}
+                        <div className="flex flex-col items-center gap-3">
+                            <p className="text-[10px] md:text-sm text-slate-500 font-medium max-w-[240px] md:max-w-xs mx-auto leading-relaxed">
+                                {t('report.status.synthesizing', 'Analyzing planetary harmonics and temporal cycles...')}
                             </p>
 
-                            {/* Refined Minimalist Progress */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
                                 {[0, 1, 2].map((i) => (
                                     <div
                                         key={i}
-                                        className="w-1.5 h-1.5 bg-purple-200 rounded-full animate-bounce"
+                                        className="w-1 h-1 bg-purple-200 rounded-full animate-bounce"
                                         style={{ animationDelay: `${i * 0.15}s` }}
                                     ></div>
                                 ))}
@@ -1066,40 +1063,33 @@ const ConsolidatedReport = () => {
                         </div>
                     </div>
 
-                    {/* Classic Modern Partners Section - Compact Version */}
-                    <div className="pt-8 md:pt-12 w-full max-w-sm md:max-w-md">
-                        <div className="flex flex-col items-center gap-5 py-6 md:py-8 px-4 md:px-8 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
-                            {/* Subtle background glow */}
-                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-200 to-transparent"></div>
-
-                            <div className="flex items-center gap-3">
-                                <div className="h-[1px] w-4 md:w-6 bg-slate-200"></div>
-                                <span className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Data Origins</span>
-                                <div className="h-[1px] w-4 md:w-6 bg-slate-200"></div>
+                    {/* Compact Data Origins */}
+                    <div className="pt-4 md:pt-6 w-full max-w-[280px] md:max-w-xs">
+                        <div className="flex flex-col items-center gap-4 py-4 md:py-6 px-6 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            <div className="flex items-center gap-2">
+                                <div className="h-[1px] w-3 bg-slate-200"></div>
+                                <span className="text-[7px] md:text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Origins</span>
+                                <div className="h-[1px] w-3 bg-slate-200"></div>
                             </div>
 
-                            <div className="flex items-center justify-center gap-4 md:gap-12">
-                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
-                                    <span className="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest">NASA JPL</span>
-                                    <div className="h-0.5 w-full bg-blue-500 rounded-full opacity-30 group-hover/item:opacity-100 transition-opacity"></div>
-                                </div>
-                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
-                                    <span className="text-[9px] md:text-[10px] font-black text-purple-600 uppercase tracking-widest">Vedic</span>
-                                    <div className="h-0.5 w-full bg-purple-500 rounded-full opacity-30 group-hover/item:opacity-100 transition-opacity"></div>
-                                </div>
-                                <div className="flex flex-col items-center gap-1.5 group/item cursor-default">
-                                    <span className="text-[9px] md:text-[10px] font-black text-rose-600 uppercase tracking-widest">Astra</span>
-                                    <div className="h-0.5 w-full bg-rose-500 rounded-full opacity-30 group-hover/item:opacity-100 transition-opacity"></div>
-                                </div>
+                            <div className="flex items-center justify-center gap-6 md:gap-8">
+                                {['NASA JPL', 'VEDIC', 'ASTRA'].map((source, i) => (
+                                    <div key={source} className="flex flex-col items-center gap-1">
+                                        <span className={`text-[8px] md:text-[9px] font-black ${i === 2 ? 'text-rose-500' : i === 1 ? 'text-purple-600' : 'text-blue-600'} uppercase tracking-widest`}>
+                                            {source}
+                                        </span>
+                                        <div className={`h-0.5 w-full rounded-full ${i === 2 ? 'bg-rose-500' : i === 1 ? 'bg-purple-600' : 'bg-blue-600'} opacity-20`}></div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Secondary Bottom Info */}
+                {/* Minimal Footer */}
                 <div className="absolute bottom-6 left-0 w-full text-center">
-                    <p className="text-[8px] font-medium text-slate-300 uppercase tracking-[0.2em] px-4">
-                        AstroPinch &copy; {new Date().getFullYear()} &mdash; Precision Astral Analytics
+                    <p className="text-[7px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4">
+                        AstroPinch &mdash; Precision Astral Analytics
                     </p>
                 </div>
             </div>
@@ -1298,22 +1288,70 @@ const ConsolidatedReport = () => {
                             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 {/* AI Executive Summary */}
                                 {report.predictions_summary?.best_prediction && (
-                                    <div className="p-6 md:p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden group mb-12">
-                                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
-                                            <Sparkles className="w-32 h-32 text-indigo-600" />
-                                        </div>
-                                        <div className="flex items-center gap-4 mb-8 relative z-10">
-                                            <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
-                                                <Brain className="w-7 h-7" />
+                                    <div className="p-6 md:p-10 rounded-[3rem] bg-slate-950 text-white shadow-2xl relative overflow-hidden group mb-12 border border-slate-800">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10 opacity-50"></div>
+
+                                        <div className="relative z-10">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-white/5 pb-8">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/20">
+                                                        <Brain className="w-7 h-7 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase italic leading-none">AI Executive Summary</h3>
+                                                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.3em] mt-2 flex items-center gap-1.5">
+                                                            <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
+                                                            Neural Synthesis Active
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">LLAMA-3.3-V</span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">Executive Summary</h3>
-                                                <p className="text-xs font-bold text-indigo-600 uppercase tracking-[0.2em] mt-1">AI-Synthesized Insight</p>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 md:gap-6">
+                                                {(() => {
+                                                    const text = report.predictions_summary.best_prediction;
+                                                    // Handle both "1. " and "\n1. "
+                                                    const sections = text.split(/(?=\d\.\s)/).filter(s => s.trim());
+
+                                                    if (sections.length <= 1) {
+                                                        return (
+                                                            <p className="md:col-span-2 text-lg md:text-xl text-slate-200 leading-relaxed font-medium italic opacity-90">
+                                                                "{text}"
+                                                            </p>
+                                                        );
+                                                    }
+
+                                                    return sections.map((section, idx) => {
+                                                        // Precise regex to extract Title and Content, handling **markers** and colons
+                                                        const cleaned = section.replace(/^\d\.\s+/, "");
+                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+
+                                                        const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + 1}`;
+                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
+
+                                                        return (
+                                                            <div key={idx} className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-white/10 transition-all group/item shadow-inner">
+                                                                <div className="flex items-center gap-3 mb-3">
+                                                                    <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
+                                                                        {idx + 1}
+                                                                    </div>
+                                                                    <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
+                                                                        {title}
+                                                                    </h4>
+                                                                </div>
+                                                                <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                                                                    {content.replace(/\*\*/g, '')}
+                                                                </p>
+                                                            </div>
+                                                        );
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
-                                        <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium relative z-10 whitespace-pre-wrap italic">
-                                            "{report.predictions_summary.best_prediction}"
-                                        </p>
                                     </div>
                                 )}
 
@@ -2358,22 +2396,71 @@ const ConsolidatedReport = () => {
                             activeTab === 'numerology' && (
                                 <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {/* Numerology Header Section */}
-                                    <div className="glass-panel p-5 md:p-12 rounded-[2.5rem] relative overflow-hidden group bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-xl">
-                                        <div className="absolute inset-0 bg-white/10 opacity-50 mix-blend-overlay"></div>
-                                        <div className="relative z-10 space-y-6">
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
-                                                    <Brain className="w-7 h-7 text-white" />
+                                    <div className="p-6 md:p-10 rounded-[3rem] bg-slate-950 text-white shadow-2xl relative overflow-hidden group border border-slate-800">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-pink-500/10 opacity-50"></div>
+                                        <div className="relative z-10 space-y-8">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-purple-500/20">
+                                                        <Brain className="w-7 h-7 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase italic leading-none">{t('report.sections.ai_executive_summary')}</h3>
+                                                        <div className="flex items-center gap-1.5 mt-2">
+                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                                                            <span className="text-[10px] font-black text-purple-200 uppercase tracking-widest">
+                                                                Neural Synthesis Active
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{t('report.sections.ai_executive_summary')}</h3>
-                                                    <p className="text-purple-100 text-sm uppercase font-black tracking-widest">{report.numerology?.ai_model || 'Groq AI'}</p>
+                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                                                        {report.numerology?.ai_model || 'LLAMA-3.3-V'}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div className="prose prose-invert max-w-none">
-                                                <div className="text-lg leading-relaxed text-white font-medium italic">
-                                                    {report.numerology?.ai_insights || report.predictions_summary?.best_prediction}
-                                                </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                                                {(() => {
+                                                    const rawText = report.numerology?.ai_insights || report.predictions_summary?.best_prediction || "";
+                                                    if (!rawText) return null;
+
+                                                    const sections = rawText.split(/(?=\d\.\s)/).filter(s => s.trim());
+
+                                                    if (sections.length <= 1) {
+                                                        return (
+                                                            <p className="md:col-span-2 text-lg md:text-xl text-slate-200 font-medium italic opacity-90">
+                                                                "{rawText}"
+                                                            </p>
+                                                        );
+                                                    }
+
+                                                    return sections.map((section, idx) => {
+                                                        const cleaned = section.replace(/^\d\.\s+/, "");
+                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+
+                                                        const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + 1}`;
+                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
+
+                                                        return (
+                                                            <div key={idx} className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-white/10 transition-all group/item shadow-inner">
+                                                                <div className="flex items-start gap-3 mb-3">
+                                                                    <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20 mt-0.5">
+                                                                        {idx + 1}
+                                                                    </div>
+                                                                    <h4 className="text-xs md:text-sm font-black uppercase tracking-wider text-white/90 group-hover/item:text-purple-300 transition-colors">
+                                                                        {title}
+                                                                    </h4>
+                                                                </div>
+                                                                <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                                                                    {content.replace(/\*\*/g, '')}
+                                                                </p>
+                                                            </div>
+                                                        );
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

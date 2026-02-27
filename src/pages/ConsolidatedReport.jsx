@@ -1325,30 +1325,47 @@ const ConsolidatedReport = () => {
                                                         );
                                                     }
 
-                                                    return sections.map((section, idx) => {
-                                                        // Precise regex to extract Title and Content, handling **markers** and colons
-                                                        const cleaned = section.replace(/^\d\.\s+/, "");
-                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+                                                    // Detect if first section is an intro
+                                                    const firstSectionCleaned = sections[0].replace(/^\d\.\s+/, "");
+                                                    const isIntro = firstSectionCleaned.length < 150 && !firstSectionCleaned.includes(':') && !firstSectionCleaned.includes('**');
 
-                                                        const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + 1}`;
-                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
+                                                    const intro = isIntro ? firstSectionCleaned : null;
+                                                    const insights = isIntro ? sections.slice(1) : sections;
 
-                                                        return (
-                                                            <div key={idx} className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-white/10 transition-all group/item shadow-inner">
-                                                                <div className="flex items-center gap-3 mb-3">
-                                                                    <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
-                                                                        {idx + 1}
-                                                                    </div>
-                                                                    <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
-                                                                        {title}
-                                                                    </h4>
+                                                    return (
+                                                        <>
+                                                            {intro && (
+                                                                <div className="md:col-span-2 p-6 md:p-8 rounded-[2.5rem] bg-indigo-500/5 border-l-4 border-indigo-500 mb-2">
+                                                                    <p className="text-lg md:text-xl text-slate-200 font-medium italic opacity-90 leading-relaxed">
+                                                                        "{intro.replace(/\*\*/g, '')}"
+                                                                    </p>
                                                                 </div>
-                                                                <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
-                                                                    {content.replace(/\*\*/g, '')}
-                                                                </p>
-                                                            </div>
-                                                        );
-                                                    });
+                                                            )}
+                                                            {insights.map((section, idx) => {
+                                                                const cleaned = section.replace(/^\d\.\s+/, "");
+                                                                const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+
+                                                                const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + (isIntro ? 2 : 1)}`;
+                                                                const content = titleMatch ? titleMatch[4].trim() : cleaned;
+
+                                                                return (
+                                                                    <div key={idx} className="p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-indigo-500/30 transition-all group/item shadow-inner">
+                                                                        <div className="flex items-center gap-3 mb-4">
+                                                                            <div className="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
+                                                                                {idx + (isIntro ? 2 : 1)}
+                                                                            </div>
+                                                                            <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
+                                                                                {title}
+                                                                            </h4>
+                                                                        </div>
+                                                                        <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                                                                            {content.replace(/\*\*/g, '')}
+                                                                        </p>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </>
+                                                    );
                                                 })()}
                                             </div>
                                         </div>
@@ -2437,29 +2454,46 @@ const ConsolidatedReport = () => {
                                                         );
                                                     }
 
-                                                    return sections.map((section, idx) => {
-                                                        const cleaned = section.replace(/^\d\.\s+/, "");
-                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+                                                    const firstSection = sections[0].replace(/^\d\.\s+/, "");
+                                                    const hasIntro = firstSection.length < 150 && !firstSection.includes(':') && !firstSection.includes('**');
+                                                    const introText = hasIntro ? firstSection : null;
+                                                    const insightSections = hasIntro ? sections.slice(1) : sections;
 
-                                                        const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + 1}`;
-                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
-
-                                                        return (
-                                                            <div key={idx} className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-white/10 transition-all group/item shadow-inner">
-                                                                <div className="flex items-start gap-3 mb-3">
-                                                                    <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20 mt-0.5">
-                                                                        {idx + 1}
-                                                                    </div>
-                                                                    <h4 className="text-xs md:text-sm font-black uppercase tracking-wider text-white/90 group-hover/item:text-purple-300 transition-colors">
-                                                                        {title}
-                                                                    </h4>
+                                                    return (
+                                                        <div className="space-y-8">
+                                                            {introText && (
+                                                                <div className="p-8 rounded-[2.5rem] bg-indigo-500/5 border-l-4 border-indigo-500">
+                                                                    <p className="text-lg md:text-xl text-slate-200 font-medium italic opacity-90 leading-relaxed text-balance">
+                                                                        "{introText.replace(/\*\*/g, '')}"
+                                                                    </p>
                                                                 </div>
-                                                                <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
-                                                                    {content.replace(/\*\*/g, '')}
-                                                                </p>
+                                                            )}
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                {insightSections.map((section, idx) => {
+                                                                    const cleaned = section.replace(/^\d\.\s+/, "");
+                                                                    const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+                                                                    const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + (hasIntro ? 2 : 1)}`;
+                                                                    const content = titleMatch ? titleMatch[4].trim() : cleaned;
+
+                                                                    return (
+                                                                        <div key={idx} className="p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-indigo-500/30 transition-all group/item shadow-inner">
+                                                                            <div className="flex items-center gap-3 mb-4">
+                                                                                <div className="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
+                                                                                    {idx + (hasIntro ? 2 : 1)}
+                                                                                </div>
+                                                                                <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
+                                                                                    {title}
+                                                                                </h4>
+                                                                            </div>
+                                                                            <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                                                                                {content.replace(/\*\*/g, '')}
+                                                                            </p>
+                                                                        </div>
+                                                                    );
+                                                                })}
                                                             </div>
-                                                        );
-                                                    });
+                                                        </div>
+                                                    );
                                                 })()}
                                             </div>
                                         </div>

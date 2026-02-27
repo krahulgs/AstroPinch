@@ -1010,10 +1010,12 @@ async def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, la
 
 async def generate_chat_response(message, profile_context, history=None, lang="en"):
     """
-    Generate a chat response based on user query and profile context.
+    Generate a streaming chat response based on user query and profile context.
+    Yields text chunks one at a time. Guaranteed to only produce one response.
     """
-    if not async_client and not model:
-        return "I apologize, but I am currently offline. Please try again later."
+    if not async_client:
+        yield "I apologize, but I am currently offline. Please try again later."
+        return
 
     lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English terms for clarity. Be simple and direct." if lang == "hi" else "Respond in English."
     
@@ -1046,7 +1048,6 @@ async def generate_chat_response(message, profile_context, history=None, lang="e
             # Current Dasha
             dasha = vedic.get('dasha', {})
             if isinstance(dasha, dict):
-                 context_str += f"Current Mahadasha: {dasha.get('active_mahadasha', '')}\n"
                  context_str += f"Current Mahadasha: {dasha.get('active_mahadasha', '')}\n"
                  context_str += f"Current Antardasha: {dasha.get('active_antardasha', '')}\n"
 
@@ -1100,51 +1101,57 @@ async def generate_chat_response(message, profile_context, history=None, lang="e
         elif age <= 17:
             age_guideline = "CRITICAL: User is a TEENAGER. Focus on exams, hobbies, and identity. Avoid marriage or deep professional talk."
 
-    prompt = f"""You are 'Astra', a wise, empathetic, and expert astrological assistant.
-    
-    **Context about the User:**
-    {context_str}
-    Age: {age if age else 'Unknown'}
+    prompt = f"""You are 'Astra', a wise and expert Vedic astrology AI assistant. You give ACCURATE, PERSONALIZED answers grounded in the user's actual chart data.
 
-    {history_str}
+**User Chart Data:**
+{context_str}
+Age: {age if age else 'Unknown'}
 
-    **User's Question:**
-    "{message}"
+{history_str}
 
-    **Important Guidelines:**
-    1. **Do NOT assume** the user's current status (e.g., married, single, employed) unless explicitly stated in the chat. 
-    2. If asked about timing (e.g., "When will I get married?"), DO NOT give a definitive prediction if you don't know their status. Instead, say: "If you are looking to get married, [Period] is favorable. If you are already married, this period indicates [meaning for married life]."
-    3. Refer to specific planets, dashas, or transits from the profile context to support your answer.
-    4. **Be crisp and authentic.** Provide direct, short answers (max 60 words). Avoid unnecessary pleasantries or filler words.
-    5. {age_guideline}
-    6. {lang_instruction}
+**User's Question:** "{message}"
 
-    Answer:"""
+**Rules (STRICTLY FOLLOW - do NOT deviate):**
+1. Write your answer ONCE. Do NOT repeat any sentence. Do NOT echo the question.
+2. Answer in 2-4 short sentences only. Be direct - no greetings, no filler phrases.
+3. ALWAYS cite the specific planet, dasha, house, or nakshatra from the chart data.
+4. Do NOT assume marital/job status. For timing questions: "if single, [X] is favorable; if married, it means [Y]."
+5. {age_guideline if age_guideline else 'Give age-appropriate guidance.'}
+6. {lang_instruction}
 
-    try:
-        if async_client:
-            try:
-                response = await async_client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.3-70b-versatile",
-                    temperature=0.7,
-                )
-                return response.choices[0].message.content
-            except Exception as e:
-                print(f"Groq 70B Chat Error: {e}")
-                # Fallback to Llama 3.1 8B (Faster/Higher Limits)
-                print("Attempting Groq 8B fallback...")
-                response = await async_client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.1-8b-instant",
-                    temperature=0.7,
-                )
-                return response.choices[0].message.content
-        else:
-             return "I apologize, but I can only answer when connected to the Groq AI service. Please check the system configuration."
-    except Exception as e:
-        print(f"Chat Generation Error: {e}")
-        return "I'm having trouble connecting to the stars right now. Please ask again in a moment."
+Answer (write ONCE, no repetition):"""
+
+    models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
+    yielded_any = False
+
+    for model_name in models_to_try:
+        try:
+            print(f"Chat: Trying model {model_name}...")
+            responseStream = await async_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model=model_name,
+                temperature=0.6,
+                max_tokens=220,
+                frequency_penalty=0.5,
+                presence_penalty=0.3,
+                stream=True
+            )
+            async for chunk in responseStream:
+                content = chunk.choices[0].delta.content
+                if content:
+                    yielded_any = True
+                    yield content
+            # If we got here without error and produced output, we're done
+            if yielded_any:
+                return
+        except Exception as e:
+            print(f"Chat model {model_name} failed: {e}")
+            if model_name == models_to_try[-1]:
+                # Last model also failed
+                if not yielded_any:
+                    yield "I'm having trouble reaching the cosmic network right now. Please try again in a moment."
+            # else: try next model
+            continue
 
 async def generate_career_analysis(name, planets, panchang, lang="en", age=None):
     """

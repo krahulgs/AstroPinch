@@ -65,7 +65,7 @@ class ReportGenerator:
 
         # 2. Detailed AI Analyses (Parallelizing the dependent AI calls)
         print("- Starting AI Synthesis Layer (Parallel)...")
-        from services.ai_service import generate_vedic_chart_analysis, generate_relationship_analysis
+        from services.ai_service import generate_vedic_chart_analysis, generate_relationship_analysis, generate_vedic_ai_summary
         from services.kp_prediction_service import KPPredictionService
         
         # Define tasks
@@ -84,6 +84,12 @@ class ReportGenerator:
             vedic_data=vedic_full, numerology_data=numerology,
             western_data=western_chart, context=context, lang=lang
         )
+        
+        vedic_summary_task = generate_vedic_ai_summary(
+            name, vedic_full['planets'], vedic_full.get('panchang', {}), 
+            vedic_full.get('dasha', {}), lang=lang, context=context, 
+            doshas=vedic_full.get('doshas', {}), transits=vedic_full.get('current_transits', [])
+        )
 
         # Non-AI parallel tasks (Use to_thread if they are sync)
         svg_task = asyncio.to_thread(
@@ -96,14 +102,15 @@ class ReportGenerator:
         )
 
         # Run all together
-        personality_res, relation_res, predictions_res, kungali_svg_res, navamsa_svg_res = await asyncio.gather(
-            personality_task, relationship_task, prediction_task, svg_task, navamsa_svg_task,
+        personality_res, relation_res, predictions_res, vedic_summary_res, kungali_svg_res, navamsa_svg_res = await asyncio.gather(
+            personality_task, relationship_task, prediction_task, vedic_summary_task, svg_task, navamsa_svg_task,
             return_exceptions=True
         )
 
         print(f"DEBUG: personality_res type: {type(personality_res)}")
         print(f"DEBUG: relation_res type: {type(relation_res)}")
         print(f"DEBUG: predictions_res type: {type(predictions_res)}")
+        print(f"DEBUG: vedic_summary_res type: {type(vedic_summary_res)}")
         print(f"DEBUG: kungali_svg_res type: {type(kungali_svg_res)}")
         print(f"DEBUG: navamsa_svg_res type: {type(navamsa_svg_res)}")
 
@@ -117,6 +124,7 @@ class ReportGenerator:
         vedic_personality_analysis = safe_res(personality_res, "Personality AI")
         relationship_analysis = safe_res(relation_res, "Relationship AI")
         predictions = safe_res(predictions_res, "Predictions AI")
+        ai_summary = safe_res(vedic_summary_res, "Vedic Summary AI")
         kundali_svg = safe_res(kungali_svg_res, "SVG")
         navamsa_svg = safe_res(navamsa_svg_res, "Navamsa SVG")
 
@@ -167,7 +175,7 @@ class ReportGenerator:
                 "kp_cusps": vedic_full.get('kp_cusps'),
                 "transits": transits,
                 "graha_effects": vedic_full.get('graha_effects'),
-                "ai_summary": vedic_full.get('ai_summary'),
+                "ai_summary": ai_summary,
                 "chart_svg": kundali_svg,
                 "navamsa_svg": navamsa_svg,
                 "vedic_personality_analysis": vedic_personality_analysis,

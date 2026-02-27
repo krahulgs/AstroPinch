@@ -153,16 +153,8 @@ class AstrologyAggregator:
             graha_effects = graha_effects_future.result()
             current_transits = transits_future.result()
 
-        # Parallel Step 4: AI Summary (Final high-latency task) - NOW AWAITED
-        try:
-            from services.ai_service import generate_vedic_ai_summary
-            ai_summary = await generate_vedic_ai_summary(
-                name, sidereal_data['planets'], panchang, dasha, 
-                lang=lang, context=context, doshas=doshas, transits=current_transits
-            )
-        except Exception as e:
-            print(f"AI Summary Error: {e}")
-            ai_summary = None
+        # Provide empty ai_summary and let top-level generator populate it
+        ai_summary = None
         
         return {
             "planets": sidereal_data['planets'],

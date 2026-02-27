@@ -14,6 +14,7 @@ const ChatWidget = ({ reportData }) => {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const isProcessing = useRef(false); // Guard against double-sends
     const [messageCount, setMessageCount] = useState(() => {
         const savedCount = localStorage.getItem('astra_chat_count');
         const lastReset = localStorage.getItem('astra_chat_last_reset');
@@ -51,12 +52,13 @@ const ChatWidget = ({ reportData }) => {
 
     const handleSend = async (customInput = null) => {
         const messageText = customInput || input;
-        if (!messageText.trim() || !reportData || isLimitReached) return;
+        if (!messageText.trim() || !reportData || isLimitReached || isProcessing.current) return;
 
         const userMessage = { id: Date.now(), role: 'user', text: messageText };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
+        isProcessing.current = true;
 
         const newCount = messageCount + 1;
         setMessageCount(newCount);
@@ -118,13 +120,59 @@ const ChatWidget = ({ reportData }) => {
             });
 
             if (!response.ok) throw new Error("Failed to get response");
-            const data = await response.json();
 
+            // Add initial empty message for the assistant
+            const assistantMessageId = Date.now() + 1;
             setMessages(prev => [...prev, {
-                id: Date.now() + 1,
+                id: assistantMessageId,
                 role: 'assistant',
-                text: data.response
+                text: ""
             }]);
+            setIsLoading(false); // Stop loading animation once stream starts
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                let chunk = decoder.decode(value, { stream: true });
+
+                // Fix literal \n escape sequences from model output
+                chunk = chunk.replace(/\\n/g, '\n');
+
+                // Safety net: strip any accidental JSON-wrapped chunks
+                chunk = chunk.replace(/\{"response":"((?:[^"\\]|\\.)*?)"\}/g, '$1');
+
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.id === assistantMessageId) {
+                        lastMessage.text += chunk;
+                    }
+                    return newMessages;
+                });
+            }
+
+            // Post-stream deduplication: detect if the full response was doubled
+            // by checking if the second half is a near-exact repeat of the first half
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage.id === assistantMessageId && lastMessage.text.length > 20) {
+                    let fullText = lastMessage.text;
+                    // Check for exact duplication (text = A + A)
+                    const half = Math.floor(fullText.length / 2);
+                    const firstHalf = fullText.slice(0, half);
+                    const secondHalf = fullText.slice(half);
+                    // Allow 5% tolerance for minor streaming differences
+                    if (secondHalf.trim().startsWith(firstHalf.trim().slice(0, Math.min(40, firstHalf.length)))) {
+                        lastMessage.text = firstHalf.trim();
+                    }
+                }
+                return newMessages;
+            });
 
         } catch (error) {
             console.error("Chat Error:", error);
@@ -135,6 +183,7 @@ const ChatWidget = ({ reportData }) => {
             }]);
         } finally {
             setIsLoading(false);
+            isProcessing.current = false;
         }
     };
 
@@ -244,7 +293,12 @@ const ChatWidget = ({ reportData }) => {
                                             : 'bg-white text-slate-700 border border-indigo-100/50 rounded-tl-md'
                                         }
                                     `}>
-                                        {msg.text}
+                                        {msg.text.split('\n').map((line, i, arr) => (
+                                            <span key={i}>
+                                                {line}
+                                                {i < arr.length - 1 && <br />}
+                                            </span>
+                                        ))}
                                     </div>
                                     <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-2 opacity-60">
                                         {msg.role === 'user' ? 'You' : 'Powered by AstroPinch'}

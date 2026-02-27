@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { API_BASE_URL } from '../api/config';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -97,7 +97,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
                                 {num}
                             </span>
                             {count > 1 && (
-                                <span className="text-[10px] text-amber-600 font-bold leading-none mt-0.5">
+                                <span className="text-xs text-amber-600 font-bold leading-none mt-0.5">
                                     x{count}
                                 </span>
                             )}
@@ -108,7 +108,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
 
             {!showAnalysis && (
                 <div className="mt-4 flex flex-col items-center">
-                    <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Kua No. {loshuData.kua}</span>
+                    <span className="text-xs font-black text-amber-600 uppercase tracking-widest">Kua No. {loshuData.kua}</span>
                 </div>
             )}
 
@@ -117,7 +117,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
                     {/* Planes Analysis */}
                     {loshuData.completed_planes?.length > 0 && (
                         <div className="space-y-3">
-                            <p className="text-[10px] text-secondary font-black uppercase tracking-widest flex items-center gap-2">
+                            <p className="text-xs text-secondary font-black uppercase tracking-widest flex items-center gap-2">
                                 <Activity className="w-3 h-3 text-emerald-500" /> Active Success Planes (Yogas)
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -133,13 +133,13 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
                     {/* Remedies (Dynamic based on Missing Numbers) */}
                     {loshuData.remedies && Object.keys(loshuData.remedies).length > 0 && (
                         <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-4 rounded-2xl border border-amber-100/50">
-                            <p className="text-[10px] text-amber-800 font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                            <p className="text-xs text-amber-800 font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
                                 <Leaf className="w-3 h-3 text-amber-600" /> Key Remedies for Missing Energies
                             </p>
                             <div className="space-y-3">
                                 {Object.entries(loshuData.remedies).map(([num, remedy]) => (
                                     <div key={num} className="flex gap-3 items-start group">
-                                        <div className="w-6 h-6 rounded-lg bg-white border border-amber-200 flex items-center justify-center text-[10px] font-black text-amber-700 shadow-sm group-hover:scale-110 transition-transform">
+                                        <div className="w-6 h-6 rounded-lg bg-white border border-amber-200 flex items-center justify-center text-xs font-black text-amber-700 shadow-sm group-hover:scale-110 transition-transform">
                                             {num}
                                         </div>
                                         <p className="text-xs text-slate-600 leading-relaxed font-medium">
@@ -358,7 +358,18 @@ const YearlyPredictionGraph = ({ data, userData }) => {
     const yearWidth = 80; // Increased width for better detail in 10-year view
 
     // Seeded Random for consistency across renders for the same profile
-    const seed = userData ? (new Date(userData.date).getTime() + (userData.time || "").charCodeAt(0) || 0) : 123;
+    const seed = useMemo(() => {
+        if (!userData) return 123;
+        const seedStr = `${userData.date}-${userData.time || ''}-${userData.name || ''}`;
+        let hash = 0;
+        for (let i = 0; i < seedStr.length; i++) {
+            const char = seedStr.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash);
+    }, [userData]);
+
     const getSeededValue = (offset) => {
         const x = Math.sin(seed + offset) * 10000;
         return x - Math.floor(x);
@@ -449,11 +460,11 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                     <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     <div>
                         <h3 className="text-sm md:text-lg font-bold text-slate-800 tracking-wide uppercase">Life Forecast</h3>
-                        <p className="text-[8px] md:text-[10px] text-slate-500 font-mono tracking-wider uppercase">VedAstro V.4.2 // 60-Year Forecast (Born: {birthYear})</p>
+                        <p className="text-[10px] md:text-xs text-slate-500 font-mono tracking-wider uppercase">VedAstro V.4.2 // 60-Year Forecast (Born: {birthYear})</p>
                     </div>
                 </div>
                 {/* Legend */}
-                <div className="flex items-center gap-2 text-[9px] md:text-[10px] uppercase font-bold tracking-wider bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-sm w-fit">
+                <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-sm w-fit">
                     <span className="text-red-500">Challenge</span>
                     <div className="w-12 md:w-16 h-1.5 md:h-2 rounded-full bg-gradient-to-r from-red-500 via-white to-green-500 border border-slate-100"></div>
                     <span className="text-emerald-600">Success</span>
@@ -468,7 +479,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                         <div className="w-2 h-2 bg-emerald-500 rounded-full relative z-10"></div>
                     </div>
                     <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">Live Status</span>
-                    <span className="text-[10px] text-slate-400 font-mono border-l border-slate-200 pl-2">
+                    <span className="text-xs text-slate-400 font-mono border-l border-slate-200 pl-2">
                         {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                 </div>
@@ -486,8 +497,8 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                         </div>
                     </div>
                     <div className="text-right shrink-0 min-w-[100px]">
-                        <div className="text-sm font-black text-emerald-600 leading-none">{liveScore}%</div>
-                        <div className="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest">{liveStatus}</div>
+                        <div className="text-xs font-black text-emerald-600 leading-none">{liveScore}%</div>
+                        <div className="text-xs font-bold text-emerald-600/60 uppercase tracking-widest">{liveStatus}</div>
                     </div>
                 </div>
             </div>
@@ -500,7 +511,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                     {/* Overall Vitality Trend Line Graph */}
                     <div className="relative h-24 border-b border-slate-200">
                         <div className="sticky left-6 top-0 z-10 w-max mb-2 pt-2">
-                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-white/80 px-2 py-0.5 rounded-full border border-blue-100 shadow-sm backdrop-blur-sm">
+                            <span className="text-xs font-bold text-blue-600 uppercase tracking-widest bg-white/80 px-2 py-0.5 rounded-full border border-blue-100 shadow-sm backdrop-blur-sm">
                                 Overall Vitality Trend
                             </span>
                         </div>
@@ -565,14 +576,14 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                             return (
                                 <div
                                     key={year}
-                                    className={`flex-shrink-0 border-l border-slate-200 text-[10px] font-mono font-bold flex items-center justify-center relative group transition-all duration-300 ${isCurrent ? 'bg-blue-600 text-white shadow-lg scale-110 z-20 rounded-md ring-2 ring-blue-200 transform -translate-y-1' : 'text-slate-400 hover:bg-white'}`}
+                                    className={`flex-shrink-0 border-l border-slate-200 text-xs font-mono font-bold flex items-center justify-center relative group transition-all duration-300 ${isCurrent ? 'bg-blue-600 text-white shadow-lg scale-110 z-20 rounded-md ring-2 ring-blue-200 transform -translate-y-1' : 'text-slate-400 hover:bg-white'}`}
                                     style={{ width: `${yearWidth}px`, height: '32px' }}
                                 >
                                     {year}
 
                                     {/* Dasha Tooltip */}
                                     {dashaText && (
-                                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-[8px] py-1 px-2 rounded shadow-xl z-50 whitespace-nowrap pointer-events-none">
+                                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-xl z-50 whitespace-nowrap pointer-events-none">
                                             {dashaText}
                                         </div>
                                     )}
@@ -592,7 +603,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                 className="absolute top-0 bottom-0 w-[2px] bg-blue-500 z-20 pointer-events-none shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                                 style={{ left: `${nowCursorLeft}px` }}
                             >
-                                <div className="sticky top-10 ml-1.5 bg-blue-600 text-[9px] text-white px-1.5 py-0.5 rounded font-bold shadow-lg w-max z-30">
+                                <div className="sticky top-10 ml-1.5 bg-blue-600 text-xs text-white px-1.5 py-0.5 rounded font-bold shadow-lg w-max z-30">
                                     NOW
                                 </div>
                             </div>
@@ -608,7 +619,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                     {track.id === 'family' && <Home className="w-3 h-3 text-slate-400" />}
                                     {track.id === 'finance' && <Gem className="w-3 h-3 text-slate-400" />}
                                     {track.id === 'summary' && <Layers className="w-3 h-3 text-blue-500" />}
-                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                    <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
                                         {track.name}
                                     </span>
                                 </div>
@@ -642,12 +653,12 @@ const YearlyPredictionGraph = ({ data, userData }) => {
             </div>
 
             {/* Footer Info */}
-            <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500 font-mono z-10">
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500 font-mono z-10">
                 <div className="flex items-center gap-2">
                     <Info className="w-3 h-3" />
                     <span>SCROLL TO VIEW FUTURE PREDICTIONS &rarr;</span>
                 </div>
-                <span>ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                <span>ID: {seed.toString(36).toUpperCase()}</span>
             </div>
         </div>
     );
@@ -670,7 +681,7 @@ const HealthAnalysisDisplay = ({ content }) => {
                     <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                         <Heart className="w-8 h-8 text-emerald-600" />
                     </div>
-                    <h2 className="text-2xl md:text-4xl font-black text-emerald-900 uppercase tracking-tighter mb-2">Honest Health Analysis</h2>
+                    <h2 className="text-2xl md:text-3xl font-black text-emerald-900 uppercase tracking-tighter mb-2">Honest Health Analysis</h2>
                     <p className="text-emerald-700 font-bold uppercase tracking-widest text-xs md:text-sm">Astrology + Numerology Deep Dive</p>
                     {header && <p className="mt-4 text-emerald-800 italic max-w-2xl mx-auto">{header}</p>}
                 </div>
@@ -703,7 +714,8 @@ const HealthAnalysisDisplay = ({ content }) => {
                     return (
                         <div key={idx} className={`glass-panel p-6 rounded-[1.5rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${isRisk ? 'bg-red-50/50 border-red-100 hover:shadow-red-100' : isPositive ? 'bg-emerald-50/50 border-emerald-100 hover:shadow-emerald-100' : 'bg-white border-slate-100'}`}>
                             <h3 className={`text-base md:text-lg font-black uppercase tracking-tight mb-3 ${isRisk ? 'text-red-700' : isPositive ? 'text-emerald-700' : 'text-slate-800'}`}>
-                                {title}
+                                {/* eslint-disable-next-line no-control-regex */}
+                                {title.replace(/^\d+[.|️⃣]\s*/, "")}
                             </h3>
                             <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap font-medium">
                                 {body.replace(/^\*/gm, '•')}
@@ -775,7 +787,7 @@ const ConsolidatedReport = () => {
     };
 
     // Robust UserData Retrieval: State -> LocalStorage
-    const [userData, setUserData] = useState(() => {
+    const [userData] = useState(() => {
         try {
             if (location.state?.userData) {
                 localStorage.setItem('lastReportData', JSON.stringify(location.state.userData));
@@ -855,53 +867,7 @@ const ConsolidatedReport = () => {
     };
 
     const [activeTab, setActiveTab] = useState('vedic');
-    const [westernSvg, setWesternSvg] = useState(null);
-    const [vedicSvg, setVedicSvg] = useState(null);
-    const [predictionGraphData, setPredictionGraphData] = useState(null);
 
-    // Fetch Graph Data Independently
-    useEffect(() => {
-        const fetchGraphData = async () => {
-            if (!userData) return;
-            try {
-                let payload = { ...userData };
-                if (typeof userData.date === 'string' && userData.date.includes('-')) {
-                    const [y, m, d] = userData.date.split('-').map(Number);
-                    payload.year = y; payload.month = m; payload.day = d;
-                }
-                if (typeof userData.time === 'string' && userData.time.includes(':')) {
-                    const [h, min] = userData.time.split(':').map(Number);
-                    payload.hour = h; payload.minute = min;
-                }
-                if (!payload.city && payload.place) payload.city = payload.place;
-                if (!payload.city && payload.location_name) payload.city = payload.location_name;
-
-                // CRITICAL: Ensure timezone is set for accurate forecast calculations
-                if (!payload.timezone || payload.timezone === 'UTC') {
-                    // Default to Asia/Kolkata for Indian coordinates
-                    const lat = payload.latitude || payload.lat || 0;
-                    const lng = payload.longitude || payload.lng || 0;
-                    if (lat >= 6 && lat <= 38 && lng >= 68 && lng <= 98) {
-                        payload.timezone = 'Asia/Kolkata';
-                    }
-                }
-
-                const res = await fetch(`${API_BASE_URL}/api/vedastro/prediction-graph`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    setPredictionGraphData(data.graph_data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch graph", error);
-            }
-        };
-        fetchGraphData();
-    }, [userData]);
 
     const generateReport = useCallback(async () => {
         if (!userData) return;
@@ -961,20 +927,8 @@ const ConsolidatedReport = () => {
                 'Expires': '0'
             };
 
-            const [reportRes, westRes, vedicRes] = await Promise.all([
+            const [reportRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/report/consolidated?t=${timestamp}`, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload),
-                    cache: 'no-store'
-                }),
-                fetch(`${API_BASE_URL}/api/chart/svg?t=${timestamp}`, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload),
-                    cache: 'no-store'
-                }),
-                fetch(`${API_BASE_URL}/api/chart/svg/kundali?t=${timestamp}`, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(payload),
@@ -986,15 +940,6 @@ const ConsolidatedReport = () => {
 
             const data = await reportRes.json();
             setReport(data);
-
-            if (westRes.ok) {
-                const wData = await westRes.json();
-                setWesternSvg(wData.svg);
-            }
-            if (vedicRes.ok) {
-                const vData = await vedicRes.json();
-                setVedicSvg(vData.svg);
-            }
 
         } catch (err) {
             console.error(err);
@@ -1299,19 +1244,19 @@ const ConsolidatedReport = () => {
                                                     </div>
                                                     <div>
                                                         <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase italic leading-none">AI Executive Summary</h3>
-                                                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.3em] mt-2 flex items-center gap-1.5">
-                                                            <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
+                                                        <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.3em] mt-2 flex items-center gap-1.5">
+                                                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span>
                                                             Neural Synthesis Active
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 uppercase">
                                                     <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">LLAMA-3.3-V</span>
+                                                    <span className="text-xs font-black tracking-widest text-slate-300">LLAMA-3.3-V</span>
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 md:gap-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {(() => {
                                                     const text = report.predictions_summary.best_prediction;
                                                     // Handle both "1. " and "\n1. "
@@ -1319,7 +1264,7 @@ const ConsolidatedReport = () => {
 
                                                     if (sections.length <= 1) {
                                                         return (
-                                                            <p className="md:col-span-2 text-lg md:text-xl text-slate-200 leading-relaxed font-medium italic opacity-90">
+                                                            <p className="md:col-span-2 text-base md:text-lg text-slate-200 leading-relaxed font-medium italic opacity-90">
                                                                 "{text}"
                                                             </p>
                                                         );
@@ -1336,7 +1281,7 @@ const ConsolidatedReport = () => {
                                                         <>
                                                             {intro && (
                                                                 <div className="md:col-span-2 p-6 md:p-8 rounded-[2.5rem] bg-indigo-500/5 border-l-4 border-indigo-500 mb-2">
-                                                                    <p className="text-lg md:text-xl text-slate-200 font-medium italic opacity-90 leading-relaxed">
+                                                                    <p className="text-base md:text-lg text-slate-200 font-medium italic opacity-90 leading-relaxed">
                                                                         "{intro.replace(/\*\*/g, '')}"
                                                                     </p>
                                                                 </div>
@@ -1349,16 +1294,14 @@ const ConsolidatedReport = () => {
                                                                 const content = titleMatch ? titleMatch[4].trim() : cleaned;
 
                                                                 return (
-                                                                    <div key={idx} className="p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-indigo-500/30 transition-all group/item shadow-inner">
+                                                                    <div key={idx} className="p-6 md:p-8 rounded-3xl bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all group/item shadow-sm">
                                                                         <div className="flex items-center gap-3 mb-4">
-                                                                            <div className="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
-                                                                                {idx + (isIntro ? 2 : 1)}
-                                                                            </div>
-                                                                            <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
+                                                                            <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                                                            <h4 className="text-sm font-black uppercase tracking-wider text-indigo-300 transition-colors">
                                                                                 {title}
                                                                             </h4>
                                                                         </div>
-                                                                        <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                                                                        <p className="text-sm text-slate-300 leading-relaxed font-medium">
                                                                             {content.replace(/\*\*/g, '')}
                                                                         </p>
                                                                     </div>
@@ -1387,7 +1330,7 @@ const ConsolidatedReport = () => {
                                                 </div>
                                                 <div>
                                                     <h3 className="text-lg font-black text-rose-900 uppercase tracking-tight">Western View</h3>
-                                                    <p className="text-[10px] uppercase font-bold text-rose-400 tracking-widest">{report.predictions_summary.western.system}</p>
+                                                    <p className="text-xs uppercase font-bold text-rose-400 tracking-widest">{report.predictions_summary.western.system}</p>
                                                 </div>
                                             </div>
                                             <p className="text-sm font-bold text-rose-800 uppercase tracking-wide mb-2 opacity-80 flex items-center gap-2">
@@ -1638,7 +1581,7 @@ const ConsolidatedReport = () => {
                                                     <Activity className="w-7 h-7 text-indigo-600" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
+                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Vimshottari Dasha</h3>
                                                     <p className="text-indigo-600/60 text-sm font-bold uppercase tracking-widest mt-1">Life Cycles & Timing</p>
                                                 </div>
                                             </div>
@@ -1660,23 +1603,22 @@ const ConsolidatedReport = () => {
                                                             <div>
                                                                 <div className="flex items-center gap-2 mb-1">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
-                                                                    <span className="text-indigo-200 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em]">Current Cycle</span>
+                                                                    <h3 className="text-xl md:text-2xl font-serif italic leading-tight">
+                                                                        {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
+                                                                    </h3>
+                                                                    {report.vedic_astrology.dasha.active_antardasha && (
+                                                                        <p className="text-indigo-200 mt-1 md:mt-2 text-[10px] md:text-sm font-medium flex items-center gap-2">
+                                                                            <span className="w-1 h-1 rounded-full bg-white/50"></span>
+                                                                            {report.vedic_astrology.dasha.active_antardasha} Bhukti
+                                                                        </p>
+                                                                    )}
                                                                 </div>
-                                                                <h3 className="text-xl md:text-4xl font-serif italic leading-tight">
-                                                                    {report.vedic_astrology.dasha.active_mahadasha} <span className="text-indigo-300">Mahadasha</span>
-                                                                </h3>
-                                                                {report.vedic_astrology.dasha.active_antardasha && (
-                                                                    <p className="text-indigo-200 mt-1 md:mt-2 text-[10px] md:text-sm font-medium flex items-center gap-2">
-                                                                        <span className="w-1 h-1 rounded-full bg-white/50"></span>
-                                                                        {report.vedic_astrology.dasha.active_antardasha} Bhukti
-                                                                    </p>
-                                                                )}
                                                             </div>
-                                                        </div>
 
-                                                        <div className="md:text-right">
-                                                            <div className="inline-block px-3 py-1 md:px-5 md:py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                                <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
+                                                            <div className="md:text-right">
+                                                                <div className="inline-block px-3 py-1 md:px-5 md:py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
+                                                                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-indigo-100">Influencing Now</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1781,12 +1723,12 @@ const ConsolidatedReport = () => {
                                                         <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter leading-tight">{t('report.remedies.title')}</h3>
-                                                        <p className="text-amber-700 text-[10px] md:text-sm font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
+                                                        <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">{t('report.remedies.title')}</h3>
+                                                        <p className="text-amber-700 text-xs font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="px-4 py-2 bg-white/60 border border-white/50 rounded-xl backdrop-blur-md shadow-sm w-fit">
-                                                    <p className="text-[10px] text-secondary uppercase font-black tracking-widest mb-0.5">{t('report.remedies.dasha_influence')}</p>
+                                                    <p className="text-xs text-secondary uppercase font-black tracking-widest mb-0.5">{t('report.remedies.dasha_influence')}</p>
                                                     <p className="text-primary font-bold text-xs md:text-sm">{report.vedic_astrology.dasha?.[0]?.planet} Mahadasha</p>
                                                 </div>
                                             </div>
@@ -1797,15 +1739,15 @@ const ConsolidatedReport = () => {
                                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
                                                         <Gem className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
                                                     </div>
-                                                    <div className="text-[10px] text-purple-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.gemstone')}</div>
-                                                    <h4 className="text-lg md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.gemstone?.stone}</h4>
+                                                    <div className="text-xs text-purple-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.gemstone')}</div>
+                                                    <h4 className="text-lg md:text-xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.gemstone?.stone}</h4>
 
                                                     <div className="space-y-3 pt-4 border-t border-gray-100">
-                                                        <div className="flex justify-between items-center text-[10px] md:text-xs">
+                                                        <div className="flex justify-between items-center text-xs">
                                                             <span className="text-secondary uppercase font-bold">{t('report.remedies.wear_on')}</span>
                                                             <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.wear_finger}</span>
                                                         </div>
-                                                        <div className="flex justify-between items-center text-[10px] md:text-xs">
+                                                        <div className="flex justify-between items-center text-xs">
                                                             <span className="text-secondary uppercase font-bold">{t('report.remedies.metal')}</span>
                                                             <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.metal}</span>
                                                         </div>
@@ -1822,14 +1764,14 @@ const ConsolidatedReport = () => {
                                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
                                                         <CircleDot className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
                                                     </div>
-                                                    <div className="text-[10px] text-amber-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.rudraksha')}</div>
+                                                    <div className="text-xs text-amber-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.rudraksha')}</div>
                                                     <h4 className="text-lg md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.rudraksha?.type}</h4>
 
                                                     <div className="space-y-4 pt-4 border-t border-gray-100">
                                                         <p className="text-xs md:text-sm text-secondary leading-relaxed italic">
                                                             "{report.vedic_astrology.remedies?.rudraksha?.benefits}"
                                                         </p>
-                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
                                                             <Star className="w-3 h-3 fill-amber-700" />
                                                             {t('report.remedies.deity_focus')}: {report.vedic_astrology.remedies?.rudraksha?.deity}
                                                         </div>
@@ -1841,19 +1783,19 @@ const ConsolidatedReport = () => {
                                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
                                                         <Mic2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
                                                     </div>
-                                                    <div className="text-[10px] text-emerald-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.sacred_mantra')}</div>
+                                                    <div className="text-xs text-emerald-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.sacred_mantra')}</div>
                                                     <h4 className="text-base md:text-2xl font-bold text-primary italic mb-4 leading-relaxed">
                                                         "{report.vedic_astrology.remedies?.mantra?.sanskrit}"
                                                     </h4>
 
                                                     <div className="space-y-3 pt-4 border-t border-gray-100">
                                                         <div className="flex flex-col gap-1">
-                                                            <div className="text-[10px] md:text-xs text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
+                                                            <div className="text-xs text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
                                                             <p className="text-xs md:text-sm text-emerald-700 leading-relaxed font-medium">
                                                                 {report.vedic_astrology.remedies?.mantra?.instructions || "Chant 108 times daily."}
                                                             </p>
                                                         </div>
-                                                        <div className="flex items-center justify-between text-[10px] md:text-xs font-bold text-secondary border-t border-gray-100 pt-3">
+                                                        <div className="flex items-center justify-between text-xs font-bold text-secondary border-t border-gray-100 pt-3">
                                                             <span className="uppercase">{t('report.remedies.deity_focus')}</span>
                                                             <span className="text-emerald-700 uppercase">{report.vedic_astrology.remedies?.mantra?.deity}</span>
                                                         </div>
@@ -1862,7 +1804,6 @@ const ConsolidatedReport = () => {
                                             </div>
                                         </div>
                                     )}
-
                                 </div>
 
                                 <section className="space-y-8">
@@ -1890,7 +1831,7 @@ const ConsolidatedReport = () => {
                                                                     <Scroll className="w-5 h-5 md:w-8 md:h-8 text-indigo-600" />
                                                                 </div>
                                                                 <div>
-                                                                    <h3 className="text-lg md:text-3xl font-black text-primary uppercase italic tracking-tighter leading-tight">
+                                                                    <h3 className="text-lg md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">
                                                                         {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
                                                                     </h3>
                                                                     <p className="text-indigo-600 text-[10px] md:text-sm font-black uppercase tracking-widest flex items-center gap-2">
@@ -1904,7 +1845,7 @@ const ConsolidatedReport = () => {
                                                                     if (typeof content === 'object' && content !== null && !Array.isArray(content)) {
                                                                         return (
                                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                                                                {Object.entries(content).map(([label, text], i) => (
+                                                                                {Object.entries(content).map(([label, text]) => (
                                                                                     <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
                                                                                         <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
                                                                                             {label}
@@ -1983,7 +1924,7 @@ const ConsolidatedReport = () => {
                                                                         if (typeof relContent === 'object' && !Array.isArray(relContent) && relContent !== null) {
                                                                             return (
                                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    {Object.entries(relContent).map(([label, text], i) => (
+                                                                                    {Object.entries(relContent).map(([label, text]) => (
                                                                                         <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
                                                                                             <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
                                                                                                 {label}
@@ -2167,14 +2108,14 @@ const ConsolidatedReport = () => {
                                             <div className="glass-panel p-4 md:p-8 rounded-[2.5rem] bg-indigo-950/5 border-indigo-100 shadow-inner relative overflow-hidden group">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
                                                 <div className="relative z-10 flex flex-col items-center">
-                                                    {vedicSvg ? (
+                                                    {report.vedic_astrology?.chart_svg ? (
                                                         <div
                                                             className="w-full max-w-[550px] aspect-square flex items-center justify-center overflow-hidden transition-all duration-700 group-hover:scale-[1.02] p-2"
                                                             style={{
                                                                 // filter: 'hue-rotate(250deg) brightness(1.2) contrast(1.1) saturate(1.2)', // Removed for clear black lines
                                                                 // backgroundColor: 'transparent'
                                                             }}
-                                                            dangerouslySetInnerHTML={{ __html: vedicSvg }}
+                                                            dangerouslySetInnerHTML={{ __html: report.vedic_astrology.chart_svg }}
                                                         />
                                                     ) : (
                                                         <div className="aspect-square w-full flex items-center justify-center bg-gray-50 rounded-[2rem] text-secondary border border-dashed border-gray-200">
@@ -2205,7 +2146,7 @@ const ConsolidatedReport = () => {
                                     </div>
 
                                     {/* VedAstro Yearly Prediction Graph */}
-                                    <YearlyPredictionGraph data={predictionGraphData} userData={userData} />
+                                    <YearlyPredictionGraph data={null} userData={userData} />
 
                                     {/* Graha Insights - Full Width & Non-Scrollable */}
                                     <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
@@ -2216,7 +2157,7 @@ const ConsolidatedReport = () => {
                                                     <Scroll className="w-7 h-7 text-amber-600" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
+                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
                                                     <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
                                                 </div>
                                             </div>
@@ -2263,7 +2204,7 @@ const ConsolidatedReport = () => {
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 w-7 h-7"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></svg>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
+                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Dosha Awareness</h3>
                                                     <p className="text-red-900/60 text-sm font-bold uppercase tracking-widest mt-1">Planetary Flaws & Remedies</p>
                                                 </div>
                                             </div>
@@ -2405,494 +2346,362 @@ const ConsolidatedReport = () => {
                                 </section>
 
                             </div>
-                        )
-                        }
+                        )}
 
                         {/* NUMEROLOGY TAB */}
                         {
                             activeTab === 'numerology' && (
-                                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    {/* Numerology Header Section */}
-                                    <div className="p-6 md:p-10 rounded-[3rem] bg-slate-950 text-white shadow-2xl relative overflow-hidden group border border-slate-800">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-pink-500/10 opacity-50"></div>
-                                        <div className="relative z-10 space-y-8">
-                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
-                                                <div className="flex items-center gap-5">
-                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-purple-500/20">
-                                                        <Brain className="w-7 h-7 text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase italic leading-none">{t('report.sections.ai_executive_summary')}</h3>
-                                                        <div className="flex items-center gap-1.5 mt-2">
-                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                                                            <span className="text-[10px] font-black text-purple-200 uppercase tracking-widest">
-                                                                Neural Synthesis Active
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10">
-                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">
-                                                        {report.numerology?.ai_model || 'LLAMA-3.3-V'}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <div className="space-y-10">
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                                                {(() => {
-                                                    const rawText = report.numerology?.ai_insights || report.predictions_summary?.best_prediction || "";
-                                                    if (!rawText) return null;
-
-                                                    const sections = rawText.split(/(?=\d\.\s)/).filter(s => s.trim());
-
-                                                    if (sections.length <= 1) {
-                                                        return (
-                                                            <p className="md:col-span-2 text-lg md:text-xl text-slate-200 font-medium italic opacity-90">
-                                                                "{rawText}"
-                                                            </p>
-                                                        );
-                                                    }
-
-                                                    const firstSection = sections[0].replace(/^\d\.\s+/, "");
-                                                    const hasIntro = firstSection.length < 150 && !firstSection.includes(':') && !firstSection.includes('**');
-                                                    const introText = hasIntro ? firstSection : null;
-                                                    const insightSections = hasIntro ? sections.slice(1) : sections;
-
-                                                    return (
-                                                        <div className="space-y-8">
-                                                            {introText && (
-                                                                <div className="p-8 rounded-[2.5rem] bg-indigo-500/5 border-l-4 border-indigo-500">
-                                                                    <p className="text-lg md:text-xl text-slate-200 font-medium italic opacity-90 leading-relaxed text-balance">
-                                                                        "{introText.replace(/\*\*/g, '')}"
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                {insightSections.map((section, idx) => {
-                                                                    const cleaned = section.replace(/^\d\.\s+/, "");
-                                                                    const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
-                                                                    const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + (hasIntro ? 2 : 1)}`;
-                                                                    const content = titleMatch ? titleMatch[4].trim() : cleaned;
-
-                                                                    return (
-                                                                        <div key={idx} className="p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-indigo-500/30 transition-all group/item shadow-inner">
-                                                                            <div className="flex items-center gap-3 mb-4">
-                                                                                <div className="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-black text-indigo-400 border border-indigo-500/20">
-                                                                                    {idx + (hasIntro ? 2 : 1)}
-                                                                                </div>
-                                                                                <h4 className="text-xs md:text-sm font-black uppercase tracking-[0.1em] text-white/90 group-hover/item:text-indigo-300 transition-colors">
-                                                                                    {title}
-                                                                                </h4>
-                                                                            </div>
-                                                                            <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
-                                                                                {content.replace(/\*\*/g, '')}
-                                                                            </p>
-                                                                        </div>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Section 1: The Core Numeric Vibration Grid */}
-                                    <section className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
-                                                <Activity className="w-6 h-6 text-pink-600" />
-                                            </div>
-                                            <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">{t('numerology_page.core_numbers_title')}</h3>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {[
-                                                {
-                                                    key: 'life_path',
-                                                    label: t('numerology_page.life_path_number'),
-                                                    subtitle: t('numerology_page.descriptions.life_path'),
-                                                    value: report.numerology?.life_path,
-                                                    color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100',
-                                                    icon: Sparkles
-                                                },
-                                                {
-                                                    key: 'expression',
-                                                    label: t('numerology_page.destiny_number'),
-                                                    subtitle: t('numerology_page.descriptions.expression'),
-                                                    value: report.numerology?.expression,
-                                                    color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100',
-                                                    icon: Briefcase
-                                                },
-                                                {
-                                                    key: 'soul_urge',
-                                                    label: t('numerology_page.soul_urge_number'),
-                                                    subtitle: t('numerology_page.descriptions.soul_urge'),
-                                                    value: report.numerology?.soul_urge,
-                                                    color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100',
-                                                    icon: Heart
-                                                },
-                                                {
-                                                    key: 'personality',
-                                                    label: t('numerology_page.personality_number'),
-                                                    subtitle: t('numerology_page.descriptions.personality'),
-                                                    value: report.numerology?.personality,
-                                                    color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100',
-                                                    icon: Eye
-                                                }
-                                            ].map((item, idx) => {
-                                                const analysis = report.numerology?.detailed_analysis?.[item.key] || {};
-                                                return (
-                                                    <div key={idx} className={`${item.bg} p-8 rounded-[2.5rem] border ${item.border} hover:shadow-xl transition-all group relative overflow-hidden`}>
-                                                        <div className="flex justify-between items-start mb-6">
-                                                            <div>
-                                                                <h4 className="text-sm font-black uppercase tracking-widest text-slate-600 group-hover:text-indigo-900 transition-colors">{item.label}</h4>
-                                                                <p className="text-xs font-bold text-slate-500 italic mt-0.5">{item.subtitle}</p>
-                                                            </div>
-                                                            <div className={`text-5xl font-black ${item.color} leading-none drop-shadow-sm`}>{item.value}</div>
-                                                        </div>
-
-                                                        <div className="space-y-4 relative z-10">
-                                                            <p className="text-sm text-indigo-950 leading-relaxed font-bold">
-                                                                {analysis.text || `Your vibration ${item.value} influences your journey and unique approach to life's challenges.`}
-                                                            </p>
-
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                                                                <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white/50">
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">{t('numerology_page.strength')}</span>
-                                                                    <p className="text-xs text-indigo-900/80 font-bold">{analysis.strength || "Inherent natural talent"}</p>
-                                                                </div>
-                                                                <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white/50">
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block mb-1">{t('numerology_page.caution')}</span>
-                                                                    <p className="text-xs text-indigo-900/80 font-bold">{analysis.caution || "Potential area for growth"}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                        {/* Small card for Birthday and Maturity if needed, or just skip if user wants focus on core 4 */}
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                                            {[
-                                                { label: t('numerology_page.birthday_number'), value: report.numerology?.birthday, color: 'text-amber-600', bg: 'bg-amber-50/50' },
-                                                { label: t('numerology_page.maturity_number'), value: report.numerology?.maturity, color: 'text-rose-600', bg: 'bg-rose-50/50' },
-                                            ].map((item, idx) => (
-                                                <div key={idx} className={`${item.bg} px-6 py-4 rounded-2xl border border-transparent flex items-center justify-between`}>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
-                                                    <span className={`text-xl font-black ${item.color}`}>{item.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-
-                                    {/* Section 2: Personal Year & Month (Temporal Cycles) */}
-                                    <section className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-                                                <Clock className="w-6 h-6 text-indigo-600" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">{t('numerology_page.personal_cycles.title')}</h3>
-                                                <p className="text-xs font-bold text-slate-500 -mt-1 uppercase tracking-widest">{t('numerology_page.personal_cycles.subtitle')}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            {[
-                                                {
-                                                    key: 'personal_year',
-                                                    label: t('numerology_page.personal_cycles.current_year'),
-                                                    value: report.numerology?.personal_year,
-                                                    analysis: report.numerology?.detailed_analysis?.personal_year,
-                                                    color: 'from-indigo-600 to-blue-600',
-                                                    bg: 'bg-indigo-50/30'
-                                                },
-                                                {
-                                                    key: 'personal_month',
-                                                    label: t('numerology_page.personal_cycles.current_month'),
-                                                    value: report.numerology?.personal_month,
-                                                    analysis: report.numerology?.detailed_analysis?.personal_month,
-                                                    color: 'from-pink-600 to-rose-600',
-                                                    bg: 'bg-pink-50/30'
-                                                }
-                                            ].map((cycle, idx) => (
-                                                <div key={idx} className={`${cycle.bg} border border-white/50 rounded-[3rem] p-1 shadow-sm overflow-hidden group`}>
-                                                    <div className={`bg-gradient-to-br ${cycle.color} p-8 rounded-[2.8rem] text-white shadow-lg relative overflow-hidden`}>
-                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16 rounded-full"></div>
-                                                        <div className="relative z-10">
-                                                            <div className="flex justify-between items-center mb-6">
-                                                                <div>
-                                                                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white/80">{cycle.label}</h4>
-                                                                    <p className="text-3xl font-black tracking-tighter mt-1">{cycle.analysis?.title || 'Cycle Analysis'}</p>
-                                                                </div>
-                                                                <div className="text-7xl font-black opacity-30 group-hover:opacity-50 transition-opacity">{cycle.value}</div>
-                                                            </div>
-
-                                                            <div className="space-y-2">
-                                                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/10 text-[10px] font-black uppercase tracking-widest">
-                                                                    {t('numerology_page.personal_cycles.theme')}
-                                                                </div>
-                                                                <p className="text-sm font-bold text-white/90 italic">{cycle.analysis?.theme || "A transformative period in your timeline."}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="p-8 space-y-6">
-                                                        <div className="grid grid-cols-1 gap-4">
-                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 group/item hover:bg-emerald-50 transition-colors">
-                                                                <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
-                                                                    <Zap className="w-4 h-4 text-white" />
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">{t('numerology_page.personal_cycles.what_to_start')}</span>
-                                                                    <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.start || "Begin new ventures that align with your purpose."}</p>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-blue-50/50 border border-blue-100/50 group/item hover:bg-blue-50 transition-colors">
-                                                                <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shrink-0 shadow-sm">
-                                                                    <Sparkles className="w-4 h-4 text-white" />
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 block mb-1">{t('numerology_page.personal_cycles.focus_on')}</span>
-                                                                    <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.focus || "Maintain discipline and awareness in your daily tasks."}</p>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-rose-50/50 border border-rose-100/50 group/item hover:bg-rose-50 transition-colors">
-                                                                <div className="w-8 h-8 rounded-lg bg-rose-500 flex items-center justify-center shrink-0 shadow-sm">
-                                                                    <ShieldAlert className="w-4 h-4 text-white" />
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block mb-1">{t('numerology_page.personal_cycles.avoid')}</span>
-                                                                    <p className="text-xs text-indigo-900/80 font-bold leading-relaxed">{cycle.analysis?.avoid || "Steer clear of impulsive decisions and unnecessary conflict."}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-
-                                    {/* Section 3: Career & Money Guidance (Timing-Focused) */}
-                                    <section className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                                <Briefcase className="w-6 h-6 text-emerald-600" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">{t('numerology_page.career_money.title')}</h3>
-                                                <p className="text-xs font-bold text-slate-400 -mt-1 uppercase tracking-widest">{t('numerology_page.career_money.subtitle')}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="glass-panel p-8 md:p-12 rounded-[3.5rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden shadow-2xl border border-slate-700/50">
-                                            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/20 blur-[100px] -mr-32 -mt-32 rounded-full"></div>
-                                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[80px] -ml-32 -mb-32 rounded-full"></div>
-
-                                            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                                <div className="space-y-8">
-                                                    <div className="space-y-4">
-                                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                                                            <TrendingUp className="w-4 h-4 text-emerald-400" />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300">{t('numerology_page.career_money.annual_strategy')}</span>
-                                                        </div>
-                                                        <h4 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">{t('numerology_page.career_money.best_activities')}</h4>
-                                                        <p className="text-lg text-slate-300 font-medium leading-relaxed italic">
-                                                            "{report.numerology?.detailed_analysis?.timing?.best_activities}"
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="space-y-6 pt-4">
-                                                        <h5 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">{t('numerology_page.career_money.prime_timing')}</h5>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            {[
-                                                                { label: t('numerology_page.career_money.job_change'), value: report.numerology?.detailed_analysis?.timing?.job_change, icon: User },
-                                                                { label: t('numerology_page.career_money.business_start'), value: report.numerology?.detailed_analysis?.timing?.business, icon: Globe },
-                                                                { label: t('numerology_page.career_money.investment'), value: report.numerology?.detailed_analysis?.timing?.investment, icon: Gem }
-                                                            ].map((item, idx) => (
-                                                                <div key={idx} className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-3xl group hover:bg-white/10 transition-all">
-                                                                    <div className="flex items-center gap-3 mb-3">
-                                                                        <item.icon className="w-4 h-4 text-emerald-400" />
-                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
-                                                                    </div>
-                                                                    <p className="text-sm font-bold text-white leading-snug">{item.value || "Not ideal this cycle"}</p>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="lg:border-l lg:border-white/10 lg:pl-12 flex flex-col justify-center">
-                                                    <div className="bg-rose-500/10 border border-rose-500/20 p-8 rounded-[2.5rem] space-y-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/20">
-                                                            <AlertTriangle className="w-6 h-6 text-white" />
+                                        {/* Numerology Header — AI Executive Summary */}
+                                        <div className="p-6 md:p-10 rounded-[2.5rem] bg-gradient-to-br from-violet-50 via-white to-indigo-50 border border-violet-100 shadow-lg shadow-violet-100/50 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl from-violet-100/60 to-transparent rounded-full pointer-events-none"></div>
+                                            <div className="relative z-10 space-y-8">
+                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-violet-100 pb-8">
+                                                    <div className="flex items-center gap-5">
+                                                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                                                            <Brain className="w-7 h-7 text-white" />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-xl font-black text-rose-300 uppercase tracking-tighter mb-2">{t('numerology_page.career_money.warning_periods')}</h4>
-                                                            <p className="text-base text-rose-100/80 font-medium leading-relaxed">
-                                                                {report.numerology?.detailed_analysis?.timing?.warning}
-                                                            </p>
-                                                        </div>
-                                                        <div className="pt-4 flex items-center gap-3">
-                                                            <div className="h-px flex-1 bg-rose-500/20"></div>
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-rose-400/60 italic">{t('numerology_page.career_money.handle_care')}</span>
-                                                            <div className="h-px flex-1 bg-rose-500/20"></div>
-                                                        </div>
-                                                    </div>
-
-                                                    <p className="mt-8 text-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 italic">
-                                                        {t('numerology_page.career_money.timing_analysis')}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    {/* Section 4: Name Insights (Vibration Analysis) */}
-                                    <section className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
-                                                <Mic2 className="w-6 h-6 text-violet-600" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">{t('numerology_page.name_insights.title')}</h3>
-                                                <p className="text-xs font-bold text-slate-400 -mt-1 uppercase tracking-widest">{t('numerology_page.name_insights.subtitle')}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            {/* Main Vibration Card */}
-                                            <div className="md:col-span-1 bg-gradient-to-br from-violet-600 to-indigo-700 rounded-[3rem] p-1 shadow-xl group overflow-hidden">
-                                                <div className="bg-white/10 backdrop-blur-md h-full w-full rounded-[2.8rem] p-8 text-white flex flex-col justify-between relative">
-                                                    <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/20 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
-                                                    <div>
-                                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-violet-200 mb-4">{t('numerology_page.name_insights.name_vibration')}</h4>
-                                                        <div className="text-8xl font-black tracking-tighter drop-shadow-2xl">{report.numerology?.expression}</div>
-                                                    </div>
-                                                    <div className="pt-8">
-                                                        <p className="text-xs font-bold text-violet-100 uppercase tracking-widest leading-relaxed">
-                                                            {t('numerology_page.name_insights.vibration_desc')}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Support Matrix Card */}
-                                            <div className="md:col-span-2 glass-panel p-8 rounded-[3rem] bg-white border border-gray-100 shadow-xl flex flex-col justify-between">
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                                    {[
-                                                        { label: t('numerology_page.name_insights.career'), value: report.numerology?.detailed_analysis?.name_insight?.career, icon: Briefcase, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                                                        { label: t('numerology_page.name_insights.relationships'), value: report.numerology?.detailed_analysis?.name_insight?.relationship, icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50' },
-                                                        { label: t('numerology_page.name_insights.stability'), value: report.numerology?.detailed_analysis?.name_insight?.stability, icon: Shield, color: 'text-blue-600', bg: 'bg-blue-50' },
-                                                    ].map((item, idx) => (
-                                                        <div key={idx} className={`${item.bg} p-6 rounded-3xl border border-transparent hover:border-white hover:shadow-md transition-all`}>
-                                                            <div className="flex items-center gap-2 mb-3">
-                                                                <item.icon className={`w-4 h-4 ${item.color}`} />
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span>
+                                                            <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight uppercase italic leading-none">{t('report.sections.ai_executive_summary')}</h3>
+                                                            <div className="flex items-center gap-1.5 mt-2">
+                                                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                                                <span className="text-xs font-black text-violet-500 uppercase tracking-widest">Neural Synthesis Active</span>
                                                             </div>
-                                                            <p className="text-sm font-bold text-slate-700 leading-snug">{item.value || "Calculating support energy..."}</p>
                                                         </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="mt-8 p-6 bg-violet-50 rounded-3xl border border-violet-100 relative overflow-hidden group">
-                                                    <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
-                                                        <Sparkles className="w-12 h-12 text-violet-600" />
                                                     </div>
-                                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-violet-500 mb-2">{t('numerology_page.name_insights.simple_suggestion')}</h5>
-                                                    <p className="text-sm text-indigo-900 font-bold italic relative z-10 leading-relaxed">
-                                                        "{report.numerology?.detailed_analysis?.name_insight?.suggestion || "Consistency in how you write and speak your name will stabilize your core vibration."}"
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    {/* Section 5: Lucky Elements (Fun & Shareable) */}
-                                    <section className="space-y-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                                                <Sparkles className="w-6 h-6 text-amber-600" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h3 className="text-xl md:text-2xl font-black text-indigo-950 uppercase italic tracking-tighter">{t('numerology_page.lucky_elements.title')}</h3>
-                                                <p className="text-xs font-bold text-slate-500 -mt-1 uppercase tracking-widest">{t('numerology_page.lucky_elements.subtitle')}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                            {[
-                                                { label: t('numerology_page.lucky_elements.lucky_numbers'), value: report.numerology?.lucky_elements?.numbers?.join(', '), icon: Gem, color: 'text-amber-600', bg: 'bg-amber-50' },
-                                                { label: t('numerology_page.lucky_elements.favorable_dates'), value: report.numerology?.lucky_elements?.dates, icon: Calendar, color: 'text-rose-600', bg: 'bg-rose-50' },
-                                                { label: t('numerology_page.lucky_elements.lucky_colors'), value: report.numerology?.lucky_elements?.colors, icon: Zap, color: 'text-blue-600', bg: 'bg-blue-50' },
-                                                { label: t('numerology_page.lucky_elements.power_days'), value: report.numerology?.lucky_elements?.days, icon: Moon, color: 'text-purple-600', bg: 'bg-purple-50' }
-                                            ].map((item, idx) => (
-                                                <div key={idx} className={`${item.bg} p-6 rounded-[2.5rem] border border-white/50 shadow-sm flex flex-col items-center text-center group hover:shadow-md transition-all`}>
-                                                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
-                                                        <item.icon className={`w-6 h-6 ${item.color}`} />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                        {(() => {
+                                                            const rawText = report.numerology?.ai_insights || report.predictions_summary?.best_prediction || "";
+                                                            if (!rawText) return null;
+                                                            const sections = rawText.split(/(?=\d\.\s)/).filter(s => s.trim());
+                                                            if (sections.length <= 1) {
+                                                                return (<p className="md:col-span-2 text-base md:text-lg text-slate-600 font-medium italic opacity-90">"{rawText}"</p>);
+                                                            }
+                                                            const firstSection = sections[0].replace(/^\d\.\s+/, "");
+                                                            const hasIntro = firstSection.length < 150 && !firstSection.includes(':') && !firstSection.includes('**');
+                                                            const introText = hasIntro ? firstSection : null;
+                                                            const insightSections = hasIntro ? sections.slice(1) : sections;
+                                                            return (
+                                                                <>
+                                                                    {introText && (
+                                                                        <div className="md:col-span-2 p-6 md:p-8 rounded-3xl bg-violet-50 border-l-4 border-violet-400 mb-2">
+                                                                            <p className="text-base md:text-lg text-slate-700 font-medium italic opacity-90 leading-relaxed">"{introText.replace(/\*\*/g, '')}"</p>
+                                                                        </div>
+                                                                    )}
+                                                                    {insightSections.map((section, idx) => {
+                                                                        const cleaned = section.replace(/^\d+[.)]\s*/, "");
+                                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+                                                                        const title = titleMatch ? titleMatch[2].trim() : "";
+                                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
+                                                                        if (!content && !title) return null;
+                                                                        return (
+                                                                            <div key={idx} className="p-5 rounded-3xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-md hover:shadow-violet-50 transition-all shadow-sm">
+                                                                                <div className="flex items-center gap-3 mb-3">
+                                                                                    <div className="w-2 h-2 rounded-full bg-violet-400"></div>
+                                                                                    {title && (<h4 className="text-sm font-black uppercase tracking-wider text-violet-600">{title}</h4>)}
+                                                                                </div>
+                                                                                <p className="text-sm text-slate-600 leading-relaxed font-medium">{content.replace(/\*\*/g, '')}</p>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </>
+                                                            );
+                                                        })()}
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{item.label}</span>
-                                                    <p className="text-sm font-black text-indigo-950 leading-snug">{item.value || "Calculating..."}</p>
                                                 </div>
-                                            ))}
+
+                                                {/* Section 1: Core Numeric Vibration Grid */}
+                                                <section className="space-y-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center">
+                                                            <Activity className="w-5 h-5 text-pink-500" />
+                                                        </div>
+                                                        <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic tracking-tighter">{t('numerology_page.core_numbers_title')}</h3>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                        {[
+                                                            { key: 'life_path', label: t('numerology_page.life_path_number'), subtitle: t('numerology_page.descriptions.life_path'), value: report.numerology?.life_path, numColor: 'text-pink-500', tag: 'bg-pink-50', border: 'border-pink-200 hover:border-pink-300 hover:shadow-pink-100' },
+                                                            { key: 'expression', label: t('numerology_page.destiny_number'), subtitle: t('numerology_page.descriptions.expression'), value: report.numerology?.expression, numColor: 'text-violet-500', tag: 'bg-violet-50', border: 'border-violet-200 hover:border-violet-300 hover:shadow-violet-100' },
+                                                            { key: 'soul_urge', label: t('numerology_page.soul_urge_number'), subtitle: t('numerology_page.descriptions.soul_urge'), value: report.numerology?.soul_urge, numColor: 'text-emerald-500', tag: 'bg-emerald-50', border: 'border-emerald-200 hover:border-emerald-300 hover:shadow-emerald-100' },
+                                                            { key: 'personality', label: t('numerology_page.personality_number'), subtitle: t('numerology_page.descriptions.personality'), value: report.numerology?.personality, numColor: 'text-blue-500', tag: 'bg-blue-50', border: 'border-blue-200 hover:border-blue-300 hover:shadow-blue-100' },
+                                                        ].map((item, idx) => {
+                                                            const analysis = report.numerology?.detailed_analysis?.[item.key] || {};
+                                                            return (
+                                                                <div key={idx} className={`relative p-7 rounded-[2rem] border-2 bg-white transition-all duration-300 group overflow-hidden hover:-translate-y-1 hover:shadow-xl shadow-sm ${item.border}`}>
+                                                                    <div className="flex justify-between items-start mb-5">
+                                                                        <div>
+                                                                            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-700 transition-colors">{item.label}</h4>
+                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.subtitle}</p>
+                                                                        </div>
+                                                                        <div className={`text-5xl md:text-6xl font-black ${item.numColor} leading-none group-hover:scale-110 transition-transform duration-300 origin-right`}>{item.value}</div>
+                                                                    </div>
+                                                                    <p className="text-sm text-slate-600 leading-relaxed mb-5">{analysis.text || `Your vibration ${item.value} influences your journey and unique approach to life's challenges.`}</p>
+                                                                    <div className="grid grid-cols-2 gap-3">
+                                                                        <div className={`${item.tag} p-3 rounded-2xl`}>
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">{t('numerology_page.strength')}</span>
+                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.strength || "Inherent natural talent"}</p>
+                                                                        </div>
+                                                                        <div className="bg-amber-50 p-3 rounded-2xl">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block mb-1">{t('numerology_page.caution')}</span>
+                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.caution || "Potential area for growth"}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        {[
+                                                            { label: t('numerology_page.birthday_number'), value: report.numerology?.birthday, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
+                                                            { label: t('numerology_page.maturity_number'), value: report.numerology?.maturity, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+                                                        ].map((item, idx) => (
+                                                            <div key={idx} className={`${item.bg} border ${item.border} px-6 py-4 rounded-2xl flex items-center justify-between`}>
+                                                                <span className="text-xs font-black uppercase tracking-wider text-slate-500">{item.label}</span>
+                                                                <span className={`text-xl font-black ${item.color}`}>{item.value}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </section>
+                                            </div>
                                         </div>
 
-                                        <div className="p-6 rounded-[2.5rem] bg-gradient-to-r from-amber-500 to-orange-500 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden group">
-                                            <div className="absolute inset-0 bg-white/10 opacity-20 pointer-events-none group-hover:scale-150 transition-transform duration-[2s]"></div>
-                                            <div className="flex items-center gap-6 relative z-10">
-                                                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20">
-                                                    <Star className="w-8 h-8 text-white animate-pulse" />
+                                        {/* Section 2: Personal Year & Month */}
+                                        <section className="space-y-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                                                    <Clock className="w-5 h-5 text-indigo-500" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-xs font-black uppercase tracking-widest text-amber-100 mb-1">{t('numerology_page.lucky_elements.recommended_gemstone')}</h4>
-                                                    <p className="text-2xl font-black tracking-tight">{report.numerology?.lucky_elements?.gemstone || "Loading..."}</p>
+                                                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic tracking-tighter">{t('numerology_page.personal_cycles.title')}</h3>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('numerology_page.personal_cycles.subtitle')}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right relative z-10 hidden md:block">
-                                                <p className="text-xs font-bold text-amber-100 italic uppercase tracking-widest">{t('numerology_page.lucky_elements.wear_this')}</p>
-                                                <p className="text-[10px] text-white/70 font-black mt-1">{t('numerology_page.lucky_elements.pro_tip')}</p>
-                                            </div>
-                                        </div>
-                                    </section>
-
-
-
-                                    {/* AI Deep Dive Section */}
-                                    {report.numerology?.ai_insights && (
-                                        <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-10 opacity-5">
-                                                <Brain className="w-48 h-48 text-primary" />
-                                            </div>
-                                            <div className="relative z-10">
-                                                <div className="flex items-center gap-4 mb-8">
-                                                    <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center">
-                                                        <Scroll className="w-8 h-8 text-primary" />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {[
+                                                    { key: 'personal_year', label: t('numerology_page.personal_cycles.current_year'), value: report.numerology?.personal_year, analysis: report.numerology?.detailed_analysis?.personal_year, gradient: 'from-indigo-500 to-blue-500', border: 'border-indigo-100' },
+                                                    { key: 'personal_month', label: t('numerology_page.personal_cycles.current_month'), value: report.numerology?.personal_month, analysis: report.numerology?.detailed_analysis?.personal_month, gradient: 'from-pink-500 to-rose-500', border: 'border-pink-100' },
+                                                ].map((cycle, idx) => (
+                                                    <div key={idx} className={`rounded-[2.5rem] border-2 ${cycle.border} bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300`}>
+                                                        <div className={`bg-gradient-to-r ${cycle.gradient} p-7 text-white relative overflow-hidden`}>
+                                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-8 -mt-8 rounded-full"></div>
+                                                            <div className="relative z-10 flex justify-between items-center">
+                                                                <div>
+                                                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">{cycle.label}</h4>
+                                                                    <p className="text-2xl font-black tracking-tighter mt-1">{cycle.analysis?.title || 'Cycle Analysis'}</p>
+                                                                    <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/20 text-xs font-black uppercase tracking-widest">{t('numerology_page.personal_cycles.theme')}</div>
+                                                                    <p className="text-xs font-bold text-white/90 italic mt-2">{cycle.analysis?.theme || "A transformative period in your timeline."}</p>
+                                                                </div>
+                                                                <div className="text-7xl font-black text-white/20">{cycle.value}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="p-6 space-y-3">
+                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                                                                <div className="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-200"><Zap className="w-4 h-4 text-white" /></div>
+                                                                <div>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">{t('numerology_page.personal_cycles.what_to_start')}</span>
+                                                                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">{cycle.analysis?.start || "Begin new ventures that align with your purpose."}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+                                                                <div className="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center shrink-0 shadow-sm shadow-blue-200"><Sparkles className="w-4 h-4 text-white" /></div>
+                                                                <div>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 block mb-1">{t('numerology_page.personal_cycles.focus_on')}</span>
+                                                                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">{cycle.analysis?.focus || "Maintain discipline and awareness in your daily tasks."}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-start gap-4 p-4 rounded-2xl bg-rose-50 border border-rose-100">
+                                                                <div className="w-8 h-8 rounded-xl bg-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-rose-200"><ShieldAlert className="w-4 h-4 text-white" /></div>
+                                                                <div>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block mb-1">{t('numerology_page.personal_cycles.avoid')}</span>
+                                                                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">{cycle.analysis?.avoid || "Steer clear of impulsive decisions and unnecessary conflict."}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <h3 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">{t('numerology_page.ai_deep_dive.title')}</h3>
+                                                ))}
+                                            </div>
+                                        </section>
+
+                                        {/* Section 3: Career & Money */}
+                                        <section className="space-y-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                                    <Briefcase className="w-5 h-5 text-emerald-600" />
                                                 </div>
-                                                <div className="prose prose-slate max-w-none">
-                                                    {report.numerology.ai_insights.split('\n\n').map((para, idx) => (
-                                                        <p key={idx} className="text-slate-600 text-lg leading-relaxed mb-6 last:mb-0">
-                                                            {para.startsWith('**') ? (
-                                                                <strong className="text-primary block mb-2">{para.replace(/\*\*/g, '')}</strong>
-                                                            ) : para}
-                                                        </p>
-                                                    ))}
+                                                <div>
+                                                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic tracking-tighter">{t('numerology_page.career_money.title')}</h3>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('numerology_page.career_money.subtitle')}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                            <div className="p-8 md:p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl from-emerald-50 to-transparent rounded-full pointer-events-none"></div>
+                                                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                                    <div className="space-y-6">
+                                                        <div className="space-y-3">
+                                                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 border border-emerald-200">
+                                                                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">{t('numerology_page.career_money.annual_strategy')}</span>
+                                                            </div>
+                                                            <h4 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">{t('numerology_page.career_money.best_activities')}</h4>
+                                                            <p className="text-base text-slate-600 font-medium leading-relaxed italic">"{report.numerology?.detailed_analysis?.timing?.best_activities}"</p>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <h5 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">{t('numerology_page.career_money.prime_timing')}</h5>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                {[
+                                                                    { label: t('numerology_page.career_money.job_change'), value: report.numerology?.detailed_analysis?.timing?.job_change, icon: User, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+                                                                    { label: t('numerology_page.career_money.business_start'), value: report.numerology?.detailed_analysis?.timing?.business, icon: Globe, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+                                                                    { label: t('numerology_page.career_money.investment'), value: report.numerology?.detailed_analysis?.timing?.investment, icon: Gem, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+                                                                ].map((item, idx) => (
+                                                                    <div key={idx} className={`${item.bg} border ${item.border} p-4 rounded-2xl hover:shadow-sm transition-all`}>
+                                                                        <div className="flex items-center gap-2 mb-2"><item.icon className={`w-4 h-4 ${item.color}`} /><span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</span></div>
+                                                                        <p className="text-sm font-bold text-slate-700 leading-snug">{item.value || "Not ideal this cycle"}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="lg:border-l lg:border-slate-100 lg:pl-10 flex flex-col justify-center gap-6">
+                                                        <div className="bg-rose-50 border-2 border-rose-100 p-8 rounded-[2rem] space-y-4">
+                                                            <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center"><AlertTriangle className="w-6 h-6 text-rose-500" /></div>
+                                                            <div>
+                                                                <h4 className="text-lg font-black text-rose-700 uppercase tracking-tighter mb-2">{t('numerology_page.career_money.warning_periods')}</h4>
+                                                                <p className="text-sm text-rose-700/80 font-medium leading-relaxed">{report.numerology?.detailed_analysis?.timing?.warning}</p>
+                                                            </div>
+                                                            <div className="pt-2 flex items-center gap-3">
+                                                                <div className="h-px flex-1 bg-rose-200"></div>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-rose-400 italic">{t('numerology_page.career_money.handle_care')}</span>
+                                                                <div className="h-px flex-1 bg-rose-200"></div>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">{t('numerology_page.career_money.timing_analysis')}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Section 4: Name Insights */}
+                                        <section className="space-y-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+                                                    <Mic2 className="w-5 h-5 text-violet-600" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic tracking-tighter">{t('numerology_page.name_insights.title')}</h3>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('numerology_page.name_insights.subtitle')}</p>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                                <div className="md:col-span-1 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-[2.5rem] p-8 text-white shadow-lg shadow-violet-200 relative overflow-hidden group">
+                                                    <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700 pointer-events-none"></div>
+                                                    <div className="relative z-10 flex flex-col justify-between h-full gap-8">
+                                                        <div>
+                                                            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-violet-200 mb-4">{t('numerology_page.name_insights.name_vibration')}</h4>
+                                                            <div className="text-8xl font-black tracking-tighter drop-shadow-2xl">{report.numerology?.expression}</div>
+                                                        </div>
+                                                        <p className="text-xs font-bold text-violet-100 uppercase tracking-wider leading-relaxed">{t('numerology_page.name_insights.vibration_desc')}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="md:col-span-2 bg-white border border-slate-100 p-7 rounded-[2.5rem] shadow-sm flex flex-col justify-between gap-5">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                        {[
+                                                            { label: t('numerology_page.name_insights.career'), value: report.numerology?.detailed_analysis?.name_insight?.career, icon: Briefcase, iconColor: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+                                                            { label: t('numerology_page.name_insights.relationships'), value: report.numerology?.detailed_analysis?.name_insight?.relationship, icon: Heart, iconColor: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-100' },
+                                                            { label: t('numerology_page.name_insights.stability'), value: report.numerology?.detailed_analysis?.name_insight?.stability, icon: Shield, iconColor: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-100' },
+                                                        ].map((item, idx) => (
+                                                            <div key={idx} className={`${item.bg} border ${item.border} p-5 rounded-2xl hover:-translate-y-1 hover:shadow-sm transition-all`}>
+                                                                <div className="flex items-center gap-2 mb-3"><item.icon className={`w-4 h-4 ${item.iconColor}`} /><span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.label}</span></div>
+                                                                <p className="text-sm font-bold text-slate-700 leading-snug">{item.value || "Calculating support energy..."}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="p-5 bg-gradient-to-r from-violet-50 to-indigo-50 rounded-2xl border border-violet-100 relative overflow-hidden">
+                                                        <div className="absolute right-0 -top-3 opacity-10 pointer-events-none"><Sparkles className="w-20 h-20 text-violet-400" /></div>
+                                                        <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600 mb-2">{t('numerology_page.name_insights.simple_suggestion')}</h5>
+                                                        <p className="text-sm text-slate-700 font-medium italic relative z-10 leading-relaxed">"{report.numerology?.detailed_analysis?.name_insight?.suggestion || "Consistency in how you write and speak your name will stabilize your core vibration."}"</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Section 5: Lucky Elements */}
+                                        <section className="space-y-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                                                    <Sparkles className="w-5 h-5 text-amber-500" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic tracking-tighter">{t('numerology_page.lucky_elements.title')}</h3>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('numerology_page.lucky_elements.subtitle')}</p>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                {[
+                                                    { label: t('numerology_page.lucky_elements.lucky_numbers'), value: report.numerology?.lucky_elements?.numbers?.join(', '), icon: Gem, iconColor: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100', numColor: 'text-amber-600' },
+                                                    { label: t('numerology_page.lucky_elements.favorable_dates'), value: report.numerology?.lucky_elements?.dates, icon: Calendar, iconColor: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-100', numColor: 'text-rose-600' },
+                                                    { label: t('numerology_page.lucky_elements.lucky_colors'), value: report.numerology?.lucky_elements?.colors, icon: Zap, iconColor: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-100', numColor: 'text-blue-600' },
+                                                    { label: t('numerology_page.lucky_elements.power_days'), value: report.numerology?.lucky_elements?.days, icon: Moon, iconColor: 'text-purple-500', bg: 'bg-purple-50', border: 'border-purple-100', numColor: 'text-purple-600' },
+                                                ].map((item, idx) => (
+                                                    <div key={idx} className={`${item.bg} border-2 ${item.border} p-5 rounded-[2rem] flex flex-col items-center text-center group hover:-translate-y-1 hover:shadow-md transition-all duration-300`}>
+                                                        <div className={`w-12 h-12 rounded-2xl ${item.bg} border ${item.border} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-sm`}>
+                                                            <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{item.label}</span>
+                                                        <p className={`text-base font-black ${item.numColor} leading-snug`}>{item.value || "—"}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="p-6 rounded-[2rem] bg-gradient-to-r from-amber-400 to-orange-500 text-white flex flex-col md:flex-row items-center justify-between gap-5 shadow-lg shadow-amber-200 relative overflow-hidden">
+                                                <div className="absolute inset-0 bg-white/5 pointer-events-none"></div>
+                                                <div className="flex items-center gap-5 relative z-10">
+                                                    <div className="w-14 h-14 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg">
+                                                        <Star className="w-7 h-7 text-white animate-pulse" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-100 mb-1">{t('numerology_page.lucky_elements.recommended_gemstone')}</h4>
+                                                        <p className="text-2xl md:text-3xl font-black tracking-tight">{report.numerology?.lucky_elements?.gemstone || "Loading..."}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right relative z-10 hidden md:block">
+                                                    <p className="text-xs font-bold text-amber-100 italic uppercase tracking-widest">{t('numerology_page.lucky_elements.wear_this')}</p>
+                                                    <p className="text-[10px] text-white/70 font-black mt-1">{t('numerology_page.lucky_elements.pro_tip')}</p>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* AI Deep Dive */}
+                                        {report.numerology?.ai_insights && (
+                                            <section className="bg-gradient-to-br from-slate-800 to-indigo-900 p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden shadow-xl shadow-indigo-200/50">
+                                                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
+                                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[60px] -ml-16 -mb-16 pointer-events-none"></div>
+                                                <div className="relative z-10">
+                                                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+                                                        <div className="w-14 h-14 rounded-2xl bg-indigo-500/30 border border-indigo-400/30 flex items-center justify-center">
+                                                            <Scroll className="w-8 h-8 text-indigo-300" />
+                                                        </div>
+                                                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">{t('numerology_page.ai_deep_dive.title')}</h3>
+                                                    </div>
+                                                    <div className="prose prose-invert max-w-none">
+                                                        {report.numerology.ai_insights.split('\n\n').map((para, idx) => (
+                                                            <p key={idx} className="text-slate-300 text-[1.05rem] leading-loose mb-6 last:mb-0 font-medium">
+                                                                {para.startsWith('**') ? (
+                                                                    <strong className="text-indigo-300 block mb-2 text-lg font-black uppercase tracking-wide">{para.replace(/\*\*/g, '')}</strong>
+                                                                ) : para}
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        )}
+
+                                    </div>
                                 </div>
                             )
                         }
 
-
-                        {/* LOCATIONAL TAB */}
+{/* LOCATIONAL TAB */}
                         {
                             activeTab === 'locational' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -3154,7 +2963,7 @@ const ConsolidatedReport = () => {
                                                             <Target className="w-4 h-4 text-blue-200" />
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-blue-100">KP Astrology Engine</span>
                                                         </div>
-                                                        <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        <h3 className="text-3xl md:text-4xl font-black tracking-tight leading-tight uppercase italic">
                                                             Foreign Travel <br />
                                                             <span className="text-blue-300">Prediction</span>
                                                         </h3>
@@ -3235,7 +3044,7 @@ const ConsolidatedReport = () => {
                                                             <Brain className="w-4 h-4 text-blue-400" />
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Corporate Recognition Engine</span>
                                                         </div>
-                                                        <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic text-white">
+                                                        <h3 className="text-3xl md:text-4xl font-black tracking-tight leading-tight uppercase italic text-white">
                                                             Career <br />
                                                             <span className="text-blue-400">Promotion</span>
                                                         </h3>
@@ -3316,7 +3125,7 @@ const ConsolidatedReport = () => {
                                                             <Target className="w-4 h-4 text-indigo-200" />
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">KP Wealth Engine</span>
                                                         </div>
-                                                        <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        <h3 className="text-3xl md:text-4xl font-black tracking-tight leading-tight uppercase italic">
                                                             Financial <br />
                                                             <span className="text-indigo-300">Prosperity</span>
                                                         </h3>
@@ -3397,7 +3206,7 @@ const ConsolidatedReport = () => {
                                                             <Target className="w-4 h-4 text-teal-200" />
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-teal-100">KP Vehicle Engine</span>
                                                         </div>
-                                                        <h3 className="text-3xl md:text-5xl font-black tracking-tight leading-tight uppercase italic">
+                                                        <h3 className="text-3xl md:text-4xl font-black tracking-tight leading-tight uppercase italic">
                                                             Vehicle <br />
                                                             <span className="text-teal-300">Purchase</span>
                                                         </h3>
@@ -3593,7 +3402,7 @@ const ConsolidatedReport = () => {
                     </main>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

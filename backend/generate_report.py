@@ -1,153 +1,199 @@
 import json
+import asyncio
+from datetime import datetime
 from services.kerykeion_engine import KerykeionService
 from services.numerology_service import get_numerology_data
 from services.astrology_aggregator import AstrologyAggregator
 
+# ─── AI call timeout (seconds) ──────────────────────────────────────────────
+AI_TIMEOUT = 25  # Each AI call gets max 25s before it falls back to None
+
+
 class ReportGenerator:
     @staticmethod
-    async def generate_consolidated_report(name, year, month, day, hour, minute, city, lat, lng, timezone=None, context=None, lang="en", gender="male"):
-        import asyncio
-        from datetime import datetime
+    async def generate_consolidated_report(
+        name, year, month, day, hour, minute, city, lat, lng,
+        timezone=None, context=None, lang="en", gender="male"
+    ):
+        t_start = datetime.now()
+        print(f"[Report] Starting for {name} ({lang})...")
 
-        print(f"Generating consolidated report for {name} ({lang}, {gender})...")
-        
-        # 1. Western Chart (Kerykeion) - DISABLED by User Request
-        western_chart = None
-
-        # Rough age calculation early
+        # ── Age ──────────────────────────────────────────────────────────────
         birth_date = datetime(year, month, day)
         today = datetime.now()
-        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-
-        # Update context with age
-        if context is None: context = {}
+        age = today.year - birth_date.year - (
+            (today.month, today.day) < (birth_date.month, birth_date.day)
+        )
+        if context is None:
+            context = {}
         context['age'] = age
 
-        # 1. Base Data Fetching (Use to_thread for sync functions to keep them parallelized)
-        print(f"- Starting Base Data Fetch (Vedic, Numerology, ACG)...")
+        # ── WAVE 1: Core data — all computed in parallel ──────────────────────
+        print("[Report] Wave 1: Vedic + Numerology + ACG...")
         from services.astrocartography_engine import AstrocartographyEngine
-        
-        vedic_task = AstrologyAggregator.get_vedic_full_report(
-            name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone, context=context
-        )
-        numerology_task = asyncio.to_thread(
-            get_numerology_data,
-            name, year, month, day, context=context, lang=lang, gender=gender
-        )
-        acg_task = asyncio.to_thread(
-            AstrocartographyEngine.calculate_power_zones,
-            name, year, month, day, hour, minute
-        )
 
-        print(f"DEBUG: vedic_task type: {type(vedic_task)}")
-        print(f"DEBUG: numerology_task type: {type(numerology_task)}")
-        print(f"DEBUG: acg_task type: {type(acg_task)}")
-
-        # Wait for all base data
         vedic_full, numerology, acg_locations_raw = await asyncio.gather(
-            vedic_task, numerology_task, acg_task, return_exceptions=True
-        )
-
-        # Exception handling for gathered tasks
-        if isinstance(vedic_full, Exception):
-            print(f"Vedic Error: {vedic_full}")
-            vedic_full = {"planets": [], "panchang": {}, "dasha": [], "divisional_charts": {}, "ayanamsa": "", "remedies": []} # Min fallback
-        
-        if isinstance(numerology, Exception):
-            print(f"Numerology Error: {numerology}")
-            numerology = {"life_path": 0, "source": "error"}
-            
-        if isinstance(acg_locations_raw, Exception):
-            print(f"Warning: Astrocartography failed: {acg_locations_raw}")
-            acg_locations = []
-        else:
-            acg_locations = acg_locations_raw
-
-        # 2. Detailed AI Analyses (Parallelizing the dependent AI calls)
-        print("- Starting AI Synthesis Layer (Parallel)...")
-        from services.ai_service import generate_vedic_chart_analysis, generate_relationship_analysis, generate_vedic_ai_summary
-        from services.kp_prediction_service import KPPredictionService
-        
-        # Define tasks
-        personality_task = generate_vedic_chart_analysis(
-            name, vedic_full['planets'], vedic_full['panchang'], 
-            doshas=vedic_full.get('doshas', {}), lang=lang,
-            dob=f"{day}-{month}-{year}", place=city, age=age
-        )
-
-        relationship_task = generate_relationship_analysis(
-            name, vedic_full['planets'], vedic_full['panchang'], lang=lang, age=age
-        )
-
-        prediction_task = AstrologyAggregator.get_aggregated_best_prediction(
-            name, year, month, day, hour, minute, city, lat, lng, timezone,
-            vedic_data=vedic_full, numerology_data=numerology,
-            western_data=western_chart, context=context, lang=lang
-        )
-        
-        vedic_summary_task = generate_vedic_ai_summary(
-            name, vedic_full['planets'], vedic_full.get('panchang', {}), 
-            vedic_full.get('dasha', {}), lang=lang, context=context, 
-            doshas=vedic_full.get('doshas', {}), transits=vedic_full.get('current_transits', [])
-        )
-
-        # Non-AI parallel tasks (Use to_thread if they are sync)
-        svg_task = asyncio.to_thread(
-            AstrologyAggregator.get_kundali_svg,
-            name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone
-        )
-        navamsa_svg_task = asyncio.to_thread(
-            AstrologyAggregator.get_navamsa_svg,
-            name, year, month, day, hour, minute, lat, lng, lang=lang, timezone=timezone
-        )
-
-        # Run all together
-        personality_res, relation_res, predictions_res, vedic_summary_res, kungali_svg_res, navamsa_svg_res = await asyncio.gather(
-            personality_task, relationship_task, prediction_task, vedic_summary_task, svg_task, navamsa_svg_task,
+            AstrologyAggregator.get_vedic_full_report(
+                name, year, month, day, hour, minute, lat, lng,
+                lang=lang, timezone=timezone, context=context
+            ),
+            asyncio.to_thread(
+                get_numerology_data,
+                name, year, month, day, context=context, lang=lang, gender=gender
+            ),
+            asyncio.to_thread(
+                AstrocartographyEngine.calculate_power_zones,
+                name, year, month, day, hour, minute
+            ),
             return_exceptions=True
         )
 
-        print(f"DEBUG: personality_res type: {type(personality_res)}")
-        print(f"DEBUG: relation_res type: {type(relation_res)}")
-        print(f"DEBUG: predictions_res type: {type(predictions_res)}")
-        print(f"DEBUG: vedic_summary_res type: {type(vedic_summary_res)}")
-        print(f"DEBUG: kungali_svg_res type: {type(kungali_svg_res)}")
-        print(f"DEBUG: navamsa_svg_res type: {type(navamsa_svg_res)}")
+        if isinstance(vedic_full, Exception):
+            print(f"[Report] Vedic Error: {vedic_full}")
+            vedic_full = {
+                "planets": [], "panchang": {}, "dasha": [],
+                "divisional_charts": {}, "ayanamsa": "", "remedies": []
+            }
+        if isinstance(numerology, Exception):
+            print(f"[Report] Numerology Error: {numerology}")
+            numerology = {"life_path": 0, "source": "error"}
+        acg_locations = [] if isinstance(acg_locations_raw, Exception) else acg_locations_raw
 
-        # Helper to safety check results
-        def safe_res(val, log_name):
-            if isinstance(val, Exception):
-                print(f"{log_name} Error: {val}")
+        t_wave1 = (datetime.now() - t_start).total_seconds()
+        print(f"[Report] Wave 1 done in {t_wave1:.1f}s")
+
+        # ── Prepare pre-computed sidereal data for reuse ─────────────────────
+        # get_vedic_full_report already computed sidereal internally.
+        # We store the planets/panchang so SVG builders can reuse them
+        # without re-running calculate_sidereal_planets.
+        planets = vedic_full.get('planets', [])
+        panchang = vedic_full.get('panchang', {})
+        dasha = vedic_full.get('dasha', {})
+        doshas = vedic_full.get('doshas', {})
+
+        # ── WAVE 2: All AI + SVG tasks fully parallel ─────────────────────────
+        print("[Report] Wave 2: AI synthesis + SVGs + KP predictions (parallel)...")
+
+        from services.ai_service import (
+            generate_vedic_chart_analysis,
+            generate_relationship_analysis,
+            generate_vedic_ai_summary,
+        )
+        from services.kp_prediction_service import KPPredictionService
+
+        async def with_timeout(coro, label):
+            """Wrap a coroutine with a timeout; returns None on timeout/error."""
+            try:
+                return await asyncio.wait_for(coro, timeout=AI_TIMEOUT)
+            except asyncio.TimeoutError:
+                print(f"[Report] TIMEOUT ({AI_TIMEOUT}s): {label}")
                 return None
-            return val
+            except Exception as e:
+                print(f"[Report] Error in {label}: {e}")
+                return None
 
-        vedic_personality_analysis = safe_res(personality_res, "Personality AI")
-        relationship_analysis = safe_res(relation_res, "Relationship AI")
-        predictions = safe_res(predictions_res, "Predictions AI")
-        ai_summary = safe_res(vedic_summary_res, "Vedic Summary AI")
-        kundali_svg = safe_res(kungali_svg_res, "SVG")
-        navamsa_svg = safe_res(navamsa_svg_res, "Navamsa SVG")
+        # SVG builders reuse planets already fetched (no extra sidereal call)
+        async def build_kundali_svg():
+            from services.kundali_painter import KundaliPainter
+            try:
+                asc_sign = vedic_full.get("ascendant", {}).get("sign_id", 1)
+                return KundaliPainter.draw_north_indian_chart(
+                    planets, "Lagna Chart (D1)", lang=lang, ascendant_sign=asc_sign
+                )
+            except Exception as e:
+                print(f"[Report] Kundali SVG error: {e}")
+                return None
 
-        # Extract Loshu Grid to move it to Vedic Astrology
+        async def build_navamsa_svg():
+            from services.vedic_astro_engine import VedicAstroEngine
+            from services.kundali_painter import KundaliPainter
+            try:
+                # divisional_charts already computed in wave 1
+                d_charts = vedic_full.get('charts') or vedic_full.get('divisional_charts', {})
+                navamsa_planets = d_charts.get("D9", [])
+                asc_lon = vedic_full.get("ascendant", {}).get("longitude", 0)
+                asc_sign_idx = int(asc_lon // 30) % 12
+                pos_in_sign = asc_lon % 30
+                pada = int(pos_in_sign / (30 / 9)) + 1
+                element_group = asc_sign_idx % 4
+                start_offsets = [0, 9, 6, 3]
+                nav_asc_sign = (start_offsets[element_group] + (pada - 1)) % 12 + 1
+                return KundaliPainter.draw_north_indian_chart(
+                    navamsa_planets, "Navamsa Chart (D9)", lang=lang, ascendant_sign=nav_asc_sign
+                )
+            except Exception as e:
+                print(f"[Report] Navamsa SVG error: {e}")
+                return None
+
+        async def run_kp_predictions():
+            try:
+                return await asyncio.to_thread(
+                    KPPredictionService.generate_event_predictions,
+                    kp_cusps=vedic_full.get('kp_cusps'),
+                    kp_system_data=vedic_full.get('kp_system'),
+                    dasha_data=dasha,
+                    lang=lang,
+                    age=age
+                )
+            except Exception as e:
+                print(f"[Report] KP Predictions error: {e}")
+                return {"predictions": []}
+
+        # Build aggregated prediction WITHOUT the inner generate_executive_summary call
+        # (that was a redundant 4th AI call — we already have vedic_summary doing AI synthesis)
+        async def build_predictions():
+            try:
+                return await AstrologyAggregator.get_aggregated_best_prediction(
+                    name, year, month, day, hour, minute, city, lat, lng, timezone,
+                    vedic_data=vedic_full, numerology_data=numerology,
+                    western_data=None, context=context, lang=lang
+                )
+            except Exception as e:
+                print(f"[Report] Predictions error: {e}")
+                return None
+
+        (
+            personality_res,
+            relation_res,
+            vedic_summary_res,
+            predictions_res,
+            kundali_svg,
+            navamsa_svg,
+            kp_predictions,
+        ) = await asyncio.gather(
+            with_timeout(
+                generate_vedic_chart_analysis(
+                    name, planets, panchang,
+                    doshas=doshas, lang=lang,
+                    dob=f"{day}-{month}-{year}", place=city, age=age
+                ),
+                "Personality AI"
+            ),
+            with_timeout(
+                generate_relationship_analysis(name, planets, panchang, lang=lang, age=age),
+                "Relationship AI"
+            ),
+            with_timeout(
+                generate_vedic_ai_summary(
+                    name, planets, panchang, dasha, lang=lang, context=context,
+                    doshas=doshas, transits=vedic_full.get('current_transits', [])
+                ),
+                "Vedic Summary AI"
+            ),
+            with_timeout(build_predictions(), "Predictions"),
+            build_kundali_svg(),
+            build_navamsa_svg(),
+            run_kp_predictions(),
+            return_exceptions=False
+        )
+
+        t_wave2 = (datetime.now() - t_start).total_seconds()
+        print(f"[Report] Wave 2 done in {t_wave2:.1f}s (total so far)")
+
+        # ── Consolidate ───────────────────────────────────────────────────────
         loshu_data = numerology.pop('loshu_grid', None) if isinstance(numerology, dict) else None
-        transits = vedic_full.get('transits', []) # Already calculated in get_vedic_full_report
+        transits = vedic_full.get('transits', [])
 
-        # Generate KP Event Predictions (Age-aware)
-        print(f"- Generating KP Event Predictions (Age: {age} years)...")
-        try:
-            # KP Service is likely sync
-            kp_predictions = KPPredictionService.generate_event_predictions(
-                kp_cusps=vedic_full.get('kp_cusps'),
-                kp_system_data=vedic_full.get('kp_system'),
-                dasha_data=vedic_full.get('dasha'),
-                lang=lang,
-                age=age
-            )
-        except Exception as e:
-            print(f"KP Predictions Error: {e}")
-            kp_predictions = {"predictions": []}
-
-        # Consolidate
         report = {
             "profile": {
                 "name": name,
@@ -160,35 +206,38 @@ class ReportGenerator:
                 **numerology,
                 "loshu_grid": loshu_data
             },
-            "western_astrology": western_chart,
+            "western_astrology": None,
             "vedic_astrology": {
-                "kundali_analysis": vedic_full.get('kundali_analysis'), 
-                "planets": vedic_full.get('planets', []),
-                "panchang": vedic_full.get('panchang', {}),
-                "dasha": vedic_full.get('dasha', []),
-                "divisional_charts": vedic_full.get('divisional_charts', {}),
+                "kundali_analysis": vedic_full.get('kundali_analysis'),
+                "planets": planets,
+                "panchang": panchang,
+                "dasha": dasha,
+                "divisional_charts": vedic_full.get('charts') or vedic_full.get('divisional_charts', {}),
                 "ayanamsa": vedic_full.get('ayanamsa', ""),
                 "remedies": vedic_full.get('remedies', []),
-                "doshas": vedic_full.get('doshas', {}),
-                "kp_system": vedic_full.get('kp_system'), 
+                "doshas": doshas,
+                "kp_system": vedic_full.get('kp_system'),
                 "kp_analysis": vedic_full.get('kp_analysis'),
                 "kp_cusps": vedic_full.get('kp_cusps'),
                 "transits": transits,
                 "graha_effects": vedic_full.get('graha_effects'),
-                "ai_summary": ai_summary,
+                "ai_summary": vedic_summary_res,
                 "chart_svg": kundali_svg,
                 "navamsa_svg": navamsa_svg,
-                "vedic_personality_analysis": vedic_personality_analysis,
+                "vedic_personality_analysis": personality_res,
                 "career_analysis": None,
-                "relationship_analysis": relationship_analysis,
+                "relationship_analysis": relation_res,
                 "avakhada": vedic_full.get('avakhada')
             },
             "astrocartography": acg_locations,
-            "predictions_summary": predictions,
+            "predictions_summary": predictions_res,
             "kp_analysis": kp_predictions
         }
-        
+
+        t_total = (datetime.now() - t_start).total_seconds()
+        print(f"[Report] Completed in {t_total:.1f}s total")
         return report
+
 
 if __name__ == "__main__":
     print("ReportGenerator service loaded.")

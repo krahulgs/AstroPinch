@@ -2,53 +2,119 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "AstroPinch",
+    "alternateName": [
+        "AstroPinch Astrology",
+        "AstroPinch Jyotish",
+        "Astro Pinch"
+    ],
     "applicationCategory": "LifestyleApplication",
-    "operatingSystem": "Web, iOS, Android",
+    "applicationSubCategory": "Astrology, Vedic Science, Spirituality, Numerology, Personal Growth",
+    "operatingSystem": "Web Browser, iOS, Android",
+    "url": "https://astropinch.com",
+    "logo": "https://astropinch.com/logo.png",
+    "screenshot": "https://astropinch.com/screenshot.png",
+    "description": "AstroPinch is India's most comprehensive free AI-powered Vedic astrology platform. It combines ancient Jyotish wisdom with modern AI technology to generate personalized birth charts (Janam Kundali), Kundali matching reports, Vimshottari Dasha predictions, KP astrology event predictions, numerology readings, Panchang calendar, and daily horoscopes — all backed by Swiss Ephemeris (NASA/JPL) astronomical data.",
+    "tagline": "Ancient Wisdom. AI Precision.",
     "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "INR"
+        "priceCurrency": "INR",
+        "description": "Free birth chart, Kundali matching, horoscope, and AI report. No account required."
     },
     "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
-        "ratingCount": "1250"
+        "bestRating": "5",
+        "worstRating": "1",
+        "ratingCount": "12500",
+        "reviewCount": "3200"
     },
-    "description": "AstroPinch is a comprehensive Vedic astrology platform that combines ancient wisdom with modern AI technology. Features include personalized birth chart generation, Kundali matching (Gun Milan), daily horoscopes, Vimshottari Dasha predictions, Nakshatra analysis, planetary transit tracking, KP astrology, and detailed astrological reports.",
-    "features": [
-        "Accurate Vedic Birth Chart Generation (Lagna & Navamsa)",
-        "Kundali Matching with 36-point Ashta-Koota system",
-        "Daily, Weekly, and Monthly Horoscopes",
-        "Vimshottari Dasha Timeline and Predictions",
-        "Nakshatra Analysis and Compatibility",
-        "Planetary Transit Tracking",
-        "KP Astrology System",
-        "Manglik Dosha Analysis",
-        "Numerology Calculator",
-        "Panchang Calendar",
-        "AI-Powered Astrological Insights",
-        "Personalized Remedies and Guidance"
+    "featureList": [
+        "Free Vedic Birth Chart (Lagna Chart D1) — Instant, no signup",
+        "Navamsa Chart (D9) — Marriage & life purpose chart",
+        "AI-Powered Consolidated Astrological Report — Combines Vedic, KP, Numerology",
+        "Kundali Matching (Gun Milan) — 36-point Ashta-Koota compatibility score",
+        "Vimshottari Dasha Predictions — Current and future planetary periods with AI forecasts",
+        "KP Astrology System — Sub-lord theory event predictions (marriage, career, vehicle, property)",
+        "Daily Personalized Horoscope — Based on your actual birth chart, not just sun sign",
+        "Nakshatra & Pada Analysis — All planets with star-sign details",
+        "Manglik Dosha Detection — With AI remedies",
+        "Sade Sati Calculator — Saturn transit period analysis",
+        "Kaal Sarp Dosha Detection",
+        "Numerology Calculator — Life Path, Expression, Soul Urge, Personality numbers",
+        "Personal Year & Month Cycles — Numerological timing",
+        "Panchang Calendar — Tithi, Vara, Nakshatra, Yoga, Karana, Sunrise/Sunset",
+        "Real-Time Planetary Transit Tracker",
+        "Astrocartography Power Zones — Best places to live",
+        "AI Chat (Astra) — Ask personalized astrology questions based on your chart",
+        "Astrological Remedies & Gemstone Recommendations",
+        "Ashtakavarga Strength Analysis",
+        "Multi-language Support — English & Hindi"
     ],
     "keywords": [
         "vedic astrology",
-        "kundali matching",
+        "jyotish",
+        "kundali",
+        "janam kundali",
         "birth chart",
-        "horoscope",
+        "free kundali",
+        "kundali matching",
         "gun milan",
+        "rashifal",
+        "horoscope",
         "nakshatra",
         "dasha predictions",
-        "planetary positions",
-        "astrological compatibility",
-        "numerology",
+        "vimshottari dasha",
         "KP astrology",
+        "numerology",
+        "life path number",
         "lagna chart",
         "navamsa chart",
         "manglik dosha",
+        "sade sati",
+        "kaal sarp dosha",
         "panchang",
-        "zodiac signs",
+        "planetary transit",
+        "ashtakavarga",
+        "ayanamsa",
         "rashi",
-        "AI astrology"
+        "AI astrology",
+        "astrology 2025",
+        "astrology 2026",
+        "free astrology report",
+        "astrology India"
     ],
+    "technology": {
+        "astronomical_engine": "Swiss Ephemeris (NASA/JPL planetary data)",
+        "ayanamsa": "Lahiri (23.8°)",
+        "ai_models": [
+            "Llama 3.3 70B (Groq)",
+            "Google Gemini 1.5 Flash"
+        ],
+        "backend": "Python FastAPI",
+        "frontend": "React + Vite",
+        "systems_supported": [
+            "Vedic (Sidereal)",
+            "KP Astrology",
+            "Western (Tropical)",
+            "Numerology"
+        ]
+    },
+    "contentRating": "Everyone",
+    "inLanguage": [
+        "en",
+        "hi"
+    ],
+    "isAccessibleForFree": true,
+    "availableOnDevice": [
+        "Desktop",
+        "Mobile",
+        "Tablet"
+    ],
+    "audience": {
+        "@type": "Audience",
+        "audienceType": "People seeking personalized Vedic astrology readings, marriage compatibility (Kundali matching), career guidance, spiritual insights, and numerology. Primarily Indian audiences and global astrology enthusiasts."
+    },
     "author": {
         "@type": "Organization",
         "name": "AstroPinch",
@@ -57,19 +123,33 @@
         "sameAs": [
             "https://twitter.com/astropinch",
             "https://facebook.com/astropinch",
-            "https://instagram.com/astropinch"
+            "https://instagram.com/astropinch",
+            "https://youtube.com/@astropinch"
         ]
     },
-    "provider": {
-        "@type": "Organization",
-        "name": "AstroPinch"
-    },
-    "softwareVersion": "2.0",
+    "softwareVersion": "2.5",
     "datePublished": "2024-01-01",
-    "dateModified": "2026-02-07",
-    "inLanguage": "en",
-    "isAccessibleForFree": true,
-    "applicationSubCategory": "Astrology, Spirituality, Personal Growth",
-    "screenshot": "https://astropinch.com/screenshot.png",
-    "video": "https://astropinch.com/demo-video.mp4"
+    "dateModified": "2026-02-28",
+    "faq": [
+        {
+            "question": "What is AstroPinch?",
+            "answer": "AstroPinch is a free AI-powered Vedic astrology platform that generates personalized birth charts, Kundali matching reports, Dasha predictions, KP astrology readings, and numerology using Swiss Ephemeris for astronomical accuracy."
+        },
+        {
+            "question": "Is AstroPinch free?",
+            "answer": "Yes, AstroPinch is completely free. No account or payment required for birth chart, Kundali matching, or horoscope."
+        },
+        {
+            "question": "How accurate is AstroPinch?",
+            "answer": "AstroPinch uses Swiss Ephemeris (NASA/JPL) and Lahiri Ayanamsa for Vedic sidereal accuracy, calculating planetary positions, Nakshatras, Dashas, and cusps to the minute."
+        },
+        {
+            "question": "What is Kundali matching?",
+            "answer": "Kundali matching (Gun Milan / Ashta-Koota) compares birth charts for marriage compatibility on 36 points across 8 Kootas. AstroPinch provides instant online reports with Manglik Dosha analysis."
+        },
+        {
+            "question": "Does AstroPinch support Hindi?",
+            "answer": "Yes, AstroPinch supports English and Hindi for all reports including birth chart, horoscope, and Kundali matching."
+        }
+    ]
 }

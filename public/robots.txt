@@ -1,62 +1,166 @@
-# AstroPinch Robots.txt
-# Allow all search engines and AI crawlers
+# ══════════════════════════════════════════════════════════════════
+# AstroPinch — robots.txt
+# Optimized for: Google, Bing, Yahoo, Yandex, DuckDuckGo,
+#                OpenAI GPT, Anthropic Claude, Google Gemini,
+#                Perplexity AI, Meta AI, Microsoft Copilot,
+#                You.com, Cohere, Mistral, Common Crawl
+# ══════════════════════════════════════════════════════════════════
 
-# Global Rules
+# ──── GLOBAL DEFAULT ──────────────────────────────────────────────
 User-agent: *
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
-Disallow: /report/
-Disallow: /birth-chart
-Disallow: /kundali
-Disallow: /lunar-chart
 Disallow: /api/
+Disallow: /admin/
+Disallow: /profiles/
+Disallow: /uploads/
+Disallow: /report/
+Disallow: /daily-guidance/
 Disallow: /*.json$
+Disallow: /dist/assets/
 Crawl-delay: 1
 
-# Google
+# ──── GOOGLE ──────────────────────────────────────────────────────
 User-agent: Googlebot
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
+Disallow: /api/
+Disallow: /admin/
+Disallow: /profiles/
+Disallow: /uploads/
 Crawl-delay: 0
 
-# Bing
-User-agent: Bingbot
+User-agent: Googlebot-Image
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
-Crawl-delay: 0
+Allow: /images/
+Allow: /public/
 
-# OpenAI GPT Crawler
-User-agent: GPTBot
+User-agent: Googlebot-Video
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
 
-# Anthropic Claude Crawler
-User-agent: Claude-Web
-Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
-
-# Google Extended (Bard/Gemini)
+# Google AI / Gemini
 User-agent: Google-Extended
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
+Allow: /features/
+Allow: /images/
+Disallow: /api/
+Disallow: /profiles/
+Disallow: /uploads/
 
-# Common Crawl
-User-agent: CCBot
+# ──── BING / MICROSOFT ────────────────────────────────────────────
+User-agent: Bingbot
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
+Disallow: /api/
+Disallow: /admin/
+Disallow: /profiles/
+Crawl-delay: 0
 
-# Perplexity AI
+# Microsoft Copilot AI
+User-agent: MicrosoftPreview
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
+# ──── OPENAI / CHATGPT ────────────────────────────────────────────
+User-agent: GPTBot
+Allow: /
+Allow: /features/
+Allow: /images/
+Allow: /ai-metadata.json
+Disallow: /api/
+Disallow: /profiles/
+Disallow: /uploads/
+
+# OpenAI plugins & API access
+User-agent: ChatGPT-User
+Allow: /
+
+# ──── ANTHROPIC CLAUDE ────────────────────────────────────────────
+User-agent: Claude-Web
+Allow: /
+Allow: /features/
+Allow: /images/
+Disallow: /api/
+Disallow: /profiles/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /features/
+Disallow: /api/
+Disallow: /profiles/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+# ──── PERPLEXITY AI ───────────────────────────────────────────────
 User-agent: PerplexityBot
 Allow: /
-Disallow: /profiles
-Disallow: /daily-guidance
+Allow: /features/
+Allow: /images/
+Disallow: /api/
+Disallow: /profiles/
 
-# Sitemap
+# ──── META AI (Llama) ─────────────────────────────────────────────
+User-agent: FacebookBot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+User-agent: meta-externalagent
+Allow: /
+Allow: /features/
+Disallow: /api/
+
+# ──── YOU.COM ─────────────────────────────────────────────────────
+User-agent: YouBot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+# ──── COHERE AI ───────────────────────────────────────────────────
+User-agent: cohere-ai
+Allow: /
+Disallow: /api/
+
+# ──── APPLE APPLEBOT ──────────────────────────────────────────────
+User-agent: Applebot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+
+# ──── YANDEX ──────────────────────────────────────────────────────
+User-agent: YandexBot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+Crawl-delay: 2
+
+# ──── DUCKDUCKGO ──────────────────────────────────────────────────
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+# ──── COMMON CRAWL (AI training datasets) ─────────────────────────
+User-agent: CCBot
+Allow: /
+Allow: /features/
+Disallow: /api/
+Disallow: /profiles/
+Disallow: /uploads/
+Crawl-delay: 10
+
+# ──── ARCHIVE.ORG ─────────────────────────────────────────────────
+User-agent: ia_archiver
+Allow: /
+Disallow: /api/
+Disallow: /profiles/
+
+# ──── SITEMAPS ────────────────────────────────────────────────────
 Sitemap: https://astropinch.com/sitemap.xml
+Sitemap: https://astropinch.com/sitemap-images.xml

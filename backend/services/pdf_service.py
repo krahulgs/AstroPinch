@@ -587,60 +587,137 @@ class PDFReportService:
 
         # --- KP System Section ---
         kp_data = report_data.get('vedic_astrology', {}).get('kp_system')
-        if kp_data:
+        kp_analysis_root = report_data.get('kp_analysis') or {}
+        kp_events = kp_analysis_root.get('predictions') if isinstance(kp_analysis_root, dict) else []
+
+        if kp_data or kp_events:
             story.append(PageBreak())
-            story.append(Paragraph("KP System (Krishnamurti Paddhati)", styles['CenterTitle']))
-            
-            kp_table_data = [["Planet", "Sign", "Star Lord", "Sub Lord"]]
-            for p in kp_data[:9]: # Planets + nodes
-                kp_table_data.append([
-                    html.escape(str(p.get('planet', ''))),
-                    html.escape(str(p.get('sign', ''))),
-                    html.escape(str(p.get('star_lord', ''))),
-                    html.escape(str(p.get('sub_lord', '')))
-                ])
-                
-            kpt = Table(kp_table_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
-            kpt.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.darkgreen),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('GRID', (0,0), (-1,-1), 1, colors.black)
-            ]))
-            story.append(kpt)
-            story.append(Spacer(1, 0.3*inch))
-            
-            # KP Analysis (Easy English Predictions)
+            story.append(Paragraph("KP Astrology Analysis", styles['CenterTitle']))
+            story.append(Paragraph("Krishnamurti Paddhati — Sub-Lord System & Event Predictions", styles['NormalText']))
+            story.append(Spacer(1, 0.2*inch))
+
+            # ── KP Planetary Positions ──
+            if kp_data:
+                story.append(Paragraph("Planetary KP Positions (Star Lord & Sub Lord)", styles['SectionHeader']))
+                kp_table_data = [["Planet", "Sign", "Star Lord", "Sub Lord"]]
+                for p in kp_data[:11]:
+                    kp_table_data.append([
+                        html.escape(str(p.get('planet', ''))),
+                        html.escape(str(p.get('sign', ''))),
+                        html.escape(str(p.get('star_lord', ''))),
+                        html.escape(str(p.get('sub_lord', '')))
+                    ])
+                kpt = Table(kp_table_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+                kpt.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1a4731')),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                    ('FONTSIZE', (0,0), (-1,-1), 9),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#ccc')),
+                    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f0faf4')]),
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('TOPPADDING', (0,0), (-1,-1), 5),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                ]))
+                story.append(kpt)
+                story.append(Spacer(1, 0.3*inch))
+
+            # ── KP House Cusps ──
+            kp_cusps = report_data.get('vedic_astrology', {}).get('kp_cusps') or {}
+            if kp_cusps:
+                story.append(Paragraph("KP House Cusps (Sub-Lord of Each House)", styles['SectionHeader']))
+                cusp_data = [["House", "Sign", "Sign Lord", "Star Lord", "Sub Lord"]]
+                for house_num in [str(i) for i in range(1, 13)]:
+                    c = kp_cusps.get(house_num, {})
+                    if c:
+                        cusp_data.append([
+                            f"H{house_num}",
+                            html.escape(str(c.get('sign', ''))),
+                            html.escape(str(c.get('sign_lord', ''))),
+                            html.escape(str(c.get('star_lord', ''))),
+                            html.escape(str(c.get('sub_lord', '')))
+                        ])
+                if len(cusp_data) > 1:
+                    ct = Table(cusp_data, colWidths=[0.8*inch, 1.3*inch, 1.1*inch, 1.3*inch, 1.3*inch])
+                    ct.setStyle(TableStyle([
+                        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1e3a5f')),
+                        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                        ('FONTSIZE', (0,0), (-1,-1), 9),
+                        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#ccc')),
+                        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f0f4fa')]),
+                        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                        ('TOPPADDING', (0,0), (-1,-1), 4),
+                        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+                    ]))
+                    story.append(ct)
+                    story.append(Spacer(1, 0.3*inch))
+
+            # ── KP Insights (Easy English) ──
             kp_analysis_list = report_data.get('vedic_astrology', {}).get('kp_analysis')
             if kp_analysis_list:
-                story.append(Paragraph("KP Insights (Easy English)", styles['SectionHeader']))
+                story.append(Paragraph("KP Insights", styles['SectionHeader']))
                 for idx, analysis in enumerate(kp_analysis_list[:9], 1):
                     story.append(Paragraph(f"{idx}. {html.escape(analysis.get('meaning', ''))}", styles['NormalText']))
                 story.append(Spacer(1, 0.2*inch))
 
-            # KP Event Predictions (Root-level)
-            kp_analysis_root = report_data.get('kp_analysis') or {}
-            kp_events = kp_analysis_root.get('predictions') if isinstance(kp_analysis_root, dict) else []
+            # ── KP Event Predictions Table ──
             if kp_events:
-                story.append(Paragraph("KP Event Predictions", styles['SectionHeader']))
+                story.append(Paragraph("KP Event Predictions (Sub-Lord Theory)", styles['SectionHeader']))
+                story.append(Paragraph(
+                    "Based on KP cuspal sub-lords, ruling planets, and Vimshottari Dasha timing:",
+                    styles['NormalText']
+                ))
+                story.append(Spacer(1, 0.1*inch))
+
+                pred_table_data = [["Event", "Outcome", "Time Window", "Confidence", "Guidance"]]
                 for pred in kp_events:
-                    story.append(Paragraph(f"<b>{html.escape(pred['event'])}</b>", styles['NormalText']))
-                    
-                    outcome_hex = "#006400" if pred['outcome'] == 'Yes' else ("#8B0000" if pred['outcome'] == 'No' else "#FF8C00")
-                    story.append(Paragraph(f"<font color='{outcome_hex}'>Outcome: {pred['outcome']}</font> (Confidence: {pred['confidence']})", styles['NormalText']))
-                    
-                    if pred.get('time_window'):
-                        story.append(Paragraph(f"Time Window: {html.escape(str(pred.get('time_window') or ''))}", styles['NormalText']))
-                    
-                    if pred.get('guidance'):
-                        story.append(Paragraph(f"Guidance: {html.escape(str(pred.get('guidance') or ''))}", styles['NormalText']))
-                    
-                    if pred.get('kp_logic'):
-                        logic = pred['kp_logic']
-                        logic_text = f"Logic: Sub-lord ({logic.get('sublord_judgment', 'N/A')}). Supporting: {logic.get('supporting_houses', 'N/A')}"
-                        story.append(Paragraph(f"<font size='8' color='grey'>{html.escape(logic_text)}</font>", styles['NormalText']))
-                    
-                    story.append(Spacer(1, 0.1*inch))
+                    outcome = pred.get('outcome', 'Unknown')
+                    outcome_label = outcome
+                    pred_table_data.append([
+                        Paragraph(f"<b>{html.escape(pred.get('event', ''))}</b>", styles['NormalText']),
+                        Paragraph(outcome_label, styles['NormalText']),
+                        Paragraph(html.escape(str(pred.get('time_window', 'N/A'))), styles['NormalText']),
+                        Paragraph(html.escape(str(pred.get('confidence', 'N/A'))), styles['NormalText']),
+                        Paragraph(html.escape(str(pred.get('guidance', 'N/A'))[:120] + '...' if len(str(pred.get('guidance', ''))) > 120 else html.escape(str(pred.get('guidance', 'N/A')))), styles['NormalText']),
+                    ])
+
+                pred_t = Table(pred_table_data, colWidths=[1.1*inch, 0.7*inch, 1.5*inch, 0.8*inch, 2.1*inch])
+                pred_t.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#5b21b6')),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+                    ('FONTSIZE', (0,0), (-1,0), 8),
+                    ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+                    ('ALIGN', (0,0), (0,-1), 'LEFT'),
+                    ('ALIGN', (1,1), (3,-1), 'CENTER'),
+                    ('FONTSIZE', (0,1), (-1,-1), 8),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#ccc')),
+                    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f5f3ff')]),
+                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                    ('TOPPADDING', (0,0), (-1,-1), 5),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                ]))
+
+                # Color outcome column rows
+                for i, pred in enumerate(kp_events, 1):
+                    outcome = pred.get('outcome', '')
+                    if outcome == 'Yes':
+                        pred_t.setStyle(TableStyle([('TEXTCOLOR', (1,i), (1,i), colors.HexColor('#15803d'))]))
+                    elif outcome == 'No' or outcome == 'Unlikely':
+                        pred_t.setStyle(TableStyle([('TEXTCOLOR', (1,i), (1,i), colors.HexColor('#b91c1c'))]))
+                    else:
+                        pred_t.setStyle(TableStyle([('TEXTCOLOR', (1,i), (1,i), colors.HexColor('#b45309'))]))
+
+                story.append(pred_t)
+                story.append(Spacer(1, 0.3*inch))
+
+                # KP Methodology note
+                story.append(Paragraph(
+                    "<i>* KP predictions are based on the Sub-Lord of relevant house cusps. "
+                    "The Sub-Lord's star-lord connections to positive houses (supporting) vs negative houses (opposing) "
+                    "determine the Yes/Delayed/No outcome. Timing is derived from current Vimshottari Dasha periods.</i>",
+                    styles['NormalText']
+                ))
                 story.append(Spacer(1, 0.2*inch))
 
         # --- Remedial Measures ---

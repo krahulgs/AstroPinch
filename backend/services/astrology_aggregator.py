@@ -99,9 +99,53 @@ class AstrologyAggregator:
                 return []
 
         def get_kerykeion_and_cusps():
+            import datetime as _datetime_mod
+            import pytz as _pytz
             ayanamsa = sidereal_data.get('ayanamsa', 0)
 
-            # Primary path: use Kerykeion for precise tropical angles
+            # ── PRIMARY: Use SkyfieldService directly (always available) ──
+            try:
+                from services.skyfield_engine import SkyfieldService
+                # Convert local time to UTC
+                try:
+                    tz_name = str(timezone) if timezone else "Asia/Kolkata"
+                    tz = _pytz.timezone(tz_name)
+                    local_dt = tz.localize(_datetime_mod.datetime(year, month, day, hour, minute))
+                    utc_dt = local_dt.astimezone(_pytz.UTC)
+                    u_yr, u_mo, u_da, u_hr, u_mi = utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour, utc_dt.minute
+                except Exception as tz_err:
+                    print(f"[KP] TZ convert failed: {tz_err}, using raw time")
+                    u_yr, u_mo, u_da, u_hr, u_mi = year, month, day, hour, minute
+
+                angles = SkyfieldService.calculate_angles(u_yr, u_mo, u_da, u_hr, u_mi, lat, lng, timezone_str='UTC')
+                asc = angles.get('Ascendant', 0)
+                mc  = angles.get('Midheaven', 0)
+                ic  = angles.get('IC', 0)
+                dc  = angles.get('Descendant', 0)
+
+                # All 12 cusps (equal-house from Ascendant for missing cusps)
+                tropical_cusps_map = {
+                    "1":  asc,
+                    "2":  (asc + 30)  % 360,
+                    "3":  (asc + 60)  % 360,
+                    "4":  ic,
+                    "5":  (asc + 120) % 360,
+                    "6":  (asc + 150) % 360,
+                    "7":  dc,
+                    "8":  (asc + 210) % 360,
+                    "9":  (asc + 240) % 360,
+                    "10": mc,
+                    "11": (asc + 300) % 360,
+                    "12": (asc + 330) % 360,
+                }
+                result = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, ayanamsa)
+                if result:
+                    print(f"[KP] Cusps computed via Skyfield ({len(result)} houses)")
+                    return result
+            except Exception as e:
+                print(f"[KP] Skyfield path failed: {e}")
+
+            # ── SECONDARY: Kerykeion ──
             try:
                 kery_data = KerykeionService.calculate_chart(
                     name, year, month, day, hour, minute, "", lat, lng, timezone_str=timezone
@@ -113,49 +157,26 @@ class AstrologyAggregator:
                             "1": angles_tropical.get('Ascendant', 0),
                             "4": angles_tropical.get('IC', 0),
                             "7": angles_tropical.get('Descendant', 0),
-                            "10": angles_tropical.get('Midheaven', 0)
+                            "10": angles_tropical.get('Midheaven', 0),
                         }
                         result = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, ayanamsa)
                         if result:
+                            print(f"[KP] Cusps via Kerykeion ({len(result)} houses)")
                             return result
             except Exception as e:
-                print(f"[KP] Kerykeion path failed: {e} — trying Skyfield fallback")
+                print(f"[KP] Kerykeion path failed: {e}")
 
-            # Fallback: compute angles directly from SkyfieldService (always available)
+            # ── LAST RESORT: Use pre-computed sidereal ascendant ──
             try:
-                from services.skyfield_engine import SkyfieldService
-                import pytz
-                # Convert to UTC first
-                try:
-                    tz_name = str(timezone) if timezone else "Asia/Kolkata"
-                    tz = pytz.timezone(tz_name)
-                    local_dt = tz.localize(__import__('datetime').datetime(year, month, day, hour, minute))
-                    utc_dt = local_dt.astimezone(pytz.UTC)
-                    u_year, u_month, u_day, u_hour, u_minute = utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour, utc_dt.minute
-                except Exception:
-                    u_year, u_month, u_day, u_hour, u_minute = year, month, day, hour, minute
-
-                angles = SkyfieldService.calculate_angles(u_year, u_month, u_day, u_hour, u_minute, lat, lng, timezone_str='UTC')
-                asc = angles.get('Ascendant', 0)
-                tropical_cusps_map = {
-                    "1": asc,
-                    "4": (asc + 90) % 360,
-                    "7": (asc + 180) % 360,
-                    "10": (asc + 270) % 360,
-                    "2": (asc + 30) % 360,
-                    "3": (asc + 60) % 360,
-                    "5": (asc + 120) % 360,
-                    "6": (asc + 150) % 360,
-                    "8": (asc + 210) % 360,
-                    "9": (asc + 240) % 360,
-                    "11": (asc + 300) % 360,
-                    "12": (asc + 330) % 360,
-                }
+                # Convert sidereal asc back to tropical (add ayanamsa)
+                sid_asc = sidereal_data.get('ascendant', {}).get('longitude', 0)
+                tropical_asc = (sid_asc + ayanamsa) % 360
+                tropical_cusps_map = {str(i): (tropical_asc + (i - 1) * 30) % 360 for i in range(1, 13)}
                 result = VedicAstroEngine.calculate_kp_cusps(tropical_cusps_map, ayanamsa)
-                print(f"[KP] Skyfield fallback cusps computed successfully ({len(result)} houses)")
+                print(f"[KP] Cusps via last-resort sidereal asc fallback ({len(result)} houses)")
                 return result
-            except Exception as e2:
-                print(f"[KP] Skyfield fallback also failed: {e2}")
+            except Exception as e:
+                print(f"[KP] All KP cusp methods failed: {e}")
                 return {}
 
         with ThreadPoolExecutor(max_workers=12) as executor:

@@ -82,6 +82,7 @@ class AstrologyAggregator:
         from services.vedic_astro_engine import VedicAstroEngine
         from concurrent.futures import ThreadPoolExecutor
         import datetime
+        import asyncio
         
         # Submit ALL tasks in one shot — fully parallel from the start
         from services.kp_analysis_service import KPAnalysisService
@@ -178,6 +179,12 @@ class AstrologyAggregator:
             except Exception as e:
                 print(f"[KP] All KP cusp methods failed: {e}")
                 return {}
+
+        # ── Compute sidereal_data first (foundation for all other calculations) ──
+        sidereal_data = await asyncio.to_thread(
+            VedicAstroEngine.calculate_sidereal_planets,
+            year, month, day, hour, minute, lat, lng, timezone_str=timezone
+        )
 
         with ThreadPoolExecutor(max_workers=12) as executor:
             panchang_f     = executor.submit(VedicAstroEngine.calculate_panchang, year, month, day, hour, minute, lat, lng, timezone_str=timezone)

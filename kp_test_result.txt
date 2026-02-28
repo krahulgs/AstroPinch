@@ -1,0 +1,119 @@
+﻿=== KP Direct Test ===
+Birth: 15/8/1995 14:30 | Lat:28.6139 Lng:77.209
+
+Step 1: calculate_sidereal_planets...
+  ayanamsa = 23.8721 (type: float)
+  ascendant = {'longitude': 229.9728, 'sign': 'Scorpio', 'sign_id': 8}
+
+Step 2: SkyfieldService.calculate_angles (UTC)...
+  Local: 1995-8-15 14:30 IST
+  UTC:   1995-8-15 9:0
+  Ascendant (tropical) = 253.8449
+  Midheaven = 175.1109
+  IC = 355.1109
+  Descendant = 73.8449
+
+Step 3: calculate_kp_cusps...
+  kp_cusps count: 12
+  House 1: Scorpio | Star:Mercury | Sub:Venus
+  House 2: Sagittarius | Star:Venus | Sub:Rahu
+  House 3: Capricorn | Star:Moon | Sub:Ketu
+  House 4: Pisces | Star:Jupiter | Sub:Mars
+  House 5: Pisces | Star:Mercury | Sub:Venus
+  House 6: Aries | Star:Venus | Sub:Rahu
+  House 7: Taurus | Star:Moon | Sub:Ketu
+  House 8: Gemini | Star:Rahu | Sub:Mars
+  House 9: Cancer | Star:Mercury | Sub:Venus
+  House 10: Virgo | Star:Sun | Sub:Jupiter
+  House 11: Virgo | Star:Moon | Sub:Ketu
+  House 12: Libra | Star:Rahu | Sub:Mars
+
+Step 4: KPPredictionService.generate_event_predictions...
+  Predictions count: 9
+  Marriage: Delayed (Medium)
+  Job Change: Delayed (Medium)
+  Business: Delayed (Medium)
+  Childbirth: Delayed (Medium)
+  Property: Delayed (Medium)
+  Foreign Travel: Delayed (Medium)
+  Promotion: Yes (High)
+  Vehicle Purchase: Delayed (Medium)
+  Financial Prosperity: Delayed (Medium)
+
+Step 5: AstrologyAggregator.get_vedic_full_report (async)...
+Initializing Astro Engine: Using Skyfield (NASA/JPL) Data Backend.
+c:\Users\rahul\Desktop\Antigr
+avity\AstroPinch\.venv\Script
+s\python.exe : Traceback 
+(most recent call last):
+At line:1 char:146
++ ... h\backend"; c:\Users\ra
+hul\Desktop\Antigravity\Astro
+Pinch\.venv\Scrip ...
++                 ~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Traceba  
+  ck (most recent call las   
+ t)::String) [], RemoteEx    
+ception
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  File "C:\Users\rahul\Deskto
+p\Antigravity\AstroPinch\back
+end\test_kp_direct.py", line 
+105, in <module>
+    result = 
+asyncio.run(test_full())
+  File "C:\Users\rahul\AppDat
+a\Local\Python\pythoncore-3.1
+4-64\Lib\asyncio\runners.py",
+ line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\rahul\AppDat
+a\Local\Python\pythoncore-3.1
+4-64\Lib\asyncio\runners.py",
+ line 127, in run
+    return self._loop.run_unt
+il_complete(task)
+           ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~^^^^^^
+  File "C:\Users\rahul\AppDat
+a\Local\Python\pythoncore-3.1
+4-64\Lib\asyncio\base_events.
+py", line 719, in 
+run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\rahul\Deskto
+p\Antigravity\AstroPinch\back
+end\test_kp_direct.py", line 
+96, in test_full
+    result = await AstrologyA
+ggregator.get_vedic_full_repo
+rt(
+             ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^
+    ...<2 lines>...
+    )
+    ^
+  File "C:\Users\rahul\Deskto
+p\Antigravity\AstroPinch\back
+end\services\astrology_aggreg
+ator.py", line 185, in 
+get_vedic_full_report
+    divisional_f   = executor
+.submit(VedicAstroEngine.calc
+ulate_divisional_charts, 
+sidereal_data)
+                             
+                             
+                         
+^^^^^^^^^^^^^
+NameError: name 
+'sidereal_data' is not 
+defined

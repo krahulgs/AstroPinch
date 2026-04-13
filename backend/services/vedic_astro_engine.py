@@ -1,6 +1,5 @@
 import math
 from datetime import datetime, timedelta
-from services.skyfield_engine import SkyfieldService
 
 class VedicAstroEngine:
     # Constants for Lahiri Ayanamsa
@@ -37,60 +36,46 @@ class VedicAstroEngine:
     ]
 
     @staticmethod
-    def calculate_ayanamsa(year, month, day):
+    def calculate_ayanamsa(year, month, day, hour=0, minute=0):
         """
-        Calculates approximate Lahiri Ayanamsa for a given date.
+        Calculates EXACT Lahiri Ayanamsa using Swiss Ephemeris.
         """
-        # Decimal year
-        start_of_year = datetime(year, 1, 1)
-        current_date = datetime(year, month, day)
-        days_passed = (current_date - start_of_year).days
-        decimal_year = year + (days_passed / 365.25)
-        
-        # Years since epoch
-        years_diff = decimal_year - VedicAstroEngine.LAHIRI_EPOCH
-        
-        # Total precession in degrees
-        precession_deg = (years_diff * VedicAstroEngine.PRECESSION_RATE_ANNUAL) / 3600.0
-        
-        return precession_deg
+        import swisseph as swe
+        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        utc_decimal_hour = hour + (minute / 60.0)
+        jd = swe.julday(year, month, day, utc_decimal_hour)
+        return swe.get_ayanamsa_ut(jd)
 
     @staticmethod
     def calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str="Asia/Kolkata"):
         """
-        Get Sidereal (Nirayana) planetary positions.
-        Converts local time to UTC before calculation if timezone provided.
+        Get Sidereal (Nirayana) planetary positions using Swiss Ephemeris (Base) 
+        and PyJHora/Jyotishganit logic structures.
         """
-        # Ensure lat/lng are floats
+        import swisseph as swe
+        import pytz
+
         try:
             lat = float(lat)
             lng = float(lng)
         except:
             pass
 
-        # SMART OVERRIDE & DEFAULT: 
-        # 1. If timezone is missing, empty, or None, default to Asia/Kolkata for Indian coords
-        # 2. If timezone is explicitly UTC but coords are in India, force Asia/Kolkata
-        # India bounds approx: Lat 6 to 38, Lng 68 to 98
+        # SMART OVERRIDE & DEFAULT for Timezones
         is_india = (6.0 <= lat <= 38.0 and 68.0 <= lng <= 98.0)
         
         if not timezone_str or str(timezone_str).upper() == "NONE":
-            # Smart Default extraction
             if is_india:
                 timezone_str = "Asia/Kolkata"
             else:
                 timezone_str = "UTC"
 
-        # Convert to UTC
-        import pytz
         try:
             local = datetime(year, month, day, hour, minute)
-            # Handle possible string/None in timezone_str
             tz_name = str(timezone_str)
             try:
                 tz = pytz.timezone(tz_name)
             except:
-                # Fallback for common Indian naming variants
                 if "Kolkata" in tz_name or "Calcutta" in tz_name or is_india:
                     tz = pytz.timezone("Asia/Kolkata")
                 else:
@@ -99,60 +84,86 @@ class VedicAstroEngine:
             local_dt = tz.localize(local)
             utc_dt = local_dt.astimezone(pytz.UTC)
             
-            # Use UTC components
             u_year, u_month, u_day = utc_dt.year, utc_dt.month, utc_dt.day
             u_hour, u_minute = utc_dt.hour, utc_dt.minute
         except Exception as e:
-            # Final fallback: If everything fails, and it's India, subtract 5.5 hours manually
             if is_india:
                 dt = datetime(year, month, day, hour, minute) - timedelta(hours=5, minutes=30)
                 u_year, u_month, u_day, u_hour, u_minute = dt.year, dt.month, dt.day, dt.hour, dt.minute
             else:
                 u_year, u_month, u_day, u_hour, u_minute = year, month, day, hour, minute
-            print(f"Timezone conversion emergency fallback for {timezone_str} at {lat},{lng}")
 
-        ayanamsa = VedicAstroEngine.calculate_ayanamsa(year, month, day)
+        # --- SWISS EPHEMERIS (BASE) INTEGRATION ---
+        # 1. Set to Lahiri Ayanamsa and compute UTC Julian Day
+        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        utc_decimal_hour = u_hour + (u_minute / 60.0)
+        jd = swe.julday(u_year, u_month, u_day, utc_decimal_hour)
         
-        # Get Tropical positions from Skyfield using UTC time
-        # CRITICAL: We must explicitly pass timezone_str='UTC' because u_year, u_month, etc. are ALREADY in UTC
-        # If we don't specify, the default 'Asia/Kolkata' will cause double conversion!
-        tropical_data = SkyfieldService.calculate_positions(u_year, u_month, u_day, u_hour, u_minute, lat, lng, timezone_str='UTC')
+        ayanamsa = swe.get_ayanamsa_ut(jd)
         
-        # Get Tropical Ascendant using UTC time
-        # CRITICAL: Same as above - already UTC, must specify to prevent double conversion
-        angles = SkyfieldService.calculate_angles(u_year, u_month, u_day, u_hour, u_minute, lat, lng, timezone_str='UTC')
-        tropical_asc = angles['Ascendant']
-        sidereal_asc = (tropical_asc - ayanamsa) % 360
+        # 2. Ascendant Calculation (PyJHora Logic style True Ascendant)
+        # We calculate Placidus cusps and pull the exact ascendant
+        cusps, ascmc = swe.houses(jd, lat, lng, b'P')
+        trop_asc = ascmc[0]
+        sidereal_asc = (trop_asc - ayanamsa) % 360
         asc_sign_index = int(sidereal_asc // 30) % 12
         
         signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
         
+        planet_map = {
+            'Sun': swe.SUN,
+            'Moon': swe.MOON,
+            'Mars': swe.MARS,
+            'Mercury': swe.MERCURY,
+            'Jupiter': swe.JUPITER,
+            'Venus': swe.VENUS,
+            'Saturn': swe.SATURN,
+            'Rahu': swe.MEAN_NODE  # Using True Node could be alternative (swe.TRUE_NODE) based on JyotishGanit
+        }
+        
         sidereal_data = []
-        for p in tropical_data:
-            # Subtract Ayanamsa from Tropical Longitude
-            sid_lon = (p['longitude'] - ayanamsa) % 360
+        for name, pid in planet_map.items():
+            # Calculate precision planet coordinates
+            res, flags = swe.calc_ut(jd, pid, swe.FLG_SIDEREAL | swe.FLG_SWIEPH)
+            sid_lon = res[0]
+            retrograde = res[3] < 0 if len(res) > 3 else False
             
-            # Recalculate Zodiac Sign
             sign_index = int(sid_lon // 30) % 12
             pos_in_sign = sid_lon % 30
-            
-            # Whole Sign House Calculation
-            # House 1 = Sign containing Ascendant
-            # House = (SignIndex - AscSignIndex) + 1
             house_num = (sign_index - asc_sign_index) % 12 + 1
             
             sidereal_data.append({
-                "name": p['name'],
-                "tropical_longitude": p['longitude'],
+                "name": name,
+                "tropical_longitude": (sid_lon + ayanamsa) % 360,
                 "sidereal_longitude": round(sid_lon, 4),
                 "sign": signs[sign_index],
                 "position": round(pos_in_sign, 2),
                 "house": house_num, 
                 "nakshatra": VedicAstroEngine._calculate_nakshatra(sid_lon),
-                "sanskrit_name": VedicAstroEngine.PLANET_SANSKRIT.get(p['name'], p['name']),
-                "dignity": VedicAstroEngine._calculate_dignity(p['name'], signs[sign_index], pos_in_sign),
-                "retrograde": p.get('retrograde', False)
+                "sanskrit_name": VedicAstroEngine.PLANET_SANSKRIT.get(name, name),
+                "dignity": VedicAstroEngine._calculate_dignity(name, signs[sign_index], pos_in_sign),
+                "retrograde": retrograde
             })
+            
+        # 3. Ketu is perfectly opposed 180 degrees to Rahu
+        rahu = next(p for p in sidereal_data if p['name'] == 'Rahu')
+        ketu_lon = (rahu['sidereal_longitude'] + 180) % 360
+        ketu_sign_idx = int(ketu_lon // 30) % 12
+        ketu_pos = ketu_lon % 30
+        ketu_house = (ketu_sign_idx - asc_sign_index) % 12 + 1
+        
+        sidereal_data.append({
+            "name": "Ketu",
+            "tropical_longitude": (rahu['tropical_longitude'] + 180) % 360,
+            "sidereal_longitude": round(ketu_lon, 4),
+            "sign": signs[ketu_sign_idx],
+            "position": round(ketu_pos, 2),
+            "house": ketu_house,
+            "nakshatra": VedicAstroEngine._calculate_nakshatra(ketu_lon),
+            "sanskrit_name": "Ketu",
+            "dignity": VedicAstroEngine._calculate_dignity("Ketu", signs[ketu_sign_idx], ketu_pos),
+            "retrograde": True
+        })
             
         return {
             "ayanamsa": round(ayanamsa, 4),
@@ -289,10 +300,14 @@ class VedicAstroEngine:
             asc_sign_name = asc_info['sign']
             sid_asc = asc_info['longitude']
         else:
-            # Fallback
-            ayanamsa = VedicAstroEngine.calculate_ayanamsa(year, month, day)
-            angles = SkyfieldService.calculate_angles(year, month, day, hour, minute, lat, lng, timezone_str=timezone_str)
-            sid_asc = (angles['Ascendant'] - ayanamsa) % 360
+            # Ephemeris Fallback
+            import swisseph as swe
+            swe.set_sid_mode(swe.SIDM_LAHIRI)
+            jd = swe.julday(year, month, day, hour + (minute / 60.0))
+            ayanamsa = swe.get_ayanamsa_ut(jd)
+            cusps, ascmc = swe.houses(jd, lat, lng, b'P')
+            trop_asc = ascmc[0]
+            sid_asc = (trop_asc - ayanamsa) % 360
             signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
             asc_sign_idx = int(sid_asc // 30) % 12
             asc_sign_name = signs[asc_sign_idx]

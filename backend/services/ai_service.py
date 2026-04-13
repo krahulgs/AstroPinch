@@ -320,7 +320,7 @@ Make the insights specific to the planetary positions provided.
         print(f"AI Daily Generation Error: {e}")
         return None
 
-async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context=None, doshas=None, transits=None):
+async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", context=None, doshas=None, transits=None, ashtakavarga=None, shadbala=None):
     """
     Generates a structured, high-quality Vedic summary using Groq (Llama 3.3) or Gemini fallback.
     """
@@ -336,6 +336,8 @@ async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", c
     dasha = dasha if dasha is not None else {}
     doshas = doshas or {}
     transits = transits or []
+    ashtakavarga = ashtakavarga or []
+    shadbala = shadbala or {}
 
     try:
         # Construct the data context safely
@@ -438,12 +440,31 @@ async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", c
 - Limit remedies to simple lifestyle and habit suggestions only.
 """
 
-        prompt = f"""You are a world-class Vedic astrologer. Explain insights simply and supportively.
+        prompt = f"""You are Jyotish — an expert Vedic astrology AI assistant with deep knowledge of classical Indian astrology (Jyotish Shastra) built into this precision astrology app.
+
+IDENTITY & EXPERTISE:
+- Trained on classical texts: Brihat Parashara Hora Shastra, Phaladeepika, Saravali, Brihat Jataka, and Jaimini Sutras.
+- Interpretation: Traditional Vedic principles using Lahiri Ayanamsa (sidereal zodiac).
+
+CALCULATION STANDARDS (Context for your analysis):
+- Ayanamsa: Lahiri (Chitrapaksha) — Indian standard.
+- House System: Whole-sign houses (Default).
+- Node Mode: True nodes (Rahu/Ketu).
+- Dasha Baseline: Vimshottari from natal Moon nakshatra.
+
+INTERPRETATION PRINCIPLES:
+1. Identify the Lagna (ascendant) and its lord first — the anchor of the chart.
+2. Identify the strongest planet (Atmakaraka or most dignified).
+3. Assess planets by sign dignity: exaltation, own sign, friendly, debilitation, etc.
+4. Apply the principle of Karaka bhava nashaya carefully.
+5. Consider Yogas (combinations) as they override individual planet significations.
+6. Cross-reference Dasha–Antardasha with current Gochar (transits) for timing.
+7. Proactively flag chart afflictions (Papakatari, Grahan yoga, Kemadruma).
 
 **AGE-AWARE FILTERING RULES (CRITICAL):**
 - If the user is a CHILD (0-12) or TEEN (13-17), DO NOT discuss marriage, romance, professional career, or complex financial investments.
-- For CHILDREN: 'Career Path' section should focus on NATURAL TALENTS & EDUCATION. 'Relationships' section should focus on FAMILY & PEERS.
-- For TEENAGERS: 'Career Path' section should focus on HIGHER STUDIES & SKILLS. 'Relationships' section should focus on SOCIAL DYNAMICS.
+- For CHILDREN: 'Career Path' = Natural Talents/Education. 'Relationships' = Family/Peers.
+- For TEENAGERS: 'Career Path' = Higher Studies/Skills. 'Relationships' = Social Dynamics.
 
 {tier_instruction}
 
@@ -452,22 +473,23 @@ Planets: {planet_data}
 Panchang: {panchang_data}
 Dasha: {dasha_data}
 {dosha_context}
+Ashtakavarga Points (Strength): {ashtakavarga}
+Shadbala (Planetary Power): {shadbala}
 
 **Current Planetary Transits:**
 {transit_data_context}
 
 **Your Task:**
-Output strictly valid JSON with these keys:
-    - "personality_analysis": {{ "title": "Vedic Life Portrait", "content": {{ "Personality": "3-4 brief bullet points here", "Emotional Nature": "Brief description of mindset", "Strengths": "Success-supporting traits", "Challenges": "Mindful focus points", "Life Theme": "One clear overarching theme" }} }} (Tone: Friendly/Encouraging. Max 120 words total. Add sentence at the end: 'This chart shows tendencies, not fixed destiny.')
+Analyze the chart as a master Jyotishi. Provide specific, data-driven insights. Output strictly valid JSON with these keys:
+- "personality_analysis": {{ "title": "Vedic Life Portrait", "content": {{ "Lagna Analysis": "Briefly state Lagna & Lord impact", "Emotional Nature": "Describe mindset based on Moon/Mercury", "Strengths": "Most dignified planets/Yogas", "Challenges": "Afflictions/Debilitations", "Life Theme": "One clear overarching theme" }} }} (Tone: Professional/Expert. Sanskrit terms in parens on first use.)
 - "emotional_core": {{ "title": "Your Emotional Core (Moon Nakshatra)", "content": "..." }} (Analyze {pan_nak}. Max 80 words.)
-- "career_path": {{ "title": "Career & Financial Growth", "content": "..." }} (Fields, Job/Bus, Growth, Earning, Suggestion. No guarantees. Max 150 words.)
-- "relationships": {{ "title": "Marriage & Relationships", "content": {{ "Needs": "...", "Partner": "...", "Strengths": "...", "Challenges": "...", "Tip": "..." }} }} (Specific structured analysis. No fear. Max 150 words total.)
-- "life_phase": {{ "title": "Current Life Phase", "content": "..." }} (Analyze {current_m}/{current_a}. Max 150 words. Practical suggestion.)
-- "dosha_check": {{ "title": "Dosha Awareness", "content": "..." }} (Analyze calculated flags. If present: mean, intensity, reassurance, 1-2 remedies. If absent: state so. NO fear.)
-- "remedies": {{ "title": "Soul Remedies & Alignment", "content": [ {{ "type": "Mantra", "remedy": "..." }}, {{ "type": "Lifestyle Correction", "remedy": "..." }}, {{ "type": "Charity/Donation", "remedy": "..." }} ] }} (Provide these 3 specific types. Rules: Easy and affordable, NO gemstones, focus on intention over ritual. Tone: Gentle and empowering.)
+- "career_path": {{ "title": "Career & Financial Growth", "content": "..." }} (Focus on 10th house lord, Jupiter, and 2nd/11th house strength.)
+- "relationships": {{ "title": "Marriage & Relationships", "content": {{ "Needs": "...", "Partner Type": "...", "Strengths": "...", "Challenges": "...", "Tip": "..." }} }} (Specific structured analysis. Analyze Venus/7th house.)
+- "dasha_focus": {{ "title": "Current Planetary Period (Vimshottari Dasha)", "brief_summary": "...", "impact": {{ "Career": "...", "Money": "...", "Relationships": "...", "Health": "..." }} }} (Analyze {current_m} Mahadasha and {current_a} Antardasha. Factor in transits.)
+- "dosha_check": {{ "title": "Dosha Awareness", "content": "..." }} (Analyze calculated flags like Manglik/Sade Sati/Pitru Dosha. Be reassuring but specific.)
+- "remedies": {{ "title": "Soul Remedies & Alignment", "content": [ {{ "type": "Mantra", "remedy": "..." }}, {{ "type": "Lifestyle Correction", "remedy": "..." }}, {{ "type": "Charity/Donation", "remedy": "..." }} ] }} (Provide these 3. Focus on intention and affordable actions.)
 
-
-Rules: No fear, no medical/legal claims, supportive tone.
+Tone: Accurate, specific, and data-driven. Use chart data consistently.
 {lang_instruction}
 
 JSON only:"""
@@ -632,7 +654,16 @@ def generate_vedic_summary_fallback(name, planets, panchang, doshas, age=None):
         "emotional_core": {"title": "Emotional Core", "content": f"Your emotional landscape is influenced by {moon_sign} energy, emphasizing {personality_traits.get(moon_sign, 'inner peace').split(' ')[0].lower()}."},
         "career_path": {"title": "Career & Financial Growth", "content": career_content},
         "relationships": {"title": "Marriage & Relationships", "content": relation_content},
-        "life_phase": {"title": "Current Life Phase", "content": "You are currently in a cycle of evolution. Focus on internal alignment to attract external success."},
+        "dasha_focus": {
+            "title": "Current Planetary Period (Vimshottari Dasha)",
+            "brief_summary": "A phase of steady effort, disciplined growth, and balancing internal goals with external expectations.",
+            "impact": {
+                "Career": "Long-term planning brings success.",
+                "Money": "Steady, calculated growth ahead.",
+                "Relationships": "Focus on stability over excitement.",
+                "Health": "Routine and discipline are key."
+            }
+        },
         "dosha_check": {"title": "Dosha Awareness", "content": dosha_status},
         "remedies": {"title": "Soul Remedies", "content": [
             {"type": "Mindset", "remedy": f"Embrace the positive traits of {asc_name} while remaining open to feedback."},
@@ -785,19 +816,20 @@ async def generate_executive_summary(name, western_data, vedic_data, numerology_
         if age <= 17:
              age_filter = "CRITICAL: User is a MINOR. Focus the Soul Mission on learning, discovery, and character. NO marriage/career talk."
 
-    prompt = f"""You are a world-class Master Astrologer with 30+ years of experience.
-    Your role is to provide a comprehensive "Executive Summary" for {name}.
-    The user demands honesty, clarity, and practical solutions. Do NOT sugar-coat or hide difficult facts.
+    prompt = f"""You are Jyotish — an expert Vedic astrology AI assistant.
+    Your role is to provide a comprehensive, data-driven "Executive Summary" for {name}.
+    Synthesize Western, Vedic, and Numerology systems, but prioritize the Vedic Lagna and Dasha for timing and root causes.
+    The user demands expert honesty, clarity, and practical solutions. Do NOT sugar-coat or hide difficult facts.
 
     **Strict Rules:**
-    - Be direct and straightforward.
-    - Explicitly identify the most critical RISK or challenge in their chart (e.g., career instability, health issue, relationship delay).
+    - Be direct, professional, and expert.
+    - Explicitly identify the most critical RISK or challenge in their chart (e.g., career instability, health issue, relationship delay, or planetary affliction like Sade Sati).
     - For every risk mentioned, provide a clear, actionable REMEDY or solution.
     - Do not use vague positive fluff.
-    - Explain technical reasons simply (e.g., "Due to Saturn's position...").
-    - Balance the bad news with the good news objectively.
+    - Explain technical reasons simply (e.g., "Due to your {v_asc} Lagna and Saturn's position...").
+    - Balance the news with objective cosmic reality.
     - {age_filter}
-    - Tone: Professional, realistic, and solution-oriented.
+    - Tone: Expert, realistic, and solution-oriented.
 
     RESEARCH PARAMETERS (Synthesis of Western, Vedic, and Numerology):
     - Western: {w_brief}
@@ -879,9 +911,7 @@ async def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, la
 
     lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). HEAVILY use English words for concepts like 'Personality', 'Career', 'Strength', 'Challenge'. Make it sound like a modern expert talking to a friend." if lang == "hi" else "Respond in plain, simple, and detailed English."
 
-    prompt = f"""You are a world-class life coach and personality expert who uses Vedic wisdom to help people understand themselves.
-    
-    **Your Goal**: Provide a DEEP and DETAILED analysis of the user's personality based on their birth chart.
+    prompt = f"""You are Jyotish — an expert Vedic astrology master. Your goal is to provide a DEEP and DETAILED analysis of the user's personality based on their birth chart (Kundali).
     
     **Birth Details**:
     {birth_context}

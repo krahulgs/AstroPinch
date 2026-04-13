@@ -1231,85 +1231,57 @@ const ConsolidatedReport = () => {
                         {/* VEDIC TAB (Previously Overview) */}
                         {activeTab === 'vedic' && (
                             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {/* AI Executive Summary */}
-                                {report.predictions_summary?.best_prediction && (
-                                    <div className="p-6 md:p-10 rounded-[3rem] bg-slate-950 text-white shadow-2xl relative overflow-hidden group mb-12 border border-slate-800">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10 opacity-50"></div>
 
-                                        <div className="relative z-10">
-                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-white/5 pb-8">
-                                                <div className="flex items-center gap-5">
-                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/20">
-                                                        <Brain className="w-7 h-7 text-white" />
+                                {/* NEW SECTION: Basic Info & Charts Grid */}
+                                {report.vedic_astrology && (
+                                    <div className="space-y-8">
+                                        <div className="flex items-center gap-4 mb-2 px-2">
+                                            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                                                <Scroll className="w-6 h-6 text-purple-600" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Cosmic Blueprint</h2>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t('report.vedic.lahiri_ayanamsa') || report.vedic_astrology.ayanamsa?.name}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                            {/* Left Column: Panchang */}
+                                            <div className="lg:col-span-1 glass-panel p-5 md:p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-xl flex flex-col">
+                                                <div className="flex items-center gap-3 border-b border-gray-100 pb-5 mb-6">
+                                                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                                                        <Activity className="w-5 h-5 text-purple-600" />
                                                     </div>
-                                                    <div>
-                                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase italic leading-none">AI Executive Summary</h3>
-                                                        <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.3em] mt-2 flex items-center gap-1.5">
-                                                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span>
-                                                            Neural Synthesis Active
-                                                        </p>
-                                                    </div>
+                                                    <h3 className="text-xl font-bold text-primary uppercase tracking-widest">Panchang Info</h3>
                                                 </div>
-                                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 uppercase">
-                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                                                    <span className="text-xs font-black tracking-widest text-slate-300">LLAMA-3.3-V</span>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
+                                                        <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.nakshatra')}</span>
+                                                        <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.nakshatra?.name}</span>
+                                                        <span className="text-[10px] text-purple-600 uppercase font-black">{report.vedic_astrology.panchang?.nakshatra?.lord}</span>
+                                                    </div>
+                                                    <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
+                                                        <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.tithi')}</span>
+                                                        <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.tithi?.name}</span>
+                                                    </div>
+                                                    <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
+                                                        <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Yoga</span>
+                                                        <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.yoga?.name}</span>
+                                                    </div>
+                                                    <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
+                                                        <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Karana</span>
+                                                        <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.karana?.name}</span>
+                                                    </div>
+                                                    <div className="col-span-2 flex flex-col p-3 bg-purple-50 border border-purple-100 rounded-xl">
+                                                        <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1">{t('report.vedic.current_mahadasha')}</span>
+                                                        <span className="text-base font-bold text-primary">{report.vedic_astrology.dasha?.[0]?.planet || report.vedic_astrology.dasha?.active_mahadasha}</span>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {(() => {
-                                                    const text = report.predictions_summary.best_prediction;
-                                                    // Handle both "1. " and "\n1. "
-                                                    const sections = text.split(/(?=\d\.\s)/).filter(s => s.trim());
-
-                                                    if (sections.length <= 1) {
-                                                        return (
-                                                            <p className="md:col-span-2 text-base md:text-lg text-slate-200 leading-relaxed font-medium italic opacity-90">
-                                                                "{text}"
-                                                            </p>
-                                                        );
-                                                    }
-
-                                                    // Detect if first section is an intro
-                                                    const firstSectionCleaned = sections[0].replace(/^\d\.\s+/, "");
-                                                    const isIntro = firstSectionCleaned.length < 150 && !firstSectionCleaned.includes(':') && !firstSectionCleaned.includes('**');
-
-                                                    const intro = isIntro ? firstSectionCleaned : null;
-                                                    const insights = isIntro ? sections.slice(1) : sections;
-
-                                                    return (
-                                                        <>
-                                                            {intro && (
-                                                                <div className="md:col-span-2 p-6 md:p-8 rounded-[2.5rem] bg-indigo-500/5 border-l-4 border-indigo-500 mb-2">
-                                                                    <p className="text-base md:text-lg text-slate-200 font-medium italic opacity-90 leading-relaxed">
-                                                                        "{intro.replace(/\*\*/g, '')}"
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                            {insights.map((section, idx) => {
-                                                                const cleaned = section.replace(/^\d\.\s+/, "");
-                                                                const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
-
-                                                                const title = titleMatch ? titleMatch[2].trim() : `Insight ${idx + (isIntro ? 2 : 1)}`;
-                                                                const content = titleMatch ? titleMatch[4].trim() : cleaned;
-
-                                                                return (
-                                                                    <div key={idx} className="p-6 md:p-8 rounded-3xl bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all group/item shadow-sm">
-                                                                        <div className="flex items-center gap-3 mb-4">
-                                                                            <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
-                                                                            <h4 className="text-sm font-black uppercase tracking-wider text-indigo-300 transition-colors">
-                                                                                {title}
-                                                                            </h4>
-                                                                        </div>
-                                                                        <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                                                                            {content.replace(/\*\*/g, '')}
-                                                                        </p>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </>
-                                                    );
-                                                })()}
+                                            {/* Right Columns: Charts */}
+                                            <div className="lg:col-span-2">
+                                                <VedicChartsDisplay userData={userData} />
                                             </div>
                                         </div>
                                     </div>
@@ -1317,137 +1289,28 @@ const ConsolidatedReport = () => {
 
 
 
-
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-
-                                    {/* Western Astrology Card */}
-                                    {report.predictions_summary?.western && (
-                                        <div className="glass-panel p-6 rounded-[2rem] bg-white border border-rose-100 shadow-xl group hover:shadow-rose-200/50 transition-all">
-                                            <div className="flex items-center gap-3 mb-4 border-b border-rose-50 pb-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white shadow-lg">
-                                                    <User className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-lg font-black text-rose-900 uppercase tracking-tight">Western View</h3>
-                                                    <p className="text-xs uppercase font-bold text-rose-400 tracking-widest">{report.predictions_summary.western.system}</p>
-                                                </div>
+                                {/* NEW SECTION: Jyotish Deep Analysis & Personality */}
+                                {report.vedic_astrology && (
+                                    <div className="space-y-8 mt-12">
+                                        <div className="flex items-start gap-4 mb-10 px-2">
+                                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-[2rem] bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shadow-lg transform -rotate-6">
+                                                <Brain className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 animate-pulse" />
                                             </div>
-                                            <p className="text-sm font-bold text-rose-800 uppercase tracking-wide mb-2 opacity-80 flex items-center gap-2">
-                                                <Target className="w-3 h-3" /> Focus: {report.predictions_summary.western.focus}
-                                            </p>
-                                            <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-                                                "{report.predictions_summary.western.insight}"
-                                            </p>
-                                        </div>
-                                    )}
-
-
-                                    {/* Vedic Summary Card */}
-                                    {report.predictions_summary?.vedic && (
-                                        <div className="glass-panel p-6 rounded-[2rem] bg-white border border-purple-100 shadow-xl group hover:shadow-purple-200/50 transition-all">
-                                            <div className="flex items-center gap-3 mb-4 border-b border-purple-50 pb-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-                                                    <Scroll className="w-5 h-5" />
+                                            <div className="flex flex-col">
+                                                <h2 className="text-3xl md:text-5xl font-black text-primary uppercase italic tracking-tighter leading-none">Jyotish</h2>
+                                                <div className="flex items-center gap-3 mt-1">
+                                                    <div className="h-px w-8 bg-indigo-200"></div>
+                                                    <h3 className="text-sm md:text-base font-black text-indigo-500 uppercase tracking-[0.4em]">Deep Analysis</h3>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-lg font-black text-purple-900 uppercase tracking-tight">Vedic View</h3>
-                                                    <p className="text-[10px] uppercase font-bold text-purple-400 tracking-widest">{report.predictions_summary.vedic.system}</p>
-                                                </div>
-                                            </div>
-                                            <p className="text-sm font-bold text-purple-800 uppercase tracking-wide mb-2 opacity-80 flex items-center gap-2">
-                                                <Target className="w-3 h-3" /> Focus: {report.predictions_summary.vedic.focus}
-                                            </p>
-                                            <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-                                                "{report.predictions_summary.vedic.insight}"
-                                            </p>
-                                        </div>
-                                    )}
-
-
-                                    {/* Technical Data Card */}
-                                    {report.predictions_summary?.technical && (
-                                        <div className="glass-panel p-6 rounded-[2rem] bg-slate-50 border border-slate-200 shadow-xl group hover:shadow-slate-200/50 transition-all">
-                                            <div className="flex items-center gap-3 mb-4 border-b border-slate-200 pb-3">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-600 shadow-md">
-                                                    <Activity className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-lg font-black text-slate-700 uppercase tracking-tight">Technical</h3>
-                                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">{report.predictions_summary.technical.system}</p>
-                                                </div>
-                                            </div>
-                                            <p className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2 opacity-80 flex items-center gap-2">
-                                                <Target className="w-3 h-3" /> Focus: {report.predictions_summary.technical.focus}
-                                            </p>
-                                            <div className="space-y-2 mt-4">
-                                                {Object.entries(report.predictions_summary.technical.data || {}).map(([key, val]) => (
-                                                    <div key={key} className="flex justify-between items-center text-xs border-b border-slate-200 pb-1 last:border-0">
-                                                        <span className="font-bold text-slate-500 uppercase">{key.replace('_', ' ')}</span>
-                                                        <span className="font-mono font-bold text-slate-800">{val}</span>
-                                                    </div>
-                                                ))}
                                             </div>
                                         </div>
-                                    )}
 
-                                    {/* Vedic Astrology Card */}
-                                    {report.vedic_astrology && (
-                                        <div className="col-span-full glass-panel p-5 md:p-8 rounded-3xl space-y-6 relative overflow-hidden bg-white border border-gray-100 shadow-xl">
-                                            <div className="absolute top-0 right-0 p-6 opacity-5 hidden md:block">
-                                                <Scroll className="w-32 h-32 text-primary" />
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                                                    <Scroll className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-base md:text-xl font-bold text-primary uppercase tracking-widest">{t('report.vedic.title')}</h3>
-                                                    <p className="text-[10px] md:text-sm text-purple-600 font-bold uppercase tracking-wider">{report.vedic_astrology.ayanamsa?.name}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                                {/* Left Column: Chart & Basic Info */}
-                                                <div className="space-y-6">
-                                                    {report.vedic_astrology.chart_svg && (
-                                                        <div className="flex justify-center p-3 md:p-5 bg-purple-50/50 rounded-2xl border border-purple-100 shadow-inner">
-                                                            <div
-                                                                className="w-full aspect-square max-w-[280px] md:max-w-[360px] [&>svg]:w-full [&>svg]:h-full [&>svg_text]:fill-primary [&>svg_path]:stroke-purple-900 [&>svg_rect]:stroke-purple-200"
-                                                                dangerouslySetInnerHTML={{ __html: report.vedic_astrology.chart_svg }}
-                                                            />
-                                                        </div>
-                                                    )}
-
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
-                                                            <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.nakshatra')}</span>
-                                                            <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.nakshatra?.name}</span>
-                                                            <span className="text-[10px] text-purple-600 uppercase font-black">{report.vedic_astrology.panchang?.nakshatra?.lord}</span>
-                                                        </div>
-                                                        <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
-                                                            <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">{t('report.vedic.tithi')}</span>
-                                                            <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.tithi?.name}</span>
-                                                        </div>
-                                                        <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
-                                                            <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Yoga</span>
-                                                            <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.yoga?.name}</span>
-                                                        </div>
-                                                        <div className="flex flex-col p-3 bg-white border border-gray-100 rounded-xl">
-                                                            <span className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Karana</span>
-                                                            <span className="text-sm font-bold text-primary">{report.vedic_astrology.panchang?.karana?.name}</span>
-                                                        </div>
-                                                        <div className="col-span-2 flex flex-col p-3 bg-purple-50 border border-purple-100 rounded-xl">
-                                                            <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1">{t('report.vedic.current_mahadasha')}</span>
-                                                            <span className="text-base font-bold text-primary">{report.vedic_astrology.dasha?.[0]?.planet || report.vedic_astrology.dasha?.active_mahadasha}</span>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-
-                                                {/* Right Column: AI Analysis */}
-                                                <div className="space-y-6">
-                                                    {report.vedic_astrology.vedic_personality_analysis ? (
+                                        <div className="space-y-8">
+                                            {/* Legacy Personality Column */}
+                                            <div>
+                                                <div className="bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/80 p-6 md:p-12 rounded-[3rem] border border-purple-100 shadow-2xl relative overflow-hidden group">
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-100/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-200/30 transition-colors duration-700"></div>
+{report.vedic_astrology.vedic_personality_analysis ? (
                                                         <div className="bg-purple-50/30 p-4 md:p-6 rounded-2xl border border-purple-100 h-full flex flex-col justify-between">
                                                             <div className="space-y-5">
                                                                 {report.vedic_astrology.avakhada && (
@@ -1568,10 +1431,186 @@ const ConsolidatedReport = () => {
                                                 </div>
                                             </div>
 
-                                        </div>
-                                    )}
+                                            {/* AI Summary Columns */}
+                                            <div className="space-y-8">
 
-                                    {/* KP System Card */}
+
+
+                                    {/* Vedic AI Summary - Robust Rendering (Support Object and String) */}
+                                    {report.vedic_astrology?.ai_summary ? (
+                                        typeof report.vedic_astrology.ai_summary === 'object' ? (
+                                            <>
+
+                                                {/* 1. The Foundation: Birth Chart Analysis */}
+                                                {report.vedic_astrology.ai_summary.personality_analysis && (
+                                                    <div className="glass-panel p-5 md:p-12 rounded-3xl md:rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
+                                                        <div className="absolute top-0 right-0 p-6 opacity-10 hidden md:block">
+                                                            <Scroll className="w-32 h-32 text-indigo-600" />
+                                                        </div>
+                                                        <div className="relative z-10 space-y-6">
+                                                            <div className="flex items-center gap-4 mb-6">
+                                                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
+                                                                    <Scroll className="w-5 h-5 md:w-8 md:h-8 text-indigo-600" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="text-lg md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">
+                                                                        {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
+                                                                    </h3>
+                                                                    <p className="text-indigo-600 text-[10px] md:text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                                                                        <Sparkles className="w-3 h-3" /> Personalized Life Insights
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="prose prose-indigo max-w-none">
+                                                                {(() => {
+                                                                    const content = report.vedic_astrology.ai_summary.personality_analysis.content;
+                                                                    if (typeof content === 'object' && content !== null && !Array.isArray(content)) {
+                                                                        return (
+                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                                                {Object.entries(content).map(([label, text]) => (
+                                                                                    <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
+                                                                                        <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
+                                                                                            {label}
+                                                                                        </span>
+                                                                                        <p className={`text-slate-700 leading-relaxed ${label === 'Life Theme' ? 'text-lg font-bold italic text-indigo-800' : 'text-sm font-medium'}`}>
+                                                                                            {text}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                    return (
+                                                                        <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                                            {content}
+                                                                        </p>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* 4. The Connection: Marriage & Relationships */}
+                                                {report.vedic_astrology.ai_summary.relationships && (
+                                                    <div className="mb-12">
+                                                        <div className="flex items-center gap-4 mb-6">
+                                                            <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
+                                                                <Heart className="w-6 h-6 text-pink-600" />
+                                                            </div>
+                                                            <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Marriage & Relationships</h3>
+                                                        </div>
+
+                                                        <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
+                                                            <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
+                                                                <Heart className="w-40 h-40 text-pink-600" />
+                                                            </div>
+                                                            <div className="relative z-10">
+                                                                <div className="prose prose-pink max-w-none">
+                                                                    {(() => {
+                                                                        const relContent = report.vedic_astrology.ai_summary.relationships.content;
+
+                                                                        if (typeof relContent === 'object' && !Array.isArray(relContent) && relContent !== null) {
+                                                                            return (
+                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                    {Object.entries(relContent).map(([label, text]) => (
+                                                                                        <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
+                                                                                            <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
+                                                                                                {label}
+                                                                                            </span>
+                                                                                            <p className="text-slate-700 text-sm leading-relaxed">
+                                                                                                {text}
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            );
+                                                                        }
+
+                                                                        return (
+                                                                            <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                                                {typeof relContent === 'object'
+                                                                                    ? JSON.stringify(relContent, null, 2)
+                                                                                    : relContent}
+                                                                            </p>
+                                                                        );
+                                                                    })()}
+                                                                </div>
+                                                                <div className="mt-8 pt-6 border-t border-pink-100 flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2 text-xs text-pink-600/60 font-black uppercase tracking-[0.2em]">
+                                                                        <Heart className="w-4 h-4" /> Union & Partnership Insights
+                                                                    </div>
+                                                                    <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
+                                                                        <Sparkles className="w-3 h-3" /> Relationship Harmony
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+
+
+
+
+
+                                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+                                                    {Object.entries(report.vedic_astrology.ai_summary)
+                                                        .filter(([key]) => !['personality_analysis', 'relationships', 'dosha_check', 'remedies'].includes(key))
+                                                        .map(([key, section]) => {
+                                                            if (typeof section !== 'object' || !section) return null;
+                                                            const isLarge = ['career_path', 'emotional_core', 'life_phase'].includes(key);
+                                                            const iconMap = {
+                                                                emotional_core: <Moon className="w-5 h-5 text-blue-600" />,
+                                                                life_phase: <Activity className="w-5 h-5 text-purple-600" />,
+                                                                career_path: <Briefcase className="w-5 h-5 text-emerald-600" />,
+                                                                transit_analysis: <Map className="w-5 h-5 text-amber-600" />
+                                                            };
+                                                            return (
+                                                                <div key={key} className={`glass-panel p-6 rounded-3xl border bg-white border-indigo-100 shadow-md hover:shadow-xl transition-all duration-300 ${isLarge ? 'col-span-1 sm:col-span-2' : ''}`}>
+                                                                    <div className="flex items-center gap-3 mb-4">
+                                                                        <div className="p-2 bg-indigo-50 rounded-xl shadow-sm border border-indigo-100">
+                                                                            {iconMap[key] || <Brain className="w-5 h-5 text-indigo-600" />}
+                                                                        </div>
+                                                                        <h4 className="font-bold text-primary tracking-tight">{section.title || key}</h4>
+                                                                    </div>
+                                                                    <div className="text-sm text-slate-600 leading-relaxed font-medium">
+                                                                        {typeof section.content === 'object'
+                                                                            ? <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                                                                {Object.entries(section.content).map(([label, text]) => (
+                                                                                    <div key={label} className="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-50">
+                                                                                         <span className="text-xs font-black uppercase tracking-widest text-indigo-600 block mb-1">{label}</span>
+                                                                                         <p className="text-slate-700 text-sm leading-relaxed">{text}</p>
+                                                                                    </div>
+                                                                                ))}
+                                                                              </div>
+                                                                            : (section.content || '')}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            /* Legacy String Fallback */
+                                            <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
+                                                <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
+                                                    {report.vedic_astrology.ai_summary}
+                                                </p>
+                                                <div className="mt-6 pt-6 border-t border-indigo-100/50 flex justify-center">
+                                                    <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest">
+                                                        Note: Regenerate report to view enhanced card-based analysis.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )
+                                    ) : null}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+{/* KP System Card */}
                                     {/* Dasha Timeline Section (Promoted) */}
                                     <div className="col-span-full glass-panel p-5 md:p-12 rounded-[2.5rem] bg-indigo-950/5 border border-indigo-100 shadow-inner relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
@@ -1709,493 +1748,8 @@ const ConsolidatedReport = () => {
                                         </div>
                                     </div>
 
-                                    {/* Vedic Remedies Card (Enhanced) */}
-
-                                    {report.vedic_astrology?.remedies && (
-                                        <div className="col-span-full glass-panel p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden bg-gradient-to-br from-amber-50 via-purple-50 to-white border border-amber-100 shadow-xl">
-                                            <div className="absolute top-0 right-0 p-10 opacity-5">
-                                                <Sparkles className="w-48 h-48 text-amber-500" />
-                                            </div>
-
-                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 md:mb-12 relative z-10">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-100 flex items-center justify-center shadow-lg shadow-amber-900/10">
-                                                        <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">{t('report.remedies.title')}</h3>
-                                                        <p className="text-amber-700 text-xs font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="px-4 py-2 bg-white/60 border border-white/50 rounded-xl backdrop-blur-md shadow-sm w-fit">
-                                                    <p className="text-xs text-secondary uppercase font-black tracking-widest mb-0.5">{t('report.remedies.dasha_influence')}</p>
-                                                    <p className="text-primary font-bold text-xs md:text-sm">{report.vedic_astrology.dasha?.[0]?.planet} Mahadasha</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-                                                {/* Gemstone */}
-                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-purple-100 bg-white hover:shadow-lg transition-all duration-500 group">
-                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                                                        <Gem className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
-                                                    </div>
-                                                    <div className="text-xs text-purple-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.gemstone')}</div>
-                                                    <h4 className="text-lg md:text-xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.gemstone?.stone}</h4>
-
-                                                    <div className="space-y-3 pt-4 border-t border-gray-100">
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-secondary uppercase font-bold">{t('report.remedies.wear_on')}</span>
-                                                            <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.wear_finger}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-secondary uppercase font-bold">{t('report.remedies.metal')}</span>
-                                                            <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.metal}</span>
-                                                        </div>
-                                                        <div className="mt-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                                            <p className="text-xs md:text-sm text-purple-700 leading-relaxed italic text-center">
-                                                                "Enhances {report.vedic_astrology.remedies?.gemstone?.life_area}"
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Rudraksha */}
-                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-amber-100 bg-white hover:shadow-lg transition-all duration-500 group">
-                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                                                        <CircleDot className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
-                                                    </div>
-                                                    <div className="text-xs text-amber-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.rudraksha')}</div>
-                                                    <h4 className="text-lg md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.rudraksha?.type}</h4>
-
-                                                    <div className="space-y-4 pt-4 border-t border-gray-100">
-                                                        <p className="text-xs md:text-sm text-secondary leading-relaxed italic">
-                                                            "{report.vedic_astrology.remedies?.rudraksha?.benefits}"
-                                                        </p>
-                                                        <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
-                                                            <Star className="w-3 h-3 fill-amber-700" />
-                                                            {t('report.remedies.deity_focus')}: {report.vedic_astrology.remedies?.rudraksha?.deity}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Mantra */}
-                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-emerald-100 bg-white hover:shadow-lg transition-all duration-500 group">
-                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                                                        <Mic2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
-                                                    </div>
-                                                    <div className="text-xs text-emerald-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.sacred_mantra')}</div>
-                                                    <h4 className="text-base md:text-2xl font-bold text-primary italic mb-4 leading-relaxed">
-                                                        "{report.vedic_astrology.remedies?.mantra?.sanskrit}"
-                                                    </h4>
-
-                                                    <div className="space-y-3 pt-4 border-t border-gray-100">
-                                                        <div className="flex flex-col gap-1">
-                                                            <div className="text-xs text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
-                                                            <p className="text-xs md:text-sm text-emerald-700 leading-relaxed font-medium">
-                                                                {report.vedic_astrology.remedies?.mantra?.instructions || "Chant 108 times daily."}
-                                                            </p>
-                                                        </div>
-                                                        <div className="flex items-center justify-between text-xs font-bold text-secondary border-t border-gray-100 pt-3">
-                                                            <span className="uppercase">{t('report.remedies.deity_focus')}</span>
-                                                            <span className="text-emerald-700 uppercase">{report.vedic_astrology.remedies?.mantra?.deity}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <section className="space-y-8">
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                                            <Scroll className="w-6 h-6 text-amber-600" />
-                                        </div>
-                                        <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Kundli Insights</h2>
-                                    </div>
-
-                                    {/* Vedic AI Summary - Robust Rendering (Support Object and String) */}
-                                    {report.vedic_astrology?.ai_summary ? (
-                                        typeof report.vedic_astrology.ai_summary === 'object' ? (
-                                            <>
-
-                                                {/* 1. The Foundation: Birth Chart Analysis */}
-                                                {report.vedic_astrology.ai_summary.personality_analysis && (
-                                                    <div className="glass-panel p-5 md:p-12 rounded-3xl md:rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl relative overflow-hidden mb-8">
-                                                        <div className="absolute top-0 right-0 p-6 opacity-10 hidden md:block">
-                                                            <Scroll className="w-32 h-32 text-indigo-600" />
-                                                        </div>
-                                                        <div className="relative z-10 space-y-6">
-                                                            <div className="flex items-center gap-4 mb-6">
-                                                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
-                                                                    <Scroll className="w-5 h-5 md:w-8 md:h-8 text-indigo-600" />
-                                                                </div>
-                                                                <div>
-                                                                    <h3 className="text-lg md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">
-                                                                        {report.vedic_astrology.ai_summary.personality_analysis.title || 'Birth Chart Analysis'}
-                                                                    </h3>
-                                                                    <p className="text-indigo-600 text-[10px] md:text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                                                                        <Sparkles className="w-3 h-3" /> Personalized Life Insights
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="prose prose-indigo max-w-none">
-                                                                {(() => {
-                                                                    const content = report.vedic_astrology.ai_summary.personality_analysis.content;
-                                                                    if (typeof content === 'object' && content !== null && !Array.isArray(content)) {
-                                                                        return (
-                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                                                                {Object.entries(content).map(([label, text]) => (
-                                                                                    <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-indigo-100 shadow-sm ${label === 'Life Theme' ? 'md:col-span-2 bg-indigo-50/50 border-indigo-200' : ''}`}>
-                                                                                        <span className="text-sm font-black uppercase tracking-widest text-indigo-600 block mb-1">
-                                                                                            {label}
-                                                                                        </span>
-                                                                                        <p className={`text-slate-700 leading-relaxed ${label === 'Life Theme' ? 'text-lg font-bold italic text-indigo-800' : 'text-sm font-medium'}`}>
-                                                                                            {text}
-                                                                                        </p>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        );
-                                                                    }
-                                                                    return (
-                                                                        <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                            {content}
-                                                                        </p>
-                                                                    );
-                                                                })()}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* 2. The Self: Core Insights Grid */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                                                    {Object.entries(report.vedic_astrology.ai_summary)
-                                                        .filter(([key]) => ['emotional_core', 'life_phase'].includes(key))
-                                                        .map(([key, section]) => {
-                                                            const icons = {
-                                                                emotional_core: <Moon className="w-5 h-5 text-blue-600" />,
-                                                                life_phase: <Activity className="w-5 h-5 text-purple-600" />,
-                                                            };
-                                                            const bgColors = {
-                                                                emotional_core: 'bg-blue-50/50 border-blue-100',
-                                                                life_phase: 'bg-purple-50/50 border-purple-100',
-                                                            };
-                                                            return (
-                                                                <div key={key} className={`glass-panel p-6 rounded-3xl border ${bgColors[key] || 'bg-gray-50/50 border-gray-100'} shadow-md hover:shadow-lg transition-all`}>
-                                                                    <div className="flex items-center gap-3 mb-4">
-                                                                        <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
-                                                                            {icons[key] || <Brain className="w-5 h-5 text-gray-600" />}
-                                                                        </div>
-                                                                        <h4 className="font-bold text-primary tracking-tight">{section.title}</h4>
-                                                                    </div>
-                                                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                                                                        {typeof section.content === 'object'
-                                                                            ? JSON.stringify(section.content, null, 2)
-                                                                            : section.content}
-                                                                    </p>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                </div>
-
-
-
-                                                {/* 4. The Connection: Marriage & Relationships */}
-                                                {report.vedic_astrology.ai_summary.relationships && (
-                                                    <div className="mb-12">
-                                                        <div className="flex items-center gap-4 mb-6">
-                                                            <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
-                                                                <Heart className="w-6 h-6 text-pink-600" />
-                                                            </div>
-                                                            <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Marriage & Relationships</h3>
-                                                        </div>
-
-                                                        <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-pink-50/30 border border-pink-100 shadow-xl relative overflow-hidden group">
-                                                            <div className="absolute top-0 right-0 p-8 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                                                                <Heart className="w-40 h-40 text-pink-600" />
-                                                            </div>
-                                                            <div className="relative z-10">
-                                                                <div className="prose prose-pink max-w-none">
-                                                                    {(() => {
-                                                                        const relContent = report.vedic_astrology.ai_summary.relationships.content;
-
-                                                                        if (typeof relContent === 'object' && !Array.isArray(relContent) && relContent !== null) {
-                                                                            return (
-                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    {Object.entries(relContent).map(([label, text]) => (
-                                                                                        <div key={label} className={`p-4 rounded-2xl bg-white/60 border border-pink-100 shadow-sm ${label === 'Tip' ? 'md:col-span-2 bg-pink-50/50' : ''}`}>
-                                                                                            <span className="text-sm font-black uppercase tracking-widest text-pink-600 block mb-1">
-                                                                                                {label}
-                                                                                            </span>
-                                                                                            <p className="text-slate-700 text-sm leading-relaxed">
-                                                                                                {text}
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            );
-                                                                        }
-
-                                                                        return (
-                                                                            <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                                                {typeof relContent === 'object'
-                                                                                    ? JSON.stringify(relContent, null, 2)
-                                                                                    : relContent}
-                                                                            </p>
-                                                                        );
-                                                                    })()}
-                                                                </div>
-                                                                <div className="mt-8 pt-6 border-t border-pink-100 flex items-center justify-between">
-                                                                    <div className="flex items-center gap-2 text-xs text-pink-600/60 font-black uppercase tracking-[0.2em]">
-                                                                        <Heart className="w-4 h-4" /> Union & Partnership Insights
-                                                                    </div>
-                                                                    <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
-                                                                        <Sparkles className="w-3 h-3" /> Relationship Harmony
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-
-
-
-
-
-                                                {/* Other Life Insights Grid (Catch-all for any additional AI insights) */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                                                    {Object.entries(report.vedic_astrology.ai_summary)
-                                                        .filter(([key]) => !['personality_analysis', 'career_path', 'relationships', 'dosha_check', 'remedies', 'transit_analysis', 'emotional_core', 'life_phase'].includes(key))
-                                                        .map(([key, section]) => {
-                                                            // Safety check: ensure section is an object and has required fields
-                                                            if (typeof section !== 'object' || !section) return null;
-
-                                                            return (
-                                                                <div key={key} className="glass-panel p-6 rounded-3xl border bg-gray-50/50 border-gray-100 shadow-md hover:shadow-lg transition-all">
-                                                                    <div className="flex items-center gap-3 mb-4">
-                                                                        <div className="p-2 bg-white rounded-xl shadow-sm border border-inherit">
-                                                                            <Brain className="w-5 h-5 text-gray-600" />
-                                                                        </div>
-                                                                        <h4 className="font-bold text-primary tracking-tight">{section.title || key}</h4>
-                                                                    </div>
-                                                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                                                                        {typeof section.content === 'object'
-                                                                            ? JSON.stringify(section.content, null, 2)
-                                                                            : (section.content || '')}
-                                                                    </p>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                </div>
-                                            </>
-                                        ) : (
-                                            /* Legacy String Fallback */
-                                            <div className="glass-panel p-6 md:p-12 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 shadow-xl mb-12">
-                                                <p className="text-lg leading-relaxed text-slate-700 font-medium whitespace-pre-line">
-                                                    {report.vedic_astrology.ai_summary}
-                                                </p>
-                                                <div className="mt-6 pt-6 border-t border-indigo-100/50 flex justify-center">
-                                                    <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest">
-                                                        Note: Regenerate report to view enhanced card-based analysis.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )
-                                    ) : null}
-
-                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-                                        {/* Vedic Data Table (5:7 Split) */}
-                                        <div className="lg:col-span-5 space-y-6 order-2 lg:order-1">
-                                            <div className="glass-panel p-6 rounded-[2.5rem] border-gray-100 bg-white shadow-xl">
-                                                <div className="flex items-center justify-between mb-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <Activity className="w-5 h-5 text-amber-600" />
-                                                        <h4 className="font-black text-primary uppercase text-xs md:text-xs tracking-widest">{t('report.vedic.cosmic_alignment')}</h4>
-                                                    </div>
-                                                    <div className="text-xs font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1 rounded-md">
-                                                        {t('report.vedic.lahiri_ayanamsa')}
-                                                    </div>
-                                                </div>
-
-                                                <div className="block lg:hidden space-y-4">
-                                                    {report.vedic_astrology?.planets?.map((p, idx) => (
-                                                        <div key={idx} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-3">
-                                                            <div className="flex justify-between items-start">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-sm font-bold text-primary">{p.name}</span>
-                                                                    <span className="text-sm text-secondary uppercase font-black">{p.sanskrit_name}</span>
-                                                                </div>
-                                                                <div className="text-right">
-                                                                    <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-1">{t('report.vedic.status')}</div>
-                                                                    {p.dignity?.status !== 'Neutral' ? (
-                                                                        <span className={`text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-500' :
-                                                                            p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-500' :
-                                                                                'bg-red-500/20 text-red-500'
-                                                                            }`}>
-                                                                            {p.dignity?.status}
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span className="text-sm text-slate-400 uppercase font-black">Neutral</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50">
-                                                                <div>
-                                                                    <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.house_short')}</div>
-                                                                    <div className="text-xs font-bold text-primary">{p.house}</div>
-                                                                </div>
-                                                                <div className="text-right">
-                                                                    <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">{t('report.vedic.sign')}</div>
-                                                                    <div className="text-xs font-bold text-primary">{p.sign}</div>
-                                                                </div>
-                                                            </div>
-                                                            {p.nakshatra && (
-                                                                <div className="pt-2 border-t border-gray-200/50">
-                                                                    <div className="text-xs text-secondary uppercase font-bold tracking-widest mb-0.5">Nakshatra</div>
-                                                                    <div className="text-xs font-medium text-amber-800 italic">{p.nakshatra.name}</div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="hidden lg:block overflow-x-auto">
-                                                    <table className="w-full text-left">
-                                                        <thead>
-                                                            <tr className="border-b border-gray-100">
-                                                                <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.graha')}</th>
-                                                                <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary">{t('report.vedic.status')}</th>
-                                                                <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-center">{t('report.vedic.house_short')}</th>
-                                                                <th className="pb-3 text-xs font-black uppercase tracking-tighter text-secondary text-right">{t('report.vedic.sign')}</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-gray-100">
-                                                            {report.vedic_astrology?.planets?.map((p, idx) => (
-                                                                <tr key={idx} className="group/row hover:bg-gray-50 transition-colors">
-                                                                    <td className="py-2.5">
-                                                                        <div className="flex flex-col">
-                                                                            <span className="text-sm font-bold text-primary tracking-tight">{p.name} <span className="text-sm text-secondary">({p.sanskrit_name})</span></span>
-                                                                            <span className="text-sm text-amber-700/60 font-medium italic">{p.nakshatra?.name || ''}</span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="py-2.5">
-                                                                        {p.dignity?.status !== 'Neutral' ? (
-                                                                            <span className={`text-xs font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${p.dignity?.status.includes('Exalted') ? 'bg-amber-500/20 text-amber-400' :
-                                                                                p.dignity?.status.includes('Own') ? 'bg-indigo-500/20 text-indigo-400' :
-                                                                                    'bg-red-500/20 text-red-400'
-                                                                                }`}>
-                                                                                {p.dignity?.status}
-                                                                            </span>
-                                                                        ) : (
-                                                                            <span className="text-sm text-slate-500 uppercase font-bold">Neutral</span>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="py-2.5 text-xs text-secondary text-center font-bold">{p.house}</td>
-                                                                    <td className="py-2.5 text-xs text-slate-500 text-right font-mono">{(p.sign || '').substring?.(0, 3) || p.sign}</td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Vedic Chart (5:7 Split) - Updated Color & Size */}
-                                        <div className="lg:col-span-7 order-1 lg:order-2">
-                                            <div className="glass-panel p-4 md:p-8 rounded-[2.5rem] bg-indigo-950/5 border-indigo-100 shadow-inner relative overflow-hidden group">
-                                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
-                                                <div className="relative z-10 flex flex-col items-center">
-                                                    {report.vedic_astrology?.chart_svg ? (
-                                                        <div
-                                                            className="w-full max-w-[550px] aspect-square flex items-center justify-center overflow-hidden transition-all duration-700 group-hover:scale-[1.02] p-2"
-                                                            style={{
-                                                                // filter: 'hue-rotate(250deg) brightness(1.2) contrast(1.1) saturate(1.2)', // Removed for clear black lines
-                                                                // backgroundColor: 'transparent'
-                                                            }}
-                                                            dangerouslySetInnerHTML={{ __html: report.vedic_astrology.chart_svg }}
-                                                        />
-                                                    ) : (
-                                                        <div className="aspect-square w-full flex items-center justify-center bg-gray-50 rounded-[2rem] text-secondary border border-dashed border-gray-200">
-                                                            No Vedic chart available
-                                                        </div>
-                                                    )}
-
-                                                    <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs font-black uppercase tracking-widest text-indigo-400">
-                                                        <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">North Indian</span>
-                                                        <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Sidereal View</span>
-                                                        <span className="px-3 py-1 bg-indigo-50 rounded-lg shadow-sm border border-indigo-100">Planet Positions</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Vedic Charts Section - Lagna & Navamsa */}
-                                    <div className="mt-12 space-y-8">
-                                        <div className="flex items-center gap-4 mb-2">
-                                            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-                                                <Layers className="w-6 h-6 text-purple-600" />
-                                            </div>
-                                            <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Vedic Birth Charts</h2>
-                                        </div>
-
-                                        <VedicChartsDisplay userData={userData} />
-                                    </div>
-
-                                    {/* VedAstro Yearly Prediction Graph */}
-                                    <YearlyPredictionGraph data={null} userData={userData} />
-
-                                    {/* Graha Insights - Full Width & Non-Scrollable */}
-                                    <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-                                        <div className="relative z-10">
-                                            <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
-                                                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center">
-                                                    <Scroll className="w-7 h-7 text-amber-600" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
-                                                    <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                                {report.vedic_astrology?.graha_effects?.map((effect, idx) => (
-                                                    <div key={idx} className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-300 group hover:-translate-y-1">
-                                                        <div className="flex items-center justify-between mb-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
-                                                                    <span className="text-sm font-black text-gray-900 group-hover:text-amber-700">{effect.house}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-sm font-bold text-gray-900 capitalize">
-                                                                        {effect.planet}
-                                                                    </p>
-                                                                    <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
-                                                                </div>
-                                                            </div>
-                                                            <span className="px-3 py-1 bg-amber-50 rounded-full text-sm font-black text-amber-700 uppercase tracking-widest border border-amber-100">
-                                                                {effect.nature}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="relative">
-                                                            <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-amber-100 rounded-full group-hover:bg-amber-300 transition-colors"></div>
-                                                            <p className="text-sm text-slate-700 leading-relaxed font-medium pl-3">
-                                                                {effect.effect}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    {/* Dosha Awareness Section */}
+                                    
+{/* Dosha Awareness Section */}
                                     <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                                         <div className="relative z-10">
@@ -2343,12 +1897,157 @@ const ConsolidatedReport = () => {
                                     </div>
 
 
-                                </section>
+                                
+{/* Vedic Remedies Card (Enhanced) */}
 
+                                    {report.vedic_astrology?.remedies && (
+                                        <div className="col-span-full glass-panel p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden bg-gradient-to-br from-amber-50 via-purple-50 to-white border border-amber-100 shadow-xl">
+                                            <div className="absolute top-0 right-0 p-10 opacity-5">
+                                                <Sparkles className="w-48 h-48 text-amber-500" />
+                                            </div>
+
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 md:mb-12 relative z-10">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-100 flex items-center justify-center shadow-lg shadow-amber-900/10">
+                                                        <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter leading-tight">{t('report.remedies.title')}</h3>
+                                                        <p className="text-amber-700 text-xs font-black uppercase tracking-widest">{t('report.remedies.subtitle')}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 py-2 bg-white/60 border border-white/50 rounded-xl backdrop-blur-md shadow-sm w-fit">
+                                                    <p className="text-xs text-secondary uppercase font-black tracking-widest mb-0.5">{t('report.remedies.dasha_influence')}</p>
+                                                    <p className="text-primary font-bold text-xs md:text-sm">{report.vedic_astrology.dasha?.[0]?.planet} Mahadasha</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                                                {/* Gemstone */}
+                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-purple-100 bg-white hover:shadow-lg transition-all duration-500 group">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
+                                                        <Gem className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+                                                    </div>
+                                                    <div className="text-xs text-purple-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.gemstone')}</div>
+                                                    <h4 className="text-lg md:text-xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.gemstone?.stone}</h4>
+
+                                                    <div className="space-y-3 pt-4 border-t border-gray-100">
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="text-secondary uppercase font-bold">{t('report.remedies.wear_on')}</span>
+                                                            <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.wear_finger}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="text-secondary uppercase font-bold">{t('report.remedies.metal')}</span>
+                                                            <span className="text-purple-700 font-bold">{report.vedic_astrology.remedies?.gemstone?.metal}</span>
+                                                        </div>
+                                                        <div className="mt-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                                                            <p className="text-xs md:text-sm text-purple-700 leading-relaxed italic text-center">
+                                                                "Enhances {report.vedic_astrology.remedies?.gemstone?.life_area}"
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Rudraksha */}
+                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-amber-100 bg-white hover:shadow-lg transition-all duration-500 group">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
+                                                        <CircleDot className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                                                    </div>
+                                                    <div className="text-xs text-amber-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.rudraksha')}</div>
+                                                    <h4 className="text-lg md:text-2xl font-black text-primary mb-4">{report.vedic_astrology.remedies?.rudraksha?.type}</h4>
+
+                                                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                                                        <p className="text-xs md:text-sm text-secondary leading-relaxed italic">
+                                                            "{report.vedic_astrology.remedies?.rudraksha?.benefits}"
+                                                        </p>
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase bg-amber-50 w-fit px-3 py-1 rounded-full">
+                                                            <Star className="w-3 h-3 fill-amber-700" />
+                                                            {t('report.remedies.deity_focus')}: {report.vedic_astrology.remedies?.rudraksha?.deity}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Mantra */}
+                                                <div className="glass-panel p-6 md:p-8 rounded-[2rem] border-emerald-100 bg-white hover:shadow-lg transition-all duration-500 group">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-5 md:mb-6 group-hover:scale-110 transition-transform">
+                                                        <Mic2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                                                    </div>
+                                                    <div className="text-xs text-emerald-600 uppercase font-black tracking-widest mb-1.5">{t('report.remedies.sacred_mantra')}</div>
+                                                    <h4 className="text-base md:text-2xl font-bold text-primary italic mb-4 leading-relaxed">
+                                                        "{report.vedic_astrology.remedies?.mantra?.sanskrit}"
+                                                    </h4>
+
+                                                    <div className="space-y-3 pt-4 border-t border-gray-100">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="text-xs text-secondary uppercase font-bold">{t('report.remedies.instructions')}</div>
+                                                            <p className="text-xs md:text-sm text-emerald-700 leading-relaxed font-medium">
+                                                                {report.vedic_astrology.remedies?.mantra?.instructions || "Chant 108 times daily."}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-xs font-bold text-secondary border-t border-gray-100 pt-3">
+                                                            <span className="uppercase">{t('report.remedies.deity_focus')}</span>
+                                                            <span className="text-emerald-700 uppercase">{report.vedic_astrology.remedies?.mantra?.deity}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                
+{/* VedAstro Yearly Prediction Graph */}
+                                    <YearlyPredictionGraph data={null} userData={userData} />
+
+                                    {/* Graha Insights - Full Width & Non-Scrollable */}
+                                    <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
+                                                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center">
+                                                    <Scroll className="w-7 h-7 text-amber-600" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl md:text-2xl font-black text-primary uppercase italic tracking-tighter">Graha Insights</h3>
+                                                    <p className="text-amber-600/60 text-sm font-bold uppercase tracking-widest mt-1">Detailed Planetary Influence</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                                {report.vedic_astrology?.graha_effects?.map((effect, idx) => (
+                                                    <div key={idx} className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-300 group hover:-translate-y-1">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
+                                                                    <span className="text-sm font-black text-gray-900 group-hover:text-amber-700">{effect.house}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-gray-900 capitalize">
+                                                                        {effect.planet}
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">{effect.sanskrit}</p>
+                                                                </div>
+                                                            </div>
+                                                            <span className="px-3 py-1 bg-amber-50 rounded-full text-sm font-black text-amber-700 uppercase tracking-widest border border-amber-100">
+                                                                {effect.nature}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="relative">
+                                                            <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-amber-100 rounded-full group-hover:bg-amber-300 transition-colors"></div>
+                                                            <p className="text-sm text-slate-700 leading-relaxed font-medium pl-3">
+                                                                {effect.effect}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    
                             </div>
                         )}
-
-                        {/* NUMEROLOGY TAB */}
+{/* NUMEROLOGY TAB */}
                         {
                             activeTab === 'numerology' && (
                                 <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -2373,39 +2072,55 @@ const ConsolidatedReport = () => {
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                                         {(() => {
-                                                            const rawText = report.numerology?.ai_insights || report.predictions_summary?.best_prediction || "";
-                                                            if (!rawText) return null;
+                                                            const executiveSummary = report.executive_summary;
+                                                            const aiInsights = report.numerology?.ai_insights;
+                                                            const rawText = aiInsights || report.predictions_summary?.best_prediction || "";
+                                                            
+                                                            if (!executiveSummary && !rawText) return null;
+                                                            
+                                                            // Parse insights into sections if possible
                                                             const sections = rawText.split(/(?=\d\.\s)/).filter(s => s.trim());
-                                                            if (sections.length <= 1) {
-                                                                return (<p className="md:col-span-2 text-base md:text-lg text-slate-600 font-medium italic opacity-90">"{rawText}"</p>);
-                                                            }
-                                                            const firstSection = sections[0].replace(/^\d\.\s+/, "");
-                                                            const hasIntro = firstSection.length < 150 && !firstSection.includes(':') && !firstSection.includes('**');
-                                                            const introText = hasIntro ? firstSection : null;
-                                                            const insightSections = hasIntro ? sections.slice(1) : sections;
+                                                            
                                                             return (
                                                                 <>
-                                                                    {introText && (
-                                                                        <div className="md:col-span-2 p-6 md:p-8 rounded-3xl bg-violet-50 border-l-4 border-violet-400 mb-2">
-                                                                            <p className="text-base md:text-lg text-slate-700 font-medium italic opacity-90 leading-relaxed">"{introText.replace(/\*\*/g, '')}"</p>
+                                                                    {executiveSummary && (
+                                                                        <div className="md:col-span-2 p-6 md:p-8 rounded-[2rem] bg-indigo-50/50 border border-indigo-100 mb-2 relative group overflow-hidden">
+                                                                            <div className="flex items-center gap-3 mb-3">
+                                                                                 <Sparkles className="w-5 h-5 text-indigo-500 animate-pulse" />
+                                                                                 <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-600">Global Synthesis</span>
+                                                                            </div>
+                                                                            <p className="text-base md:text-lg text-slate-700 font-medium italic opacity-95 leading-relaxed relative z-10">
+                                                                                "{executiveSummary.replace(/\*\*/g, '')}"
+                                                                            </p>
+                                                                            <div className="absolute top-0 right-0 p-4 opacity-[0.05] group-hover:rotate-12 transition-transform duration-500">
+                                                                                <Brain className="w-16 h-16 text-indigo-600" />
+                                                                            </div>
                                                                         </div>
                                                                     )}
-                                                                    {insightSections.map((section, idx) => {
-                                                                        const cleaned = section.replace(/^\d+[.)]\s*/, "");
-                                                                        const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
-                                                                        const title = titleMatch ? titleMatch[2].trim() : "";
-                                                                        const content = titleMatch ? titleMatch[4].trim() : cleaned;
-                                                                        if (!content && !title) return null;
-                                                                        return (
-                                                                            <div key={idx} className="p-5 rounded-3xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-md hover:shadow-violet-50 transition-all shadow-sm">
-                                                                                <div className="flex items-center gap-3 mb-3">
-                                                                                    <div className="w-2 h-2 rounded-full bg-violet-400"></div>
-                                                                                    {title && (<h4 className="text-sm font-black uppercase tracking-wider text-violet-600">{title}</h4>)}
+
+                                                                    {sections.length > 0 ? (
+                                                                        sections.map((section, idx) => {
+                                                                            const cleaned = section.replace(/^\d+[.)]\s*/, "");
+                                                                            const titleMatch = cleaned.match(/^(\*\*)?([^*:]+)(\*\*)?[:\s]*(.*)/s);
+                                                                            const title = titleMatch ? titleMatch[2].trim() : "";
+                                                                            const content = titleMatch ? titleMatch[4].trim() : cleaned;
+                                                                            if (!content && !title) return null;
+                                                                            
+                                                                            return (
+                                                                                <div key={idx} className="p-5 rounded-3xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-md hover:shadow-violet-50 transition-all shadow-sm">
+                                                                                    <div className="flex items-center gap-3 mb-3">
+                                                                                        <div className="w-2 h-2 rounded-full bg-violet-400"></div>
+                                                                                        {title && (<h4 className="text-sm font-black uppercase tracking-wider text-violet-600">{title}</h4>)}
+                                                                                    </div>
+                                                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">{content.replace(/\*\*/g, '')}</p>
                                                                                 </div>
-                                                                                <p className="text-sm text-slate-600 leading-relaxed font-medium">{content.replace(/\*\*/g, '')}</p>
-                                                                            </div>
-                                                                        );
-                                                                    })}
+                                                                            );
+                                                                        })
+                                                                    ) : rawText && (
+                                                                        <div className="md:col-span-2 p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                                                                            <p className="text-sm text-slate-600 leading-relaxed font-medium">{rawText.replace(/\*\*/g, '')}</p>
+                                                                        </div>
+                                                                    )}
                                                                 </>
                                                             );
                                                         })()}

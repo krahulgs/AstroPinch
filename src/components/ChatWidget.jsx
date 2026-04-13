@@ -14,7 +14,33 @@ const ChatWidget = ({ reportData }) => {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [serviceStatus, setServiceStatus] = useState('checking'); // 'checking', 'online', 'offline'
     const isProcessing = useRef(false); // Guard against double-sends
+
+    useEffect(() => {
+        const checkStatus = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chat/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "ping", context: {} })
+                });
+                const text = await response.text();
+                if (text.includes("offline")) {
+                    setServiceStatus('offline');
+                } else {
+                    setServiceStatus('online');
+                }
+            } catch (err) {
+                setServiceStatus('offline');
+            }
+        };
+
+        if (isOpen) {
+            checkStatus();
+        }
+    }, [isOpen]);
+
     const [messageCount, setMessageCount] = useState(() => {
         const savedCount = localStorage.getItem('astra_chat_count');
         const lastReset = localStorage.getItem('astra_chat_last_reset');
@@ -250,8 +276,8 @@ const ChatWidget = ({ reportData }) => {
                                 </h3>
                                 <div className="flex items-center gap-3">
                                     <span className="text-[10px] text-indigo-200 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.5)]"></div>
-                                        Active Prediction Engine
+                                        <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.5)] ${serviceStatus === 'online' ? 'bg-green-400' : serviceStatus === 'offline' ? 'bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'bg-amber-400 animate-pulse'}`}></div>
+                                        {serviceStatus === 'online' ? 'Active Prediction Engine' : serviceStatus === 'offline' ? 'AI Engine Currently Offline' : 'Initializing Cosmic Link...'}
                                     </span>
                                 </div>
                             </div>

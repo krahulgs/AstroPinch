@@ -78,6 +78,7 @@ class ReportGenerator:
             generate_vedic_chart_analysis,
             generate_relationship_analysis,
             generate_vedic_ai_summary,
+            generate_executive_summary,
         )
         from services.kp_prediction_service import KPPredictionService
 
@@ -127,13 +128,15 @@ class ReportGenerator:
 
         async def run_kp_predictions():
             try:
+                marital_status = context.get('marital_status', 'single') if context else 'single'
                 return await asyncio.to_thread(
                     KPPredictionService.generate_event_predictions,
                     kp_cusps=vedic_full.get('kp_cusps'),
                     kp_system_data=vedic_full.get('kp_system'),
                     dasha_data=dasha,
                     lang=lang,
-                    age=age
+                    age=age,
+                    marital_status=marital_status
                 )
             except Exception as e:
                 print(f"[Report] KP Predictions error: {e}")
@@ -156,6 +159,7 @@ class ReportGenerator:
             personality_res,
             relation_res,
             vedic_summary_res,
+            exec_summary_res,
             predictions_res,
             kundali_svg,
             navamsa_svg,
@@ -176,9 +180,18 @@ class ReportGenerator:
             with_timeout(
                 generate_vedic_ai_summary(
                     name, planets, panchang, dasha, lang=lang, context=context,
-                    doshas=doshas, transits=vedic_full.get('current_transits', [])
+                    doshas=doshas, transits=vedic_full.get('current_transits', []),
+                    ashtakavarga=vedic_full.get('ashtakavarga'),
+                    shadbala=vedic_full.get('shadbala')
                 ),
                 "Vedic Summary AI"
+            ),
+            with_timeout(
+                generate_executive_summary(
+                    name, western_data=None, vedic_data=vedic_full, 
+                    numerology_data=numerology, context=context, lang=lang
+                ),
+                "Executive Summary AI"
             ),
             with_timeout(build_predictions(), "Predictions"),
             build_kundali_svg(),
@@ -230,6 +243,7 @@ class ReportGenerator:
                 "avakhada": vedic_full.get('avakhada')
             },
             "astrocartography": acg_locations,
+            "executive_summary": exec_summary_res,
             "predictions_summary": predictions_res,
             "kp_analysis": kp_predictions
         }

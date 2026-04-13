@@ -1,5 +1,6 @@
 import random
 from services.kerykeion_engine import KerykeionService
+from services.pyjhora_service import PyJHoraService
 
 from services.kundali_painter import KundaliPainter
 
@@ -197,6 +198,10 @@ class AstrologyAggregator:
             graha_f        = executor.submit(AstrologyAggregator.get_graha_effects, sidereal_data['planets'], lang=lang)
             transits_f     = executor.submit(get_transits)
             kp_cusps_f     = executor.submit(get_kerykeion_and_cusps)
+            
+            # --- PYJHORA ENHANCEMENT ---
+            ashtakavarga_f = executor.submit(PyJHoraService.calculate_ashtakavarga, sidereal_data['planets'], sidereal_data['ascendant']['sign_id'])
+            shadbala_f     = executor.submit(PyJHoraService.calculate_shadbala_concept, sidereal_data['planets'])
 
             # Collect all results
             panchang        = panchang_f.result()
@@ -209,6 +214,8 @@ class AstrologyAggregator:
             graha_effects   = graha_f.result()
             current_transits = transits_f.result()
             kp_cusps         = kp_cusps_f.result()
+            ashtakavarga     = ashtakavarga_f.result()
+            shadbala        = shadbala_f.result()
 
             # KP Analysis (fast, depends on kp + kp_cusps)
             kp_final_analysis = KPAnalysisService.generate_analysis(kp, kp_cusps, lang=lang)
@@ -228,6 +235,8 @@ class AstrologyAggregator:
             "avakhada": avakhada,
             "graha_effects": graha_effects,
             "current_transits": current_transits,
+            "ashtakavarga": ashtakavarga,
+            "shadbala": shadbala,
             "ai_summary": None
         }
 

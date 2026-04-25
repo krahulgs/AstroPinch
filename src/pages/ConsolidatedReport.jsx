@@ -408,26 +408,32 @@ const YearlyPredictionGraph = ({ data, userData }) => {
         for (let i = 0; i < trackId.length; i++) trackOffset += trackId.charCodeAt(i);
 
         while (currentYear < endYear) {
+            // Find real data for this year to influence intensity
+            const yearData = Array.isArray(data) ? data.find(d => Math.floor(d.year) === Math.floor(currentYear)) : null;
+            
             // Use getSeededValue for deterministic "randomness"
-            // We multiply currentYear by a factor to ensure distinct values
             const r1 = getSeededValue(currentYear * 10 + trackOffset);
             const r2 = getSeededValue(currentYear * 20 + trackOffset + 50);
             const r3 = getSeededValue(currentYear * 30 + trackOffset + 100);
 
             const duration = r1 * 0.5 + 0.2; // Granular strips (0.2 to 0.7 years)
-            const intensity = r2;
+            
+            // Influence intensity by real yearData if available
+            let intensity;
+            if (yearData) {
+                // Blend real score with seeded random for granular variation
+                const realIntensity = yearData.score / 100;
+                intensity = (realIntensity * 0.7) + (r2 * 0.3);
+            } else {
+                intensity = r2;
+            }
 
             let color;
-            // Logical assignments based on astrological "intensity"
             if (intensity < 0.35) {
-                // Challenge Period (Red)
-                // Variation in opacity based on r3
                 color = `rgba(220, 38, 38, ${0.4 + r3 * 0.4})`;
             } else if (intensity > 0.65) {
-                // Success Period (Green)
                 color = `rgba(34, 197, 94, ${0.4 + r3 * 0.4})`;
             } else {
-                // Neutral/Stability Period (White/Transparent)
                 color = `rgba(255, 255, 255, ${0.1 + r3 * 0.15})`;
             }
 
@@ -495,7 +501,10 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                             <div className="w-1/3 h-full border-r border-white/50"></div>
                         </div>
                         {/* Live Value Bar */}
-                        <div className="h-full bg-gradient-to-r from-blue-500 via-emerald-400 to-green-400 w-[78%] relative">
+                        <div 
+                            className="h-full bg-gradient-to-r from-blue-500 via-emerald-400 to-green-400 relative transition-all duration-1000 ease-out"
+                            style={{ width: `${liveScore}%` }}
+                        >
                             <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-white/80 shadow-[0_0_10px_white]"></div>
                         </div>
                     </div>
@@ -2010,7 +2019,7 @@ const ConsolidatedReport = () => {
                                     )}
                                 
 {/* VedAstro Yearly Prediction Graph */}
-                                    <YearlyPredictionGraph data={null} userData={userData} />
+                                    <YearlyPredictionGraph data={report.prediction_graph?.graph_data} userData={userData} />
 
                                     {/* Graha Insights - Full Width & Non-Scrollable */}
                                     <div className="mt-12 glass-panel p-5 md:p-12 rounded-[2.5rem] border-gray-100 bg-white shadow-xl relative overflow-hidden">

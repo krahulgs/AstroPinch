@@ -155,6 +155,8 @@ class ReportGenerator:
                 print(f"[Report] Predictions error: {e}")
                 return None
 
+        from services.prediction_graph_service import PredictionGraphService
+
         (
             personality_res,
             relation_res,
@@ -164,6 +166,7 @@ class ReportGenerator:
             kundali_svg,
             navamsa_svg,
             kp_predictions,
+            prediction_graph_res,
         ) = await asyncio.gather(
             with_timeout(
                 generate_vedic_chart_analysis(
@@ -200,6 +203,12 @@ class ReportGenerator:
             build_kundali_svg(),
             build_navamsa_svg(),
             run_kp_predictions(),
+            PredictionGraphService.generate_prediction_graph({
+                "name": name, "year": year, "month": month, "day": day,
+                "hour": hour, "minute": minute, "lat": lat, "lng": lng,
+                "timezone": timezone, "profession": context.get('profession'),
+                "marital_status": context.get('marital_status')
+            }),
             return_exceptions=False
         )
 
@@ -248,7 +257,8 @@ class ReportGenerator:
             "astrocartography": acg_locations,
             "executive_summary": exec_summary_res,
             "predictions_summary": predictions_res,
-            "kp_analysis": kp_predictions
+            "kp_analysis": kp_predictions,
+            "prediction_graph": prediction_graph_res
         }
 
         t_total = (datetime.now() - t_start).total_seconds()

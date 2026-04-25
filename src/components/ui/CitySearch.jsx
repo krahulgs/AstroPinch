@@ -141,8 +141,8 @@ const CitySearch = ({ onSelect, defaultValue = '', error = false }) => {
                     setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                className={`w-full border rounded-xl py-3 pl-12 pr-10 focus:outline-none transition-all text-primary placeholder:text-slate-400
-                    ${error ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'bg-white border-gray-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600'}
+                className={`w-full border rounded-xl py-3.5 pl-12 pr-10 focus:outline-none transition-all font-medium
+                    ${error ? 'border-red-400 bg-red-400/5 text-red-200 placeholder:text-red-300/30' : 'bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-indigo-400 focus:bg-white/10'}
                 `}
                 placeholder="Enter City, District or Taluka..."
             />
@@ -155,10 +155,10 @@ const CitySearch = ({ onSelect, defaultValue = '', error = false }) => {
             )}
 
             {isOpen && displayResults.length > 0 && (
-                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <div className="absolute z-50 w-full mt-2 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl max-h-80 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-2 text-[10px] font-bold text-indigo-300/60 uppercase tracking-wider bg-white/5 border-b border-white/5 flex justify-between items-center">
                         <span>{query.length < 2 ? "Popular Indian Cities" : "Search Results"}</span>
-                        {query.length > 0 && <span className="text-purple-500">Found {displayResults.length} places</span>}
+                        {query.length > 0 && <span className="text-indigo-400">Found {displayResults.length} places</span>}
                     </div>
 
                     {displayResults.map((city) => (
@@ -166,22 +166,22 @@ const CitySearch = ({ onSelect, defaultValue = '', error = false }) => {
                             key={city.id || `${city.latitude}-${city.longitude}-${city.name}`}
                             type="button"
                             onClick={() => handleSelect(city)}
-                            className="w-full text-left px-4 py-3 hover:bg-purple-50 transition-colors flex flex-col border-b border-gray-50 last:border-0 group/item"
+                            className="w-full text-left px-4 py-3 hover:bg-white/5 transition-colors flex flex-col border-b border-white/5 last:border-0 group/item"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="font-medium text-primary group-hover/item:text-purple-700">{city.name}</span>
-                                {city.country === 'India' && <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded border border-green-100 uppercase font-bold">Local</span>}
+                                <span className="font-medium text-white group-hover/item:text-indigo-300">{city.name}</span>
+                                {city.country === 'India' && <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 uppercase font-bold">Local</span>}
                             </div>
-                            <span className="text-xs text-secondary italic">
+                            <span className="text-xs text-indigo-200/40 italic">
                                 {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                             </span>
                         </button>
                     ))}
 
                     {query.length < 2 && (
-                        <div className="p-4 text-center bg-purple-50/50">
-                            <p className="text-xs text-purple-600 font-medium italic">
-                                💡 Type 2+ characters to find any specific District or Taluka in India
+                        <div className="p-4 text-center bg-indigo-500/5">
+                            <p className="text-[10px] text-indigo-300/50 font-bold uppercase tracking-widest italic">
+                                💡 Type 2+ characters for any Indian District
                             </p>
                         </div>
                     )}

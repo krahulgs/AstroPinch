@@ -4,6 +4,7 @@ import { useChart } from '../context/ChartContext';
 import { User, Calendar, Clock, Loader2 } from 'lucide-react';
 import CitySearch from '../components/ui/CitySearch';
 import SEO from '../components/SEO';
+import CosmicBackground from '../components/ui/CosmicBackground';
 
 const InputForm = () => {
     const navigate = useNavigate();
@@ -222,21 +223,29 @@ const InputForm = () => {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-transparent">
+        <div className="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <CosmicBackground />
             <SEO
                 title="Create Your Free Kundali"
                 description="Enter your birth details to generate your free Vedic birth chart (Kundali) and get personalized life predictions."
                 url="/chart"
             />
-            <div className="max-w-2xl mx-auto pt-4 md:pt-10 pb-20 px-3 md:px-4 relative z-10">
-                <div className="glass-panel p-6 md:p-12 rounded-3xl relative border border-primary/10 shadow-lg">
-                    {/* Glow Effects */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-3xl rounded-full -mr-20 -mt-20"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-success/5 blur-3xl rounded-full -ml-20 -mb-20"></div>
+            
+            <div className="max-w-2xl w-full relative z-10 animate-fade-in">
+                <div className="bg-white/10 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden">
+                    {/* Interior Glows */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full -mr-32 -mt-32"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -ml-32 -mb-32"></div>
 
-                    <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center text-primary">
-                        Enter Birth Details
-                    </h2>
+                    <div className="text-center mb-10">
+                        <div className="inline-flex p-3 bg-white/10 rounded-2xl mb-6 border border-white/10">
+                            <Calendar className="w-8 h-8 text-indigo-300" />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                            Reveal Your <span className="text-indigo-300 italic">Destiny</span>
+                        </h2>
+                        <p className="text-indigo-200/60 mt-2 text-sm font-medium tracking-wide">Enter your birth details to generate your sacred chart</p>
+                    </div>
 
                     {serverError && (
                         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm text-center">
@@ -246,27 +255,27 @@ const InputForm = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
                         <div className="space-y-2">
-                            <label className="text-secondary text-sm font-medium ml-1">Full Name</label>
+                            <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
+                                <User className="absolute left-4 top-3.5 w-5 h-5 text-indigo-300 group-focus-within:text-white transition-colors" />
                                 <input
                                     type="text"
                                     name="name"
                                     autoFocus
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className={`w-full bg-gray-50 border rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all text-primary placeholder:text-gray-400
-                                        ${formErrors.name ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                    className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 focus:outline-none transition-all text-white placeholder:text-white/20 font-medium
+                                        ${formErrors.name ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
                                     `}
                                     placeholder="Enter Your Full Name"
                                 />
                             </div>
-                            {formErrors.name && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.name}</p>}
+                            {formErrors.name && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.name}</p>}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-secondary text-sm font-medium ml-1">Date of Birth</label>
+                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Date of Birth</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1 group">
                                         <input
@@ -276,8 +285,8 @@ const InputForm = () => {
                                             placeholder="DD"
                                             value={formData.day}
                                             onChange={handleChange}
-                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
                                             `}
                                         />
                                     </div>
@@ -289,8 +298,8 @@ const InputForm = () => {
                                             placeholder="MM"
                                             value={formData.month}
                                             onChange={handleChange}
-                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
                                             `}
                                         />
                                     </div>
@@ -302,106 +311,108 @@ const InputForm = () => {
                                             placeholder="YYYY"
                                             value={formData.year}
                                             onChange={handleChange}
-                                            className={`w-full bg-gray-50 border rounded-xl py-3 text-center focus:outline-none transition-all text-primary placeholder:text-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
                                             `}
                                         />
                                     </div>
                                 </div>
-                                {formErrors.date && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.date}</p>}
+                                {formErrors.date && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.date}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-secondary text-sm font-medium ml-1">Time of Birth (24 Hrs.)</label>
+                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Time of Birth (24 Hrs.)</label>
                                 <div className="relative group">
-                                    <Clock className="absolute left-4 top-3.5 w-5 h-5 text-secondary group-focus-within:text-primary transition-colors" />
+                                    <Clock className="absolute left-4 top-3.5 w-5 h-5 text-indigo-300 group-focus-within:text-white transition-colors" />
                                     <input
                                         type="time"
                                         name="time"
                                         value={formData.time}
                                         onChange={handleChange}
-                                        className={`w-full bg-gray-50 border rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all text-primary placeholder:text-gray-400
-                                            ${formErrors.time ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary'}
+                                        className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 focus:outline-none transition-all text-white placeholder:text-white/20 font-medium
+                                            ${formErrors.time ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
                                         `}
                                     />
                                 </div>
-                                {formErrors.time && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.time}</p>}
+                                {formErrors.time && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.time}</p>}
                             </div>
                         </div>
 
                         {/* Profession and Marital Status */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-secondary text-sm font-medium ml-1">Profession</label>
+                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Profession</label>
                                 <div className="relative group">
                                     <select
                                         name="profession"
                                         value={formData.profession || ""}
                                         onChange={handleChange}
-                                        className={`w-full bg-gray-50 border rounded-xl py-3 px-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary appearance-none
-                                            ${formErrors.profession ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200'}
+                                        className={`w-full bg-white/5 border rounded-xl py-3.5 px-4 focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all text-white appearance-none font-medium
+                                            ${formErrors.profession ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10'}
                                         `}
                                     >
-                                        <option value="" disabled>Select Profession</option>
-                                        <option value="student">Student</option>
-                                        <option value="private job">Private Job</option>
-                                        <option value="government job">Government Job</option>
-                                        <option value="business">Business</option>
-                                        <option value="self employed">Self Employed</option>
-                                        <option value="unemployed">Unemployed</option>
-                                        <option value="retired">Retired</option>
-                                        <option value="other">Other</option>
+                                        <option value="" disabled className="bg-slate-900">Select Profession</option>
+                                        <option value="student" className="bg-slate-900">Student</option>
+                                        <option value="private job" className="bg-slate-900">Private Job</option>
+                                        <option value="government job" className="bg-slate-900">Government Job</option>
+                                        <option value="business" className="bg-slate-900">Business</option>
+                                        <option value="self employed" className="bg-slate-900">Self Employed</option>
+                                        <option value="unemployed" className="bg-slate-900">Unemployed</option>
+                                        <option value="retired" className="bg-slate-900">Retired</option>
+                                        <option value="other" className="bg-slate-900">Other</option>
                                     </select>
-                                    <div className="absolute right-4 top-3.5 pointer-events-none">
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div className="absolute right-4 top-4 pointer-events-none">
+                                        <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
-                                {formErrors.profession && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.profession}</p>}
+                                {formErrors.profession && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.profession}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-secondary text-sm font-medium ml-1">Marital Status</label>
+                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Marital Status</label>
                                 <div className="relative group">
                                     <select
                                         name="marital_status"
                                         value={formData.marital_status || ""}
                                         onChange={handleChange}
-                                        className={`w-full bg-gray-50 border rounded-xl py-3 px-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-primary appearance-none
-                                            ${formErrors.marital_status ? 'border-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-red-50' : 'border-gray-200'}
+                                        className={`w-full bg-white/5 border rounded-xl py-3.5 px-4 focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all text-white appearance-none font-medium
+                                            ${formErrors.marital_status ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10'}
                                         `}
                                     >
-                                        <option value="" disabled>Select Status</option>
-                                        <option value="single">Single</option>
-                                        <option value="married">Married</option>
-                                        <option value="divorced">Divorced</option>
-                                        <option value="widowed">Widowed</option>
-                                        <option value="separated">Separated</option>
+                                        <option value="" disabled className="bg-slate-900">Select Status</option>
+                                        <option value="single" className="bg-slate-900">Single</option>
+                                        <option value="married" className="bg-slate-900">Married</option>
+                                        <option value="divorced" className="bg-slate-900">Divorced</option>
+                                        <option value="widowed" className="bg-slate-900">Widowed</option>
+                                        <option value="separated" className="bg-slate-900">Separated</option>
                                     </select>
-                                    <div className="absolute right-4 top-3.5 pointer-events-none">
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div className="absolute right-4 top-4 pointer-events-none">
+                                        <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
-                                {formErrors.marital_status && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.marital_status}</p>}
+                                {formErrors.marital_status && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.marital_status}</p>}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-secondary text-sm font-medium ml-1">Place of Birth</label>
-                            <CitySearch
-                                onSelect={(city) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        place: `${city.name}, ${city.country}`,
-                                        lat: city.latitude,
-                                        lng: city.longitude,
-                                        timezone: city.timezone
-                                    }));
-                                    if (formErrors.place) setFormErrors(prev => ({ ...prev, place: '' }));
-                                }}
-                                defaultValue={formData.place}
-                                error={!!formErrors.place}
-                            />
-                            {formErrors.place && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.place}</p>}
+                            <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Place of Birth</label>
+                            <div className="cosmic-city-search">
+                                <CitySearch
+                                    onSelect={(city) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            place: `${city.name}, ${city.country}`,
+                                            lat: city.latitude,
+                                            lng: city.longitude,
+                                            timezone: city.timezone
+                                        }));
+                                        if (formErrors.place) setFormErrors(prev => ({ ...prev, place: '' }));
+                                    }}
+                                    defaultValue={formData.place}
+                                    error={!!formErrors.place}
+                                />
+                            </div>
+                            {formErrors.place && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.place}</p>}
                         </div>
 
                         <button

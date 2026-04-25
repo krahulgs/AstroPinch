@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useChart } from '../context/ChartContext';
-import { Link, useSearchParams, useParams } from 'react-router-dom';
+import { Link, useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home, Star, ShieldAlert, Wallet, XCircle, AlertTriangle, Activity, Users, Map } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
@@ -177,11 +177,15 @@ const defaultAspects = [
 
 const Horoscope = () => {
     const { userData, chartData } = useChart();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
     const { sign: routeSign } = useParams();
     const [selectedSign, setSelectedSign] = useState(null);
+    const [period, setPeriod] = useState('daily');
     const [dynamicData, setDynamicData] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    console.log('Horoscope component rendering:', { routeSign, period });
     const [showTechnical, setShowTechnical] = useState(false);
     const { t, i18n } = useTranslation();
 
@@ -194,10 +198,16 @@ const Horoscope = () => {
         { name: 'Aquarius', symbol: '♒', dates: 'Jan 20 - Feb 18' }, { name: 'Pisces', symbol: '♓', dates: 'Feb 19 - Mar 20' }
     ];
 
-    const fetchDynamicHoroscope = async (sign) => {
+    const handlePeriodChange = (newPeriod) => {
+        setPeriod(newPeriod);
+        // Use path-based routing for daily/weekly/monthly
+        navigate(`/rashifal/${newPeriod}/${currentSign.toLowerCase()}`);
+    };
+
+    const fetchDynamicHoroscope = async (sign, currentPeriod) => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/horoscope/${sign}?lang=${i18n.language}`);
+            const response = await fetch(`${API_BASE_URL}/api/horoscope/${sign}?lang=${i18n.language}&period=${currentPeriod}`);
             if (response.ok) {
                 const data = await response.json();
                 setDynamicData(data);
@@ -211,6 +221,17 @@ const Horoscope = () => {
 
     useEffect(() => {
         const signParam = routeSign || searchParams.get('sign');
+        let periodParam = searchParams.get('period');
+        
+        // Infer period from path if not in search params
+        if (!periodParam) {
+            const path = window.location.pathname;
+            if (path.includes('/daily')) periodParam = 'daily';
+            else if (path.includes('/weekly')) periodParam = 'weekly';
+            else if (path.includes('/monthly')) periodParam = 'monthly';
+            else periodParam = 'daily';
+        }
+
         // Default to Aries if no sign is specified
         let sign = signParam || chartData?.sun_sign || 'Aries';
 
@@ -218,8 +239,12 @@ const Horoscope = () => {
             // Standardize casing (e.g. "aries" -> "Aries")
             sign = sign.charAt(0).toUpperCase() + sign.slice(1).toLowerCase();
             if (horoscopes[sign]) {
+                const needsFetch = selectedSign !== sign || period !== periodParam;
                 setSelectedSign(sign);
-                fetchDynamicHoroscope(sign);
+                setPeriod(periodParam);
+                if (needsFetch) {
+                    fetchDynamicHoroscope(sign, periodParam);
+                }
             }
         }
     }, [searchParams, chartData, routeSign, i18n.language]);
@@ -237,9 +262,18 @@ const Horoscope = () => {
     return (
         <div className="min-h-screen max-w-7xl mx-auto py-10 px-6">
             <SEO
-                title={`${currentSign} Daily Horoscope`}
-                description={`Get your real-time ${currentSign} horoscope. Insights on love, career, and personal energy for ${new Date().toLocaleDateString()}.`}
-                url={`/horoscope/${currentSign.toLowerCase()}`}
+                title={`${currentSign} ${period.charAt(0).toUpperCase() + period.slice(1)} Horoscope`}
+                description={`Get your real-time ${currentSign} ${period} horoscope. Insights on love, career, and personal energy for ${new Date().toLocaleDateString()}.`}
+                url={`/rashifal/${period}/${currentSign.toLowerCase()}`}
+                breadcrumbs={[
+                    { name: 'Rashifal', path: '/rashifal' },
+                    { name: `${period.charAt(0).toUpperCase() + period.slice(1)} Rashifal`, path: `/rashifal/${period}` },
+                    { name: currentSign, path: `/rashifal/${period}/${currentSign.toLowerCase()}` }
+                ]}
+                horoscopeData={{
+                    sign: currentSign,
+                    period: period
+                }}
             />
             <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest mb-8">
                 <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -251,7 +285,7 @@ const Horoscope = () => {
                     {zodiacSigns.map((z) => (
                         <Link
                             key={z.name}
-                            to={`/horoscope/${z.name.toLowerCase()}`}
+                            to={`/rashifal/${period}/${z.name.toLowerCase()}`}
                             className={`flex flex-col items-center justify-center w-20 h-24 rounded-2xl border transition-all duration-200 shrink-0 ${currentSign === z.name
                                 ? 'bg-indigo-900 border-indigo-900 text-white shadow-lg scale-110 z-10'
                                 : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-200 hover:text-indigo-600'
@@ -267,8 +301,25 @@ const Horoscope = () => {
 
             {/* 2. Main Hero Section */}
             <div className="text-center space-y-4 mb-12">
+                <div className="flex justify-center mb-6">
+                    <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner">
+                        {['daily', 'weekly', 'monthly'].map((p) => (
+                            <button
+                                key={p}
+                                onClick={() => handlePeriodChange(p)}
+                                className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                                    period === p 
+                                    ? 'bg-white text-indigo-600 shadow-md scale-105' 
+                                    : 'text-slate-500 hover:text-indigo-500'
+                                }`}
+                            >
+                                {p === 'daily' ? 'Today' : p === 'weekly' ? 'Weekly' : 'Monthly'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
                 <span className="inline-block py-1 px-4 rounded-full bg-amber-50 text-amber-600 font-bold uppercase text-[10px] tracking-widest border border-amber-100">
-                    Daily Guidance
+                    {period === 'daily' ? 'Daily Guidance' : period === 'weekly' ? 'Weekly Outlook' : 'Monthly Forecast'}
                 </span>
                 <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic mb-2">
                     {t('horoscope.title', { sign: currentSign })}
@@ -277,7 +328,12 @@ const Horoscope = () => {
                     {zodiacSigns.find(z => z.name === currentSign)?.dates}
                 </p>
                 <p className="text-slate-500 font-medium tracking-wide uppercase text-sm">
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    {period === 'daily' 
+                        ? new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                        : period === 'weekly' 
+                            ? `Week of ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+                            : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    }
                 </p>
             </div>
 

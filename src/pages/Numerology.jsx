@@ -176,6 +176,9 @@ const Numerology = () => {
                 title="Numerology Analysis"
                 description="Discover your destiny with personalized numerology analysis. Insights on your Life Path, Destiny, and Soul numbers."
                 url="/numerology"
+                breadcrumbs={[
+                    { name: 'Numerology', path: '/numerology' }
+                ]}
             />
             {loading && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm">

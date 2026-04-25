@@ -216,11 +216,12 @@ def get_life_path_description(number):
     }
     return descriptions.get(number, "self-discovery")
 
-async def generate_daily_guidance(sign, transits, context=None, outcomes_structure=None, lang="en"):
+async def generate_daily_guidance(sign, transits, context=None, outcomes_structure=None, lang="en", period="daily"):
     """
-    Generate daily daily horoscope using Groq/Gemini based on precise Skyfield data.
+    Generate daily/weekly/monthly horoscope using Groq/Gemini based on precise Skyfield data.
     transits: List of planet objects [{'name': 'Sun', 'sign': 'Aries', 'house': 1, 'retrograde': False}, ...]
     context: Dict with 'profession', 'marital_status'
+    period: "daily", "weekly", or "monthly"
     """
     # Context String
     ctx_str = ""
@@ -247,6 +248,12 @@ async def generate_daily_guidance(sign, transits, context=None, outcomes_structu
         elif age <= 17:
             age_filter = "CRITICAL: User is a TEENAGER. Focus 'career' on education/skills and 'love' on friendships/self-growth."
 
+    period_instruction = {
+        "daily": "Analyze themes for TODAY ONLY. Focus on immediate energy and short-term actions.",
+        "weekly": "Analyze themes for the COMING WEEK. Focus on medium-term goals, trends, and weekly flow.",
+        "monthly": "Analyze themes for the COMING MONTH. Focus on major planetary shifts, long-term trends, and strategic planning."
+    }.get(period, "Analyze themes for TODAY ONLY.")
+
     prompt = f"""You are a world-class Vedic astrologer with 30+ years of experience.
 Your role is to explain current planetary influences in simple, modern, and reassuring language.
 
@@ -261,6 +268,7 @@ Your role is to explain current planetary influences in simple, modern, and reas
 - No medical or legal claims
 - Predictions should be guidance, not absolute fate
 - {age_filter}
+- {period_instruction}
 - IMPORTANT: Verify your tone is personal, caring, and supportive before finishing.
 
 Based on the following REAL astronomical positions:
@@ -271,16 +279,16 @@ CRITICAL INSTRUCTIONS FOR PERSONALIZATION:
 2. If 'User Marital Status' is provided, the 'love' section MUST be specifically tailored to that status.
 
 **Your Task:**
-Analyze the current planetary transits affecting the user.
+Analyze the current planetary transits affecting the user for the {period} period.
 Explain:
-- What themes are active this month
+- What themes are active this {period}
 - Areas of life to focus on
 - Areas needing patience
-- Best way to use this period positively
+- Best way to use this {period} positively
 
 Output strictly valid JSON with the following structure:
 {{
-    "prediction": "A general cosmic advice sentence for the coming weeks.",
+    "prediction": "A general cosmic advice sentence for the {period}.",
     "lucky_number": 7,
     "lucky_color": "Blue",
     "mood": "Optimistic",
@@ -288,13 +296,13 @@ Output strictly valid JSON with the following structure:
     "categories": {{
         "love": {{
             "title": "Love & Relationships",
-            "summary": "One sentence summary aligned with marital status.",
+            "summary": "Summary aligned with marital status and {period} outlook.",
             "details": ["Insight 1", "Insight 2", "Insight 3"],
             "status": "Harmonious"
         }},
-        "career": {{ "title": "Career & Growth", "summary": "One sentence summary aligned with profession.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Focus" }},
-        "finance": {{ "title": "Abundance", "summary": "Financial outlook.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Stable" }},
-        "health": {{ "title": "Wellness", "summary": "Energy and health focus.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Good" }}
+        "career": {{ "title": "Career & Growth", "summary": "Summary aligned with profession and {period} outlook.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Focus" }},
+        "finance": {{ "title": "Abundance", "summary": "Financial outlook for the {period}.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Stable" }},
+        "health": {{ "title": "Wellness", "summary": "Energy and health focus for the {period}.", "details": ["Insight 1", "Insight 2", "Insight 3"], "status": "Good" }}
     }}
 }}
 Make the insights specific to the planetary positions provided.

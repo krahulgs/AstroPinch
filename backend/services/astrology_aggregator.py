@@ -505,7 +505,7 @@ class AstrologyAggregator:
         return detailed_analysis
 
     @staticmethod
-    async def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None):
+    async def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None, period="daily"):
         """
         Generates a dynamic horoscope based on advanced planetary transits and aspects.
         If profile_data is provided, calculates personalized Transit-to-Natal aspects.
@@ -615,12 +615,13 @@ class AstrologyAggregator:
             # We pass the calculated transit data to the AI
             try:
                 from services.ai_service import generate_daily_guidance
-                ai_data = await generate_daily_guidance(sign, planets, context=context, lang=lang)
+                ai_data = await generate_daily_guidance(sign, planets, context=context, lang=lang, period=period)
                 
                 if ai_data:
                     # Merge AI data with our structure
                     return {
                         "sign": sign,
+                        "period": period,
                         "prediction": ai_data.get("prediction", "Cosmic balance is key today."),
                         "lucky_number": ai_data.get("lucky_number", 7),
                         "lucky_color": ai_data.get("lucky_color", "White"),
@@ -633,7 +634,7 @@ class AstrologyAggregator:
                         "categories": ai_data.get("categories", {}),
                         "transits": {p['name']: p['sign'] for p in planets if p['name'] in ['Sun', 'Moon', 'Mars', 'Jupiter', 'Saturn']},
                         "date": now.strftime("%Y-%m-%d"),
-                        "source": "AI-Enhanced (Skyfield + Groq)"
+                        "source": f"AI-Enhanced (Skyfield + Groq - {period})"
                     }
             except Exception as e:
                 print(f"AI Skipped: {e}")

@@ -42,4 +42,14 @@ dist-ssr
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Scratch and Temporary files
+scratch/
+temp/
+*.tmp
+

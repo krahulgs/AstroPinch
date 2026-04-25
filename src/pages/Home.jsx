@@ -317,17 +317,17 @@ const Home = () => {
                     {/* Zodiac Strip - Glass Tiles */}
                     <div className="mb-24 relative">
                         <div className="flex flex-col items-center justify-center mb-12 space-y-3">
-                            <h3 className="font-serif text-3xl text-slate-800 italic">Daily Guidance</h3>
+                            <h3 className="font-serif text-3xl text-slate-800 italic">Daily & Weekly Rashifal</h3>
                             <div className="flex items-center gap-3">
                                 <div className="h-px w-8 bg-slate-300"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Select Your Sign</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Pick your sign for deep insights</span>
                                 <div className="h-px w-8 bg-slate-300"></div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
                             {zodiacSigns.map((sign) => (
-                                <Link key={sign.name} to={`/horoscope/${sign.name.toLowerCase()}`} className="group relative aspect-[4/5] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-500 overflow-hidden flex flex-col items-center justify-center text-center p-4 z-10">
+                                <Link key={sign.name} to={`/rashifal/daily/${sign.name.toLowerCase()}`} className="group relative aspect-[4/5] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-500 overflow-hidden flex flex-col items-center justify-center text-center p-4 z-10">
                                     <div className={`absolute inset-0 bg-gradient-to-b ${sign.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
                                     <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-500">
                                         <span className="text-5xl mb-4 block filter drop-shadow-sm transition-transform duration-300 group-hover:rotate-12">{sign.symbol}</span>
@@ -338,6 +338,13 @@ const Home = () => {
                                     <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                                 </Link>
                             ))}
+                        </div>
+
+                        {/* Quick Period Links */}
+                        <div className="flex flex-wrap justify-center gap-4 mt-8">
+                            <Link to="/rashifal/daily" className="px-6 py-3 rounded-full bg-indigo-50 text-indigo-600 font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm">Daily Rashifal</Link>
+                            <Link to="/rashifal/weekly" className="px-6 py-3 rounded-full bg-purple-50 text-purple-600 font-bold text-xs uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm">Weekly Rashifal</Link>
+                            <Link to="/rashifal/monthly" className="px-6 py-3 rounded-full bg-amber-50 text-amber-600 font-bold text-xs uppercase tracking-widest hover:bg-amber-600 hover:text-white transition-all shadow-sm">Monthly Rashifal</Link>
                         </div>
                     </div>
 

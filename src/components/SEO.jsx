@@ -11,7 +11,9 @@ const SEO = ({
     author,
     publishedTime,
     modifiedTime,
-    article = false
+    article = false,
+    breadcrumbs = [],
+    horoscopeData = null
 }) => {
     const siteTitle = 'AstroPinch - Ancient Wisdom, AI Precision';
     const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
@@ -81,6 +83,54 @@ const SEO = ({
         },
         "datePublished": publishedTime,
         "dateModified": modifiedTime || publishedTime
+    } : null;
+    
+    // JSON-LD for Breadcrumbs
+    const breadcrumbSchema = breadcrumbs.length > 0 ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": siteUrl
+            },
+            ...breadcrumbs.map((crumb, index) => ({
+                "@type": "ListItem",
+                "position": index + 2,
+                "name": crumb.name,
+                "item": `${siteUrl}${crumb.path}`
+            }))
+        ]
+    } : null;
+
+    // JSON-LD for Horoscope/Rashifal
+    const horoscopeSchema = horoscopeData ? {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": fullTitle,
+        "description": metaDescription,
+        "image": metaImage,
+        "author": {
+            "@type": "Organization",
+            "name": "AstroPinch"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "AstroPinch",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${siteUrl}/logo.png`
+            }
+        },
+        "datePublished": new Date().toISOString().split('T')[0],
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": fullUrl
+        },
+        "articleSection": "Astrology",
+        "keywords": `horoscope, rashifal, ${horoscopeData.sign}, ${horoscopeData.period}`
     } : null;
 
     return (
@@ -158,9 +208,14 @@ const SEO = ({
             <script type="application/ld+json">
                 {JSON.stringify(websiteSchema)}
             </script>
-            {articleSchema && (
+            {breadcrumbSchema && (
                 <script type="application/ld+json">
-                    {JSON.stringify(articleSchema)}
+                    {JSON.stringify(breadcrumbSchema)}
+                </script>
+            )}
+            {horoscopeSchema && (
+                <script type="application/ld+json">
+                    {JSON.stringify(horoscopeSchema)}
                 </script>
             )}
         </Helmet>

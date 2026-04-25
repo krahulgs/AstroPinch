@@ -73,6 +73,10 @@ const KundaliMatch = () => {
             <SEO
                 title="Kundali Matching - Gun Milan"
                 description="Check marriage compatibility between two profiles using Vedic Ashta-Koota Gun Milan system. Get detailed AI analysis and dosha reports."
+                url="/kundali-match"
+                breadcrumbs={[
+                    { name: 'Kundali Matching', path: '/kundali-match' }
+                ]}
             />
 
             <div className="text-center mb-12 space-y-4">

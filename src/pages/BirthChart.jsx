@@ -26,6 +26,9 @@ const BirthChart = () => {
                 title={`${userData.name}'s Natal Birth Chart`}
                 description={`Explore the cosmic blueprint of ${userData.name}. Detailed planetary positions and natal chart analysis.`}
                 url="/birth-chart"
+                breadcrumbs={[
+                    { name: 'Birth Chart', path: '/birth-chart' }
+                ]}
             />
             <div className="text-center space-y-2">
                 <h2 className="text-3xl font-bold text-primary">

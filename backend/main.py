@@ -307,8 +307,8 @@ async def get_vedic_report(details: BirthDetails):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/horoscope/{sign}")
-async def get_daily_horoscope(sign: str, lang: str = "en"):
-    horoscope = await AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang)
+async def get_daily_horoscope(sign: str, period: str = "daily", lang: str = "en"):
+    horoscope = await AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang, period=period)
     print(f"DEBUG: get_daily_horoscope return type: {type(horoscope)}")
     return horoscope
 

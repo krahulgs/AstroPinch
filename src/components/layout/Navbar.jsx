@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X, Key, ChevronDown, Settings } from 'lucide-react';
+import { Star, Moon, BookOpen, Hash, Calendar, User, LogIn, LogOut, ChevronLeft, Menu, X, Key, ChevronDown, Settings, MessageSquare, Wallet } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 import AstroLogo from '../../components/AstroLogo';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
@@ -30,6 +30,7 @@ const Navbar = () => {
 
     const navItems = [
         { name: 'nav.horoscopes', path: '/rashifal/daily', icon: Star },
+        { name: 'nav.consult', path: '/astrologers', icon: MessageSquare },
         { name: 'nav.kundali_match', path: '/kundali-match', icon: Moon },
         { name: 'nav.calendar', path: '/calendar', icon: Calendar },
         { name: 'nav.profiles', path: '/profiles', icon: User },
@@ -145,6 +146,15 @@ const Navbar = () => {
                                                     >
                                                         <User className="w-4 h-4" />
                                                         <span className="font-medium text-sm">My Astro Profiles</span>
+                                                    </Link>
+
+                                                    <Link
+                                                        to="/wallet"
+                                                        onClick={() => setShowProfileMenu(false)}
+                                                        className="flex items-center gap-3 px-4 py-2.5 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                                    >
+                                                        <Wallet className="w-4 h-4" />
+                                                        <span className="font-medium text-sm">My Wallet</span>
                                                     </Link>
 
                                                     <Link

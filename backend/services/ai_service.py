@@ -331,7 +331,8 @@ Based on the following REAL astronomical positions:
 
 CRITICAL INSTRUCTIONS FOR PERSONALIZATION:
 1. If 'User Profession' is provided, the 'career' section MUST be specifically tailored to that role.
-2. If 'User Marital Status' is provided, the 'love' section MUST be specifically tailored to that status.
+2. If 'User Marital Status' is 'Married', the 'love' section MUST focus on improving harmony, peace, and long-term stability in married life. Avoid generic dating advice. Suggest practical ways to resolve conflicts and deepen the bond.
+3. If 'User Marital Status' is 'Single', the 'love' section should focus on self-love, dating, and finding a partner.
 
 **Your Task:**
 Analyze the current planetary transits affecting the user for the {period} period.
@@ -1373,11 +1374,13 @@ async def generate_career_analysis(name, planets, panchang, lang="en", age=None)
         print(f"Fallback Logic Error: {e}")
         return None
 
-async def generate_relationship_analysis(name, planets, panchang, lang="en", age=None):
+async def generate_relationship_analysis(name, planets, panchang, lang="en", age=None, marital_status="single"):
     """
     Generates a specific Relationship and Marriage analysis based on Vedic chart.
     """
     import json
+
+    is_married = str(marital_status).lower() == "married"
 
     # Age-aware short-circuit
     if age is not None and age < 18:
@@ -1408,6 +1411,17 @@ async def generate_relationship_analysis(name, planets, panchang, lang="en", age
 
     lang_instruction = get_lang_instruction(lang)
 
+    married_prompt_addition = ""
+    if is_married:
+        married_prompt_addition = """
+        IMPORTANT: The user is ALREADY MARRIED. 
+        - DO NOT talk about finding a new partner or future marriage outlook.
+        - FOCUS ONLY on improving harmony, peace, and long-term bonding in their CURRENT marriage.
+        - Provide suggestions on how to handle conflicts and improve understanding with their spouse based on their chart.
+        - 'ideal_partner' key should instead describe the 'Strengths of Current Union'.
+        - 'marriage_outlook' key should instead describe 'Marriage Maintenance & Harmony'.
+        """
+
     prompt = f"""You are an expert Relationship & Marriage Astrologer.
     Using the user’s birth details, analyze the marriage and relationships based on 7th house, Venus, Jupiter, and Mars.
     
@@ -1415,17 +1429,20 @@ async def generate_relationship_analysis(name, planets, panchang, lang="en", age
     Name: {name}
     Ascendant: {pan_asc}
     Nakshatra: {pan_nak}
+    Marital Status: {marital_status}
     Planets:
     {planet_data}
+
+    {married_prompt_addition}
 
     **Task**:
     Output strictly valid JSON with the following structure:
     {{
-        "ideal_partner": "Describe qualities of the ideal partner based on 7th house/Venus/Jupiter (Max 2 sentences)",
-        "marriage_outlook": "Overall outlook for married life/long-term unions",
+        "ideal_partner": "Describe strengths of current union or qualities of ideal partner (Max 2 sentences)",
+        "marriage_outlook": "Overall outlook for harmony and stability in union",
         "compatibility_style": "How the user behaves in relationships",
         "challenges": ["Challenge 1", "Challenge 2"],
-        "relationship_tip": "One specific actionable advice for harmony"
+        "relationship_tip": "One specific actionable advice for harmony and peace"
     }}
 
     **Tone**:

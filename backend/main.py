@@ -17,8 +17,9 @@ from services.astrology_aggregator import AstrologyAggregator
 from services.numerology_service import get_numerology_data
 from services.ai_service import generate_numerology_insights
 from generate_report import ReportGenerator
-from routers import profile_router, auth_router, insights_router, chat_router, vedastro_router
+from routers import profile_router, auth_router, insights_router, chat_router, vedastro_router, marketplace_router
 from services.migration_service import migrate_emails_to_lowercase
+from services.marketplace_migration import init_marketplace
 from services.reset_password_migration import add_reset_columns
 from services.profile_schema_migration import add_profile_columns
 from database import engine, Base, AsyncSessionLocal
@@ -60,12 +61,45 @@ async def startup():
     # Run Migration for Profile Columns
     await add_profile_columns(AsyncSessionLocal)
 
+    # Initialize Marketplace
+    await init_marketplace()
+
+    # Start Auto-Publish Worker
+    import asyncio
+    asyncio.create_task(auto_publish_worker())
+
+async def auto_publish_worker():
+    """
+    Pre-generates horoscopes for all 12 signs in common languages and periods.
+    This fills the cache to ensure zero-latency for SEO crawlers and high-traffic sign pages.
+    """
+    while True:
+        try:
+            print("[Auto-Publish] Pre-generating horoscopes for SEO (12 signs, 2 languages, 3 periods)...")
+            signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+            langs = ["en", "hi"]
+            periods = ["daily", "weekly", "monthly"]
+            
+            for sign in signs:
+                for lang in langs:
+                    for period in periods:
+                        # This fills AstrologyAggregator._horoscope_cache
+                        await AstrologyAggregator.get_dynamic_horoscope(sign, lang=lang, period=period)
+            
+            print(f"[Auto-Publish] Completed successfully. Next run in 24 hours.")
+        except Exception as e:
+            print(f"[Auto-Publish] Error during pre-generation: {e}")
+        
+        # Wait for 24 hours before next refresh
+        await asyncio.sleep(86400)
+
 # Include Routers
 app.include_router(auth_router.router)
 app.include_router(profile_router.router)
 app.include_router(insights_router.router)
 app.include_router(chat_router.router)
 app.include_router(vedastro_router.router)
+app.include_router(marketplace_router.router)
 
 # Allow CORS for React Frontend
 app.add_middleware(
@@ -174,107 +208,39 @@ def get_chart_analysis(details: BirthDetails):
     )
     return analysis
 
+@app.post("/api/chart/varga/{varga_name}/{style}")
+def get_varga_chart(varga_name: str, style: str, details: BirthDetails):
+    """Generate any Shodashvarga chart in North/South Indian style"""
+    try:
+        from services.astrology_aggregator import AstrologyAggregator
+        svg = AstrologyAggregator.get_varga_svg(
+            varga_name.upper(), details.year, details.month, details.day,
+            details.hour, details.minute, details.lat, details.lng,
+            lang=details.lang, timezone=details.timezone, style=style
+        )
+        # Return as data URI for easy frontend usage
+        import base64
+        svg_base64 = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
+        return {"image": f"data:image/svg+xml;base64,{svg_base64}", "svg": svg}
+    except Exception as e:
+        print(f"Varga Chart Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/chart/lagna/north")
 def get_lagna_chart_north(details: BirthDetails):
-    """Generate Lagna (D1) chart in North Indian style"""
-    try:
-        from services.vedic_astro_engine import VedicAstroEngine
-        from services.chart_generator import ChartGenerator
-        import base64
-        
-        # Get sidereal data
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
-            details.year, details.month, details.day,
-            details.hour, details.minute, details.lat, details.lng,
-            timezone_str=details.timezone
-        )
-        
-        # Generate chart
-        img_buffer = ChartGenerator.generate_lagna_chart_north_indian(sidereal_data)
-        img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
-        
-        return {"image": f"data:image/png;base64,{img_base64}"}
-    except Exception as e:
-        print(f"Lagna North Chart Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return get_varga_chart("D1", "north", details)
 
 @app.post("/api/chart/lagna/south")
 def get_lagna_chart_south(details: BirthDetails):
-    """Generate Lagna (D1) chart in South Indian style"""
-    try:
-        from services.vedic_astro_engine import VedicAstroEngine
-        from services.chart_generator import ChartGenerator
-        import base64
-        
-        # Get sidereal data
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
-            details.year, details.month, details.day,
-            details.hour, details.minute, details.lat, details.lng,
-            timezone_str=details.timezone
-        )
-        
-        # Generate chart
-        img_buffer = ChartGenerator.generate_lagna_chart_south_indian(sidereal_data)
-        img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
-        
-        return {"image": f"data:image/png;base64,{img_base64}"}
-    except Exception as e:
-        print(f"Lagna South Chart Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return get_varga_chart("D1", "south", details)
 
 @app.post("/api/chart/navamsa/north")
 def get_navamsa_chart_north(details: BirthDetails):
-    """Generate Navamsa (D9) chart in North Indian style"""
-    try:
-        from services.vedic_astro_engine import VedicAstroEngine
-        from services.chart_generator import ChartGenerator
-        import base64
-        
-        # Get sidereal data
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
-            details.year, details.month, details.day,
-            details.hour, details.minute, details.lat, details.lng,
-            timezone_str=details.timezone
-        )
-        
-        # Calculate divisional charts
-        divisional_data = VedicAstroEngine.calculate_divisional_charts(sidereal_data)
-        
-        # Generate chart
-        img_buffer = ChartGenerator.generate_navamsa_chart_north_indian(divisional_data)
-        img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
-        
-        return {"image": f"data:image/png;base64,{img_base64}"}
-    except Exception as e:
-        print(f"Navamsa North Chart Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return get_varga_chart("D9", "north", details)
 
 @app.post("/api/chart/navamsa/south")
 def get_navamsa_chart_south(details: BirthDetails):
-    """Generate Navamsa (D9) chart in South Indian style"""
-    try:
-        from services.vedic_astro_engine import VedicAstroEngine
-        from services.chart_generator import ChartGenerator
-        import base64
-        
-        # Get sidereal data
-        sidereal_data = VedicAstroEngine.calculate_sidereal_planets(
-            details.year, details.month, details.day,
-            details.hour, details.minute, details.lat, details.lng,
-            timezone_str=details.timezone
-        )
-        
-        # Calculate divisional charts
-        divisional_data = VedicAstroEngine.calculate_divisional_charts(sidereal_data)
-        
-        # Generate chart
-        img_buffer = ChartGenerator.generate_navamsa_chart_south_indian(divisional_data)
-        img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
-        
-        return {"image": f"data:image/png;base64,{img_base64}"}
-    except Exception as e:
-        print(f"Navamsa South Chart Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return get_varga_chart("D9", "south", details)
 
 @app.post("/api/predictions/best")
 async def get_best_prediction(details: BirthDetails):

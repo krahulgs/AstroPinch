@@ -25,6 +25,9 @@ import VedicAstrology from './pages/VedicAstrology';
 import KPAstrology from './pages/KPAstrology';
 import MyProfile from './pages/MyProfile';
 import RashifalIndex from './pages/RashifalIndex';
+import AstrologerList from './pages/marketplace/AstrologerList';
+import WalletPage from './pages/marketplace/WalletPage';
+import ChatConsultation from './pages/marketplace/ChatConsultation';
 import { useProfile } from './context/ProfileContext';
 import { Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -71,6 +74,7 @@ function App() {
               <Route path="/rashifal/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
               <Route path="/rashifal/daily/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
               <Route path="/rashifal/weekly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+              <Route path="/rashifal/monthly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
               <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Predictions /></div>} />
               <Route path="/chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><InputForm /></div>} />
               <Route path="/birth-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><BirthChart /></div>} />
@@ -98,6 +102,17 @@ function App() {
               <Route path="/premium-reports" element={<PremiumReports />} />
               <Route path="/vedic-astrology" element={<VedicAstrology />} />
               <Route path="/kp-astrology" element={<KPAstrology />} />
+              <Route path="/astrologers" element={<AstrologerList />} />
+              <Route path="/wallet" element={
+                <ProtectedRoute>
+                  <WalletPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/chat/new" element={
+                <ProtectedRoute>
+                  <ChatConsultation />
+                </ProtectedRoute>
+              } />
 
               {/* Company Pages */}
               <Route path="/about" element={<AboutUs />} />

@@ -241,31 +241,22 @@ class AstrologyAggregator:
         }
 
     @staticmethod
-    def get_kundali_svg(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC"):
+    def get_kundali_svg(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC", style="north"):
         from services.vedic_astro_engine import VedicAstroEngine
         sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
         asc_sign = sidereal.get("ascendant", {}).get("sign_id", 1)
-        return KundaliPainter.draw_north_indian_chart(sidereal['planets'], f"Lagna Chart (D1)", lang=lang, ascendant_sign=asc_sign)
+        return KundaliPainter.draw_chart(sidereal['planets'], style=style, chart_title="Lagna Chart (D1)", lang=lang, ascendant_sign=asc_sign)
 
     @staticmethod
-    def get_navamsa_svg(name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC"):
+    def get_varga_svg(varga_name, year, month, day, hour, minute, lat, lng, lang="en", timezone="UTC", style="north"):
         from services.vedic_astro_engine import VedicAstroEngine
         sidereal = VedicAstroEngine.calculate_sidereal_planets(year, month, day, hour, minute, lat, lng, timezone_str=timezone)
         d_charts = VedicAstroEngine.calculate_divisional_charts(sidereal)
-        navamsa_planets = d_charts.get("D9", [])
+        varga_data = d_charts.get(varga_name, {})
+        v_planets = varga_data.get("planets", [])
+        v_asc = varga_data.get("ascendant_sign", 1)
         
-        # Determine Navamsa Ascendant (simplified: 1st sign is Aries for mapping)
-        # Note: True Navamsa Asc requires Ascendant longitude / 3deg20min
-        asc_lon = sidereal.get("ascendant", {}).get("longitude", 0)
-        asc_sign_idx = int(asc_lon // 30) % 12
-        pos_in_sign = asc_lon % 30
-        pada = int(pos_in_sign / (30/9)) + 1
-        
-        element_group = (asc_sign_idx) % 4
-        start_offsets = [0, 9, 6, 3] # Fire=Aries, Earth=Cap, Air=Lib, Water=Can
-        nav_asc_sign = (start_offsets[element_group] + (pada - 1)) % 12 + 1
-        
-        return KundaliPainter.draw_north_indian_chart(navamsa_planets, f"Navamsa Chart (D9)", lang=lang, ascendant_sign=nav_asc_sign)
+        return KundaliPainter.draw_chart(v_planets, style=style, chart_title=f"{varga_name} Chart", lang=lang, ascendant_sign=v_asc)
 
     @staticmethod
     def get_kundali_analysis(year, month, day, hour, minute, lat, lng, lang="en", timezone="Asia/Kolkata"):
@@ -504,6 +495,8 @@ class AstrologyAggregator:
             
         return detailed_analysis
 
+    _horoscope_cache = {}
+
     @staticmethod
     async def get_dynamic_horoscope(sign, lang="en", context=None, profile_data=None, period="daily"):
         """
@@ -512,6 +505,15 @@ class AstrologyAggregator:
         """
         import datetime
         now = datetime.datetime.now()
+        today = now.date().isoformat()
+        
+        # 0. Caching Logic for SEO (Organic Traffic)
+        # We only cache generic sign-based horoscopes (no personal profile_data/context)
+        is_generic = not profile_data and not context
+        cache_key = f"{sign}_{lang}_{period}_{today}"
+        
+        if is_generic and cache_key in AstrologyAggregator._horoscope_cache:
+            return AstrologyAggregator._horoscope_cache[cache_key]
         
         try:
             # Standardize sign input
@@ -594,243 +596,118 @@ class AstrologyAggregator:
             risk_score = min(15 + (bad_aspects_cnt * 10) + random.randint(0, 25), 95)
             daily_score = max(100 - risk_score - random.randint(0, 10), 10)
             
-            conf_prob = "High" if has_conf_risk else ("Medium" if bad_aspects_cnt > 1 else "Low")
-            if lang == "hi":
-                conf_prob = "उच्च" if has_conf_risk else ("मध्यम" if bad_aspects_cnt > 1 else "कम")
-            
-            av_en = ["Signing contracts", "Lending money", "Arguments", "Late travel", "Impulsive buys", "Red clothes", "Neglect health"]
-            av_hi = ["अनुबंध हस्ताक्षर", "पैसा उधार", "बहस", "देर रात यात्रा", "आवेगी खरीदारी", "लाल कपड़े", "स्वास्थ्य की उपेक्षा"]
-            avoid_items = random.sample(av_hi if lang == "hi" else av_en, 2)
+            conf_prob = "High" if has_conf_risk else "Medium"
             
             gemstone_caution = {
                 "risk_score": risk_score,
                 "daily_score": daily_score,
                 "financial_alert": has_fin_risk,
                 "conflict_probability": conf_prob,
-                "avoid": avoid_items
+                "avoid": ["Impulsive buys", "Arguments"]
             }
-            # ----------------------------------
 
             # 3. AI Enhancement (Groq/Gemini)
-            # We pass the calculated transit data to the AI
             try:
                 from services.ai_service import generate_daily_guidance
                 ai_data = await generate_daily_guidance(sign, planets, context=context, lang=lang, period=period)
                 
                 if ai_data:
-                    # Merge AI data with our structure
-                    return {
+                    result = {
                         "sign": sign,
                         "period": period,
                         "prediction": ai_data.get("prediction", "Cosmic balance is key today."),
-                        "lucky_number": ai_data.get("lucky_number", 7),
-                        "lucky_color": ai_data.get("lucky_color", "White"),
+                        "lucky_number": ai_data.get("lucky_number", random.randint(1, 9)),
+                        "lucky_color": ai_data.get("lucky_color", "Royal Blue"),
                         "lucky_time": lucky_time,
                         "lucky_direction": lucky_direction,
                         "gemstone_caution": gemstone_caution,
-                        "energy_level": ai_data.get("energy_level", 3),
-                        "mood": ai_data.get("mood", "Neutral"),
+                        "energy_level": ai_data.get("energy_level", 4),
+                        "mood": ai_data.get("mood", "Positive"),
                         "aspects": aspects[:3],
                         "categories": ai_data.get("categories", {}),
                         "transits": {p['name']: p['sign'] for p in planets if p['name'] in ['Sun', 'Moon', 'Mars', 'Jupiter', 'Saturn']},
                         "date": now.strftime("%Y-%m-%d"),
-                        "source": f"AI-Enhanced (Skyfield + Groq - {period})"
+                        "source": f"AI-Enhanced ({period})"
                     }
+                    if is_generic:
+                        AstrologyAggregator._horoscope_cache[cache_key] = result
+                    return result
             except Exception as e:
-                print(f"AI Skipped: {e}")
-            
-            # --- Legacy Fallback (Original Template Logic) ---
-            
-            # 3. Modular Prediction Generator
-            house_themes_en = {
-                1: "self-discovery", 2: "financial stability", 3: "active communication",
-                4: "emotional roots", 5: "creative sparks", 6: "daily efficiency",
-                7: "balanced partnerships", 8: "deep transformation", 9: "expanded horizons",
-                10: "career elevation", 11: "social synergy", 12: "inner reflection"
-            }
-            house_themes_hi = {
-                1: "आत्म-खोज", 2: "वित्तीय स्थिरता", 3: "सक्रिय संचार",
-                4: "भावनात्मक जड़ें", 5: "रचनात्मक चिंगारी", 6: "दैनिक दक्षता",
-                7: "संतुलित साझेदारी", 8: "गहरा परिवर्तन", 9: "विस्तारित क्षितिज",
-                10: "करियर उत्थान", 11: "सामाजिक तालमेल", 12: "आंतरिक चिंतन"
-            }
-            house_themes = house_themes_hi if lang == 'hi' else house_themes_en
-            
-            major_impact = ""
-            if aspects:
-                top_aspect = aspects[0]
-                aspect_meanings_en = {
-                    "Conjunction": "is merging with",
-                    "Opposition": "is facing tension from",
-                    "Square": "is challenged by",
-                    "Trine": "is supported by",
-                    "Sextile": "is gaining opportunity from"
-                }
-                aspect_meanings_hi = {
-                    "Conjunction": "के साथ मिल रहा है",
-                    "Opposition": "तनाव का सामना कर रहा है",
-                    "Square": "चुनौती दे रहा है",
-                    "Trine": "का समर्थन प्राप्त है",
-                    "Sextile": "से अवसर प्राप्त कर रहा है"
-                }
-                ams = aspect_meanings_hi if lang == 'hi' else aspect_meanings_en
-                
-                type_name = top_aspect['type']
-                if lang == 'hi':
-                    aspect_map = {"Conjunction": "युति", "Opposition": "प्रतियुति", "Square": "केंद्र", "Trine": "त्रिकोण", "Sextile": "लाभ"}
-                    type_name = aspect_map.get(type_name, type_name)
-                    major_impact = f" {top_aspect['p1']} और {top_aspect['p2']} के बीच एक महत्वपूर्ण {type_name} सुझाव देता है कि {top_aspect['p1']}, {top_aspect['p2']} {ams.get(top_aspect['type'], 'प्रभावित करता है')}।"
-                else:
-                    major_impact = f" A significant {top_aspect['type']} between {top_aspect['p1']} and {top_aspect['p2']} suggests {top_aspect['p1']} {ams.get(top_aspect['type'], 'impacts')} {top_aspect['p2']}."
-
-            if lang == "hi":
-                prediction = f"{sign} के लिए आज का आकाशीय ध्यान {house_themes.get(sun_house, 'व्यक्तिगत विकास')} पर है।{major_impact} अधिकतम सामंजस्य के लिए अपने कार्यों को इस ब्रह्मांडीय प्रवाह के साथ संरेखित करें।"
-            else:
-                prediction = f"The celestial focus for {sign} today is on {house_themes.get(sun_house, 'personal growth')}. {major_impact} Align your actions with this cosmic current for maximum harmony."
-                
-            # Override/Enhance with Personal Transit Prediction if available
-            if natal_aspects:
-                top = natal_aspects[0] # Most exact aspect
-                interp = AstrologyAggregator._get_transit_meaning(top, lang)
-                if lang == "hi":
-                     base_pred = f"महत्वपूर्ण: गोचर का {top['transit']} आपके जन्म के {top['natal']} को सक्रिय कर रहा है।"
-                     prediction = f"{base_pred} {interp} यह {sign} के लिए एक शक्तिशाली समय है।"
-                else:
-                     base_pred = f"Key Personal Transit: {top['transit']} is actively influencing your Natal {top['natal']} ({top['type']})."
-                     prediction = f"{base_pred} {interp} This overrides general trends for {sign}."
-            
-            # 5. Life Area Insights (Deepened Analysis)
-            # Map planets to areas
+                print(f"AI Generation Error: {e}")
+            # 4. Fallback Template Logic
             venus_pos = next(p for p in planets if p['name'] == 'Venus')
             saturn_pos = next(p for p in planets if p['name'] == 'Saturn')
             jupiter_pos = next(p for p in planets if p['name'] == 'Jupiter')
-            mars_pos = next(p for p in planets if p['name'] == 'Mars')
             moon_pos = next(p for p in planets if p['name'] == 'Moon')
-            mercury_pos = next(p for p in planets if p['name'] == 'Mercury')
 
-            # Multilingual Category Titles & Summaries
             cat_text = {
                 "en": {
-                    "love": {"title": "Love & Relationships", "summary": "Venus in {sign} influences your heart space."},
-                    "career": {"title": "Career & Professional", "summary": "Saturn's placement in {sign} tests your resolve."},
-                    "finance": {"title": "Finance & Wealth", "summary": "Jupiter in {sign} expands your resourcefulness."},
-                    "health": {"title": "Health & Wellness", "summary": "The Moon in {sign} affects your vitality."},
+                    "love": {"title": "Love & Relationships", "summary": f"Venus in {venus_pos['sign']} influences your heart space."},
+                    "career": {"title": "Career & Growth", "summary": f"Saturn in {saturn_pos['sign']} tests your resolve."},
+                    "finance": {"title": "Finance & Wealth", "summary": f"Jupiter in {jupiter_pos['sign']} expands your resourcefulness."},
+                    "health": {"title": "Wellness", "summary": f"Moon in {moon_pos['sign']} affects your vitality."},
                     "status": ["Harmonious", "Stable", "Intense", "Transformative", "Growth", "Focus", "Build", "Patience", "Prosperous", "Cautious", "Strategic", "Expanding", "Balanced"]
                 },
                 "hi": {
-                    "love": {"title": "प्रेम और संबंध", "summary": "{sign} में शुक्र आपके हृदय स्थान को प्रभावित करता है।"},
-                    "career": {"title": "करियर और पेशेवर", "summary": "{sign} में शनि का स्थान आपके संकल्प की परीक्षा लेता है।"},
-                    "finance": {"title": "वित्त और धन", "summary": "{sign} में गुरु आपकी साधन संपन्नता का विस्तार करता है।"},
-                    "health": {"title": "स्वास्थ्य और कल्याण", "summary": "{sign} में चंद्रमा आपकी जीवन शक्ति को प्रभावित करता है।"},
+                    "love": {"title": "प्रेम और संबंध", "summary": f"{venus_pos['sign']} में शुक्र आपके हृदय स्थान को प्रभावित करता है।"},
+                    "career": {"title": "करियर और पेशेवर", "summary": f"{saturn_pos['sign']} में शनि का स्थान आपके संकल्प की परीक्षा लेता है।"},
+                    "finance": {"title": "वित्त और धन", "summary": f"{jupiter_pos['sign']} में गुरु आपकी साधन संपन्नता का विस्तार करता है।"},
+                    "health": {"title": "स्वास्थ्य और कल्याण", "summary": f"{moon_pos['sign']} में चंद्रमा आपकी जीवन शक्ति को प्रभावित करता है।"},
                     "status": ["सामंजस्यपूर्ण", "स्थिर", "तीव्र", "परिवर्तनकारी", "विकास", "फोकस", "निर्माण", "धैर्य", "समृद्ध", "सतर्क", "रणनीतिक", "विस्तार", "संतुलित"]
                 }
             }
             ct = cat_text.get(lang, cat_text["en"])
-            
-            # Detail Generators (Simplified for brevity regarding translation complexity in random strings)
-            # We provide static translated lists for Hindi fallback to ensure quality.
-
-            details_hi = {
-                "love": ["भावनात्मक सुरक्षा पर ध्यान दें।", "प्रियजनों के साथ समय बिताएं।", "नए रिश्तों के लिए खुला रहें।"],
-                "career": ["कड़ी मेहनत का फल मिलेगा।", "नई जिम्मेदारियों के लिए तैयार रहें।", "धैर्य रखें और योजना पर टिके रहें।"],
-                "finance": ["खर्चों पर नियंत्रण रखें।", "दीर्घकालिक निवेश पर विचार करें।", "वित्तीय योजना बनाने का अच्छा समय है।"],
-                "health": ["अपने शरीर की सुनें।", "हल्का व्यायाम करें।", "प्रचुर मात्रा में पानी पिएं।"]
-            }
 
             categories = {
                 "love": {
                     "title": ct["love"]["title"],
-                    "summary": ct["love"]["summary"].format(sign=venus_pos['sign']),
-                    "details": details_hi["love"] if lang == "hi" else [
-                        f"With Venus transiting {venus_pos['sign']}, your approach to affection is currently colored by {random.choice(['the need for intellectual stimulation', 'deeply rooted emotional security', 'a desire for grand romantic gestures', 'practical acts of service'])}.",
-                        f"The alignment suggests that {random.choice(['open communication about long-term goals', 'physical proximity and touch', 'sharing a new experience together', 'expressing gratitude for small things'])} will strengthen your bond significantly.",
-                        f"If single, this cosmic frequency attracts {random.choice(['mentally engaging partners', 'someone who feels like home', 'dynamic and adventurous individuals', 'reliable and grounded souls'])}."
-                    ],
+                    "summary": ct["love"]["summary"],
+                    "details": ["Open communication is favored." if lang == "en" else "खुला संचार बेहतर है।"],
                     "status": random.choice(ct["status"][:4])
                 },
                 "career": {
                     "title": ct["career"]["title"],
-                    "summary": ct["career"]["summary"].format(sign=saturn_pos['sign']),
-                    "details": details_hi["career"] if lang == "hi" else [
-                        f"The presence of Saturn in {saturn_pos['sign']} puts a spotlight on your {random.choice(['professional boundaries', 'long-term legacy', 'daily work methodology', 'public reputation'])}.",
-                        f"You may feel a slight pressure to {random.choice(['reorganize your workspace', 'revisit a project from the past', 'take on more leadership responsibility', 'refine your technical skills'])}.",
-                        f"This is not a time for shortcuts; rather, it's a period where {random.choice(['meticulous attention to detail', 'steady, patient progress', 'networking with industry elders', 'consistency in your routine'])} will yield the greatest rewards."
-                    ],
+                    "summary": ct["career"]["summary"],
+                    "details": ["Focus on long-term goals." if lang == "en" else "दीर्घकालिक लक्ष्यों पर ध्यान दें।"],
                     "status": random.choice(ct["status"][4:8])
                 },
                 "finance": {
                     "title": ct["finance"]["title"],
-                    "summary": ct["finance"]["summary"].format(sign=jupiter_pos['sign']),
-                    "details": details_hi["finance"] if lang == "hi" else [
-                        f"Jupiter's current transit through {jupiter_pos['sign']} indicates a potential for {random.choice(['unexpected financial gains', 'a shift in how you value your time', 'opportunities for secondary income', 'better management of shared resources'])}.",
-                        f"While the energy is expansive, the square aspect to {random.choice(['Mars', 'Saturn', 'Pluto', 'Sun'])} warns against {random.choice(['impulsive luxury purchases', 'investing without research', 'over-extending your credit', 'ignoring small recurring expenses'])}.",
-                        f"Focusing on {random.choice(['long-term asset building', 'diversifying your portfolio', 'education as an investment', 'clear communication with financial partners'])} is highly favored today."
-                    ],
+                    "summary": ct["finance"]["summary"],
+                    "details": ["Watch for expansion opportunities." if lang == "en" else "विस्तार के अवसरों पर नज़र रखें।"],
                     "status": random.choice(ct["status"][8:12])
                 },
                 "health": {
                     "title": ct["health"]["title"],
-                    "summary": ct["health"]["summary"].format(sign=moon_pos['sign']),
-                    "details": details_hi["health"] if lang == "hi" else [
-                        f"Listen to your body today.",
-                        f"Good time for gentle exercise.",
-                        f"Stay hydrated."
-                    ],
+                    "summary": ct["health"]["summary"],
+                    "details": ["Listen to your body's needs." if lang == "en" else "अपने शरीर की ज़रूरतों को सुनें।"],
                     "status": ct["status"][12]
-                },
-                "remedies": {
-                    "solution": {
-                        "physical": "योग और प्राणायाम का अभ्यास करें।" if lang == "hi" else "Practice Yoga and Pranayama.",
-                        "meditative": "ओम मंत्र का जाप करें।" if lang == "hi" else "Chant 'Om' mantra for inner peace.",
-                        "behavioral": "दूसरों के प्रति दयालु रहें।" if lang == "hi" else "Practice kindness towards others."
-                    }
                 }
             }
 
-            # 6. Final Payload
-            random.seed(f"{sign}-{now.date()}")
-            
-            colors_en = ["Royal Blue", "Crimson", "Emerald", "Gold", "Violet", "Azure", "Saffron"]
-            colors_hi = ["शाही नीला", "गहरा लाल", "पन्ना हरा", "सुसहरी", "बैंगनी", "आसमानी", "केसरिया"]
-            lucky_color = random.choice(colors_hi if lang == "hi" else colors_en)
-            
-            moods_en = ["Ambitious", "Reflective", "Radiant", "Grounded", "Inspired", "Resilient"]
-            moods_hi = ["महत्वाकांक्षी", "चिंतनशील", "तेजस्वी", "स्थिर", "प्रेरित", "लचीला"]
-            mood = random.choice(moods_hi if lang == "hi" else moods_en)
-
-            return {
+            result = {
                 "sign": sign,
-                "prediction": prediction,
-                "lucky_number": random.randint(1, 99),
-                "lucky_color": lucky_color,
+                "period": period,
+                "prediction": f"The cosmic focus for {sign} is on alignment and steady progress." if lang == "en" else f"{sign} के लिए ब्रह्मांडीय फोकस संरेखण और निरंतर प्रगति पर है।",
+                "lucky_number": random.randint(1, 9),
+                "lucky_color": "Royal Blue",
                 "lucky_time": lucky_time,
                 "lucky_direction": lucky_direction,
                 "gemstone_caution": gemstone_caution,
-                "energy_level": random.randint(3, 5),
-                "mood": mood,
+                "energy_level": 4,
+                "mood": "Stable" if lang == "en" else "स्थिर",
                 "aspects": aspects[:3],
                 "categories": categories,
                 "transits": {p['name']: p['sign'] for p in planets if p['name'] in ['Sun', 'Moon', 'Mars', 'Jupiter', 'Saturn']},
                 "date": now.strftime("%Y-%m-%d"),
-                 "source": "Skyfield Template (Fallback)"
+                "source": f"Template ({period})"
             }
+            if is_generic:
+                AstrologyAggregator._horoscope_cache[cache_key] = result
+            return result
         except Exception as e:
-            print(f"Error in dynamic horoscope: {e}")
-            import traceback
-            traceback.print_exc()
-            # Fallback data
-            return {
-                "sign": sign,
-                "prediction": f"The stars are currently recalibrating for {sign}. Focus on intuition and gentle progress today.",
-                "lucky_number": 7,
-                "lucky_color": "Gold",
-                "energy_level": 4,
-                "mood": "Peaceful",
-                "aspects": [],
-                "categories": {},
-                "transits": {"Sun": "Current", "Moon": "Current"},
-                "date": now.strftime("%Y-%m-%d")
-            }
+            print(f"Final Horoscope Error: {e}")
+            return {"error": str(e)}
 
     @staticmethod
     def _calculate_aspects(planets):

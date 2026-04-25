@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useChart } from '../context/ChartContext';
 import { Link, useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home, Star, ShieldAlert, Wallet, XCircle, AlertTriangle, Activity, Users, Map } from 'lucide-react';
+import { Sun, Moon, Sparkles, ArrowLeft, Compass, Heart, Briefcase, Coins, Home, Star, ShieldAlert, Wallet, XCircle, AlertTriangle, Activity, Users, Map, Bell, BellOff, Calendar, MapPin, Share2, Download, ChevronRight, Info, Clock, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 import SEO from '../components/SEO';
+import NotificationService from '../services/NotificationService';
 
 const horoscopes = {
     Aries: "Today is a day for action. Your energy is high, and obstacles seem smaller than usual.",
@@ -176,18 +177,32 @@ const defaultAspects = [
 ];
 
 const Horoscope = () => {
-    const { userData, chartData } = useChart();
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { sign: paramSign } = useParams();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { sign: routeSign } = useParams();
+    const { t, i18n } = useTranslation();
+    const { consolidatedReport } = useChart();
+    
+    const [notificationsEnabled, setNotificationsEnabled] = useState(
+        localStorage.getItem('transit_alerts_enabled') === 'true'
+    );
+
+    const handleEnableNotifications = async () => {
+        const success = await NotificationService.enableDailyAlerts();
+        if (success) {
+            setNotificationsEnabled(true);
+            alert("Success! You will now receive transit alerts.");
+        } else {
+            alert("Notification permission denied. Please enable it in your browser settings.");
+        }
+    };
+
     const [selectedSign, setSelectedSign] = useState(null);
     const [period, setPeriod] = useState('daily');
+    const [activeTab, setActiveTab] = useState('love');
     const [dynamicData, setDynamicData] = useState(null);
     const [loading, setLoading] = useState(false);
-
-    console.log('Horoscope component rendering:', { routeSign, period });
     const [showTechnical, setShowTechnical] = useState(false);
-    const { t, i18n } = useTranslation();
 
     const zodiacSigns = [
         { name: 'Aries', symbol: '♈', dates: 'Mar 21 - Apr 19' }, { name: 'Taurus', symbol: '♉', dates: 'Apr 20 - May 20' },
@@ -198,9 +213,17 @@ const Horoscope = () => {
         { name: 'Aquarius', symbol: '♒', dates: 'Jan 20 - Feb 18' }, { name: 'Pisces', symbol: '♓', dates: 'Feb 19 - Mar 20' }
     ];
 
+    // Personalized Moon Sign Detection
+    const moonSign = useMemo(() => {
+        if (consolidatedReport?.vedic_astrology?.planets) {
+            const moon = consolidatedReport.vedic_astrology.planets.find(p => p.name === 'Moon');
+            return moon?.sign;
+        }
+        return null;
+    }, [consolidatedReport]);
+
     const handlePeriodChange = (newPeriod) => {
         setPeriod(newPeriod);
-        // Use path-based routing for daily/weekly/monthly
         navigate(`/rashifal/${newPeriod}/${currentSign.toLowerCase()}`);
     };
 
@@ -223,7 +246,6 @@ const Horoscope = () => {
         const signParam = routeSign || searchParams.get('sign');
         let periodParam = searchParams.get('period');
         
-        // Infer period from path if not in search params
         if (!periodParam) {
             const path = window.location.pathname;
             if (path.includes('/daily')) periodParam = 'daily';
@@ -232,11 +254,10 @@ const Horoscope = () => {
             else periodParam = 'daily';
         }
 
-        // Default to Aries if no sign is specified
-        let sign = signParam || chartData?.sun_sign || 'Aries';
+        // Priority for Sign: URL Param > Moon Sign (Vedic) > Sun Sign (Western) > Aries
+        let sign = signParam || moonSign || chartData?.sun_sign || 'Aries';
 
         if (sign) {
-            // Standardize casing (e.g. "aries" -> "Aries")
             sign = sign.charAt(0).toUpperCase() + sign.slice(1).toLowerCase();
             if (horoscopes[sign]) {
                 const needsFetch = selectedSign !== sign || period !== periodParam;
@@ -247,53 +268,63 @@ const Horoscope = () => {
                 }
             }
         }
-    }, [searchParams, chartData, routeSign, i18n.language]);
+    }, [searchParams, chartData, routeSign, i18n.language, moonSign]);
 
-    // Removed blocking empty state to ensure page always renders with a default or selected sign
-
-
-    const currentSign = selectedSign || chartData?.sun_sign || 'Aries';
-    const displayPrediction = dynamicData?.prediction || horoscopes[currentSign] || "The stars are currently recalibrating for your journey. Check back shortly.";
+    const currentSign = selectedSign || moonSign || chartData?.sun_sign || 'Aries';
+    const displayPrediction = dynamicData?.prediction || horoscopes[currentSign] || "The stars are currently recalibrating for your journey.";
     const currentZodiacData = {
         ...zodiacData[currentSign],
-        ...dynamicData // API data overrides static defaults if available
+        ...dynamicData 
     };
+
+    const panchang = consolidatedReport?.vedic_astrology?.panchang;
 
     return (
         <div className="min-h-screen max-w-7xl mx-auto py-10 px-6">
             <SEO
                 title={`${currentSign} ${period.charAt(0).toUpperCase() + period.slice(1)} Horoscope`}
-                description={`Get your real-time ${currentSign} ${period} horoscope. Insights on love, career, and personal energy for ${new Date().toLocaleDateString()}.`}
+                description={`Get your real-time ${currentSign} ${period} horoscope based on your ${moonSign ? 'Moon' : 'Sun'} sign. Insights on love, career, and finance.`}
                 url={`/rashifal/${period}/${currentSign.toLowerCase()}`}
-                breadcrumbs={[
-                    { name: 'Rashifal', path: '/rashifal' },
-                    { name: `${period.charAt(0).toUpperCase() + period.slice(1)} Rashifal`, path: `/rashifal/${period}` },
-                    { name: currentSign, path: `/rashifal/${period}/${currentSign.toLowerCase()}` }
-                ]}
-                horoscopeData={{
-                    sign: currentSign,
-                    period: period
-                }}
             />
-            <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest mb-8">
-                <ArrowLeft className="w-4 h-4" /> {t('common.back_to_universe')}
-            </Link>
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest">
+                    <ArrowLeft className="w-4 h-4" /> {t('common.back_to_universe')}
+                </Link>
 
-            {/* 1. Sign Selector Bar (Professional Navigation) */}
+                {/* Push Notification Toggle */}
+                <button 
+                    onClick={handleEnableNotifications}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors border ${
+                        notificationsEnabled 
+                        ? 'bg-green-50 text-green-600 border-green-100' 
+                        : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100'
+                    }`}
+                >
+                    {notificationsEnabled ? <ShieldCheck className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
+                    {notificationsEnabled ? 'Transit Alerts Active' : 'Enable Transit Alerts'}
+                </button>
+            </div>
+
+            {/* 1. Sign Selector Bar */}
             <div className="mb-12 overflow-x-auto pb-4 no-scrollbar">
-                <div className="flex gap-3 justify-start md:justify-center min-w-max">
+                <div className="flex gap-3 justify-start md:justify-center min-w-max px-2">
                     {zodiacSigns.map((z) => (
                         <Link
                             key={z.name}
                             to={`/rashifal/${period}/${z.name.toLowerCase()}`}
-                            className={`flex flex-col items-center justify-center w-20 h-24 rounded-2xl border transition-all duration-200 shrink-0 ${currentSign === z.name
-                                ? 'bg-indigo-900 border-indigo-900 text-white shadow-lg scale-110 z-10'
+                            className={`flex flex-col items-center justify-center w-20 h-24 rounded-2xl border transition-all duration-300 shrink-0 ${currentSign === z.name
+                                ? 'bg-indigo-950 border-indigo-950 text-white shadow-xl scale-110 z-10'
                                 : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-200 hover:text-indigo-600'
                                 }`}
                         >
                             <span className="text-2xl mb-1">{z.symbol}</span>
-                            <span className="text-[10px] font-bold uppercase tracking-wide mb-1">{t(`zodiac.signs.${z.name}`).slice(0, 3)}</span>
-                            <span className="text-[8px] opacity-70 leading-tight block max-w-[60px] text-center">{z.dates}</span>
+                            <span className="text-[10px] font-black uppercase tracking-tighter">{t(`zodiac.signs.${z.name}`).slice(0, 5)}</span>
+                            {moonSign === z.name && (
+                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
+                                    <Moon className="w-3 h-3 text-white fill-current" />
+                                </div>
+                            )}
                         </Link>
                     ))}
                 </div>
@@ -302,12 +333,12 @@ const Horoscope = () => {
             {/* 2. Main Hero Section */}
             <div className="text-center space-y-4 mb-12">
                 <div className="flex justify-center mb-6">
-                    <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner">
+                    <div className="inline-flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200/50 shadow-inner">
                         {['daily', 'weekly', 'monthly'].map((p) => (
                             <button
                                 key={p}
                                 onClick={() => handlePeriodChange(p)}
-                                className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                                className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 ${
                                     period === p 
                                     ? 'bg-white text-indigo-600 shadow-md scale-105' 
                                     : 'text-slate-500 hover:text-indigo-500'
@@ -318,298 +349,198 @@ const Horoscope = () => {
                         ))}
                     </div>
                 </div>
-                <span className="inline-block py-1 px-4 rounded-full bg-amber-50 text-amber-600 font-bold uppercase text-[10px] tracking-widest border border-amber-100">
-                    {period === 'daily' ? t('common.daily_guidance') : period === 'weekly' ? `${t('rashifal.index.weekly')} Outlook` : `${t('rashifal.index.monthly')} Forecast`}
-                </span>
-                <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic mb-2">
-                    {t('horoscope.title', { sign: t(`zodiac.signs.${currentSign}`) })}
-                </h1>
-                <p className="text-slate-400 font-serif italic text-lg mb-4">
-                    {zodiacSigns.find(z => z.name === currentSign)?.dates}
-                </p>
-                <p className="text-slate-500 font-medium tracking-wide uppercase text-sm">
-                    {period === 'daily' 
-                        ? new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-                        : period === 'weekly' 
-                            ? `Week of ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
-                            : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-                    }
-                </p>
+                
+                <div className="flex flex-col items-center gap-2">
+                    <span className="inline-block py-1 px-4 rounded-full bg-amber-50 text-amber-600 font-black uppercase text-[10px] tracking-[0.2em] border border-amber-100">
+                        {moonSign === currentSign ? "Personalized Moon Sign Guide" : "Zodiac Forecast"}
+                    </span>
+                    <h1 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase mb-2">
+                        {currentSign}
+                    </h1>
+                    <p className="text-slate-500 font-black tracking-widest uppercase text-xs">
+                        {period === 'daily' 
+                            ? new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                            : period === 'weekly' ? "Week of " + new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+                        }
+                    </p>
+                </div>
             </div>
 
-            <div className={`space-y-12 transition-opacity duration-500 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+            {/* 3. Daily Panchang Alerts (Rahu Kaal / Shubh Muhurat) */}
+            {period === 'daily' && panchang && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                    <div className="bg-red-50 border border-red-100 p-6 rounded-3xl flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                            <ShieldAlert className="w-6 h-6 text-red-500" />
+                        </div>
+                        <div>
+                            <div className="text-[10px] font-black text-red-600 uppercase tracking-widest">Rahu Kaal (Avoid Major Tasks)</div>
+                            <div className="text-xl font-black text-slate-900">{panchang.rahu_kaal || "1:30 PM - 3:00 PM"}</div>
+                        </div>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                            <Sparkles className="w-6 h-6 text-emerald-500" />
+                        </div>
+                        <div>
+                            <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Abhijit Muhurat (Auspicious)</div>
+                            <div className="text-xl font-black text-slate-900">{panchang.abhijit_muhurat || "11:45 AM - 12:35 PM"}</div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                {/* 3. Prediction & Key Stats Card */}
-                <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-indigo-900/5 border border-slate-100 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-
-                    <div className="relative z-10 space-y-10">
-                        <div className="text-center max-w-4xl mx-auto">
-                            <h3 className="text-2xl md:text-4xl text-slate-800 leading-snug font-serif italic mb-8">
+            <div className={`space-y-12 transition-all duration-500 ${loading ? 'opacity-50 blur-sm' : 'opacity-100'}`}>
+                
+                {/* 4. The Prediction Card */}
+                <div className="bg-white rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-indigo-900/5 border border-slate-100 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-50/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <Moon className="w-8 h-8 text-indigo-200 mx-auto mb-8 animate-pulse" />
+                            <h3 className="text-2xl md:text-5xl text-slate-800 leading-[1.2] font-serif italic mb-12">
                                 "{displayPrediction}"
                             </h3>
-                            <div className="h-1 w-24 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto rounded-full opacity-50"></div>
-                        </div>
-
-                        {/* Quick Stats Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 border-t border-slate-100 pt-10">
-                            {[
-                                { label: t('horoscope.stats.energy'), value: `${(dynamicData?.energy_level || 4) * 20}%`, icon: "⚡", color: "text-amber-500" },
-                                { label: t('horoscope.stats.lucky_number'), value: dynamicData?.lucky_number || '27', icon: "#", color: "text-indigo-500" },
-                                { label: t('horoscope.stats.lucky_color'), value: dynamicData?.lucky_color || 'Indigo', icon: "🎨", color: "text-fuchsia-500" },
-                                { label: t('horoscope.stats.mood'), value: dynamicData?.mood || 'Neutral', icon: "☺", color: "text-emerald-500" },
-                            ].map((stat, i) => (
-                                <div key={i} className="flex flex-col items-center p-4 rounded-2xl bg-slate-50/50">
-                                    <span className={`text-2xl mb-2 ${stat.color}`}>{stat.icon}</span>
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{stat.label}</span>
-                                    <span className="text-lg font-bold text-slate-900">{stat.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3.1. Lucky Elements Section (Highly Engaging) */}
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-[2.5rem] p-8 md:p-12 border border-indigo-100">
-                    <div className="flex items-center gap-3 mb-8">
-                        <Sparkles className="w-6 h-6 text-indigo-600" />
-                        <h3 className="text-2xl font-serif italic text-slate-800">{t('horoscope.lucky_elements')}</h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                        {[
-                            {
-                                label: t('horoscope.stats.lucky_color'),
-                                value: currentZodiacData?.lucky_color || "Royal Blue",
-                                sub: "Wear for confidence",
-                                icon: <div className="w-4 h-4 rounded-full bg-blue-600 shadow-sm border border-white"></div>,
-                                bg: "bg-blue-100/50 text-blue-700"
-                            },
-                            {
-                                label: t('horoscope.stats.lucky_number'),
-                                value: currentZodiacData?.lucky_number || "7",
-                                sub: "Your power digit",
-                                icon: <span className="text-lg font-black">#</span>,
-                                bg: "bg-amber-100/50 text-amber-700"
-                            },
-                            {
-                                label: t('horoscope.lucky_time'),
-                                value: currentZodiacData?.lucky_time || "4:20 PM - 6:00 PM",
-                                sub: "Golden window",
-                                icon: <Moon className="w-4 h-4" />,
-                                bg: "bg-purple-100/50 text-purple-700"
-                            },
-                            {
-                                label: t('horoscope.lucky_direction'),
-                                value: currentZodiacData?.lucky_direction || "North-East",
-                                sub: "Face for success",
-                                icon: <Compass className="w-4 h-4" />,
-                                bg: "bg-emerald-100/50 text-emerald-700"
-                            },
-                            {
-                                label: t('horoscope.gemstone'),
-                                value: currentZodiacData?.gemstone || "Sapphire",
-                                sub: "Energy amplifier",
-                                icon: <div className="w-4 h-4 rotate-45 bg-indigo-500 rounded-sm shadow-sm"></div>,
-                                bg: "bg-indigo-100/50 text-indigo-700"
-                            }
-                        ].map((item, i) => (
-                            <div key={i} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group">
-                                <div className={`w-10 h-10 rounded-full ${item.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                                    {item.icon}
-                                </div>
-                                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-1">{item.label}</span>
-                                <h4 className="text-lg font-bold text-slate-800 mb-1 leading-tight">{item.value}</h4>
-                                <span className="text-[10px] text-slate-500 font-medium">{item.sub}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 4. Category-Wise Daily Predictions (Detailed) */}
-                {currentZodiacData?.detailed_categories && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {Object.entries(currentZodiacData.detailed_categories).map(([key, cat]) => {
-                            const icons = {
-                                love: <Heart className="w-5 h-5 text-rose-500" />,
-                                career: <Briefcase className="w-5 h-5 text-indigo-500" />,
-                                finance: <Coins className="w-5 h-5 text-emerald-500" />,
-                                health: <Activity className="w-5 h-5 text-teal-500" />,
-                                family: <Users className="w-5 h-5 text-amber-500" />,
-                                travel: <Map className="w-5 h-5 text-sky-500" />
-                            };
-
-                            const headers = {
-                                love: "bg-rose-50 border-rose-100 text-rose-800",
-                                career: "bg-indigo-50 border-indigo-100 text-indigo-800",
-                                finance: "bg-emerald-50 border-emerald-100 text-emerald-800",
-                                health: "bg-teal-50 border-teal-100 text-teal-800",
-                                family: "bg-amber-50 border-amber-100 text-amber-800",
-                                travel: "bg-sky-50 border-sky-100 text-sky-800"
-                            };
-
-                            return (
-                                <div key={key} className={`bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 ${key === 'career' || key === 'family' ? 'md:col-span-1' : ''}`}> {/* Adjusted spans if needed, keeping simple for now */}
-                                    <div className={`px-6 py-4 border-b flex items-center gap-3 ${headers[key]}`}>
-                                        <div className="p-2 bg-white rounded-xl shadow-sm">
-                                            {icons[key] || <Star className="w-4 h-4" />}
-                                        </div>
-                                        <h4 className="font-bold text-sm tracking-wide uppercase">{cat.title}</h4>
-                                    </div>
-                                    <div className="p-6">
-                                        <ul className="space-y-3">
-                                            {cat.points?.map((point, idx) => {
-                                                const [label, value] = point.split(':');
-                                                return (
-                                                    <li key={idx} className="flex justify-between items-start text-sm border-b border-slate-50 last:border-0 pb-2 last:pb-0">
-                                                        <span className="text-slate-500 font-medium">{label}:</span>
-                                                        <span className="text-slate-800 font-bold text-right ml-4">{value}</span>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-
-                {/* 4.5. Caution & Alert Section */}
-                <div className="bg-red-50/30 rounded-[2.5rem] p-8 md:p-12 border border-red-100 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-100/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50"></div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8">
-                            <ShieldAlert className="w-6 h-6 text-red-500" />
-                            <h3 className="text-2xl font-serif italic text-slate-800">Caution & Cosmic Alerts</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Left Col */}
-                            <div className="space-y-6">
-                                {/* Risk Score */}
-                                <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-slate-700">Risk Level Score</h4>
-                                        <p className="text-xs text-slate-400 uppercase tracking-wider mt-1">General Daily Score</p>
-                                    </div>
-                                    <span className={`px-4 py-1.5 rounded-full font-bold uppercase text-[10px] tracking-widest ${(currentZodiacData?.risk_level || 'Low') === 'High' ? 'bg-red-100 text-red-600' :
-                                        (currentZodiacData?.risk_level || 'Low') === 'Medium' ? 'bg-orange-100 text-orange-600' :
-                                            'bg-emerald-100 text-emerald-600'
-                                        }`}>
-                                        {currentZodiacData?.risk_level || 'Low'}
-                                    </span>
-                                </div>
-
-                                {/* Financial Alert */}
-                                <div className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <Wallet className="w-4 h-4 text-orange-500" />
-                                        <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{t('horoscope.financial_caution')}</h4>
-                                    </div>
-                                    <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                                        {currentZodiacData?.financial_caution || "Avoid impulsive big-ticket purchases today. Review contracts carefully."}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Right Col */}
-                            <div className="space-y-6">
-                                {/* Conflict Prob */}
-                                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                                    <div className="flex justify-between items-end mb-3">
-                                        <h4 className="font-bold text-slate-700">{t('horoscope.conflict_probability')}</h4>
-                                        <span className="text-xl font-black text-slate-900">{currentZodiacData?.conflict_probability || '12'}%</span>
-                                    </div>
-                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-emerald-400 to-red-500"
-                                            style={{ width: `${currentZodiacData?.conflict_probability || 12}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                {/* Things to Avoid */}
-                                <div>
-                                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                                        <XCircle className="w-4 h-4 text-red-400" />
-                                        {t('horoscope.things_to_avoid')}
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {(currentZodiacData?.avoid_list || ['Hasty Decisions', 'Ego Clashes', 'Oversleeping']).map((item, i) => (
-                                            <span key={i} className="px-3 py-1.5 rounded-lg bg-white border border-red-50 text-[10px] font-bold text-slate-500 uppercase tracking-widest shadow-sm">
-                                                {item}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 5. Daily Power Actions (Remedies) */}
-                {dynamicData?.categories?.remedies?.solution && (
-                    <div className="bg-slate-900 rounded-[2.5rem] p-10 md:p-14 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-4 mb-10">
-                                <Sparkles className="w-8 h-8 text-amber-400" />
-                                <h3 className="text-3xl font-serif italic">Daily Power Actions</h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 {[
-                                    { title: "Physical", body: dynamicData.categories.remedies.solution.physical, color: "bg-amber-500" },
-                                    { title: "Mental", body: dynamicData.categories.remedies.solution.meditative, color: "bg-indigo-500" },
-                                    { title: "Spiritual", body: dynamicData.categories.remedies.solution.behavioral, color: "bg-rose-500" },
-                                ].map((action, i) => (
-                                    <div key={i} className="flex flex-col gap-4">
-                                        <div className={`w-12 h-1 ${action.color} rounded-full`}></div>
-                                        <div>
-                                            <h4 className="font-bold text-lg mb-2">{action.title} Focus</h4>
-                                            <p className="text-slate-300 leading-relaxed text-sm">
-                                                {action.body}
-                                            </p>
-                                        </div>
+                                    { label: 'Energy', value: `${(dynamicData?.energy_level || 4) * 20}%`, color: "bg-amber-400" },
+                                    { label: 'Lucky #', value: dynamicData?.lucky_number || '27', color: "bg-indigo-400" },
+                                    { label: 'Power Color', value: dynamicData?.lucky_color || 'Indigo', color: "bg-fuchsia-400" },
+                                    { label: 'Mood', value: dynamicData?.mood || 'Radiant', color: "bg-emerald-400" },
+                                ].map((stat, i) => (
+                                    <div key={i} className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100">
+                                        <div className={`w-8 h-1 ${stat.color} rounded-full mx-auto mb-4`}></div>
+                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                                        <div className="text-xl font-black text-slate-900">{stat.value}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
 
-                {/* 6. Technical Details (Collapsible for Cleanliness) */}
-                <div className="border-t border-slate-200 pt-8 text-center">
-                    <button
-                        onClick={() => setShowTechnical(!showTechnical)}
-                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors"
-                    >
-                        {showTechnical ? "Hide Planetary Alignments" : "View Planetary Alignments"}
-                        {showTechnical ? <Compass className="w-4 h-4 rotate-180" /> : <Compass className="w-4 h-4" />}
-                    </button>
+                {/* 5. Tabbed Category Section */}
+                <div className="bg-white rounded-[3rem] shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="flex border-b border-slate-100 overflow-x-auto no-scrollbar">
+                        {[
+                            { id: 'love', label: 'Love', icon: <Heart className="w-4 h-4" /> },
+                            { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
+                            { id: 'health', label: 'Health', icon: <Activity className="w-4 h-4" /> },
+                            { id: 'finance', label: 'Finance', icon: <Wallet className="w-4 h-4" /> }
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex-1 min-w-[120px] flex items-center justify-center gap-3 py-6 px-4 transition-all duration-300 border-b-4 ${
+                                    activeTab === tab.id 
+                                    ? 'bg-indigo-50/50 border-indigo-600 text-indigo-600' 
+                                    : 'border-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50/50'
+                                }`}
+                            >
+                                {tab.icon}
+                                <span className="text-xs font-black uppercase tracking-widest">{tab.label}</span>
+                            </button>
+                        ))}
+                    </div>
 
-                    {showTechnical && (
-                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-in slide-in-from-top-4 fade-in duration-300 text-left">
-                            {(dynamicData?.aspects || defaultAspects).map((aspect, idx) => (
-                                <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-2">
-                                    <div className="flex items-center justify-between w-full">
-                                        <span className="text-xs font-bold text-slate-700">
-                                            {aspect.p1} {aspect.symbol} {aspect.p2}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 uppercase tracking-wider">{aspect.type}</span>
+                    <div className="p-8 md:p-12">
+                        {currentZodiacData?.detailed_categories?.[activeTab] ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                                <div className="space-y-6">
+                                    <div className="inline-flex p-3 bg-indigo-50 rounded-2xl">
+                                        <Sparkles className="w-6 h-6 text-indigo-600" />
                                     </div>
-                                    <p className="text-[10px] text-slate-500 leading-snug font-medium">
-                                        {aspect.impact || "Cosmic energies aligning to influence your path."}
+                                    <h4 className="text-3xl font-black text-slate-900 uppercase tracking-tight">
+                                        {activeTab} <span className="text-indigo-600">Focus</span>
+                                    </h4>
+                                    <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                                        {currentZodiacData.detailed_categories[activeTab].summary || `Insights for your ${activeTab} and overall growth.`}
                                     </p>
+                                    <ul className="space-y-4">
+                                        {currentZodiacData.detailed_categories[activeTab].points?.map((point, idx) => (
+                                            <li key={idx} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-200 transition-colors">
+                                                <div className="w-2 h-2 rounded-full bg-indigo-400 group-hover:scale-150 transition-transform"></div>
+                                                <span className="text-sm font-bold text-slate-700">{point}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="hidden lg:block relative">
+                                    <div className="aspect-square bg-gradient-to-br from-indigo-100 to-fuchsia-50 rounded-[3rem] rotate-3 shadow-inner flex items-center justify-center p-12 overflow-hidden">
+                                        {activeTab === 'love' && <Heart className="w-48 h-48 text-indigo-200/50 -rotate-3" />}
+                                        {activeTab === 'career' && <Briefcase className="w-48 h-48 text-indigo-200/50 -rotate-3" />}
+                                        {activeTab === 'health' && <Activity className="w-48 h-48 text-indigo-200/50 -rotate-3" />}
+                                        {activeTab === 'finance' && <Wallet className="w-48 h-48 text-indigo-200/50 -rotate-3" />}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center space-y-4">
+                                <AlertTriangle className="w-12 h-12 text-slate-200 mx-auto" />
+                                <p className="text-slate-400 font-bold uppercase tracking-widest">Detail insights coming soon for this period.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* 6. Caution & Power Actions */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="bg-red-50/50 border border-red-100 p-8 rounded-[3rem] space-y-6">
+                        <div className="flex items-center gap-3">
+                            <ShieldAlert className="w-6 h-6 text-red-500" />
+                            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cosmic Caution</h3>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl border border-red-100 flex justify-between items-center">
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Risk Level</span>
+                            <span className="px-4 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest">{currentZodiacData.risk_level || 'Moderate'}</span>
+                        </div>
+                        <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                            {currentZodiacData.financial_caution || "Exercise patience today. Avoid major financial commitments."}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {(currentZodiacData.avoid_list || ['Impulse', 'Conflict']).map((item, i) => (
+                                <span key={i} className="px-3 py-1.5 bg-white border border-red-100 rounded-lg text-[9px] font-black text-red-500 uppercase tracking-widest">{item}</span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-950 p-8 rounded-[3rem] space-y-6 text-white overflow-hidden relative">
+                        <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
+                        <div className="flex items-center gap-3 relative z-10">
+                            <Sparkles className="w-6 h-6 text-amber-400" />
+                            <h3 className="text-xl font-black uppercase tracking-tight">Power Actions</h3>
+                        </div>
+                        <div className="space-y-4 relative z-10">
+                            {[
+                                { t: 'Physical', b: dynamicData?.categories?.remedies?.solution?.physical || 'Gentle stretching or yoga' },
+                                { t: 'Mental', b: dynamicData?.categories?.remedies?.solution?.meditative || '5-minute silent reflection' }
+                            ].map((a, i) => (
+                                <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{a.t}</div>
+                                    <div className="text-sm font-bold text-slate-200">{a.b}</div>
                                 </div>
                             ))}
                         </div>
-                    )}
+                    </div>
                 </div>
 
+                {/* Footer / More Signs */}
+                <div className="text-center pb-12">
+                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Explore Other Signs</h5>
+                    <div className="flex flex-wrap justify-center gap-2">
+                        {zodiacSigns.map(z => (
+                            <Link 
+                                key={z.name} 
+                                to={`/rashifal/${period}/${z.name.toLowerCase()}`}
+                                className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-500 hover:bg-white hover:border-indigo-200 transition-all uppercase tracking-widest"
+                            >
+                                {z.name}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

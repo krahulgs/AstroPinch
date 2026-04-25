@@ -121,3 +121,83 @@ class Payment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("User", back_populates="payments")
+
+class Astrologer(Base):
+    __tablename__ = "astrologers"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    full_name = Column(String)
+    photo_url = Column(String, nullable=True)
+    bio = Column(String)
+    specializations = Column(JSON) # e.g. ["Vedic", "Nadi", "Numerology"]
+    languages = Column(JSON) # e.g. ["English", "Hindi", "Tamil"]
+    experience_years = Column(sqlalchemy.Integer, default=0)
+    rating_avg = Column(Float, default=0.0)
+    rating_count = Column(sqlalchemy.Integer, default=0)
+    price_per_min = Column(Float, default=0.0)
+    is_online = Column(Boolean, default=False)
+    is_busy = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=False)
+    id_proof_url = Column(String, nullable=True) # For vetting
+    verification_status = Column(String, default="PENDING") # PENDING, APPROVED, REJECTED
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    reviews = relationship("Review", back_populates="astrologer")
+    consultations = relationship("Consultation", back_populates="astrologer")
+
+class Wallet(Base):
+    __tablename__ = "wallets"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    user_id = Column(ForeignKey("users.id"), unique=True)
+    balance = Column(Float, default=0.0)
+    currency = Column(String, default="INR")
+    
+    user = relationship("User", backref="wallet", uselist=False)
+    transactions = relationship("WalletTransaction", back_populates="wallet")
+
+class WalletTransaction(Base):
+    __tablename__ = "wallet_transactions"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    wallet_id = Column(ForeignKey("wallets.id"))
+    amount = Column(Float)
+    type = Column(String) # CREDIT, DEBIT
+    description = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    wallet = relationship("Wallet", back_populates="transactions")
+
+class Review(Base):
+    __tablename__ = "reviews"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    user_id = Column(ForeignKey("users.id"))
+    astrologer_id = Column(ForeignKey("astrologers.id"))
+    rating = Column(sqlalchemy.Integer)
+    comment = Column(String)
+    is_flagged = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User")
+    astrologer = relationship("Astrologer", back_populates="reviews")
+
+class Consultation(Base):
+    __tablename__ = "consultations"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    user_id = Column(ForeignKey("users.id"))
+    astrologer_id = Column(ForeignKey("astrologers.id"))
+    type = Column(String) # CHAT, VOICE, VIDEO
+    status = Column(String, default="REQUESTED") # REQUESTED, ACTIVE, COMPLETED, FAILED
+    start_time = Column(DateTime, nullable=True)
+    end_time = Column(DateTime, nullable=True)
+    duration_minutes = Column(sqlalchemy.Integer, default=0)
+    cost_per_min = Column(Float)
+    total_cost = Column(Float, default=0.0)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User")
+    astrologer = relationship("Astrologer", back_populates="consultations")

@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MessageSquare, X, Send, Sparkles, User, Minus, Maximize2, Bot, Info, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 
 const ChatWidget = ({ reportData }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [messages, setMessages] = useState([
         {
             id: 'welcome',
             role: 'assistant',
-            text: "Welcome to your celestial guidance. I've analyzed your cosmic blueprint and I'm ready to answer any questions about your destiny, career, or relationships."
+            text: t('chat.welcome', "Welcome to your celestial guidance. I've analyzed your cosmic blueprint and I'm ready to answer any questions about your destiny, career, or relationships.")
         }
     ]);
     const [input, setInput] = useState('');
@@ -60,10 +62,10 @@ const ChatWidget = ({ reportData }) => {
     const isLimitReached = messageCount >= CHAT_LIMIT;
 
     const suggestedQuestions = [
-        "What does my career look like this year?",
-        "Tell me about my relationship compatibility.",
-        "What are my strengths based on my chart?",
-        "Any major financial transits upcoming?"
+        t('chat.suggested.career', "What does my career look like this year?"),
+        t('chat.suggested.compatibility', "Tell me about my relationship compatibility."),
+        t('chat.suggested.strengths', "What are my strengths based on my chart?"),
+        t('chat.suggested.finance', "Any major financial transits upcoming?")
     ];
 
     const scrollToBottom = () => {
@@ -205,7 +207,7 @@ const ChatWidget = ({ reportData }) => {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'assistant',
-                text: "The cosmic signals are slightly distorted. Please try your question again in a moment."
+                text: t('chat.error', "The cosmic signals are slightly distorted. Please try your question again in a moment.")
             }]);
         } finally {
             setIsLoading(false);
@@ -230,8 +232,8 @@ const ChatWidget = ({ reportData }) => {
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                     </div>
                     <div className="relative flex flex-col items-start">
-                        <span className="text-xs font-black text-purple-900 tracking-tight uppercase leading-none">Astra AI</span>
-                        <span className="text-[10px] text-purple-500 font-bold uppercase tracking-widest mt-1">Tap to Resume</span>
+                        <span className="text-xs font-black text-purple-900 tracking-tight uppercase leading-none">{t('chat.name', 'Astra AI')}</span>
+                        <span className="text-[10px] text-purple-500 font-bold uppercase tracking-widest mt-1">{t('chat.resume', 'Tap to Resume')}</span>
                     </div>
                 </button>
             </div>
@@ -248,7 +250,7 @@ const ChatWidget = ({ reportData }) => {
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
                     <Sparkles className="w-8 h-8 text-white animate-glow" />
                     <div className="absolute -top-3 -right-3 bg-white text-purple-600 text-[10px] font-black px-2 py-1 rounded-lg border border-purple-100 shadow-xl shadow-purple-200/50 scale-0 group-hover:scale-100 transition-transform origin-bottom-left">
-                        FREE HELP
+                        {t('chat.free_help', 'FREE HELP')}
                     </div>
                 </button>
             )}
@@ -271,13 +273,13 @@ const ChatWidget = ({ reportData }) => {
                             </div>
                             <div>
                                 <h3 className="text-white font-black text-lg tracking-tight leading-none mb-1.5 flex items-center gap-2">
-                                    Astra AI Guide
-                                    <span className="bg-white/10 text-purple-200 text-[9px] font-black px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-widest">PRO</span>
+                                    {t('chat.name', 'Astra AI')} {t('chat.guide', 'Guide')}
+                                    <span className="bg-white/10 text-purple-200 text-[9px] font-black px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-widest">{t('chat.pro', 'PRO')}</span>
                                 </h3>
                                 <div className="flex items-center gap-3">
                                     <span className="text-[10px] text-indigo-200 font-bold uppercase tracking-wider flex items-center gap-1.5">
                                         <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.5)] ${serviceStatus === 'online' ? 'bg-green-400' : serviceStatus === 'offline' ? 'bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'bg-amber-400 animate-pulse'}`}></div>
-                                        {serviceStatus === 'online' ? 'Active Prediction Engine' : serviceStatus === 'offline' ? 'AI Engine Currently Offline' : 'Initializing Cosmic Link...'}
+                                        {serviceStatus === 'online' ? t('chat.status.online', 'Active Prediction Engine') : serviceStatus === 'offline' ? t('chat.status.offline', 'AI Engine Currently Offline') : t('chat.status.initializing', 'Initializing Cosmic Link...')}
                                     </span>
                                 </div>
                             </div>
@@ -327,7 +329,7 @@ const ChatWidget = ({ reportData }) => {
                                         ))}
                                     </div>
                                     <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-2 opacity-60">
-                                        {msg.role === 'user' ? 'You' : 'Powered by AstroPinch'}
+                                        {msg.role === 'user' ? t('chat.you', 'You') : t('chat.powered_by', 'Powered by AstroPinch')}
                                     </span>
                                 </div>
                             </div>
@@ -336,7 +338,7 @@ const ChatWidget = ({ reportData }) => {
                         {/* Suggested Questions Grid */}
                         {messages.length === 1 && !isLoading && (
                             <div className="pt-4 grid grid-cols-1 gap-2 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 px-1">Suggested Inquiries</p>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 px-1">{t('chat.suggested_title', 'Suggested Inquiries')}</p>
                                 {suggestedQuestions.map((q, i) => (
                                     <button
                                         key={i}
@@ -357,7 +359,7 @@ const ChatWidget = ({ reportData }) => {
                                         <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                                         <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                                     </div>
-                                    <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Analyzing your stars...</span>
+                                    <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">{t('chat.analyzing', 'Analyzing your stars...')}</span>
                                 </div>
                             </div>
                         )}
@@ -374,11 +376,11 @@ const ChatWidget = ({ reportData }) => {
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-black text-amber-900 leading-none mb-1">Celestial Quota Full</p>
-                                    <p className="text-[11px] text-amber-700 font-medium">You've reached your monthly 10 queries. Upgrade to Pro for unlimited guidance.</p>
+                                    <p className="text-sm font-black text-amber-900 leading-none mb-1">{t('chat.limit.title', 'Celestial Quota Full')}</p>
+                                    <p className="text-[11px] text-amber-700 font-medium">{t('chat.limit.desc', "You've reached your monthly 10 queries. Upgrade to Pro for unlimited guidance.")}</p>
                                 </div>
                                 <button className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-colors shadow-lg shadow-amber-500/20">
-                                    Upgrade to Pro
+                                    {t('chat.limit.upgrade', 'Upgrade to Pro')}
                                 </button>
                             </div>
                         ) : (
@@ -389,7 +391,7 @@ const ChatWidget = ({ reportData }) => {
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         onKeyPress={handleKeyPress}
-                                        placeholder="Type your cosmic query..."
+                                        placeholder={t('chat.placeholder', 'Type your cosmic query...')}
                                         className="w-full pl-6 pr-14 py-4.5 rounded-[1.8rem] bg-indigo-50/30 border border-indigo-100/80 focus:outline-none focus:border-indigo-400 focus:bg-white focus:shadow-[0_0_0_5px_rgba(79,70,229,0.05)] transition-all text-sm text-slate-800 font-medium placeholder:text-slate-400"
                                         disabled={isLoading}
                                     />
@@ -410,7 +412,7 @@ const ChatWidget = ({ reportData }) => {
                                     <div className={`flex items-center gap-2 py-1 px-3 rounded-full border ${isLimitReached ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-indigo-50/50 border-indigo-100 text-indigo-600'}`}>
                                         <div className={`w-1.5 h-1.5 rounded-full ${isLimitReached ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>
                                         <span className="text-[9px] font-black uppercase tracking-widest">
-                                            {messageCount}/{CHAT_LIMIT} Free Queries
+                                            {messageCount}/{CHAT_LIMIT} {t('chat.limit.queries', 'Free Queries')}
                                         </span>
                                     </div>
                                 </div>

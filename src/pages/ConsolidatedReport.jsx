@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { API_BASE_URL } from '../api/config';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import AstrocartographyChart from '../components/charts/AstrocartographyChart';
 import ChatWidget from '../components/ChatWidget';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp, User, Calendar, Eye, Target, Lightbulb, GraduationCap, Car } from 'lucide-react';
+import { Sparkles, Star, Scroll, Brain, Globe, Activity, Download, MapPin, Gem, CircleDot, Mic2, BookOpen, Info, Layers, Map, Share2, AlertTriangle, Briefcase, Moon, Heart, ShieldAlert, Leaf, Zap, Home, Clock, Shield, TrendingUp, User, Calendar, Eye, Target, Lightbulb, GraduationCap, Car, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 
 class ErrorBoundary extends React.Component {
@@ -64,6 +64,7 @@ class ErrorBoundary extends React.Component {
 
 // Loshu Grid Component (AstroArunPandit Style)
 const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
+    const { t } = useTranslation();
     if (!loshuData) return null;
 
     const gridLayout = [
@@ -158,6 +159,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
 
 // Vedic Charts Display Component
 const VedicChartsDisplay = ({ userData }) => {
+    const { t } = useTranslation();
     const [chartStyle, setChartStyle] = useState('north'); // 'north' or 'south'
     const [lagnaChart, setLagnaChart] = useState(null);
     const [navamsaChart, setNavamsaChart] = useState(null);
@@ -328,13 +330,14 @@ const VedicChartsDisplay = ({ userData }) => {
 };
 
 const YearlyPredictionGraph = ({ data, userData }) => {
+    const { t, i18n } = useTranslation();
     // Generate synthetic heatmap data
     const tracks = [
-        { id: 'summary', name: 'SUMMARY', height: 40 },
-        { id: 'career', name: 'CAREER', height: 30 },
-        { id: 'health', name: 'HEALTH', height: 30 },
-        { id: 'family', name: 'FAMILY', height: 30 },
-        { id: 'finance', name: 'FINANCE', height: 30 },
+        { id: 'summary', name: t('report.tracks.summary', 'SUMMARY'), height: 40 },
+        { id: 'career', name: t('report.tracks.career', 'CAREER'), height: 30 },
+        { id: 'health', name: t('report.tracks.health', 'HEALTH'), height: 30 },
+        { id: 'family', name: t('report.tracks.family', 'FAMILY'), height: 30 },
+        { id: 'finance', name: t('report.tracks.finance', 'FINANCE'), height: 30 },
     ];
 
     // Determine Start Year from UserData (DOB)
@@ -459,15 +462,15 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                 <div className="flex items-center gap-2 md:gap-3">
                     <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     <div>
-                        <h3 className="text-sm md:text-lg font-bold text-slate-800 tracking-wide uppercase">Life Forecast</h3>
+                        <h3 className="text-sm md:text-lg font-bold text-slate-800 tracking-wide uppercase">{t('report.graph.title', 'Life Forecast')}</h3>
                         <p className="text-[10px] md:text-xs text-slate-500 font-mono tracking-wider uppercase">VedAstro V.4.2 // 60-Year Forecast (Born: {birthYear})</p>
                     </div>
                 </div>
                 {/* Legend */}
                 <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-sm w-fit">
-                    <span className="text-red-500">Challenge</span>
+                    <span className="text-red-500">{t('report.graph.challenge')}</span>
                     <div className="w-12 md:w-16 h-1.5 md:h-2 rounded-full bg-gradient-to-r from-red-500 via-white to-green-500 border border-slate-100"></div>
-                    <span className="text-emerald-600">Success</span>
+                    <span className="text-emerald-600">{t('report.graph.success')}</span>
                 </div>
             </div>
 
@@ -478,9 +481,9 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping absolute top-0 left-0 opacity-75"></div>
                         <div className="w-2 h-2 bg-emerald-500 rounded-full relative z-10"></div>
                     </div>
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">Live Status</span>
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">{t('report.graph.live_status', 'Live Status')}</span>
                     <span className="text-xs text-slate-400 font-mono border-l border-slate-200 pl-2">
-                        {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date().toLocaleDateString(i18n.language === 'en' ? 'en-GB' : i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                 </div>
 
@@ -512,7 +515,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                     <div className="relative h-24 border-b border-slate-200">
                         <div className="sticky left-6 top-0 z-10 w-max mb-2 pt-2">
                             <span className="text-xs font-bold text-blue-600 uppercase tracking-widest bg-white/80 px-2 py-0.5 rounded-full border border-blue-100 shadow-sm backdrop-blur-sm">
-                                Overall Vitality Trend
+                                {t('report.graph.vitality_trend', 'Overall Vitality Trend')}
                             </span>
                         </div>
 
@@ -604,7 +607,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
                                 style={{ left: `${nowCursorLeft}px` }}
                             >
                                 <div className="sticky top-10 ml-1.5 bg-blue-600 text-xs text-white px-1.5 py-0.5 rounded font-bold shadow-lg w-max z-30">
-                                    NOW
+                                    {t('report.graph.now', 'NOW')}
                                 </div>
                             </div>
                         )}
@@ -665,6 +668,7 @@ const YearlyPredictionGraph = ({ data, userData }) => {
 };
 
 const HealthAnalysisDisplay = ({ content }) => {
+    const { t } = useTranslation();
     if (!content) return null;
 
     // Simple parser for 10-point structure
@@ -977,16 +981,16 @@ const ConsolidatedReport = () => {
                     {/* Editorial Style Text Content */}
                     <div className="space-y-3 md:space-y-4">
                         <div className="space-y-1.5 md:space-y-2">
-                            <p className="text-[9px] md:text-xs font-black text-purple-600 uppercase tracking-[0.3em] mb-1">Cosmic Analysis</p>
+                            <p className="text-[9px] md:text-xs font-black text-purple-600 uppercase tracking-[0.3em] mb-1">{t('report.status.cosmic_analysis')}</p>
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
                                 {userData?.name ? (
                                     <>
-                                        Curating <span className="text-purple-600">{userData.name}&apos;s</span>
+                                        {t('report.status.curating', { name: userData.name })}
                                         <br />
-                                        <span className="block mt-0.5">Personal Revelation</span>
+                                        <span className="block mt-0.5">{t('report.status.personal_revelation')}</span>
                                     </>
                                 ) : (
-                                    "Your Cosmic Revelation"
+                                    t('report.status.your_revelation')
                                 )}
                             </h1>
                         </div>
@@ -1282,6 +1286,17 @@ const ConsolidatedReport = () => {
                                             {/* Right Columns: Charts */}
                                             <div className="lg:col-span-2">
                                                 <VedicChartsDisplay userData={userData} />
+                                                <div className="mt-8 flex justify-center">
+                                                    <Link 
+                                                        to="/birth-chart"
+                                                        state={{ userData, report }}
+                                                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-purple-500/30 transition-all hover:-translate-y-1"
+                                                    >
+                                                        <Star className="w-4 h-4" />
+                                                        {t('birth_chart.vedic_dashboard', 'View Advanced Vedic Dashboard (16 Charts + Shadbala)')}
+                                                        <ArrowRight className="w-4 h-4" />
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2156,11 +2171,11 @@ const ConsolidatedReport = () => {
                                                                     <div className="grid grid-cols-2 gap-3">
                                                                         <div className={`${item.tag} p-3 rounded-2xl`}>
                                                                             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 block mb-1">{t('numerology_page.strength')}</span>
-                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.strength || "Inherent natural talent"}</p>
+                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.strength || t('numerology_page.strength_label')}</p>
                                                                         </div>
                                                                         <div className="bg-amber-50 p-3 rounded-2xl">
                                                                             <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block mb-1">{t('numerology_page.caution')}</span>
-                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.caution || "Potential area for growth"}</p>
+                                                                            <p className="text-xs text-slate-700 font-semibold">{analysis.caution || t('numerology_page.caution_label')}</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2609,16 +2624,16 @@ const ConsolidatedReport = () => {
                                                         {report.vedic_astrology.kp_analysis.map((item, idx) => {
                                                             // Helper to match icons and colors
                                                             const getStyle = (type) => {
-                                                                const t = (type || '').toLowerCase();
-                                                                if (t.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
-                                                                if (t.includes('career') || t.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
-                                                                if (t.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
-                                                                if (t.includes('marriage') || t.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
-                                                                if (t.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
-                                                                if (t.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
-                                                                if (t.includes('wealth') || t.includes('finance')) return { icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
-                                                                if (t.includes('education') || t.includes('child')) return { icon: GraduationCap, color: 'text-violet-600', bg: 'bg-violet-50/50', border: 'border-violet-100', accent: 'bg-violet-100' };
-                                                                if (t.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                                const typeStr = (type || '').toLowerCase();
+                                                                if (typeStr.includes('health')) return { icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-100', accent: 'bg-rose-100' };
+                                                                if (typeStr.includes('career') || typeStr.includes('job')) return { icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-100', accent: 'bg-amber-100' };
+                                                                if (typeStr.includes('property')) return { icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-100', accent: 'bg-emerald-100' };
+                                                                if (typeStr.includes('marriage') || typeStr.includes('relationship')) return { icon: Heart, color: 'text-pink-600', bg: 'bg-pink-50/50', border: 'border-pink-100', accent: 'bg-pink-100' };
+                                                                if (typeStr.includes('timing')) return { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-100', accent: 'bg-blue-100' };
+                                                                if (typeStr.includes('ruling')) return { icon: Star, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-100', accent: 'bg-purple-100' };
+                                                                if (typeStr.includes('wealth') || typeStr.includes('finance')) return { icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
+                                                                if (typeStr.includes('education') || typeStr.includes('child')) return { icon: GraduationCap, color: 'text-violet-600', bg: 'bg-violet-50/50', border: 'border-violet-100', accent: 'bg-violet-100' };
+                                                                if (typeStr.includes('remedy')) return { icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-100', accent: 'bg-indigo-100' };
                                                                 return { icon: Brain, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-100', accent: 'bg-slate-100' };
                                                             };
                                                             const style = getStyle(item.type);

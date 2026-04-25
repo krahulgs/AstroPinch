@@ -306,6 +306,50 @@ class PDFReportService:
         ]))
         story.append(pt)
         story.append(Spacer(1, 0.4*inch))
+
+        # --- Ashtakavarga Section ---
+        ashtakavarga = vedic_data.get('ashtakavarga') or []
+        if ashtakavarga:
+            story.append(Paragraph("Ashtakavarga (SAV) Points", styles['SectionHeader']))
+            av_signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+            av_table_data = [["Sign", "Points", "Sign", "Points"]]
+            for i in range(0, 12, 2):
+                av_table_data.append([
+                    av_signs[i], ashtakavarga[i],
+                    av_signs[i+1], ashtakavarga[i+1]
+                ])
+            avt = Table(av_table_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+            avt.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (0,-1), colors.whitesmoke),
+                ('BACKGROUND', (2,0), (2,-1), colors.whitesmoke),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER')
+            ]))
+            story.append(avt)
+            story.append(Spacer(1, 0.4*inch))
+
+        # --- Shadbala Section ---
+        shadbala = vedic_data.get('shadbala') or {}
+        if shadbala:
+            story.append(Paragraph("Shadbala (Planetary Strength)", styles['SectionHeader']))
+            sb_table_data = [["Planet", "Strength (Shadbala)", "Planet", "Strength (Shadbala)"]]
+            sb_keys = list(shadbala.keys())
+            for i in range(0, len(sb_keys), 2):
+                p1 = sb_keys[i]
+                p2 = sb_keys[i+1] if i+1 < len(sb_keys) else ""
+                sb_table_data.append([
+                    p1, shadbala[p1],
+                    p2, shadbala.get(p2, "")
+                ])
+            sbt = Table(sb_table_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+            sbt.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (0,-1), colors.lavender),
+                ('BACKGROUND', (2,0), (2,-1), colors.lavender),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER')
+            ]))
+            story.append(sbt)
+            story.append(Spacer(1, 0.4*inch))
         
         # --- Panchang Section ---
         panchang = report_data.get('vedic_astrology', {}).get('panchang') or {}

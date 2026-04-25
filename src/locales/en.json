@@ -5,10 +5,13 @@
         "daily_guidance": "Daily Guidance",
         "todays_insight": "Today's Insight",
         "browse_signs": "Browse Signs",
-        "enter_details": "Enter Details"
+        "enter_details": "Enter Details",
+        "view_daily_guidance": "View Daily Guidance",
+        "view_consolidated": "View Consolidated Profile"
     },
     "nav": {
         "horoscopes": "Daily Rashifal",
+        "consult": "Consult",
         "zodiac_signs": "Zodiac Signs",
         "numerology": "Numerology",
         "calendar": "Calendar",
@@ -32,7 +35,9 @@
             "career": "Career",
             "finance": "Finance",
             "family": "Family",
-            "remedies": "Cosmic Remedy"
+            "remedies": "Cosmic Remedy",
+            "health": "Health",
+            "travel": "Travel"
         },
         "cosmic_alignment": "Cosmic Alignment",
         "alignment_desc": "Current planetary relationships affecting your energy. Harmonious aspects bring ease, while Challenging aspects offer growth.",
@@ -67,7 +72,45 @@
             "physical": "Physical",
             "mental": "Mental",
             "spiritual": "Spiritual"
+        },
+        "outlook": "Outlook",
+        "forecast": "Forecast",
+        "week_of": "Week of",
+        "caution_alerts": "Caution & Cosmic Alerts",
+        "risk_score": "Risk Level Score",
+        "general_score": "General Daily Score",
+        "power_actions": "Daily Power Actions",
+        "lucky_elements": "Lucky Elements",
+        "lucky_time": "Lucky Time",
+        "lucky_direction": "Lucky Direction",
+        "gemstone": "Gemstone",
+        "labels": {
+            "promotion_chances": "Promotion Chances",
+            "workplace_tension": "Workplace Tension",
+            "business_deals": "Business Deals",
+            "investment_mood": "Investment Mood",
+            "spending_alert": "Spending Alert",
+            "investment_timing": "Investment Timing",
+            "loan_recovery": "Loan/Recovery",
+            "romantic_mood": "Romantic Mood",
+            "conflict_warning": "Conflict Warning",
+            "proposal_timing": "Proposal Timing",
+            "family_harmony": "Family Harmony",
+            "physical_health": "Physical Health",
+            "mental_stress": "Mental Stress",
+            "diet_advice": "Diet Advice",
+            "energy_level": "Energy Level",
+            "family_bonding": "Family Bonding",
+            "travel_indication": "Travel Indication",
+            "guest_arrival": "Guest Arrival",
+            "commute_outlook": "Commute Outlook",
+            "traffic_alert": "Traffic Alert",
+            "best_mode": "Best Mode",
+            "trip_purpose": "Trip Purpose"
         }
+    },
+    "birth_chart": {
+        "vedic_dashboard": "View Advanced Vedic Dashboard (16 Charts + Shadbala)"
     },
     "report": {
         "status": {
@@ -84,7 +127,11 @@
             "no_data": "No Report Data Found",
             "go_back": "Go Back",
             "downloading": "Downloading...",
-            "download_pdf": "Download PDF"
+            "download_pdf": "Download PDF",
+            "curating": "Curating {{name}}'s",
+            "personal_revelation": "Personal Revelation",
+            "your_revelation": "Your Cosmic Revelation",
+            "cosmic_analysis": "Cosmic Analysis"
         },
         "header": {
             "title": "Cosmic Destiny Report",
@@ -136,8 +183,8 @@
             "life_sectors": "Life Sectors",
             "energy_flow": "Energy Flow",
             "tropical_zodiac": "Tropical Zodiac",
-            "life_sectors_desc": "Numbered houses define where life events occur. 1st is Self, 10th is Career.",
-            "energy_flow_desc": "Aspect lines show energy dialogues. Red = Growth Challenges, Blue = Natural Flow.",
+            "life_sectors_desc": "Numbered houses define where life events occur.",
+            "energy_flow_desc": "Aspect lines show energy dialogues.",
             "tropical_zodiac_desc": "Favored in Western astrology for alignment with seasons and psychological growth.",
             "planet": "Planet",
             "sign": "Sign",
@@ -203,6 +250,21 @@
             "subtitle": "Astrology + Numerology Deep Dive",
             "risk_indicator": "Health Risk Indicator",
             "status_level": "Health Status Level"
+        },
+        "tracks": {
+            "summary": "SUMMARY",
+            "career": "CAREER",
+            "health": "HEALTH",
+            "family": "FAMILY",
+            "finance": "FINANCE"
+        },
+        "graph": {
+            "title": "Life Forecast",
+            "live_status": "Live Status",
+            "vitality_trend": "Overall Vitality Trend",
+            "now": "NOW",
+            "challenge": "Challenge",
+            "success": "Success"
         }
     },
     "daily": {
@@ -268,6 +330,8 @@
         "caution": "Caution",
         "birthday_number": "Birthday Number",
         "maturity_number": "Maturity Number",
+        "strength_label": "Inherent natural talent",
+        "caution_label": "Potential area for growth",
         "descriptions": {
             "life_path": "Your life purpose and the path you are meant to walk",
             "expression": "Your natural talents and how you express yourself",
@@ -318,9 +382,6 @@
             "recommended_gemstone": "Recommended Gemstone",
             "wear_this": "Wear this for enhanced vibration",
             "pro_tip": "PRO TIP: KEEP THESE ELEMENTS IN MIND FOR MAJOR DECISIONS"
-        },
-        "ai_deep_dive": {
-            "title": "AI Deep Dive Reading"
         }
     },
     "home": {
@@ -339,10 +400,10 @@
             "ai": { "title": "AstroAI Predictor", "sub": "Neural Core Modeling", "foot": "Proprietary Analytics" }
         },
         "features": {
-            "daily_horoscope": { "title": "Daily Horoscope", "desc": "Get personalized daily insights based on your zodiac sign and current planetary transits." },
-            "birth_chart": { "title": "Birth Chart", "desc": "Generate your comprehensive Vedic birth chart with detailed planetary positions and analysis." },
-            "compatibility": { "title": "Compatibility", "desc": "Check relationship compatibility using traditional Ashtakoot Guna Milan methodology." },
-            "numerology": { "title": "Numerology", "desc": "Discover the hidden meaning of numbers in your life with our advanced numerology calculator." }
+            "daily_horoscope": { "title": "Daily Horoscope", "desc": "Get personalized daily insights." },
+            "birth_chart": { "title": "Birth Chart", "desc": "Generate your birth chart." },
+            "compatibility": { "title": "Compatibility", "desc": "Check compatibility." },
+            "numerology": { "title": "Numerology", "desc": "Discover meaning of numbers." }
         }
     },
     "rashifal": {
@@ -352,14 +413,14 @@
             "weekly": "Weekly",
             "monthly": "Monthly",
             "title": "Rashifal",
-            "description": "Select your zodiac sign to unlock personalized {{period}} insights powered by NASA precision and ancient Vedic wisdom.",
+            "description": "Select your zodiac sign to unlock personalized {{period}} insights.",
             "view_details": "View Details",
             "why_trust": "Why trust our",
             "celestial_forecasts": "Celestial Forecasts?",
-            "trust_desc": "Unlike generic horoscopes, AstroPinch combines NASA JPL planetary positioning data with 5,000-year-old Vedic algorithms to provide the most accurate {{period}} rashifal in the industry.",
-            "nasa_powered": "NASA-powered planetary precision",
-            "mapping": "Personalized transit-to-natal mapping",
-            "ai_enhanced": "AI-enhanced interpretation with context"
+            "trust_desc": "Accurate {{period}} insights.",
+            "nasa_powered": "NASA-powered precision",
+            "mapping": "Personalized mapping",
+            "ai_enhanced": "AI-enhanced interpretation"
         }
     },
     "zodiac": {
@@ -387,7 +448,7 @@
     "kundali_match": {
         "title": "Kundali",
         "matching": "Matching",
-        "desc": "Analyze the cosmic compatibility between two souls using the traditional 36-Guna Ashta-Koota system.",
+        "desc": "Analyze cosmic compatibility.",
         "vedic_compatibility": "Vedic Compatibility",
         "select_profiles": "Select Profiles",
         "bride": "Bride",
@@ -397,10 +458,60 @@
         "guna_score": "Guna Score",
         "conclusion": "Conclusion",
         "ashta_koota": "Ashta-Koota Details",
-        "report_for": "Matching Report for",
+        "report_for": "Matching Report",
         "and": "and",
         "login_required": "Login Required",
         "no_profiles": "No Profiles Found",
         "add_profile": "Add Profile"
+    },
+    "birth_chart": {
+        "seo_title": "{{name}}'s Natal Birth Chart",
+        "seo_desc": "Cosmic blueprint of {{name}}.",
+        "breadcrumb": "Birth Chart",
+        "title": "{{name}}'s Natal Chart",
+        "born_on": "Born on",
+        "at": "at",
+        "in": "in",
+        "rendering": "Rendering Natal Chart...",
+        "vedic_dashboard": "Advanced Vedic Dashboard",
+        "shodashvarga": "Shodashvarga (16 Divisional Charts)",
+        "ashtakavarga": "Ashtakavarga Points (SAV)",
+        "shadbala": "Shadbala Strength",
+        "planet_details": "Planet Details",
+        "download_pdf": "Download PDF",
+        "share": "Share",
+        "north": "North",
+        "south": "South"
+    },
+    "chat": {
+        "welcome": "Welcome! I've analyzed your chart.",
+        "suggested_title": "Suggested Questions",
+        "suggested": {
+            "career": "Career outlook?",
+            "compatibility": "Relationship compatibility?",
+            "strengths": "My strengths?",
+            "finance": "Financial transits?"
+        },
+        "error": "Cosmic error. Try again.",
+        "name": "Astra AI",
+        "guide": "Guide",
+        "resume": "Resume",
+        "free_help": "FREE HELP",
+        "pro": "PRO",
+        "status": {
+            "online": "Active Engine",
+            "offline": "Engine Offline",
+            "initializing": "Initializing..."
+        },
+        "you": "You",
+        "powered_by": "Powered by AstroPinch",
+        "analyzing": "Analyzing...",
+        "placeholder": "Type query...",
+        "limit": {
+            "title": "Quota Full",
+            "desc": "10 queries reached.",
+            "upgrade": "Upgrade to Pro",
+            "queries": "Free Queries"
+        }
     }
 }

@@ -174,7 +174,10 @@ class ReportGenerator:
                 "Personality AI"
             ),
             with_timeout(
-                generate_relationship_analysis(name, planets, panchang, lang=lang, age=age),
+                generate_relationship_analysis(
+                    name, planets, panchang, lang=lang, age=age,
+                    marital_status=context.get('marital_status', 'single') if context else 'single'
+                ),
                 "Relationship AI"
             ),
             with_timeout(

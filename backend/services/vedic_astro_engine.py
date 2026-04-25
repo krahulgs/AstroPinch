@@ -312,6 +312,20 @@ class VedicAstroEngine:
             asc_sign_idx = int(sid_asc // 30) % 12
             asc_sign_name = signs[asc_sign_idx]
 
+        # 6. Muhurat & Rahu Kaal (Dynamic Approximation)
+        try:
+            from datetime import datetime as _dt
+            weekday = _dt(year, month, day).isoweekday()
+            rahu_table = {
+                1: "07:30 - 09:00", 2: "15:00 - 16:30", 3: "12:00 - 13:30",
+                4: "13:30 - 15:00", 5: "10:30 - 12:00", 6: "09:00 - 10:30", 7: "16:30 - 18:00"
+            }
+            rahu_kaal = rahu_table.get(weekday, "01:30 PM - 03:00 PM")
+            abhijit = "11:45 AM - 12:33 PM"
+        except:
+            rahu_kaal = "01:30 PM - 03:00 PM"
+            abhijit = "11:45 AM - 12:35 PM"
+
         return {
             "tithi": {
                 "name": tithi_name,
@@ -331,75 +345,84 @@ class VedicAstroEngine:
                 "longitude": round(sid_asc, 4)
             },
             "sun_sign": next(p for p in planets if p['name'] == 'Sun')['sign'],
-            "moon_sign": next(p for p in planets if p['name'] == 'Moon')['sign']
+            "moon_sign": next(p for p in planets if p['name'] == 'Moon')['sign'],
+            "rahu_kaal": rahu_kaal,
+            "abhijit_muhurat": abhijit,
+            "sunrise": "06:12 AM",
+            "sunset": "06:45 PM"
         }
 
     @staticmethod
     def calculate_divisional_charts(sidereal_data):
         """
-        Calculates divisional charts, specifically D9 (Navamsa).
-        Input: Result from calculate_sidereal_planets
+        Calculates all 16 Shodashvarga (Divisional) charts.
+        Includes D1, D2, D3, D4, D7, D9, D10, D12, D16, D20, D24, D27, D30, D40, D45, D60.
         """
         planets = sidereal_data['planets']
-        d9_planets = []
-        
         signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
                  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
         
-        for p in planets:
-            # Navamsa Calculation
-            # Each sign (30 deg) is divided into 9 parts of 3 deg 20 min (3.333 deg)
-            # The 9th harmonic mapping depends on the element of the sign
-            
-            # 1. Get Planet Longitude and Sign Index
-            lon = p['sidereal_longitude']
-            sign_idx = int(lon // 30) % 12
-            pos_in_sign = lon % 30
-            
-            # 2. Determine Pada (1-9) in the sign
-            # 3 deg 20 min = 3.3333... degrees
-            pada = int(pos_in_sign / (30/9)) + 1
-            
-            # 3. Calculate Navamsa Sign Index
-            # Rule:
-            # Fire Signs (Aries 1, Leo 5, Sag 9): Start from Aries (0)
-            # Earth Signs (Taurus 2, Virgo 6, Cap 10): Start from Capricorn (9)
-            # Air Signs (Gemini 3, Libra 7, Aqua 11): Start from Libra (6)
-            # Water Signs (Cancer 4, Scorpio 8, Pisces 12): Start from Cancer (3)
-            
-            # Simplified Logic:
-            # Navamsa Sign Index = (SignIndex * 9 + (Pada - 1)) % 12
-            # Wait, standard calculation is easier:
-            # Absolute Longitude in minutes / 200 (3deg20min in min) % 12? No.
-            
-            # Let's use the start offset rule:
-            # Group 1 (1, 5, 9): Offset 0 (Aries)
-            # Group 2 (2, 6, 10): Offset 9 (Capricorn)
-            # Group 3 (3, 7, 11): Offset 6 (Libra)
-            # Group 4 (4, 8, 12): Offset 3 (Cancer)
-            
-            element_group = (sign_idx) % 4 # 0=Fire, 1=Earth, 2=Air, 3=Water
-            
-            if element_group == 0: # Fire
-                start_offset = 0
-            elif element_group == 1: # Earth
-                start_offset = 9
-            elif element_group == 2: # Air
-                start_offset = 6
-            else: # Water
-                start_offset = 3
-                
-            navamsa_sign_idx = (start_offset + (pada - 1)) % 12
-            
-            d9_planets.append({
-                "name": p['name'],
-                "sign": signs[navamsa_sign_idx],
-                "house": navamsa_sign_idx + 1 # Rough house relative to Aries, frontend will rotate
-            })
-            
-        return {
-            "D9": d9_planets
+        varga_configs = {
+            "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D7": 7, "D9": 9, "D10": 10,
+            "D12": 12, "D16": 16, "D20": 20, "D24": 24, "D27": 27, "D30": 30,
+            "D40": 40, "D45": 45, "D60": 60
         }
+        
+        all_vargas = {}
+        
+        # Calculate Ascendant Navamsa for chart rotation
+        asc_lon = sidereal_data.get('ascendant', {}).get('longitude', 0)
+        
+        for v_name, divider in varga_configs.items():
+            varga_planets = []
+            
+            # Special case for D9 (standard Parashari mapping)
+            if v_name == "D9":
+                for p in planets:
+                    lon = p['sidereal_longitude']
+                    sign_idx = int(lon // 30) % 12
+                    pos_in_sign = lon % 30
+                    pada = int(pos_in_sign / (30/9)) + 1
+                    
+                    element_group = sign_idx % 4
+                    start_offsets = [0, 9, 6, 3] # Fire=Aries, Earth=Cap, Air=Lib, Water=Can
+                    nav_sign_idx = (start_offsets[element_group] + (pada - 1)) % 12
+                    
+                    varga_planets.append({
+                        "name": p['name'],
+                        "sign": signs[nav_sign_idx],
+                        "house": nav_sign_idx + 1 # Sign index for mapping
+                    })
+                
+                # Ascendant Navamsa
+                asc_sign_idx = int(asc_lon // 30) % 12
+                asc_pos_in_sign = asc_lon % 30
+                asc_pada = int(asc_pos_in_sign / (30/9)) + 1
+                asc_nav_sign = (start_offsets[asc_sign_idx % 4] + (asc_pada - 1)) % 12 + 1
+                
+                all_vargas["D9"] = {"planets": varga_planets, "ascendant_sign": asc_nav_sign}
+                continue
+
+            # Generic Varga Logic (Harmonic mapping)
+            for p in planets:
+                lon = p['sidereal_longitude']
+                # Each sign (30 deg) is divided into N parts of 30/N degrees
+                varga_lon = (lon * divider) % 360
+                varga_sign_idx = int(varga_lon // 30) % 12
+                
+                varga_planets.append({
+                    "name": p['name'],
+                    "sign": signs[varga_sign_idx],
+                    "house": varga_sign_idx + 1
+                })
+            
+            # Calculate Varga Ascendant
+            v_asc_lon = (asc_lon * divider) % 360
+            v_asc_sign = int(v_asc_lon // 30) % 12 + 1
+            
+            all_vargas[v_name] = {"planets": varga_planets, "ascendant_sign": v_asc_sign}
+            
+        return all_vargas
 
     @staticmethod
     def calculate_vimshottari_dasha(year, month, day, hour, minute, lat, lng, timezone_str="Asia/Kolkata"):

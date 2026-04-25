@@ -45,6 +45,8 @@ import Terms from './pages/legal/Terms';
 import Disclaimer from './pages/legal/Disclaimer';
 import RefundPolicy from './pages/legal/RefundPolicy';
 
+import { ThemeProvider } from './contexts/ThemeContext';
+
 const ProtectedRoute = ({ children }) => {
   const { token, loading } = useProfile();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-primary">Loading...</div>;
@@ -54,30 +56,31 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <ChartProvider>
-        <ProfileProvider>
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/horoscope" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/horoscope/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/rashifal" element={<RashifalIndex />} />
-              <Route path="/rashifal/daily" element={<RashifalIndex />} />
-              <Route path="/rashifal/weekly" element={<RashifalIndex />} />
-              <Route path="/rashifal/:period" element={<RashifalIndex />} />
-              <Route path="/rashifal/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/rashifal/daily/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/rashifal/weekly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/rashifal/monthly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
-              <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Predictions /></div>} />
-              <Route path="/chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><InputForm /></div>} />
-              <Route path="/birth-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><BirthChart /></div>} />
+    <ThemeProvider>
+      <Router>
+        <ScrollToTop />
+        <ChartProvider>
+          <ProfileProvider>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/horoscope" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/horoscope/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/rashifal" element={<RashifalIndex />} />
+                <Route path="/rashifal/daily" element={<RashifalIndex />} />
+                <Route path="/rashifal/weekly" element={<RashifalIndex />} />
+                <Route path="/rashifal/:period" element={<RashifalIndex />} />
+                <Route path="/rashifal/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/rashifal/daily/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/rashifal/weekly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/rashifal/monthly/:sign" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Horoscope /></div>} />
+                <Route path="/predictions" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Predictions /></div>} />
+                <Route path="/chart" element={<InputForm />} />
+                <Route path="/birth-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><BirthChart /></div>} />
               <Route path="/lunar-chart" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><LunarChart /></div>} />
               <Route path="/kundali" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Kundali /></div>} />
               <Route path="/numerology" element={<div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-24 pb-12"><Numerology /></div>} />

@@ -1,14 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChart } from '../context/ChartContext';
-import { User, Calendar, Clock, Loader2 } from 'lucide-react';
+import { User, Calendar, Clock, Loader2, Sparkles, MapPin, Briefcase, Heart } from 'lucide-react';
 import CitySearch from '../components/ui/CitySearch';
 import SEO from '../components/SEO';
-import CosmicBackground from '../components/ui/CosmicBackground';
+import { useTheme } from '../contexts/ThemeContext';
+import { Card, Button, Input, SectionHeader } from '../components/v2/UI';
+import Layout from '../components/v2/Layout';
 
 const InputForm = () => {
     const navigate = useNavigate();
     const { saveUserData, loading, error: serverError } = useChart();
+    const { theme } = useTheme();
 
     const [progress, setProgress] = useState(0);
     const [formErrors, setFormErrors] = useState({});
@@ -21,7 +24,9 @@ const InputForm = () => {
         place: '',
         lat: '',
         lng: '',
-        timezone: ''
+        timezone: '',
+        profession: '',
+        marital_status: ''
     });
 
     // Refs for auto-focus navigation
@@ -35,19 +40,10 @@ const InputForm = () => {
         const allowedMaritalStatus = ["single", "married", "divorced", "widowed", "separated"];
 
         // 1. Full Name
-        const name = formData.name.trim().replace(/\s+/g, ' '); // Normalize spaces
-        if (!name) {
-            setFormErrors({ name: 'Full name is required' });
-            return false;
-        }
-        if (name.length < 2 || name.length > 40) {
-            setFormErrors({ name: 'Name must be 2-40 characters' });
-            return false;
-        }
-        if (!/^[a-zA-Z\. ]+$/.test(name)) {
-            setFormErrors({ name: 'Name must contain letters, spaces, and dots only' });
-            return false;
-        }
+        const name = formData.name.trim().replace(/\s+/g, ' ');
+        if (!name) { errors.name = 'Full name is required'; }
+        else if (name.length < 2 || name.length > 40) { errors.name = 'Name must be 2-40 characters'; }
+        else if (!/^[a-zA-Z\. ]+$/.test(name)) { errors.name = 'Letters, spaces, and dots only'; }
 
         // 2. Date of Birth
         const d = parseInt(formData.day);
@@ -56,89 +52,48 @@ const InputForm = () => {
         const currentYear = new Date().getFullYear();
 
         if (!formData.day || !formData.month || !formData.year) {
-            setFormErrors({ date: 'Date of birth is completely required' });
-            return false;
-        }
+            errors.date = 'Date of birth is required';
+        } else {
+            if (y < 1900 || y > currentYear) {
+                errors.date = 'Year must be between 1900 and ' + currentYear;
+            } else {
+                const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const selectedDate = new Date(dateStr);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-        // Year check
-        if (y < 1900 || y > currentYear) {
-            setFormErrors({ date: 'Year must be between 1900 and ' + currentYear });
-            return false;
-        }
-
-        // Complex date check
-        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const selectedDate = new Date(dateStr);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (isNaN(selectedDate.getTime()) || selectedDate.getDate() !== d) {
-            setFormErrors({ date: 'Invalid calendar date' });
-            return false;
-        }
-        if (selectedDate > today) {
-            setFormErrors({ date: 'Date cannot be in the future' });
-            return false;
-        }
-
-        // Age check (>120 years)
-        const age = today.getFullYear() - y;
-        if (age > 120) {
-            setFormErrors({ date: 'Age cannot exceed 120 years' });
-            return false;
+                if (isNaN(selectedDate.getTime()) || selectedDate.getDate() !== d) {
+                    errors.date = 'Invalid calendar date';
+                } else if (selectedDate > today) {
+                    errors.date = 'Date cannot be in the future';
+                } else if (today.getFullYear() - y > 120) {
+                    errors.date = 'Age cannot exceed 120 years';
+                }
+            }
         }
 
         // 3. Time of Birth
-        if (!formData.time) {
-            setFormErrors({ time: 'Time of birth is required' });
-            return false;
-        }
-        // Format is handled by input type="time", but extra check:
-        const [hh, mm] = formData.time.split(':').map(Number);
-        if (isNaN(hh) || isNaN(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) {
-            setFormErrors({ time: 'Invalid time format' });
-            return false;
-        }
+        if (!formData.time) { errors.time = 'Time of birth is required'; }
 
         // 4. Profession
         if (!formData.profession || !allowedProfessions.includes(formData.profession.toLowerCase())) {
-            setFormErrors({ profession: 'Please select a valid profession' });
-            return false;
+            errors.profession = 'Please select a profession';
         }
 
         // 5. Marital Status
         if (!formData.marital_status || !allowedMaritalStatus.includes(formData.marital_status.toLowerCase())) {
-            setFormErrors({ marital_status: 'Please select a valid marital status' });
-            return false;
+            errors.marital_status = 'Please select status';
         }
 
         // 6. Place of Birth
-        // Note: CitySearch writes to formData.place. We validate that string.
-        const place = (formData.place || "").trim();
-        if (!place || !formData.lat) { // Ensure lat/lng selected too
-            setFormErrors({ place: 'Please select a city from the list' });
-            return false;
-        }
-        if (place.length < 2) {
-            setFormErrors({ place: 'Place name too short' });
-            return false;
-        }
-        // Regex: Letters, spaces, commas, hyphen only.
-        if (!/^[a-zA-Z\s,\-]+$/.test(place)) {
-            setFormErrors({ place: 'Place contains invalid characters (no numbers allowed)' });
-            return false;
+        if (!formData.place || !formData.lat) {
+            errors.place = 'Please select a city';
         }
 
-        // Pass validation and Normalize Data
-        // Capitalize Name
-        const activeName = name.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-        // Update state with normalized values before submit
-        setFormData(prev => ({
-            ...prev,
-            name: activeName,
-            place: place // Title case handled by CitySearch usually, but we keep raw text safe
-        }));
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return false;
+        }
 
         setFormErrors({});
         return true;
@@ -146,31 +101,20 @@ const InputForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!validateForm()) return;
 
         const dateStr = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
+        const dataToSave = { ...formData, date: dateStr };
 
-        const dataToSave = {
-            ...formData,
-            date: dateStr
-        };
-
-        // Simulate progress while fetching
         setProgress(0);
         const interval = setInterval(() => {
             setProgress(prev => {
-                if (prev >= 95) {
-                    clearInterval(interval);
-                    return 95;
-                }
-                const increment = Math.floor(Math.random() * 5) + 2;
-                return Math.min(prev + increment, 95);
+                if (prev >= 95) { clearInterval(interval); return 95; }
+                return Math.min(prev + (Math.floor(Math.random() * 5) + 2), 95);
             });
         }, 300);
 
         const report = await saveUserData(dataToSave);
-
         clearInterval(interval);
 
         if (report) {
@@ -189,254 +133,196 @@ const InputForm = () => {
         if (name === 'day' || name === 'month' || name === 'year') setFormErrors(prev => ({ ...prev, date: '' }));
 
         if (name === 'name') {
-            const filteredValue = value.replace(/[^a-zA-Z\s\.]/g, ''); // Allow dots too based on validation rule
-            // Limit to 40 characters
-            const limitedValue = filteredValue.slice(0, 40);
-            // Apply Title Case (Camel Case) formatting
-            const titleCaseValue = limitedValue.toLowerCase().split(' ').map(word =>
+            const titleCaseValue = value.replace(/[^a-zA-Z\s\.]/g, '').slice(0, 40).toLowerCase().split(' ').map(word =>
                 word.charAt(0).toUpperCase() + word.slice(1)
             ).join(' ');
             setFormData({ ...formData, [name]: titleCaseValue });
-        } else if (name === 'day') {
-            if (value.length <= 2) {
-                setFormData({ ...formData, [name]: value });
-                // Auto-focus to month when day has 2 digits
-                if (value.length === 2 && monthRef.current) {
-                    monthRef.current.focus();
-                }
-            }
-        } else if (name === 'month') {
-            if (value.length <= 2) {
-                setFormData({ ...formData, [name]: value });
-                // Auto-focus to year when month has 2 digits
-                if (value.length === 2 && yearRef.current) {
-                    yearRef.current.focus();
-                }
-            }
-        } else if (name === 'year') {
-            if (value.length <= 4) {
-                setFormData({ ...formData, [name]: value });
-            }
+        } else if (name === 'day' && value.length === 2 && monthRef.current) {
+            setFormData({ ...formData, [name]: value });
+            monthRef.current.focus();
+        } else if (name === 'month' && value.length === 2 && yearRef.current) {
+            setFormData({ ...formData, [name]: value });
+            yearRef.current.focus();
         } else {
             setFormData({ ...formData, [name]: value });
         }
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <CosmicBackground />
+        <Layout activeTab="profile">
             <SEO
-                title="Create Your Free Kundali"
-                description="Enter your birth details to generate your free Vedic birth chart (Kundali) and get personalized life predictions."
+                title="Reveal Your Destiny | AstroPinch"
+                description="Enter your birth details to generate your sacred Vedic birth chart."
                 url="/chart"
             />
             
-            <div className="max-w-2xl w-full relative z-10 animate-fade-in">
-                <div className="bg-white/10 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden">
-                    {/* Interior Glows */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full -mr-32 -mt-32"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -ml-32 -mb-32"></div>
-
-                    <div className="text-center mb-10">
-                        <div className="inline-flex p-3 bg-white/10 rounded-2xl mb-6 border border-white/10">
-                            <Calendar className="w-8 h-8 text-indigo-300" />
-                        </div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                            Reveal Your <span className="text-indigo-300 italic">Destiny</span>
-                        </h2>
-                        <p className="text-indigo-200/60 mt-2 text-sm font-medium tracking-wide">Enter your birth details to generate your sacred chart</p>
+            <div className="px-4 pt-12 pb-24">
+                {/* Header Section */}
+                <div className="flex flex-col items-center text-center mb-10">
+                    <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white shadow-2xl mb-6 relative animate-fade-in">
+                        <Sparkles size={40} />
+                        <div className="absolute inset-0 bg-white opacity-20 blur-xl rounded-full animate-pulse"></div>
                     </div>
+                    <h1 className="text-3xl mb-2 tracking-tight">
+                        Reveal Your <span className="text-[var(--primary)] italic">Destiny</span>
+                    </h1>
+                    <p className="text-[var(--text-sub)] text-sm font-medium">Enter your details to generate your sacred chart</p>
+                </div>
 
-                    {serverError && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm text-center">
-                            Failed to connect to the server. Please ensure the backend is running.
-                        </div>
-                    )}
+                {serverError && (
+                    <Card className="bg-rose-50 border-rose-100 text-rose-600 mb-6 text-sm text-center">
+                        Unable to connect. Please check your internet or backend status.
+                    </Card>
+                )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
-                        <div className="space-y-2">
-                            <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
-                            <div className="relative group">
-                                <User className="absolute left-4 top-3.5 w-5 h-5 text-indigo-300 group-focus-within:text-white transition-colors" />
-                                <input
-                                    type="text"
-                                    name="name"
-                                    autoFocus
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 focus:outline-none transition-all text-white placeholder:text-white/20 font-medium
-                                        ${formErrors.name ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
-                                    `}
-                                    placeholder="Enter Your Full Name"
-                                />
-                            </div>
-                            {formErrors.name && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.name}</p>}
-                        </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <Card>
+                        <SectionHeader title="Personal Details" hindiTitle="व्यक्तिगत विवरण" />
+                        <div className="space-y-5">
+                            <Input 
+                                label="Full Name" 
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="e.g. Rahul Sharma"
+                                error={formErrors.name}
+                            />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Date of Birth</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider ml-1">Date of Birth</label>
                                 <div className="flex gap-2">
-                                    <div className="relative flex-1 group">
-                                        <input
-                                            ref={dayRef}
-                                            type="number"
-                                            name="day"
-                                            placeholder="DD"
-                                            value={formData.day}
-                                            onChange={handleChange}
-                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
-                                            `}
-                                        />
-                                    </div>
-                                    <div className="relative flex-1 group">
-                                        <input
-                                            ref={monthRef}
-                                            type="number"
-                                            name="month"
-                                            placeholder="MM"
-                                            value={formData.month}
-                                            onChange={handleChange}
-                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
-                                            `}
-                                        />
-                                    </div>
-                                    <div className="relative flex-[1.5] group">
-                                        <input
-                                            ref={yearRef}
-                                            type="number"
-                                            name="year"
-                                            placeholder="YYYY"
-                                            value={formData.year}
-                                            onChange={handleChange}
-                                            className={`w-full bg-white/5 border rounded-xl py-3.5 text-center focus:outline-none transition-all text-white placeholder:text-white/20 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                                                ${formErrors.date ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
-                                            `}
-                                        />
-                                    </div>
-                                </div>
-                                {formErrors.date && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.date}</p>}
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Time of Birth (24 Hrs.)</label>
-                                <div className="relative group">
-                                    <Clock className="absolute left-4 top-3.5 w-5 h-5 text-indigo-300 group-focus-within:text-white transition-colors" />
                                     <input
-                                        type="time"
-                                        name="time"
-                                        value={formData.time}
+                                        ref={dayRef}
+                                        type="number"
+                                        name="day"
+                                        placeholder="DD"
+                                        value={formData.day}
                                         onChange={handleChange}
-                                        className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 focus:outline-none transition-all text-white placeholder:text-white/20 font-medium
-                                            ${formErrors.time ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10 focus:border-indigo-400 focus:bg-white/10'}
-                                        `}
+                                        className="astro-input text-center flex-1"
+                                    />
+                                    <input
+                                        ref={monthRef}
+                                        type="number"
+                                        name="month"
+                                        placeholder="MM"
+                                        value={formData.month}
+                                        onChange={handleChange}
+                                        className="astro-input text-center flex-1"
+                                    />
+                                    <input
+                                        ref={yearRef}
+                                        type="number"
+                                        name="year"
+                                        placeholder="YYYY"
+                                        value={formData.year}
+                                        onChange={handleChange}
+                                        className="astro-input text-center flex-[1.5]"
                                     />
                                 </div>
-                                {formErrors.time && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.time}</p>}
-                            </div>
-                        </div>
-
-                        {/* Profession and Marital Status */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Profession</label>
-                                <div className="relative group">
-                                    <select
-                                        name="profession"
-                                        value={formData.profession || ""}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white/5 border rounded-xl py-3.5 px-4 focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all text-white appearance-none font-medium
-                                            ${formErrors.profession ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10'}
-                                        `}
-                                    >
-                                        <option value="" disabled className="bg-slate-900">Select Profession</option>
-                                        <option value="student" className="bg-slate-900">Student</option>
-                                        <option value="private job" className="bg-slate-900">Private Job</option>
-                                        <option value="government job" className="bg-slate-900">Government Job</option>
-                                        <option value="business" className="bg-slate-900">Business</option>
-                                        <option value="self employed" className="bg-slate-900">Self Employed</option>
-                                        <option value="unemployed" className="bg-slate-900">Unemployed</option>
-                                        <option value="retired" className="bg-slate-900">Retired</option>
-                                        <option value="other" className="bg-slate-900">Other</option>
-                                    </select>
-                                    <div className="absolute right-4 top-4 pointer-events-none">
-                                        <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </div>
-                                </div>
-                                {formErrors.profession && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.profession}</p>}
+                                {formErrors.date && <span className="text-xs text-coral font-medium ml-1">{formErrors.date}</span>}
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Marital Status</label>
-                                <div className="relative group">
-                                    <select
-                                        name="marital_status"
-                                        value={formData.marital_status || ""}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white/5 border rounded-xl py-3.5 px-4 focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all text-white appearance-none font-medium
-                                            ${formErrors.marital_status ? 'border-red-400/50 focus:border-red-400 bg-red-400/5' : 'border-white/10'}
-                                        `}
-                                    >
-                                        <option value="" disabled className="bg-slate-900">Select Status</option>
-                                        <option value="single" className="bg-slate-900">Single</option>
-                                        <option value="married" className="bg-slate-900">Married</option>
-                                        <option value="divorced" className="bg-slate-900">Divorced</option>
-                                        <option value="widowed" className="bg-slate-900">Widowed</option>
-                                        <option value="separated" className="bg-slate-900">Separated</option>
-                                    </select>
-                                    <div className="absolute right-4 top-4 pointer-events-none">
-                                        <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </div>
-                                </div>
-                                {formErrors.marital_status && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.marital_status}</p>}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest ml-1">Place of Birth</label>
-                            <div className="cosmic-city-search">
-                                <CitySearch
-                                    onSelect={(city) => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            place: `${city.name}, ${city.country}`,
-                                            lat: city.latitude,
-                                            lng: city.longitude,
-                                            timezone: city.timezone
-                                        }));
-                                        if (formErrors.place) setFormErrors(prev => ({ ...prev, place: '' }));
-                                    }}
-                                    defaultValue={formData.place}
-                                    error={!!formErrors.place}
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input 
+                                    label="Time of Birth" 
+                                    type="time" 
+                                    name="time"
+                                    value={formData.time}
+                                    onChange={handleChange}
+                                    error={formErrors.time}
                                 />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider ml-1">Profession</label>
+                                    <select 
+                                        name="profession"
+                                        value={formData.profession}
+                                        onChange={handleChange}
+                                        className="astro-input appearance-none bg-[var(--surface)]"
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="student">Student</option>
+                                        <option value="private job">Private Job</option>
+                                        <option value="government job">Government Job</option>
+                                        <option value="business">Business</option>
+                                        <option value="self employed">Self Employed</option>
+                                        <option value="unemployed">Unemployed</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    {formErrors.profession && <span className="text-xs text-coral font-medium ml-1">{formErrors.profession}</span>}
+                                </div>
                             </div>
-                            {formErrors.place && <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider ml-1 mt-1">{formErrors.place}</p>}
-                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full relative bg-gradient-to-r from-primary to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:scale-[1.02] hover:shadow-primary/50 transition-all duration-300 mt-6 disabled:opacity-50 disabled:hover:scale-100 overflow-hidden"
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider ml-1">Marital Status</label>
+                                <select 
+                                    name="marital_status"
+                                    value={formData.marital_status}
+                                    onChange={handleChange}
+                                    className="astro-input appearance-none bg-[var(--surface)]"
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="single">Single</option>
+                                    <option value="married">Married</option>
+                                    <option value="divorced">Divorced</option>
+                                    <option value="widowed">Widowed</option>
+                                    <option value="separated">Separated</option>
+                                </select>
+                                {formErrors.marital_status && <span className="text-xs text-coral font-medium ml-1">{formErrors.marital_status}</span>}
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card>
+                        <SectionHeader title="Place of Birth" hindiTitle="जन्म स्थान" />
+                        <div className="v2-city-search relative">
+                            <CitySearch
+                                onSelect={(city) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        place: `${city.name}, ${city.country}`,
+                                        lat: city.latitude,
+                                        lng: city.longitude,
+                                        timezone: city.timezone
+                                    }));
+                                    if (formErrors.place) setFormErrors(prev => ({ ...prev, place: '' }));
+                                }}
+                                defaultValue={formData.place}
+                                error={!!formErrors.place}
+                            />
+                        </div>
+                        {formErrors.place && <span className="text-xs text-coral font-medium ml-1 block mt-2">{formErrors.place}</span>}
+                    </Card>
+
+                    <div className="pt-4">
+                        <Button 
+                            type="submit" 
+                            disabled={loading} 
+                            className="w-full h-14 !rounded-2xl relative overflow-hidden"
                         >
-                            {/* Progress Fill */}
                             {loading && (
-                                <div
-                                    className="absolute left-0 top-0 bottom-0 bg-white/20 transition-all duration-500 ease-out"
+                                <div 
+                                    className="absolute left-0 top-0 bottom-0 bg-white/20 transition-all duration-500"
                                     style={{ width: `${progress}%` }}
                                 ></div>
                             )}
-
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-                                {loading ? `Aligning Stars... ${progress}%` : 'Reveal My Chart'}
+                            <span className="relative z-10 flex items-center gap-2">
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        {`Generating... ${progress}%`}
+                                    </>
+                                ) : (
+                                    <>
+                                        Reveal My Chart <ChevronRight size={20} />
+                                    </>
+                                )}
                             </span>
-                        </button>
-                    </form>
-                </div>
+                        </Button>
+                    </div>
+                </form>
             </div>
-        </div>
+        </Layout>
     );
 };
 

@@ -134,6 +134,7 @@ function App() {
         </ProfileProvider>
       </ChartProvider>
     </Router>
+    </ThemeProvider>
   );
 }
 

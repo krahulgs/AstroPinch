@@ -77,10 +77,10 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
     return (
         <div className="mt-6 space-y-4">
             <div className="flex items-center justify-between">
-                <h4 className="text-xs font-black text-primary uppercase tracking-widest">Loshu Grid (Vedic Numerology)</h4>
+                <h4 className="text-xs font-black text-primary uppercase tracking-widest">{t('report.loshu.title')}</h4>
                 <div className="flex gap-2 text-xs font-bold">
-                    <span className="bg-amber-100/50 text-amber-800 px-2 py-1 rounded">Mulank: {loshuData.mulank}</span>
-                    <span className="bg-purple-100/50 text-purple-800 px-2 py-1 rounded">Bhagyank: {loshuData.bhagyank}</span>
+                    <span className="bg-amber-100/50 text-amber-800 px-2 py-1 rounded">{t('report.loshu.mulank')}: {loshuData.mulank}</span>
+                    <span className="bg-purple-100/50 text-purple-800 px-2 py-1 rounded">{t('report.loshu.bhagyank')}: {loshuData.bhagyank}</span>
                 </div>
             </div>
 
@@ -108,7 +108,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
 
             {!showAnalysis && (
                 <div className="mt-4 flex flex-col items-center">
-                    <span className="text-xs font-black text-amber-600 uppercase tracking-widest">Kua No. {loshuData.kua}</span>
+                    <span className="text-xs font-black text-amber-600 uppercase tracking-widest">{t('report.loshu.kua')} {loshuData.kua}</span>
                 </div>
             )}
 
@@ -118,7 +118,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
                     {loshuData.completed_planes?.length > 0 && (
                         <div className="space-y-3">
                             <p className="text-xs text-secondary font-black uppercase tracking-widest flex items-center gap-2">
-                                <Activity className="w-3 h-3 text-emerald-500" /> Active Success Planes (Yogas)
+                                <Activity className="w-3 h-3 text-emerald-500" /> {t('report.loshu.success_planes')}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {loshuData.completed_planes.map(plane => (
@@ -134,7 +134,7 @@ const LoshuGridDisplay = ({ loshuData, showAnalysis = false }) => {
                     {loshuData.remedies && Object.keys(loshuData.remedies).length > 0 && (
                         <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-4 rounded-2xl border border-amber-100/50">
                             <p className="text-xs text-amber-800 font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
-                                <Leaf className="w-3 h-3 text-amber-600" /> Key Remedies for Missing Energies
+                                <Leaf className="w-3 h-3 text-amber-600" /> {t('report.loshu.key_remedies')}
                             </p>
                             <div className="space-y-3">
                                 {Object.entries(loshuData.remedies).map(([num, remedy]) => (
@@ -237,7 +237,7 @@ const VedicChartsDisplay = ({ userData }) => {
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                 >
-                    North Indian
+                    {t('report.charts.north_indian')}
                 </button>
                 <button
                     onClick={() => setChartStyle('south')}
@@ -246,7 +246,7 @@ const VedicChartsDisplay = ({ userData }) => {
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                 >
-                    South Indian
+                    {t('report.charts.south_indian')}
                 </button>
             </div>
 
@@ -263,8 +263,8 @@ const VedicChartsDisplay = ({ userData }) => {
                                 <CircleDot className="w-6 h-6 text-purple-600" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-primary uppercase tracking-tight">Lagna Chart</h3>
-                                <p className="text-sm text-purple-600 font-bold uppercase tracking-widest">D1 - Birth Chart</p>
+                                <h3 className="text-xl font-black text-primary uppercase tracking-tight">{t('report.charts.lagna_chart')}</h3>
+                                <p className="text-sm text-purple-600 font-bold uppercase tracking-widest">{t('report.charts.d1_birth')}</p>
                             </div>
                         </div>
 
@@ -284,7 +284,7 @@ const VedicChartsDisplay = ({ userData }) => {
 
                         <div className="mt-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
                             <p className="text-sm text-purple-700 text-center italic">
-                                The Lagna (Ascendant) chart shows planetary positions at birth and indicates your personality, life path, and karmic influences.
+                                {t('report.charts.lagna_desc')}
                             </p>
                         </div>
                     </div>
@@ -296,8 +296,8 @@ const VedicChartsDisplay = ({ userData }) => {
                                 <Star className="w-6 h-6 text-amber-600" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-primary uppercase tracking-tight">Navamsa Chart</h3>
-                                <p className="text-sm text-amber-600 font-bold uppercase tracking-widest">D9 - Dharma Chart</p>
+                                <h3 className="text-xl font-black text-primary uppercase tracking-tight">{t('report.charts.navamsa_chart')}</h3>
+                                <p className="text-sm text-amber-600 font-bold uppercase tracking-widest">{t('report.charts.d9_dharma')}</p>
                             </div>
                         </div>
 
@@ -311,13 +311,13 @@ const VedicChartsDisplay = ({ userData }) => {
                             </div>
                         ) : (
                             <div className="aspect-square flex items-center justify-center bg-gray-50 rounded-xl text-gray-400">
-                                Chart unavailable
+                                {t('report.charts.unavailable')}
                             </div>
                         )}
 
                         <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
                             <p className="text-sm text-amber-700 text-center italic">
-                                The Navamsa (D9) chart reveals your inner self, marriage prospects, spiritual path, and the fruits of your karma.
+                                {t('report.charts.navamsa_desc')}
                             </p>
                         </div>
                     </div>
@@ -681,8 +681,8 @@ const HealthAnalysisDisplay = ({ content }) => {
                     <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                         <Heart className="w-8 h-8 text-emerald-600" />
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-black text-emerald-900 uppercase tracking-tighter mb-2">Honest Health Analysis</h2>
-                    <p className="text-emerald-700 font-bold uppercase tracking-widest text-xs md:text-sm">Astrology + Numerology Deep Dive</p>
+                    <h2 className="text-2xl md:text-3xl font-black text-emerald-900 uppercase tracking-tighter mb-2">{t('report.health.title')}</h2>
+                    <p className="text-emerald-700 font-bold uppercase tracking-widest text-xs md:text-sm">{t('report.health.subtitle')}</p>
                     {header && <p className="mt-4 text-emerald-800 italic max-w-2xl mx-auto">{header}</p>}
                 </div>
             </div>
@@ -697,7 +697,7 @@ const HealthAnalysisDisplay = ({ content }) => {
                     const isPositive = title.includes("Positive") || title.includes("Remedies") || title.includes("Advice");
 
                     // Special styling for the Status Indicator (Last point usually)
-                    if (title.includes("Health Risk Indicator") || body.includes("Health Status Level")) {
+                    if (title.includes(t('report.health.risk_indicator')) || body.includes(t('report.health.status_level'))) {
                         return (
                             <div key={idx} className="col-span-1 md:col-span-2 p-8 rounded-[2rem] bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-xl text-center border border-slate-700 relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]" />
@@ -1240,7 +1240,7 @@ const ConsolidatedReport = () => {
                                                 <Scroll className="w-6 h-6 text-purple-600" />
                                             </div>
                                             <div>
-                                                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">Cosmic Blueprint</h2>
+                                                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase italic tracking-tighter">{t('report.sections.vedic_astrology')}</h2>
                                                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t('report.vedic.lahiri_ayanamsa') || report.vedic_astrology.ayanamsa?.name}</p>
                                             </div>
                                         </div>

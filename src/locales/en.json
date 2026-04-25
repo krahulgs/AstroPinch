@@ -54,6 +54,19 @@
             "Sextile": "Sextile",
             "harmonious": "Harmonious",
             "challenging": "Challenging"
+        },
+        "risk_level": "Risk Level",
+        "financial_caution": "Financial Caution Alert",
+        "conflict_probability": "Conflict Probability",
+        "things_to_avoid": "Things to Avoid Today",
+        "daily_power_actions": "Daily Power Actions",
+        "planetary_alignments": "Planetary Alignments",
+        "hide_alignments": "Hide Planetary Alignments",
+        "show_alignments": "View Planetary Alignments",
+        "focus": {
+            "physical": "Physical",
+            "mental": "Mental",
+            "spiritual": "Spiritual"
         }
     },
     "report": {
@@ -165,6 +178,31 @@
             "deity_focus": "Deity Focus",
             "sacred_mantra": "Sacred Mantra",
             "instructions": "Instructions"
+        },
+        "loshu": {
+            "title": "Loshu Grid (Vedic Numerology)",
+            "mulank": "Mulank",
+            "bhagyank": "Bhagyank",
+            "kua": "Kua No.",
+            "success_planes": "Active Success Planes (Yogas)",
+            "key_remedies": "Key Remedies for Missing Energies"
+        },
+        "charts": {
+            "north_indian": "North Indian",
+            "south_indian": "South Indian",
+            "lagna_chart": "Lagna Chart",
+            "navamsa_chart": "Navamsa Chart",
+            "d1_birth": "D1 - Birth Chart",
+            "d9_dharma": "D9 - Dharma Chart",
+            "unavailable": "Chart unavailable",
+            "lagna_desc": "The Lagna (Ascendant) chart shows planetary positions at birth and indicates your personality, life path, and karmic influences.",
+            "navamsa_desc": "The Navamsa (D9) chart reveals your inner self, marriage prospects, spiritual path, and the fruits of your karma."
+        },
+        "health": {
+            "title": "Honest Health Analysis",
+            "subtitle": "Astrology + Numerology Deep Dive",
+            "risk_indicator": "Health Risk Indicator",
+            "status_level": "Health Status Level"
         }
     },
     "daily": {
@@ -284,5 +322,85 @@
         "ai_deep_dive": {
             "title": "AI Deep Dive Reading"
         }
+    },
+    "home": {
+        "hero": {
+            "destiny": "Your Celestial Destiny",
+            "title": "Discover Your",
+            "path": "Cosmic Path",
+            "description": "Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through our NASA-powered precision engine.",
+            "cta": "Get Free Chart",
+            "users": "Joined by 2M+ users"
+        },
+        "tech_cards": {
+            "vedastro": { "title": "VedAstro Engine", "sub": "Ancient Vedic Traditions", "foot": "Swiss Ephemeris 2.10" },
+            "groq": { "title": "Groq LPU", "sub": "Ultra-Fast Inference", "foot": "Real-time Prediction" },
+            "jpl": { "title": "JPL Horizons", "sub": "Skyfield Precision", "foot": "NASA JPL Planetary Data" },
+            "ai": { "title": "AstroAI Predictor", "sub": "Neural Core Modeling", "foot": "Proprietary Analytics" }
+        },
+        "features": {
+            "daily_horoscope": { "title": "Daily Horoscope", "desc": "Get personalized daily insights based on your zodiac sign and current planetary transits." },
+            "birth_chart": { "title": "Birth Chart", "desc": "Generate your comprehensive Vedic birth chart with detailed planetary positions and analysis." },
+            "compatibility": { "title": "Compatibility", "desc": "Check relationship compatibility using traditional Ashtakoot Guna Milan methodology." },
+            "numerology": { "title": "Numerology", "desc": "Discover the hidden meaning of numbers in your life with our advanced numerology calculator." }
+        }
+    },
+    "rashifal": {
+        "index": {
+            "guidance": "Cosmic Guidance",
+            "daily": "Daily",
+            "weekly": "Weekly",
+            "monthly": "Monthly",
+            "title": "Rashifal",
+            "description": "Select your zodiac sign to unlock personalized {{period}} insights powered by NASA precision and ancient Vedic wisdom.",
+            "view_details": "View Details",
+            "why_trust": "Why trust our",
+            "celestial_forecasts": "Celestial Forecasts?",
+            "trust_desc": "Unlike generic horoscopes, AstroPinch combines NASA JPL planetary positioning data with 5,000-year-old Vedic algorithms to provide the most accurate {{period}} rashifal in the industry.",
+            "nasa_powered": "NASA-powered planetary precision",
+            "mapping": "Personalized transit-to-natal mapping",
+            "ai_enhanced": "AI-enhanced interpretation with context"
+        }
+    },
+    "zodiac": {
+        "elements": {
+            "Fire": "Fire",
+            "Earth": "Earth",
+            "Air": "Air",
+            "Water": "Water"
+        },
+        "signs": {
+            "Aries": "Aries",
+            "Taurus": "Taurus",
+            "Gemini": "Gemini",
+            "Cancer": "Cancer",
+            "Leo": "Leo",
+            "Virgo": "Virgo",
+            "Libra": "Libra",
+            "Scorpio": "Scorpio",
+            "Sagittarius": "Sagittarius",
+            "Capricorn": "Capricorn",
+            "Aquarius": "Aquarius",
+            "Pisces": "Pisces"
+        }
+    },
+    "kundali_match": {
+        "title": "Kundali",
+        "matching": "Matching",
+        "desc": "Analyze the cosmic compatibility between two souls using the traditional 36-Guna Ashta-Koota system.",
+        "vedic_compatibility": "Vedic Compatibility",
+        "select_profiles": "Select Profiles",
+        "bride": "Bride",
+        "groom": "Groom",
+        "calculate": "Calculate Compatibility",
+        "results": "Matching Results",
+        "guna_score": "Guna Score",
+        "conclusion": "Conclusion",
+        "ashta_koota": "Ashta-Koota Details",
+        "report_for": "Matching Report for",
+        "and": "and",
+        "login_required": "Login Required",
+        "no_profiles": "No Profiles Found",
+        "add_profile": "Add Profile"
     }
 }

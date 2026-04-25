@@ -276,7 +276,7 @@ const Horoscope = () => {
                 }}
             />
             <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-bold uppercase text-xs tracking-widest mb-8">
-                <ArrowLeft className="w-4 h-4" /> Back to Home
+                <ArrowLeft className="w-4 h-4" /> {t('common.back_to_universe')}
             </Link>
 
             {/* 1. Sign Selector Bar (Professional Navigation) */}
@@ -292,7 +292,7 @@ const Horoscope = () => {
                                 }`}
                         >
                             <span className="text-2xl mb-1">{z.symbol}</span>
-                            <span className="text-[10px] font-bold uppercase tracking-wide mb-1">{z.name.slice(0, 3)}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wide mb-1">{t(`zodiac.signs.${z.name}`).slice(0, 3)}</span>
                             <span className="text-[8px] opacity-70 leading-tight block max-w-[60px] text-center">{z.dates}</span>
                         </Link>
                     ))}
@@ -313,16 +313,16 @@ const Horoscope = () => {
                                     : 'text-slate-500 hover:text-indigo-500'
                                 }`}
                             >
-                                {p === 'daily' ? 'Today' : p === 'weekly' ? 'Weekly' : 'Monthly'}
+                                {t(`rashifal.index.${p}`)}
                             </button>
                         ))}
                     </div>
                 </div>
                 <span className="inline-block py-1 px-4 rounded-full bg-amber-50 text-amber-600 font-bold uppercase text-[10px] tracking-widest border border-amber-100">
-                    {period === 'daily' ? 'Daily Guidance' : period === 'weekly' ? 'Weekly Outlook' : 'Monthly Forecast'}
+                    {period === 'daily' ? t('common.daily_guidance') : period === 'weekly' ? `${t('rashifal.index.weekly')} Outlook` : `${t('rashifal.index.monthly')} Forecast`}
                 </span>
                 <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic mb-2">
-                    {t('horoscope.title', { sign: currentSign })}
+                    {t('horoscope.title', { sign: t(`zodiac.signs.${currentSign}`) })}
                 </h1>
                 <p className="text-slate-400 font-serif italic text-lg mb-4">
                     {zodiacSigns.find(z => z.name === currentSign)?.dates}
@@ -373,41 +373,41 @@ const Horoscope = () => {
                 <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-[2.5rem] p-8 md:p-12 border border-indigo-100">
                     <div className="flex items-center gap-3 mb-8">
                         <Sparkles className="w-6 h-6 text-indigo-600" />
-                        <h3 className="text-2xl font-serif italic text-slate-800">Lucky Elements</h3>
+                        <h3 className="text-2xl font-serif italic text-slate-800">{t('horoscope.lucky_elements')}</h3>
                     </div>
 
                     <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                         {[
                             {
-                                label: "Lucky Color",
+                                label: t('horoscope.stats.lucky_color'),
                                 value: currentZodiacData?.lucky_color || "Royal Blue",
                                 sub: "Wear for confidence",
                                 icon: <div className="w-4 h-4 rounded-full bg-blue-600 shadow-sm border border-white"></div>,
                                 bg: "bg-blue-100/50 text-blue-700"
                             },
                             {
-                                label: "Lucky Number",
+                                label: t('horoscope.stats.lucky_number'),
                                 value: currentZodiacData?.lucky_number || "7",
                                 sub: "Your power digit",
                                 icon: <span className="text-lg font-black">#</span>,
                                 bg: "bg-amber-100/50 text-amber-700"
                             },
                             {
-                                label: "Lucky Time",
+                                label: t('horoscope.lucky_time'),
                                 value: currentZodiacData?.lucky_time || "4:20 PM - 6:00 PM",
                                 sub: "Golden window",
                                 icon: <Moon className="w-4 h-4" />,
                                 bg: "bg-purple-100/50 text-purple-700"
                             },
                             {
-                                label: "Lucky Direction",
+                                label: t('horoscope.lucky_direction'),
                                 value: currentZodiacData?.lucky_direction || "North-East",
                                 sub: "Face for success",
                                 icon: <Compass className="w-4 h-4" />,
                                 bg: "bg-emerald-100/50 text-emerald-700"
                             },
                             {
-                                label: "Gemstone",
+                                label: t('horoscope.gemstone'),
                                 value: currentZodiacData?.gemstone || "Sapphire",
                                 sub: "Energy amplifier",
                                 icon: <div className="w-4 h-4 rotate-45 bg-indigo-500 rounded-sm shadow-sm"></div>,
@@ -506,7 +506,7 @@ const Horoscope = () => {
                                 <div className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm">
                                     <div className="flex items-center gap-2 mb-3">
                                         <Wallet className="w-4 h-4 text-orange-500" />
-                                        <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Financial Caution Alert</h4>
+                                        <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{t('horoscope.financial_caution')}</h4>
                                     </div>
                                     <p className="text-sm text-slate-500 leading-relaxed font-medium">
                                         {currentZodiacData?.financial_caution || "Avoid impulsive big-ticket purchases today. Review contracts carefully."}
@@ -519,7 +519,7 @@ const Horoscope = () => {
                                 {/* Conflict Prob */}
                                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                     <div className="flex justify-between items-end mb-3">
-                                        <h4 className="font-bold text-slate-700">Conflict Probability</h4>
+                                        <h4 className="font-bold text-slate-700">{t('horoscope.conflict_probability')}</h4>
                                         <span className="text-xl font-black text-slate-900">{currentZodiacData?.conflict_probability || '12'}%</span>
                                     </div>
                                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -534,7 +534,7 @@ const Horoscope = () => {
                                 <div>
                                     <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                                         <XCircle className="w-4 h-4 text-red-400" />
-                                        Things to Avoid Today
+                                        {t('horoscope.things_to_avoid')}
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                         {(currentZodiacData?.avoid_list || ['Hasty Decisions', 'Ego Clashes', 'Oversleeping']).map((item, i) => (

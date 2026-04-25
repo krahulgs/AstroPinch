@@ -43,6 +43,27 @@ if GEMINI_API_KEY:
 else:
     print("No GEMINI_API_KEY found")
 
+def get_lang_instruction(lang="en", style="conversational"):
+    """
+    Helper to get language specific instructions for the AI
+    """
+    if lang == "en":
+        return "Respond in English."
+    
+    lang_names = {
+        "hi": "Hindi (Hinglish style, Devanagari script)",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "mr": "Marathi"
+    }
+    
+    lang_name = lang_names.get(lang, "English")
+    
+    if style == "json":
+        return f"All values must be in conversational {lang_name}. Use English words for Main Terms (e.g. Career, Love, Health). Keep it simple and non-jargon."
+    
+    return f"Respond in conversational {lang_name}. Use English words for technical terms (e.g. Career, Finance, Health) where helpful for clarity. Avoid complex or formal vocabulary. Keep it simple and modern."
+
 async def generate_numerology_insights(numerology_data, context=None, lang="en"):
     """
     Generate personalized numerology insights using AI (Async)
@@ -58,7 +79,8 @@ async def generate_numerology_insights(numerology_data, context=None, lang="en")
         if p: ctx_str += f"- Profession: {p}\n"
         if m: ctx_str += f"- Marital Status: {m}\n"
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style) using Devanagari script. Use English words for technical terms (e.g., Career, Finance) to make it easy to understand. Avoid complex Hindi/Sanskrit." if lang == "hi" else "Respond in English."
+
+    lang_instruction = get_lang_instruction(lang)
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -156,9 +178,9 @@ def get_fallback_insights(numerology_data, lang="en"):
     """
     life_path = numerology_data['life_path']
     expression = numerology_data['expression']
-    
-    if lang == "hi":
-        insights = f"""**आपका अंकशास्त्र प्रोफाइल**
+    if lang != "en":
+        insights_map = {
+            "hi": f"""**आपका अंकशास्त्र प्रोफाइल**
 
 जीवन पथ संख्या {life_path} के साथ, आप आत्म-खोज की यात्रा पर हैं। 
 आपकी अभिव्यक्ति संख्या {expression} आपकी स्वाभाविक प्रतिभा और दुनिया के सामने खुद को व्यक्त करने के तरीके को प्रकट करती है।
@@ -167,11 +189,43 @@ def get_fallback_insights(numerology_data, lang="en"):
 
 **मुख्य ताकत**: आपके पास अद्वितीय उपहार हैं जो आपके मूल अंकों के साथ संरेखित हैं।
 
-**मार्गदर्शन**: अपनी यात्रा पर भरोसा रखें और रास्ते में आने वाले पाठों को अपनाएं।
+**मार्गदर्शन**: अपनी यात्रा पर भरोसा रखें और रास्ते में आने वाले पाठों को अपनाएं।""",
+            "ta": f"""**உங்கள் எண் கணித சுயவிவரம்**
 
-**सकारात्मक पुष्टि**: "मैं अपने अद्वितीय मार्ग को अपनाता हूं और अपनी यात्रा के ज्ञान पर भरोसा करता हूं।"
-"""
-    else:
+வாழ்க்கைப் பாதை எண் {life_path} உடன், நீங்கள் சுய-கண்டுபிடிப்பு பயணத்தில் உள்ளீர்கள்.
+உங்கள் வெளிப்பாட்டு எண் {expression} உங்கள் இயல்பான திறமைகளையும் உலகிற்கு உங்களை வெளிப்படுத்தும் முறையையும் வெளிப்படுத்துகிறது.
+
+**வாழ்க்கை நோக்கம்**: உங்கள் பாதை {life_path} எண்ணின் குணங்களை ஏற்றுக்கொள்வதாகும்.
+
+**முக்கிய பலம்**: உங்கள் அடிப்படை எண்களுடன் ஒத்துப்போகும் தனித்துவமான திறமைகள் உங்களிடம் உள்ளன.
+
+**வழிகாட்டல்**: உங்கள் பயணத்தின் மீது நம்பிக்கை வைத்து, வழியில் வரும் பாடங்களை ஏற்றுக்கொள்ளுங்கள்.""",
+            "te": f"""**మీ సంఖ్యాశాస్త్ర ప్రొఫైల్**
+
+జీవిత పథం సంఖ్య {life_path}తో, మీరు స్వీయ-ఆవిష్కరణ ప్రయాణంలో ఉన్నారు.
+మీ వ్యక్తీకరణ సంఖ్య {expression} మీ సహజ ప్రతిభను మరియు ప్రపంచానికి మిమ్మల్ని మీరు వ్యక్తపరిచే విధానాన్ని వెల్లడిస్తుంది.
+
+**జీవిత ఉద్దేశ్యం**: మీ మార్గం {life_path} సంఖ్య యొక్క లక్షణాలను స్వీకరించడం.
+
+**ప్రధాన బలాలు**: మీ మూల సంఖ్యలతో సరితూగే ప్రత్యేకమైన ప్రతిభ మీకు ఉంది.
+
+**మార్గదర్శకత్వం**: మీ ప్రయాణంపై నమ్మకం ఉంచండి మరియు మార్గంలో వచ్చే పాఠాలను స్వీకరించండి.""",
+            "mr": f"""**तुमचे अंकशास्त्र प्रोफाइल**
+
+जीवन पथ क्रमांक {life_path} सह, तुम्ही आत्म-शोधाच्या प्रवासावर आहात.
+तुमचा अभिव्यक्ती क्रमांक {expression} तुमची नैसर्गिक प्रतिभा आणि जगासमोर स्वतःला व्यक्त करण्याची पद्धत प्रकट करतो.
+
+**जीवनाचा उद्देश**: तुमचा मार्ग क्रमांक {life_path} च्या गुणांना स्वीकारण्याबद्दल आहे.
+
+**मुख्य ताकद**: तुमच्याकडे अद्वितीय देणग्या आहेत ज्या तुमच्या मूळ अंकांशी सुसंगत आहेत.
+
+**मार्गदर्शन**: तुमच्या प्रवासावर विश्वास ठेवा आणि वाटेत मिळणारे धडे स्वीकारा."""
+        }
+        insights = insights_map.get(lang, "")
+        if not insights:
+            lang = "en" # Fallback to English if lang not in map
+
+    if lang == "en":
         insights = f"""**Your Numerology Profile**
 
 With a Life Path Number of {life_path}, you are on a journey of {get_life_path_description(life_path)}. 
@@ -193,7 +247,8 @@ of growth, learning, and self-discovery.
     
     return {
         "ai_insights": insights,
-        "source": "fallback"
+        "source": "fallback",
+        "ai_model": "rule-based"
     }
 
 def get_life_path_description(number):
@@ -237,7 +292,7 @@ async def generate_daily_guidance(sign, transits, context=None, outcomes_structu
         retro = "(Retrograde)" if p.get('retrograde') else ""
         sky_data += f"- {p['name']} in {p['sign']} (House {p.get('house')}) {retro}\n"
     
-    lang_instruction = "All values must be in conversational Hindi (Hinglish style, Devanagari script). Use English words for Main Terms (Career, Love, Health). Keep it simple and non-jargon." if lang == "hi" else "All values must be in English."
+    lang_instruction = get_lang_instruction(lang, style="json")
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -425,7 +480,7 @@ async def generate_vedic_ai_summary(name, planets, panchang, dasha, lang="en", c
         else:
             dasha_data = "Dasha data unavailable"
 
-        lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for technical terms (Career, Relationship, Finance) for easy readability. Avoid complex Shuddh Hindi." if lang == "hi" else "Respond in English."
+        lang_instruction = get_lang_instruction(lang)
 
         # Subscription Tier Logic
         tier = 'free'
@@ -696,7 +751,7 @@ async def generate_western_ai_summary(name, sun, moon, ascendant, planets, house
     if houses:
         house_summary = "HOUSE SIGN ALIGNMENTS:\n" + "\n".join([f"- House {i+1} ({W_HOUSES.get(i+1, {}).get('name', 'N/A')}): {sign} - Theme: {W_HOUSES.get(i+1, {}).get('theme', '')}" for i, sign in enumerate(houses)])
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for psychological/astrological terms where helpful for clarity. Keep it simple." if lang == "hi" else "Respond in plain, warm English."
+    lang_instruction = get_lang_instruction(lang)
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -815,7 +870,7 @@ async def generate_executive_summary(name, western_data, vedic_data, numerology_
     v_brief = f"Lagna: {v_asc}, Nakshatra: {v_nak}, Moon: {v_moon} (Vedic)"
     n_brief = f"Fadic: {numerology_data.get('fadic_number', 'N/A')} ({numerology_data.get('fadic_type', 'N/A')})"
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use common English words (Risk, Solution, Career) to be easily understood by a layperson. No complex jargon." if lang == "hi" else "Respond in English."
+    lang_instruction = get_lang_instruction(lang)
 
     # Age-aware logic
     age = context.get('age') if context else None
@@ -917,7 +972,7 @@ async def generate_vedic_chart_analysis(name, planets, panchang, doshas=None, la
     
     dosha_str = "; ".join(dosha_list) if dosha_list else "None"
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). HEAVILY use English words for concepts like 'Personality', 'Career', 'Strength', 'Challenge'. Make it sound like a modern expert talking to a friend." if lang == "hi" else "Respond in plain, simple, and detailed English."
+    lang_instruction = get_lang_instruction(lang)
 
     prompt = f"""You are Jyotish — an expert Vedic astrology master. Your goal is to provide a DEEP and DETAILED analysis of the user's personality based on their birth chart (Kundali).
     
@@ -1055,7 +1110,7 @@ async def generate_chat_response(message, profile_context, history=None, lang="e
         yield "I apologize, but I am currently offline. Please try again later."
         return
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English terms for clarity. Be simple and direct." if lang == "hi" else "Respond in English."
+    lang_instruction = get_lang_instruction(lang)
     
     # Construct a rich context string from the profile data
     context_str = "User Profile Summary:\n"
@@ -1224,7 +1279,7 @@ async def generate_career_analysis(name, planets, panchang, lang="en", age=None)
     pan_nak = panchang.get('nakshatra', {}).get('name', 'Unknown') if panchang else 'Unknown'
     pan_asc = panchang.get('ascendant', {}).get('name', 'Unknown') if panchang else 'Unknown'
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for 'Job', 'Business', 'Growth', 'Career'. Keep language very simple." if lang == "hi" else "Respond in English."
+    lang_instruction = get_lang_instruction(lang)
 
     prompt = f"""You are a Career Astrologer.
     Using the user’s birth details, analyze the career path based on 10th house, Saturn, and Mercury.
@@ -1351,7 +1406,7 @@ async def generate_relationship_analysis(name, planets, panchang, lang="en", age
     pan_nak = panchang.get('nakshatra', {}).get('name', 'Unknown') if panchang else 'Unknown'
     pan_asc = panchang.get('ascendant', {}).get('name', 'Unknown') if panchang else 'Unknown'
 
-    lang_instruction = "Respond in conversational Hindi (Hinglish style, Devanagari script). Use English words for 'Partner', 'Relationship', 'Trust', 'Marriage'. Avoid complex Hindi." if lang == "hi" else "Respond in English."
+    lang_instruction = get_lang_instruction(lang)
 
     prompt = f"""You are an expert Relationship & Marriage Astrologer.
     Using the user’s birth details, analyze the marriage and relationships based on 7th house, Venus, Jupiter, and Mars.

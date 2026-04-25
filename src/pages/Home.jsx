@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { ArrowRight, Star, Heart, Calendar, Sparkles, Calculator, BookOpen, ChevronLeft, ChevronRight, Cpu, Database, Zap, Globe, Compass, Moon } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ZodiacIcons from '../components/ZodiacIcons';
 import { useProfile } from '../context/ProfileContext';
 import SEO from '../components/SEO';
 
 const Home = () => {
+    const { t } = useTranslation();
     const { token } = useProfile();
     const [selectedSign, setSelectedSign] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -49,26 +51,26 @@ const Home = () => {
     const features = [
         {
             icon: Sparkles,
-            title: "Daily Horoscope",
-            description: "Get personalized daily insights based on your zodiac sign and current planetary transits.",
+            title: t('home.features.daily_horoscope.title'),
+            description: t('home.features.daily_horoscope.desc'),
             link: "/horoscope"
         },
         {
             icon: Calculator,
-            title: "Birth Chart",
-            description: "Generate your comprehensive Vedic birth chart with detailed planetary positions and analysis.",
+            title: t('home.features.birth_chart.title'),
+            description: t('home.features.birth_chart.desc'),
             link: "/chart"
         },
         {
             icon: Heart,
-            title: "Compatibility",
-            description: "Check relationship compatibility using traditional Ashtakoot Guna Milan methodology.",
+            title: t('home.features.compatibility.title'),
+            description: t('home.features.compatibility.desc'),
             link: "/kundali-match"
         },
         {
             icon: Cpu,
-            title: "Numerology",
-            description: "Discover the hidden meaning of numbers in your life with our advanced numerology calculator.",
+            title: t('home.features.numerology.title'),
+            description: t('home.features.numerology.desc'),
             link: "/numerology"
         }
     ];
@@ -103,16 +105,16 @@ const Home = () => {
                             <div className="space-y-6">
                                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white font-medium text-[10px] uppercase tracking-[0.2em]">
                                     <Sparkles className="w-3 h-3 text-amber-400" />
-                                    Your Celestial Destiny
+                                    {t('home.hero.destiny')}
                                 </div>
 
                                 <h1 className="text-5xl md:text-8xl font-medium text-white tracking-tight leading-[0.9] font-serif italic">
-                                    Discover Your <br />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">Cosmic Path</span>
+                                    {t('home.hero.title')} <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">{t('home.hero.path')}</span>
                                 </h1>
 
                                 <p className="text-base md:text-xl text-white/80 max-w-xl font-light tracking-wide leading-relaxed">
-                                    Unlock personalized daily horoscopes, professional birth chart analysis, and ancient vedic wisdom through our NASA-powered precision engine.
+                                    {t('home.hero.description')}
                                 </p>
                             </div>
 
@@ -121,7 +123,7 @@ const Home = () => {
                                     to="/chart"
                                     className="px-8 py-4 bg-white text-black rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all duration-300 shadow-xl shadow-white/5"
                                 >
-                                    Get Free Chart
+                                    {t('home.hero.cta')}
                                 </Link>
                                 <div className="flex items-center gap-4 px-5 py-3 rounded-full border border-white/10 backdrop-blur-sm bg-white/5">
                                     <div className="flex -space-x-2">
@@ -134,7 +136,7 @@ const Home = () => {
                                             {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-2 h-2 fill-amber-400 text-amber-400" />)}
                                             <span className="text-white text-[10px] font-bold ml-1">4.9/5</span>
                                         </div>
-                                        <span className="text-white/70 text-[9px] font-medium uppercase tracking-tighter">Joined by 2M+ users</span>
+                                        <span className="text-white/70 text-[9px] font-medium uppercase tracking-tighter">{t('home.hero.users')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -203,9 +205,9 @@ const Home = () => {
                                         <div>
                                             <TechCard
                                                 icon={BookOpen}
-                                                title="VedAstro Engine"
-                                                subtitle="Ancient Vedic Traditions"
-                                                footer="Swiss Ephemeris 2.10"
+                                                title={t('home.tech_cards.vedastro.title')}
+                                                subtitle={t('home.tech_cards.vedastro.sub')}
+                                                footer={t('home.tech_cards.vedastro.foot')}
                                                 color="blue"
                                             />
                                         </div>
@@ -214,9 +216,9 @@ const Home = () => {
                                         <div>
                                             <TechCard
                                                 icon={Cpu}
-                                                title="Groq LPU"
-                                                subtitle="Ultra-Fast Inference"
-                                                footer="Real-time Prediction"
+                                                title={t('home.tech_cards.groq.title')}
+                                                subtitle={t('home.tech_cards.groq.sub')}
+                                                footer={t('home.tech_cards.groq.foot')}
                                                 color="cyan"
                                             />
                                         </div>
@@ -225,9 +227,9 @@ const Home = () => {
                                         <div>
                                             <TechCard
                                                 icon={Calculator}
-                                                title="JPL Horizons"
-                                                subtitle="Skyfield Precision"
-                                                footer="NASA JPL Planetary Data"
+                                                title={t('home.tech_cards.jpl.title')}
+                                                subtitle={t('home.tech_cards.jpl.sub')}
+                                                footer={t('home.tech_cards.jpl.foot')}
                                                 color="amber"
                                             />
                                         </div>
@@ -236,9 +238,9 @@ const Home = () => {
                                         <div>
                                             <TechCard
                                                 icon={Zap}
-                                                title="AstroAI Predictor"
-                                                subtitle="Neural Core Modeling"
-                                                footer="Proprietary Analytics"
+                                                title={t('home.tech_cards.ai.title')}
+                                                subtitle={t('home.tech_cards.ai.sub')}
+                                                footer={t('home.tech_cards.ai.foot')}
                                                 color="rose"
                                             />
                                         </div>

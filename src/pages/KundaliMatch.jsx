@@ -82,13 +82,13 @@ const KundaliMatch = () => {
             <div className="text-center mb-12 space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 text-purple-600 text-[10px] font-bold uppercase tracking-widest border border-purple-100">
                     <Heart className="w-3 h-3 fill-purple-600" />
-                    Vedic Compatibility
+                    {t('kundali_match.vedic_compatibility')}
                 </div>
                 <h1 className="text-4xl md:text-5xl font-black text-primary uppercase italic tracking-tighter">
-                    Kundali <span className="text-purple-600">Matching</span>
+                    {t('kundali_match.title')} <span className="text-purple-600">{t('kundali_match.matching')}</span>
                 </h1>
                 <p className="text-secondary max-w-2xl mx-auto">
-                    {t('kundali_match_desc', "Analyze the cosmic compatibility between two souls using the traditional 36-Guna Ashta-Koota system.")}
+                    {t('kundali_match.desc')}
                 </p>
             </div>
 
@@ -146,7 +146,7 @@ const KundaliMatch = () => {
                     <div className="absolute top-0 right-0 p-6 opacity-5">
                         <Moon className="w-20 h-20 text-pink-500" />
                     </div>
-                    <label className="block text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4">Select Bride</label>
+                    <label className="block text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4">{t('kundali_match.select_profiles')} ({t('kundali_match.bride')})</label>
                     <select
                         className="w-full p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none transition-all font-bold text-primary"
                         value={bride?.id || ''}
@@ -175,7 +175,7 @@ const KundaliMatch = () => {
                     <div className="absolute top-0 right-0 p-6 opacity-5">
                         <Sun className="w-20 h-20 text-blue-500" />
                     </div>
-                    <label className="block text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4">Select Groom</label>
+                    <label className="block text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4">{t('kundali_match.select_profiles')} ({t('kundali_match.groom')})</label>
                     <select
                         className="w-full p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none transition-all font-bold text-primary"
                         value={groom?.id || ''}

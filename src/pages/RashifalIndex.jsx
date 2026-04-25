@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Sparkles, Calendar, ArrowRight, Star, Heart, Briefcase, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SEO from '../components/SEO';
 
 const RashifalIndex = () => {
     const { period = 'daily' } = useParams();
     const [selectedPeriod, setSelectedPeriod] = useState(period);
+    const { t } = useTranslation();
 
     const zodiacSigns = [
-        { name: 'Aries', symbol: '♈', dates: 'Mar 21 - Apr 19', color: 'from-red-500 to-orange-500', element: 'Fire' },
-        { name: 'Taurus', symbol: '♉', dates: 'Apr 20 - May 20', color: 'from-green-500 to-emerald-500', element: 'Earth' },
-        { name: 'Gemini', symbol: '♊', dates: 'May 21 - Jun 20', color: 'from-yellow-400 to-amber-500', element: 'Air' },
-        { name: 'Cancer', symbol: '♋', dates: 'Jun 21 - Jul 22', color: 'from-blue-400 to-indigo-500', element: 'Water' },
-        { name: 'Leo', symbol: '♌', dates: 'Jul 23 - Aug 22', color: 'from-orange-500 to-red-600', element: 'Fire' },
-        { name: 'Virgo', symbol: '♍', dates: 'Aug 23 - Sep 22', color: 'from-emerald-500 to-teal-600', element: 'Earth' },
-        { name: 'Libra', symbol: '♎', dates: 'Sep 23 - Oct 22', color: 'from-pink-400 to-rose-500', element: 'Air' },
-        { name: 'Scorpio', symbol: '♏', dates: 'Oct 23 - Nov 21', color: 'from-purple-600 to-indigo-700', element: 'Water' },
-        { name: 'Sagittarius', symbol: '♐', dates: 'Nov 22 - Dec 21', color: 'from-amber-500 to-orange-600', element: 'Fire' },
-        { name: 'Capricorn', symbol: '♑', dates: 'Dec 22 - Jan 19', color: 'from-slate-600 to-gray-700', element: 'Earth' },
-        { name: 'Aquarius', symbol: '♒', dates: 'Jan 20 - Feb 18', color: 'from-cyan-500 to-blue-600', element: 'Air' },
-        { name: 'Pisces', symbol: '♓', dates: 'Feb 19 - Mar 20', color: 'from-violet-500 to-purple-600', element: 'Water' }
+        { name: t('zodiac.signs.Aries'), id: 'aries', symbol: '♈', dates: 'Mar 21 - Apr 19', color: 'from-red-500 to-orange-500', element: t('zodiac.elements.Fire') },
+        { name: t('zodiac.signs.Taurus'), id: 'taurus', symbol: '♉', dates: 'Apr 20 - May 20', color: 'from-green-500 to-emerald-500', element: t('zodiac.elements.Earth') },
+        { name: t('zodiac.signs.Gemini'), id: 'gemini', symbol: '♊', dates: 'May 21 - Jun 20', color: 'from-yellow-400 to-amber-500', element: t('zodiac.elements.Air') },
+        { name: t('zodiac.signs.Cancer'), id: 'cancer', symbol: '♋', dates: 'Jun 21 - Jul 22', color: 'from-blue-400 to-indigo-500', element: t('zodiac.elements.Water') },
+        { name: t('zodiac.signs.Leo'), id: 'leo', symbol: '♌', dates: 'Jul 23 - Aug 22', color: 'from-orange-500 to-red-600', element: t('zodiac.elements.Fire') },
+        { name: t('zodiac.signs.Virgo'), id: 'virgo', symbol: '♍', dates: 'Aug 23 - Sep 22', color: 'from-emerald-500 to-teal-600', element: t('zodiac.elements.Earth') },
+        { name: t('zodiac.signs.Libra'), id: 'libra', symbol: '♎', dates: 'Sep 23 - Oct 22', color: 'from-pink-400 to-rose-500', element: t('zodiac.elements.Air') },
+        { name: t('zodiac.signs.Scorpio'), id: 'scorpio', symbol: '♏', dates: 'Oct 23 - Nov 21', color: 'from-purple-600 to-indigo-700', element: t('zodiac.elements.Water') },
+        { name: t('zodiac.signs.Sagittarius'), id: 'sagittarius', symbol: '♐', dates: 'Nov 22 - Dec 21', color: 'from-amber-500 to-orange-600', element: t('zodiac.elements.Fire') },
+        { name: t('zodiac.signs.Capricorn'), id: 'capricorn', symbol: '♑', dates: 'Dec 22 - Jan 19', color: 'from-slate-600 to-gray-700', element: t('zodiac.elements.Earth') },
+        { name: t('zodiac.signs.Aquarius'), id: 'aquarius', symbol: '♒', dates: 'Jan 20 - Feb 18', color: 'from-cyan-500 to-blue-600', element: t('zodiac.elements.Air') },
+        { name: t('zodiac.signs.Pisces'), id: 'pisces', symbol: '♓', dates: 'Feb 19 - Mar 20', color: 'from-violet-500 to-purple-600', element: t('zodiac.elements.Water') }
     ];
 
     useEffect(() => {
@@ -49,14 +51,14 @@ const RashifalIndex = () => {
                 <div className="text-center mb-16 space-y-4">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold text-[10px] uppercase tracking-widest mb-4">
                         <Sparkles className="w-3 h-3" />
-                        Cosmic Guidance
+                        {t('rashifal.index.guidance')}
                     </div>
                     <h1 className="text-5xl md:text-7xl font-serif text-slate-900 leading-tight">
-                        {selectedPeriod === 'weekly' ? 'Weekly' : 'Daily'}{' '}
-                        <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Rashifal</span>
+                        {t(`rashifal.index.${selectedPeriod}`)}{' '}
+                        <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">{t('rashifal.index.title')}</span>
                     </h1>
                     <p className="text-slate-500 text-lg max-w-2xl mx-auto font-light">
-                        Select your zodiac sign to unlock personalized {selectedPeriod} insights powered by NASA precision and ancient Vedic wisdom.
+                        {t('rashifal.index.description', { period: t(`rashifal.index.${selectedPeriod}`).toLowerCase() })}
                     </p>
 
                     {/* Period Selector */}
@@ -70,7 +72,7 @@ const RashifalIndex = () => {
                                     : 'text-slate-500 hover:bg-slate-50'
                                 }`}
                             >
-                                Daily
+                                {t('rashifal.index.daily')}
                             </Link>
                             <Link
                                 to="/rashifal/weekly"
@@ -80,7 +82,7 @@ const RashifalIndex = () => {
                                     : 'text-slate-500 hover:bg-slate-50'
                                 }`}
                             >
-                                Weekly
+                                {t('rashifal.index.weekly')}
                             </Link>
                         </div>
                     </div>
@@ -91,7 +93,7 @@ const RashifalIndex = () => {
                     {zodiacSigns.map((sign) => (
                         <Link 
                             key={sign.name} 
-                            to={`/rashifal/${selectedPeriod}/${sign.name.toLowerCase()}`}
+                            to={`/rashifal/${selectedPeriod}/${sign.id}`}
                             className="group relative bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col items-center text-center"
                         >
                             {/* Background Glow */}
@@ -111,7 +113,7 @@ const RashifalIndex = () => {
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4">{sign.dates}</p>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">
                                     <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${sign.color}`}></div>
-                                    {sign.element} Sign
+                                    {sign.element} {t('nav.zodiac_signs').slice(0, -1)}
                                 </div>
                             </div>
 
@@ -133,7 +135,7 @@ const RashifalIndex = () => {
 
                             {/* CTA */}
                             <div className="mt-8 flex items-center justify-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                                View Details <ArrowRight className="w-4 h-4" />
+                                {t('rashifal.index.view_details')} <ArrowRight className="w-4 h-4" />
                             </div>
                         </Link>
                     ))}
@@ -145,17 +147,17 @@ const RashifalIndex = () => {
                     
                     <div className="space-y-8 relative z-10">
                         <h2 className="text-4xl font-serif text-slate-900 leading-tight">
-                            Why trust our <br />
-                            <span className="italic text-indigo-600">Celestial Forecasts?</span>
+                            {t('rashifal.index.why_trust')} <br />
+                            <span className="italic text-indigo-600">{t('rashifal.index.celestial_forecasts')}</span>
                         </h2>
                         <p className="text-slate-600 leading-relaxed font-light">
-                            Unlike generic horoscopes, AstroPinch combines NASA JPL planetary positioning data with 5,000-year-old Vedic algorithms to provide the most accurate {selectedPeriod} rashifal in the industry.
+                            {t('rashifal.index.trust_desc', { period: t(`rashifal.index.${selectedPeriod}`).toLowerCase() })}
                         </p>
-                        <div className="space-y-4">
+                         <div className="space-y-4">
                             {[
-                                { icon: Star, text: "NASA-powered planetary precision" },
-                                { icon: Calendar, text: "Personalized transit-to-natal mapping" },
-                                { icon: Sparkles, text: "AI-enhanced interpretation with context" }
+                                { icon: Star, text: t('rashifal.index.nasa_powered') },
+                                { icon: Calendar, text: t('rashifal.index.mapping') },
+                                { icon: Sparkles, text: t('rashifal.index.ai_enhanced') }
                             ].map((item, i) => (
                                 <div key={i} className="flex items-center gap-4 group">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">

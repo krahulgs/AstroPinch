@@ -181,7 +181,7 @@ const Horoscope = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const { consolidatedReport } = useChart();
+    const { consolidatedReport, chartData } = useChart();
     
     const [notificationsEnabled, setNotificationsEnabled] = useState(
         localStorage.getItem('transit_alerts_enabled') === 'true'
@@ -243,7 +243,7 @@ const Horoscope = () => {
     };
 
     useEffect(() => {
-        const signParam = routeSign || searchParams.get('sign');
+        const signParam = paramSign || searchParams.get('sign');
         let periodParam = searchParams.get('period');
         
         if (!periodParam) {
@@ -268,7 +268,7 @@ const Horoscope = () => {
                 }
             }
         }
-    }, [searchParams, chartData, routeSign, i18n.language, moonSign]);
+    }, [searchParams, chartData, paramSign, i18n.language, moonSign]);
 
     const currentSign = selectedSign || moonSign || chartData?.sun_sign || 'Aries';
     const displayPrediction = dynamicData?.prediction || horoscopes[currentSign] || "The stars are currently recalibrating for your journey.";
